@@ -1,3 +1,5 @@
+![Pub Version](https://img.shields.io/pub/v/flutter_reorderable_grid_view?color=%23397ab6&style=flat-square)
+
 A GridView whose items the user can interactively reorder by dragging. 
 
 Compared to the given `ReorderableListView`, it
