@@ -1,3 +1,9 @@
+## 0.0.4
+* ReadMe update with badges
+  - Build Number
+  - Code Coverage
+  - Build Passing
+
 ## 0.0.3
 * Updated ReadMe
 * Added example
