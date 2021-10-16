@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/flutter_reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets(
       'GIVEN children '
-      'WHEN pumping [FlutterReorderableGridView] '
+      'WHEN pumping [ReorderableGridView] '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -23,7 +23,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
           ),
         ),
@@ -41,7 +41,7 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is FlutterReorderableGridView &&
+            widget is ReorderableGridView &&
             widget.enableLongPress &&
             widget.enableAnimation &&
             widget.spacing == expectedSpacing &&
@@ -63,7 +63,7 @@ void main() {
 
   testWidgets(
       'GIVEN children, enableLongPress = false, spacing = 24.0 and runSpacing 20.0 '
-      'WHEN pumping [FlutterReorderableGridView] '
+      'WHEN pumping [ReorderableGridView] '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -80,7 +80,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
             enableAnimation: false,
@@ -104,7 +104,7 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is FlutterReorderableGridView &&
+            widget is ReorderableGridView &&
             !widget.enableLongPress &&
             !widget.enableAnimation &&
             widget.spacing == givenSpacing &&
@@ -121,7 +121,7 @@ void main() {
 
   testWidgets(
       'GIVEN children '
-      'WHEN pumping [FlutterReorderableGridView] finished '
+      'WHEN pumping [ReorderableGridView] finished '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -138,7 +138,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
             enableAnimation: false,
@@ -183,7 +183,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [FlutterReorderableGridView] with enableLongPress = false '
+      'GIVEN pumped [ReorderableGridView] with enableLongPress = false '
       'WHEN dragging text1 to text2 without releasing drag '
       'THEN should change swap position between text1 and text2',
       (WidgetTester tester) async {
@@ -203,7 +203,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
           ),
@@ -232,7 +232,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [FlutterReorderableGridView] with enableLongPress = false '
+      'GIVEN pumped [ReorderableGridView] with enableLongPress = false '
       'WHEN dragging text1 to text4 without releasing drag '
       'THEN should change swap position of all given texts',
       (WidgetTester tester) async {
@@ -252,7 +252,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
           ),
@@ -291,7 +291,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [FlutterReorderableGridView] with enableLongPress = false '
+      'GIVEN pumped [ReorderableGridView] with enableLongPress = false '
       'WHEN dragging text4 to text2 without releasing drag '
       'THEN should change swap position of all given texts',
       (WidgetTester tester) async {
@@ -311,7 +311,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: FlutterReorderableGridView(
+          body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
           ),

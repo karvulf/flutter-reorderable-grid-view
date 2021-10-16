@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/flutter_reorderable_grid_utils.dart';
+import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 
@@ -34,14 +34,14 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
 
-class FlutterReorderableGridView extends StatefulWidget {
+class ReorderableGridView extends StatefulWidget {
   final List<Widget> children;
   final double spacing;
   final double runSpacing;
   final bool enableAnimation;
   final bool enableLongPress;
 
-  const FlutterReorderableGridView({
+  const ReorderableGridView({
     required this.children,
     this.spacing = 8,
     this.runSpacing = 8,
@@ -51,12 +51,12 @@ class FlutterReorderableGridView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<FlutterReorderableGridView> createState() =>
-      _FlutterReorderableGridViewState();
+  State<ReorderableGridView> createState() =>
+      _ReorderableGridViewState();
 }
 
-class _FlutterReorderableGridViewState
-    extends State<FlutterReorderableGridView> {
+class _ReorderableGridViewState
+    extends State<ReorderableGridView> {
   Map<int, GridItemEntity> _animatedChildren = {};
   final _wrapKey = GlobalKey();
   final _scrollController = ScrollController();

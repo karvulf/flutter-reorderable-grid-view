@@ -3,10 +3,10 @@ import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.da
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../services/flutter_reorderable_grid_view_builder.dart';
+import '../services/reorderable_grid_view_builder.dart';
 
 void main() {
-  final builder = FlutterReorderableGridViewBuilder();
+  final builder = ReorderableGridViewBuilder();
 
   testWidgets(
       'GIVEN enableAnimation = false, enableLongPress = false and entry '

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 
-class FlutterReorderableGridViewBuilder {
+class ReorderableGridViewBuilder {
   GridItemEntity getGridItemEntity({
     Offset? globalPosition,
     Offset? localPosition,

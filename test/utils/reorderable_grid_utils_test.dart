@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/flutter_reorderable_grid_utils.dart';
+import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../services/flutter_reorderable_grid_view_builder.dart';
+import '../services/reorderable_grid_view_builder.dart';
 
 void main() {
-  final builder = FlutterReorderableGridViewBuilder();
+  final builder = ReorderableGridViewBuilder();
 
   group('#getItemsCollision', () {
     test(

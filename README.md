@@ -27,7 +27,7 @@ Use this package in your Flutter App to:
 - Animated when reordering items
 
 ## Getting started
-Simply add `FlutterReordableGridView` to your preferred Widget and specify a list of children.
+Simply add `ReordableGridView` to your preferred Widget and specify a list of children.
 
 ## Usage
 
