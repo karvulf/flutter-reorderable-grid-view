@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 
@@ -14,12 +15,14 @@ class AnimatedDraggableItem extends StatelessWidget {
   ) onDragUpdate;
   final bool enableAnimation;
   final bool enableLongPress;
+  final Duration longPressDelay;
 
   const AnimatedDraggableItem({
     required this.entry,
     required this.onDragUpdate,
     required this.enableAnimation,
     required this.enableLongPress,
+    this.longPressDelay = kLongPressTimeout,
     Key? key,
   }) : super(key: key);
 
@@ -30,6 +33,7 @@ class AnimatedDraggableItem extends StatelessWidget {
       id: entry.key,
       enableLongPress: enableLongPress,
       onDragUpdate: onDragUpdate,
+      longPressDelay: longPressDelay,
     );
 
     if (!enableAnimation) {

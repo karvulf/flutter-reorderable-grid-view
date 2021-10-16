@@ -99,8 +99,8 @@ void handleMultipleCollisionsBackward({
   required Map<int, GridItemEntity> children,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
-    late int dragId;
-    late int collisionId;
+    int? dragId;
+    int? collisionId;
 
     // Todo: Handling with map much more performant
     for (final entry in children.entries) {
@@ -111,11 +111,13 @@ void handleMultipleCollisionsBackward({
       }
     }
 
-    handleOneCollision(
-      dragId: dragId,
-      collisionId: collisionId,
-      children: children,
-    );
+    if (dragId != null && collisionId != null) {
+      handleOneCollision(
+        dragId: dragId,
+        collisionId: collisionId,
+        children: children,
+      );
+    }
   }
 }
 
@@ -135,9 +137,10 @@ void handleMultipleCollisionsForward({
   required Map<int, GridItemEntity> children,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
-    late int dragId;
-    late int collisionId;
+    int? dragId;
+    int? collisionId;
 
+    // Todo: Handling with map much more performant
     for (final entry in children.entries) {
       if (entry.value.orderId == i) {
         dragId = entry.key;
@@ -146,10 +149,12 @@ void handleMultipleCollisionsForward({
       }
     }
 
-    handleOneCollision(
-      dragId: dragId,
-      collisionId: collisionId,
-      children: children,
-    );
+    if (dragId != null && collisionId != null) {
+      handleOneCollision(
+        dragId: dragId,
+        collisionId: collisionId,
+        children: children,
+      );
+    }
   }
 }

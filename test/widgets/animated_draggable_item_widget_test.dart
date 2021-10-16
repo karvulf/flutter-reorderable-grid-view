@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
@@ -50,7 +51,8 @@ void main() {
             widget is DraggableItem &&
             widget.item == givenEntry.value.item &&
             widget.enableLongPress == givenEnableLongPress &&
-            widget.id == givenEntry.key),
+            widget.id == givenEntry.key &&
+            widget.longPressDelay == kLongPressTimeout),
         findsOneWidget);
   });
 
@@ -62,6 +64,7 @@ void main() {
     // given
     const givenEnableAnimation = true;
     const givenEnableLongPress = true;
+    const givenLongPressDelay = Duration(seconds: 100);
     final givenEntry = MapEntry(0, builder.getGridItemEntity());
 
     // when
@@ -75,6 +78,7 @@ void main() {
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
                 onDragUpdate: (_, __, ___) {},
+                longPressDelay: givenLongPressDelay,
               ),
             ],
           ),
@@ -96,7 +100,8 @@ void main() {
             widget is DraggableItem &&
             widget.item == givenEntry.value.item &&
             widget.enableLongPress == givenEnableLongPress &&
-            widget.id == givenEntry.key),
+            widget.id == givenEntry.key &&
+            widget.longPressDelay == givenLongPressDelay),
         findsOneWidget);
   });
 

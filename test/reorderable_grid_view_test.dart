@@ -62,7 +62,8 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN children, enableLongPress = false, spacing = 24.0 and runSpacing 20.0 '
+      'GIVEN children, enableLongPress = false, spacing = 24.0, '
+      'longPressDelay = 5s and runSpacing 20.0 '
       'WHEN pumping [ReorderableGridView] '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
@@ -75,6 +76,7 @@ void main() {
     ];
     const givenRunSpacing = 20.0;
     const givenSpacing = 24.0;
+    const givenLongPressDelay = Duration(days: 10);
 
     // when
     await tester.pumpWidget(
@@ -86,6 +88,7 @@ void main() {
             enableAnimation: false,
             runSpacing: givenRunSpacing,
             spacing: givenSpacing,
+            longPressDelay: givenLongPressDelay,
           ),
         ),
       ),
@@ -108,7 +111,8 @@ void main() {
             !widget.enableLongPress &&
             !widget.enableAnimation &&
             widget.spacing == givenSpacing &&
-            widget.runSpacing == givenRunSpacing),
+            widget.runSpacing == givenRunSpacing &&
+            widget.longPressDelay == givenLongPressDelay),
         findsOneWidget);
 
     expect(
@@ -200,12 +204,17 @@ void main() {
       Text(givenText4),
     ];
 
+    late List<int> actualUpdatedChildren;
+
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
+            onUpdate: (updatedChildren) {
+              actualUpdatedChildren = updatedChildren;
+            },
           ),
         ),
       ),
@@ -229,6 +238,8 @@ void main() {
     // then
     expect(tester.getCenter(find.text(givenText1)), equals(secondLocation));
     expect(tester.getCenter(find.text(givenText2)), equals(firstLocation));
+
+    expect(actualUpdatedChildren, equals([1, 0, 2, 3]));
   });
 
   testWidgets(
@@ -249,12 +260,17 @@ void main() {
       Text(givenText4),
     ];
 
+    late List<int> actualUpdatedChildren;
+
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
+            onUpdate: (updatedChildren) {
+              actualUpdatedChildren = updatedChildren;
+            },
           ),
         ),
       ),
@@ -288,6 +304,8 @@ void main() {
     expect(givenText2EndLocation, equals(givenText1StartLocation));
     expect(givenText3EndLocation, equals(givenText2StartLocation));
     expect(givenText4EndLocation, equals(givenText3StartLocation));
+
+    expect(actualUpdatedChildren, equals([3, 0, 1, 2]));
   });
 
   testWidgets(
@@ -308,12 +326,17 @@ void main() {
       Text(givenText4),
     ];
 
+    late List<int> actualUpdatedChildren;
+
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
+            onUpdate: (updatedChildren) {
+              actualUpdatedChildren = updatedChildren;
+            },
           ),
         ),
       ),
@@ -347,5 +370,7 @@ void main() {
     expect(givenText2EndLocation, equals(givenText3StartLocation));
     expect(givenText3EndLocation, equals(givenText4StartLocation));
     expect(givenText4EndLocation, equals(givenText2StartLocation));
+
+    expect(actualUpdatedChildren, equals([0, 2, 3, 1]));
   });
 }

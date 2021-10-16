@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,7 +63,46 @@ void main() {
     // then
     expect(find.byWidgetPredicate((widget) => widget is Draggable<String>),
         findsNothing);
-    expect(find.byType(LongPressDraggable), findsOneWidget);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is LongPressDraggable && widget.delay == kLongPressTimeout),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN enableLongPress = true, longPressDelay, item and id '
+      'WHEN pumping [DraggableItem] '
+      'THEN should have expected widgets', (WidgetTester tester) async {
+    // given
+    const givenEnableLongPress = true;
+    const givenItem = UniqueTestWidget();
+    const givenId = 0;
+    const givenLongPressDelay = Duration(days: 100);
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DraggableItem(
+            enableLongPress: givenEnableLongPress,
+            item: givenItem,
+            id: givenId,
+            onCreated: (_, __, ___, ____) {},
+            onDragUpdate: (_, __, ___) {},
+            longPressDelay: givenLongPressDelay,
+          ),
+        ),
+      ),
+    );
+
+    // then
+    expect(find.byWidgetPredicate((widget) => widget is Draggable<String>),
+        findsNothing);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is LongPressDraggable &&
+            widget.delay == givenLongPressDelay),
+        findsOneWidget);
   });
 
   testWidgets(
@@ -113,7 +153,7 @@ void main() {
 
   testWidgets(
       'GIVEN [DraggableItem] '
-      'WHEN dragging '
+      'WHEN dragging and releasing '
       'THEN should call onDragUpdate', (WidgetTester tester) async {
     // given
     const givenEnableLongPress = false;
@@ -161,6 +201,8 @@ void main() {
 
     // move dragged object
     await gesture.moveTo(const Offset(200, 200));
+    await tester.pumpAndSettle();
+    await gesture.up();
     await tester.pumpAndSettle();
 
     // then

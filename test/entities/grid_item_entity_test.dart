@@ -33,7 +33,37 @@ void main() {
 
   test(
       'GIVEN [GridItemEntity] '
-      'WHEN calling #copyWith '
+      'WHEN calling #copyWith without values '
+      'THEN should have copy entity with same values', () {
+    // given
+    const givenSize = Size(100, 100);
+    final givenItem = Container();
+    const givenLocalPosition = Offset(0, 0);
+    const givenGlobalPosition = Offset(1, 1);
+    const givenOrderId = 0;
+
+    final givenGridItemEntity = GridItemEntity(
+      localPosition: givenLocalPosition,
+      globalPosition: givenGlobalPosition,
+      size: givenSize,
+      item: givenItem,
+      orderId: givenOrderId,
+    );
+
+    // when
+    final actual = givenGridItemEntity.copyWith();
+
+    // then
+    expect(actual.localPosition, equals(givenLocalPosition));
+    expect(actual.globalPosition, equals(givenGlobalPosition));
+    expect(actual.size, equals(givenSize));
+    expect(actual.item, equals(givenItem));
+    expect(actual.orderId, equals(givenOrderId));
+  });
+
+  test(
+      'GIVEN [GridItemEntity] '
+      'WHEN calling #copyWith with all values '
       'THEN should have updated values', () {
     // given
     const givenSize = Size(100, 100);

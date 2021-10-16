@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
@@ -33,13 +34,27 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 ///
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
-
+///
+/// [onUpdate] contains a list of int values that represents the current order
+/// in the list.
+/// E. g. if you have two children in a list, then the start value would be
+/// [0, 1]. After swapping their positions, the new order would be [1, 0]. That
+/// means the first child is now on position 1 and the second child is on
+/// position 0.
+/// Or you have four children, than the start order would be [0, 1, 2, 3]. After
+/// changing the position between the first and third item, the list would have
+/// the following order: [2, 0, 1, 3]. That means that the first item is on the
+/// position 2, the second item is on the position 0, the third item is on the
+/// position 1 and the fourth item still has positon 3.
 class ReorderableGridView extends StatefulWidget {
   final List<Widget> children;
   final double spacing;
   final double runSpacing;
   final bool enableAnimation;
   final bool enableLongPress;
+  final Duration longPressDelay;
+
+  final void Function(List<int> updatedChildren)? onUpdate;
 
   const ReorderableGridView({
     required this.children,
@@ -47,6 +62,8 @@ class ReorderableGridView extends StatefulWidget {
     this.runSpacing = 8,
     this.enableAnimation = true,
     this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.onUpdate,
     Key? key,
   }) : super(key: key);
 
@@ -94,6 +111,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                           entry: e,
                           enableLongPress: widget.enableLongPress,
                           onDragUpdate: _handleDragUpdate,
+                          longPressDelay: widget.longPressDelay,
                         ))
                     .toList(),
               ),
@@ -110,6 +128,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                   enableLongPress: widget.enableLongPress,
                   id: index,
                   onCreated: _handleCreated,
+                  longPressDelay: widget.longPressDelay,
                 ),
               ),
             );
@@ -187,6 +206,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           collisionId: collisionId,
           children: _animatedChildren,
         );
+      }
+
+      if (widget.onUpdate != null) {
+        final updatedListOrderId =
+            _animatedChildren.values.map((e) => e.orderId).toList();
+        widget.onUpdate!(updatedListOrderId);
       }
 
       setState(() {

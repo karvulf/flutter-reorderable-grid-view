@@ -74,6 +74,8 @@ class HomePage extends StatelessWidget {
 | `runSpacing` | Spacing in horizontal direction between children. | **8** |
 | `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
+| `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
+| `onUpdate` | After dragging an item to a new position, this function is called.<br/> The function contains a list of all items in the same order they were added. The number in the list tells where the item is currently positioned.| **-** |
 
 ## Future
 If you have feature requests or found some problems, feel free and open your issues in the GitHub project.

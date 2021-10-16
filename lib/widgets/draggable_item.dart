@@ -6,6 +6,7 @@ class DraggableItem extends StatefulWidget {
   final Widget item;
   final int id;
   final bool enableLongPress;
+  final Duration longPressDelay;
 
   final Function(
     BuildContext context,
@@ -23,6 +24,7 @@ class DraggableItem extends StatefulWidget {
     required this.item,
     required this.id,
     required this.enableLongPress,
+    this.longPressDelay = kLongPressTimeout,
     this.onCreated,
     this.onDragUpdate,
     Key? key,
@@ -84,6 +86,7 @@ class _DraggableItemState extends State<DraggableItem>
 
     if (widget.enableLongPress) {
       return LongPressDraggable(
+        delay: widget.longPressDelay,
         onDragUpdate: _handleDragUpdate,
         onDragStarted: _controller.forward,
         onDragEnd: _handleDragEnd,
