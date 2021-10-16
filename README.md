@@ -67,13 +67,13 @@ class HomePage extends StatelessWidget {
 ## Additional information
 ### ReordableGridView
 
-| Parameter | Description | Default Value |
-| :-------------: | :------------- | :-------------: |
-| children | Displays all given children that are build inside a Wrap. | - |
-| spacing | Spacing in vertical direction between children. | 8 |
-| runSpacing | Spacing in horizontal direction between children. | 8 |
-| enableAnimation | Enables the animation when changing the positions of childrens after drag and drop. | true |
-| enableLongPress | Decides if the user needs a long press to move the item around. | true |
+| **Parameter** | **Description** | **Default Value** |
+| :------------- | :------------- | :-------------: |
+| `children` | Displays all given children that are build inside a Wrap. | - |
+| `spacing` | Spacing in vertical direction between children. | `8` |
+| `runSpacing` | Spacing in horizontal direction between children. | `8` |
+| `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | `true` |
+| `enableLongPress` | Decides if the user needs a long press to move the item around. | `true` |
 
 ## Future
 If you have feature requests or found some problems, feel free and open your issues in the GitHub project.

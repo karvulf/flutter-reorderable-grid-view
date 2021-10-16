@@ -1,3 +1,6 @@
+## 0.0.7
+* ReadMe Prettier
+
 ## 0.0.6
 * ReadMe Fix
 
