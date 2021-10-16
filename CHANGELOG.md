@@ -1,3 +1,6 @@
+## 0.0.8
+* ReadMe Prettier
+
 ## 0.0.7
 * ReadMe Prettier
 
