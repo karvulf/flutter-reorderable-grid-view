@@ -51,12 +51,10 @@ class ReorderableGridView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ReorderableGridView> createState() =>
-      _ReorderableGridViewState();
+  State<ReorderableGridView> createState() => _ReorderableGridViewState();
 }
 
-class _ReorderableGridViewState
-    extends State<ReorderableGridView> {
+class _ReorderableGridViewState extends State<ReorderableGridView> {
   Map<int, GridItemEntity> _animatedChildren = {};
   final _wrapKey = GlobalKey();
   final _scrollController = ScrollController();
