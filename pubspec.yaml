@@ -1,7 +1,7 @@
 name: flutter_reorderable_grid_view
-description: A new Flutter package project.
+description: Animating reordering children inside GridView.
 version: 0.0.1
-homepage:
+repository: https://github.com/karvulf/flutter-reorderable-grid-view
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
