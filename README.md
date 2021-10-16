@@ -65,9 +65,10 @@ class HomePage extends StatelessWidget {
 ```
 
 ## Additional information
-###ReordableGridView
+### ReordableGridView
+
 | Parameter | Description | Default Value |
-| :------------- | :------------- | :-------------: |
+| :-------------: | :------------- | :-------------: |
 | children | Displays all given children that are build inside a Wrap. | - |
 | spacing | Spacing in vertical direction between children. | 8 |
 | runSpacing | Spacing in horizontal direction between children. | 8 |
