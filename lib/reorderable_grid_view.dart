@@ -195,13 +195,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
               children: List.generate(
                 children.length,
                 (index) => DraggableItem(
-                  item: children.elementAt(index),
+                  child: children[index],
                   enableLongPress: widget.enableLongPress,
                   id: index,
                   onCreated: _handleCreated,
                   longPressDelay: widget.longPressDelay,
                   enabled: !widget.lockedChildren.contains(index),
-                  child: children[index],
                 ),
               ),
             );
@@ -226,7 +225,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
-    Widget item,
     int id,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
@@ -267,7 +265,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           localPosition: localPosition,
           globalPosition: position,
           size: size,
-          item: item,
           orderId: id,
         );
         _childrenIdMap[id] = gridItemEntity;

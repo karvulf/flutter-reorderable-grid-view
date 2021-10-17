@@ -3,10 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class DraggableItem extends StatefulWidget {
-  final Widget item;
+  final Widget child;
   final int id;
   final bool enableLongPress;
-  final Widget child;
 
   final Duration longPressDelay;
   final bool enabled;
@@ -14,7 +13,6 @@ class DraggableItem extends StatefulWidget {
   final Function(
     BuildContext context,
     GlobalKey key,
-    Widget item,
     int id,
   )? onCreated;
   final Function(
@@ -24,10 +22,9 @@ class DraggableItem extends StatefulWidget {
   )? onDragUpdate;
 
   const DraggableItem({
-    required this.item,
+    required this.child,
     required this.id,
     required this.enableLongPress,
-    required this.child,
     this.longPressDelay = kLongPressTimeout,
     this.enabled = true,
     this.onCreated,
@@ -69,7 +66,7 @@ class _DraggableItemState extends State<DraggableItem>
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.onCreated != null) {
-        widget.onCreated!(context, _globalKey, widget.child, widget.id);
+        widget.onCreated!(context, _globalKey, widget.id);
       }
     });
   }

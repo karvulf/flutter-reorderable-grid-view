@@ -34,7 +34,6 @@ class AnimatedDraggableItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draggableItem = DraggableItem(
-      item: entry.value.item,
       id: entry.key,
       enableLongPress: enableLongPress,
       onDragUpdate: onDragUpdate,
