@@ -374,8 +374,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   void _handleUpdate(int oldIndex, int newIndex) {
     setState(() {
-      final item = childrenCopy.removeAt(oldIndex);
-      childrenCopy.insert(newIndex, item);
+      final draggedItem = childrenCopy[oldIndex];
+      final collisionItem = childrenCopy[newIndex];
+      childrenCopy[newIndex] = draggedItem;
+      childrenCopy[oldIndex] = collisionItem;
     });
 
     if (widget.onUpdate != null) {
