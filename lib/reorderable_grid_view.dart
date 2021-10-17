@@ -132,7 +132,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children.length != widget.children.length) {
-      _updateWrapData();
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        _updateWrapData();
+      });
     }
   }
 
