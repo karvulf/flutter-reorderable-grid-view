@@ -107,6 +107,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
 
+  bool hasBuiltItems = false;
+
   /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
 
@@ -143,8 +145,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
         setState(() {
-          _childrenIdMap = {};
-          _childrenOrderIdMap = {};
+          hasBuiltItems = false;
         });
       }
     });
@@ -159,7 +160,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (_childrenIdMap.entries.length == children.length) {
+          if (hasBuiltItems) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
@@ -214,6 +215,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     int id,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
+
     if (renderObject != null) {
       final box = renderObject as RenderBox;
       final position = box.localToGlobal(Offset.zero);
@@ -223,28 +225,40 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         position.dy - _wrapPosition.dy,
       );
 
-      final gridItemEntity = GridItemEntity(
-        id: id,
-        localPosition: localPosition,
-        globalPosition: position,
-        size: size,
-        item: item,
-        orderId: id,
-      );
+      // in this case id is equal to orderId
+      final existingItem = _childrenOrderIdMap[id];
 
-      _childrenIdMap[id] = gridItemEntity;
-      _childrenOrderIdMap[id] = gridItemEntity;
+      // if exists update position related to the orderId
+      if (existingItem != null) {
+        final gridItemEntity = existingItem.copyWith(
+          localPosition: localPosition,
+          globalPosition: position,
+        );
+        _childrenOrderIdMap[id] = gridItemEntity;
+        _childrenIdMap[gridItemEntity.id] = gridItemEntity;
 
-      if (_childrenIdMap.entries.length == widget.children.length) {
-        final wrapBox =
-            _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+        if (id == _childrenIdMap.entries.length) {
+          setState(() {
+            hasBuiltItems = true;
+          });
+        }
+      } else {
+        final gridItemEntity = GridItemEntity(
+          id: id,
+          localPosition: localPosition,
+          globalPosition: position,
+          size: size,
+          item: item,
+          orderId: id,
+        );
+        _childrenIdMap[id] = gridItemEntity;
+        _childrenOrderIdMap[id] = gridItemEntity;
 
-        setState(() {
-          _childrenIdMap = _childrenIdMap;
-          _childrenOrderIdMap = _childrenOrderIdMap;
-          _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-          _wrapSize = wrapBox.size;
-        });
+        if (_childrenIdMap.entries.length == widget.children.length) {
+          setState(() {
+            hasBuiltItems = true;
+          });
+        }
       }
     }
   }
