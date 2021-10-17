@@ -45,6 +45,11 @@ int? getItemsCollision({
       break;
     }
   }
+
+  if (lockedChildren.contains(collisionId)) {
+    return null;
+  }
+
   return collisionId;
 }
 
@@ -172,6 +177,7 @@ void handleMultipleCollisionsForward({
       }
     }
 
+    // look for the next child that has a collision
     if (lockedChildren.contains(collisionId)) {
       while (i + 2 < collisionItemOrderId &&
           lockedChildren.contains(collisionId)) {
@@ -179,6 +185,7 @@ void handleMultipleCollisionsForward({
         for (final entry in children.entries) {
           if (entry.value.orderId == i + 2) {
             collisionId = entry.key;
+            break;
           }
         }
         i++;
