@@ -126,9 +126,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-      _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-      _wrapSize = wrapBox.size;
+      _updateWrapData();
     });
   }
 
@@ -201,6 +199,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     );
   }
 
+  void _updateWrapData() {
+    final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+    _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+    _wrapSize = wrapBox.size;
+  }
+
   /// Creates [GridItemEntity] that contains all information for this widget.
   ///
   /// After an item was built inside the [Wrap], this method takes all his
@@ -238,6 +242,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenIdMap[gridItemEntity.id] = gridItemEntity;
 
         if (id == _childrenIdMap.entries.length) {
+          _updateWrapData();
           setState(() {
             hasBuiltItems = true;
           });
@@ -255,6 +260,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenOrderIdMap[id] = gridItemEntity;
 
         if (_childrenIdMap.entries.length == widget.children.length) {
+          _updateWrapData();
           setState(() {
             hasBuiltItems = true;
           });
