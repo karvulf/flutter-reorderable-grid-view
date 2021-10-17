@@ -13,6 +13,7 @@ void main() {
     const givenSize = Size(100, 100);
     final givenItem = Container();
     const givenOrderId = 0;
+    const givenId = 100;
 
     // when
     final actual = GridItemEntity(
@@ -21,6 +22,7 @@ void main() {
       size: givenSize,
       item: givenItem,
       orderId: givenOrderId,
+      id: givenId,
     );
 
     // then
@@ -29,6 +31,7 @@ void main() {
     expect(actual.size, equals(givenSize));
     expect(actual.item, equals(givenItem));
     expect(actual.orderId, equals(givenOrderId));
+    expect(actual.id, equals(givenId));
   });
 
   test(
@@ -41,6 +44,7 @@ void main() {
     const givenLocalPosition = Offset(0, 0);
     const givenGlobalPosition = Offset(1, 1);
     const givenOrderId = 0;
+    const givenId = 100;
 
     final givenGridItemEntity = GridItemEntity(
       localPosition: givenLocalPosition,
@@ -48,6 +52,7 @@ void main() {
       size: givenSize,
       item: givenItem,
       orderId: givenOrderId,
+      id: givenId,
     );
 
     // when
@@ -59,6 +64,7 @@ void main() {
     expect(actual.size, equals(givenSize));
     expect(actual.item, equals(givenItem));
     expect(actual.orderId, equals(givenOrderId));
+    expect(actual.id, equals(givenId));
   });
 
   test(
@@ -75,6 +81,7 @@ void main() {
       size: givenSize,
       item: givenItem,
       orderId: 0,
+      id: 1,
     );
 
     const givenUpdatedGlobalPosition = Offset(2, 2);

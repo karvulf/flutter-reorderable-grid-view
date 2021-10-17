@@ -52,18 +52,21 @@ void main() {
             widget.item == givenEntry.value.item &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
-            widget.longPressDelay == kLongPressTimeout),
+            widget.longPressDelay == kLongPressTimeout &&
+            widget.enabled),
         findsOneWidget);
   });
 
   testWidgets(
-      'GIVEN enableAnimation = true, enableLongPress = true and entry '
+      'GIVEN enableAnimation = true, enableLongPress = true, enabled = false '
+      'and entry '
       'WHEN pumping [AnimatedDraggableItem] '
       'THEN should show expected widgets and have expected values',
       (WidgetTester tester) async {
     // given
     const givenEnableAnimation = true;
     const givenEnableLongPress = true;
+    const givenEnabled = false;
     const givenLongPressDelay = Duration(seconds: 100);
     final givenEntry = MapEntry(0, builder.getGridItemEntity());
 
@@ -77,6 +80,7 @@ void main() {
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
+                enabled: givenEnabled,
                 onDragUpdate: (_, __, ___) {},
                 longPressDelay: givenLongPressDelay,
               ),
@@ -101,7 +105,8 @@ void main() {
             widget.item == givenEntry.value.item &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
-            widget.longPressDelay == givenLongPressDelay),
+            widget.longPressDelay == givenLongPressDelay &&
+            !widget.enabled),
         findsOneWidget);
   });
 

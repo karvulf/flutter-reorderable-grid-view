@@ -47,17 +47,9 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// position 2, the second item is on the position 0, the third item is on the
 /// position 1 and the fourth item still has positon 3.
 class ReorderableGridView extends StatefulWidget {
-  final List<Widget> children;
-  final double spacing;
-  final double runSpacing;
-  final bool enableAnimation;
-  final bool enableLongPress;
-  final Duration longPressDelay;
-
-  final void Function(List<int> updatedChildren)? onUpdate;
-
   const ReorderableGridView({
     required this.children,
+    this.lockedChildren = const [],
     this.spacing = 8,
     this.runSpacing = 8,
     this.enableAnimation = true,
@@ -67,16 +59,63 @@ class ReorderableGridView extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
+  /// Adding [children] that should be displayed inside this widget
+  final List<Widget> children;
+
+  final List<int> lockedChildren;
+
+  /// Spacing between displayed items in horizontal direction
+  final double spacing;
+
+  /// Spacing between displayed items in vertical direction
+  final double runSpacing;
+
+  /// By default animation is enabled when the position of the items changes
+  final bool enableAnimation;
+
+  /// By default long press is enabled when tapping an item
+  final bool enableLongPress;
+
+  /// By default it has a duration of 500ms before an item can be moved.
+  ///
+  /// Can only be used if [enableLongPress] is enabled.
+  final Duration longPressDelay;
+
+  /// Every time one ore more items change the position, this function is called.
+  ///
+  /// [updatedChildren] contains a list of all children in the same order they
+  /// were added to this widget. The number in the list represents the current
+  /// order in the list.
+  ///
+  /// For example you have three items. At the beginning, the order would be
+  /// [0, 1, 2]. After changing the position between the first and last item,
+  /// the position changes, so the list would have the following order [2, 0, 1].
+  /// All items have still the same order in the list, but the first item has
+  /// now the position 2, the second item the position 0 and the last item the
+  /// position 1.
+  final void Function(List<int> updatedChildren)? onUpdate;
+
   @override
   State<ReorderableGridView> createState() => _ReorderableGridViewState();
 }
 
 class _ReorderableGridViewState extends State<ReorderableGridView> {
-  Map<int, GridItemEntity> _animatedChildren = {};
+  /// Represents all children inside a map with the index as key
+  Map<int, GridItemEntity> _childrenIdMap = {};
+
+  /// Represents all children inside a map with the orderId as key
+  Map<int, GridItemEntity> _childrenOrderIdMap = {};
+
+  /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
+
+  /// Controller of the [SingleChildScrollView]
   final _scrollController = ScrollController();
 
+  /// Position of the [Wrap] that was used to build the widget
   late final Offset _wrapPosition;
+
+  /// Size of the [Wrap] that was used to build the widget
   late final Size _wrapSize;
 
   @override
@@ -99,12 +138,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (_animatedChildren.entries.length == children.length) {
+          if (_childrenIdMap.entries.length == children.length) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
-                children: _animatedChildren.entries
+                children: _childrenIdMap.entries
                     .map((e) => AnimatedDraggableItem(
                           key: Key(e.key.toString()),
                           enableAnimation: widget.enableAnimation,
@@ -112,6 +151,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                           enableLongPress: widget.enableLongPress,
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
+                          enabled: !widget.lockedChildren.contains(e.key),
                         ))
                     .toList(),
               ),
@@ -129,6 +169,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                   id: index,
                   onCreated: _handleCreated,
                   longPressDelay: widget.longPressDelay,
+                  enabled: !widget.lockedChildren.contains(index),
                 ),
               ),
             );
@@ -138,6 +179,13 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     );
   }
 
+  /// Creates [GridItemEntity] that contains all information for this widget.
+  ///
+  /// After an item was built inside the [Wrap], this method takes all his
+  /// information to create a [GridItemEntity]. That includes the size and
+  /// position (global and locally inside [Wrap] of the widget. Also an id and
+  /// orderId is added that are important to know where the item is ordered and
+  /// to identify the original item after changing the position.
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
@@ -154,7 +202,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         position.dy - _wrapPosition.dy,
       );
 
-      _animatedChildren[id] = GridItemEntity(
+      final gridItemEntity = GridItemEntity(
+        id: id,
         localPosition: localPosition,
         globalPosition: position,
         size: size,
@@ -162,14 +211,40 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         orderId: id,
       );
 
-      if (_animatedChildren.entries.length == widget.children.length) {
+      _childrenIdMap[id] = gridItemEntity;
+      _childrenOrderIdMap[id] = gridItemEntity;
+
+      if (_childrenIdMap.entries.length == widget.children.length) {
         setState(() {
-          _animatedChildren = _animatedChildren;
+          _childrenIdMap = _childrenIdMap;
+          _childrenOrderIdMap = _childrenOrderIdMap;
         });
       }
     }
   }
 
+  /// After dragging an item, if will be checked if there are some collisions.
+  ///
+  /// There are three different ways how an item can collision to another.
+  ///
+  /// The simplest way would be that the user drags the item next to another
+  /// item on the left or right side. That means there will be only
+  /// one collision to calculate.
+  ///
+  /// The second possibility would be that the dragged item changes more than
+  /// just one position. For example after dragging above the items. That means
+  /// that all items changes their direction after dragging backwards.
+  ///
+  /// The last way is the opposite of the second possibility. The user drags the
+  /// item e. g. under the item and changes multiple positions.
+  ///
+  /// Another important thing is the possibility that there are locked items. A
+  /// locked item can't change his position and should always be ignored when
+  /// all items around changes their position.
+  ///
+  /// After all the position changes were done, there will be an update to
+  /// [onUpdate] and the state will be updated inside this widget show the new
+  /// positions of the items to the user.
   void _handleDragUpdate(
     BuildContext context,
     DragUpdateDetails details,
@@ -178,44 +253,58 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     final collisionId = getItemsCollision(
       id: id,
       position: details.globalPosition,
-      children: _animatedChildren,
+      childrenIdMap: _childrenIdMap,
       scrollPixelsY: _scrollController.position.pixels,
+      lockedChildren: widget.lockedChildren,
     );
 
     if (collisionId != null && collisionId != id) {
-      final dragItemOrderId = _animatedChildren[id]!.orderId;
-      final collisionItemOrderId = _animatedChildren[collisionId]!.orderId;
+      final dragItemOrderId = _childrenIdMap[id]!.orderId;
+      final collisionItemOrderId = _childrenIdMap[collisionId]!.orderId;
 
+      // item changes multiple positions to the positive direction
       if (collisionItemOrderId > dragItemOrderId &&
           collisionItemOrderId - dragItemOrderId > 1) {
         handleMultipleCollisionsForward(
           collisionItemOrderId: collisionItemOrderId,
           dragItemOrderId: dragItemOrderId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
+          lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
-      } else if (collisionItemOrderId < dragItemOrderId &&
+      }
+      // item changes multiple positions to the negative direction
+      else if (collisionItemOrderId < dragItemOrderId &&
           dragItemOrderId - collisionItemOrderId > 1) {
         handleMultipleCollisionsBackward(
           dragItemOrderId: dragItemOrderId,
           collisionItemOrderId: collisionItemOrderId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
+          lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
-      } else {
+      }
+      // item changes position only to one item
+      else {
         handleOneCollision(
           dragId: id,
           collisionId: collisionId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
+          lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
       }
 
+      // notifiy about the update in the list
       if (widget.onUpdate != null) {
-        final updatedListOrderId =
-            _animatedChildren.values.map((e) => e.orderId).toList();
-        widget.onUpdate!(updatedListOrderId);
+        widget.onUpdate!(
+          _childrenIdMap.values.map((e) => e.orderId).toList(),
+        );
       }
 
       setState(() {
-        _animatedChildren = _animatedChildren;
+        _childrenIdMap = _childrenIdMap;
+        _childrenOrderIdMap = _childrenOrderIdMap;
       });
     }
   }

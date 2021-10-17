@@ -75,6 +75,7 @@ class HomePage extends StatelessWidget {
 | `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
+| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **\<int>[]** |
 | `onUpdate` | After dragging an item to a new position, this function is called.<br/> The function contains a list of all items in the same order they were added. The number in the list tells where the item is currently positioned.| **-** |
 
 ## Future

@@ -7,6 +7,7 @@ class DraggableItem extends StatefulWidget {
   final int id;
   final bool enableLongPress;
   final Duration longPressDelay;
+  final bool enabled;
 
   final Function(
     BuildContext context,
@@ -25,6 +26,7 @@ class DraggableItem extends StatefulWidget {
     required this.id,
     required this.enableLongPress,
     this.longPressDelay = kLongPressTimeout,
+    this.enabled = true,
     this.onCreated,
     this.onDragUpdate,
     Key? key,
@@ -71,17 +73,21 @@ class _DraggableItemState extends State<DraggableItem>
 
   @override
   Widget build(BuildContext context) {
+    final child = Container(
+      key: _globalKey,
+      child: widget.item,
+    );
+
+    if (!widget.enabled) {
+      return child;
+    }
+
     final feedback = Material(
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
         decoration: decorationTween.animate(_controller),
         child: widget.item,
       ),
-    );
-
-    final child = Container(
-      key: _globalKey,
-      child: widget.item,
     );
 
     if (widget.enableLongPress) {
