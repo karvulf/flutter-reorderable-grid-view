@@ -160,7 +160,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (hasBuiltItems) {
+          if (hasBuiltItems && children.length == _childrenIdMap.length) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
