@@ -115,9 +115,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   /// Controller of the [SingleChildScrollView]
   final _scrollController = ScrollController();
 
-  /// Position of the [Wrap] that was used to build the widget
-  late Offset _wrapPosition;
-
   /// Size of the [Wrap] that was used to build the widget
   late Size _wrapSize;
 
@@ -126,7 +123,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _updateWrapData();
+      _updateWrapSize();
     });
   }
 
@@ -199,9 +196,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     );
   }
 
-  void _updateWrapData() {
+  void _updateWrapSize() {
     final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-    _wrapPosition = wrapBox.localToGlobal(Offset.zero);
     _wrapSize = wrapBox.size;
   }
 
@@ -221,6 +217,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null) {
+      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+      final _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+
       final box = renderObject as RenderBox;
       final position = box.localToGlobal(Offset.zero);
       final size = box.size;
@@ -242,7 +241,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenIdMap[gridItemEntity.id] = gridItemEntity;
 
         if (id == _childrenIdMap.entries.length) {
-          _updateWrapData();
+          _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
           });
@@ -260,7 +259,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenOrderIdMap[id] = gridItemEntity;
 
         if (_childrenIdMap.entries.length == widget.children.length) {
-          _updateWrapData();
+          _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
           });
