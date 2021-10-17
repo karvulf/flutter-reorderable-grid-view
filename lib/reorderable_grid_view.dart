@@ -148,6 +148,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           _childrenIdMap = {};
           _childrenOrderIdMap = {};
           hasBuiltItems = false;
+          childrenCopy = List<Widget>.from(widget.children);
         });
       } else {
         setState(() {
