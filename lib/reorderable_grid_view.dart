@@ -137,7 +137,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   void didUpdateWidget(covariant ReorderableGridView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.children != widget.children) {
+    if (oldWidget.children.length != widget.children.length) {
       setState(() {
         _childrenIdMap = {};
         _childrenOrderIdMap = {};
