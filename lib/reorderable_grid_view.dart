@@ -35,17 +35,9 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
 ///
-/// [onUpdate] contains a list of int values that represents the current order
-/// in the list.
-/// E. g. if you have two children in a list, then the start value would be
-/// [0, 1]. After swapping their positions, the new order would be [1, 0]. That
-/// means the first child is now on position 1 and the second child is on
-/// position 0.
-/// Or you have four children, than the start order would be [0, 1, 2, 3]. After
-/// changing the position between the first and third item, the list would have
-/// the following order: [2, 0, 1, 3]. That means that the first item is on the
-/// position 2, the second item is on the position 0, the third item is on the
-/// position 1 and the fourth item still has positon 3.
+/// [onUpdate] always give you the old and new index of the moved children.
+/// Make sure to update your list of children that you used to display your data.
+/// See more on the example.
 class ReorderableGridView extends StatefulWidget {
   const ReorderableGridView({
     required this.children,
@@ -81,18 +73,15 @@ class ReorderableGridView extends StatefulWidget {
   /// Can only be used if [enableLongPress] is enabled.
   final Duration longPressDelay;
 
-  /// Every time one ore more items change the position, this function is called.
+  /// Every a child changes his position, this function is called.
   ///
-  /// [updatedChildren] contains a list of all children in the same order they
-  /// were added to this widget. The number in the list represents the current
-  /// order in the list.
+  /// When a child was moved, you get the old index where the child was and
+  /// the new index where the child is positioned now.
   ///
-  /// For example you have three items. At the beginning, the order would be
-  /// [0, 1, 2]. After changing the position between the first and last item,
-  /// the position changes, so the list would have the following order [2, 0, 1].
-  /// All items have still the same order in the list, but the first item has
-  /// now the position 2, the second item the position 0 and the last item the
-  /// position 1.
+  /// You should always update your list if you want to make use of the new
+  /// order. Otherwise this widget is just a good-looking widget.
+  ///
+  /// See more on the example.
   final void Function(int oldIndex, int newIndex)? onUpdate;
 
   @override
@@ -101,6 +90,7 @@ class ReorderableGridView extends StatefulWidget {
 
 class _ReorderableGridViewState extends State<ReorderableGridView>
     with WidgetsBindingObserver {
+  /// This widget always makes a copy of [widget.children]
   List<Widget> childrenCopy = <Widget>[];
 
   /// Represents all children inside a map with the index as key
@@ -109,6 +99,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
 
+  /// Bool to know if all children were build and updated.
   bool hasBuiltItems = false;
 
   /// Key of the [Wrap] that was used to build the widget
@@ -220,6 +211,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     );
   }
 
+  /// Looking for the current size of the [Wrap] and updates it.
   void _updateWrapSize() {
     final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
     _wrapSize = wrapBox.size;
@@ -227,11 +219,17 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   /// Creates [GridItemEntity] that contains all information for this widget.
   ///
-  /// After an item was built inside the [Wrap], this method takes all his
-  /// information to create a [GridItemEntity]. That includes the size and
-  /// position (global and locally inside [Wrap] of the widget. Also an id and
-  /// orderId is added that are important to know where the item is ordered and
-  /// to identify the original item after changing the position.
+  /// There are two different ways when a child was created.
+  ///
+  /// One would be that it already exists and was just updated, e. g. after an
+  /// orientation change. Then the existing child gets an update in terms of
+  /// position.
+  ///
+  /// If the item does not exist, then a new [GridItemEntity] is created.
+  /// That includes the size and position (global and locally inside [Wrap]
+  /// of the widget. Also an id and orderId is added that are important to
+  /// know where the item is ordered and to identify the original item
+  /// after changing the position.
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
@@ -251,7 +249,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         position.dy - _wrapPosition.dy,
       );
 
-      // in this case id is equal to orderId
+      // in this case id is equal to orderId and _childrenOrderIdMap must be used
       final existingItem = _childrenOrderIdMap[id];
 
       // if exists update position related to the orderId

@@ -1,3 +1,10 @@
+## 0.3.0
+
+* Fixed some critical bugs
+    * When children are updated (e. g. a new one is added or removed) then the gridview updates normally
+    * When changing screen orientation, then the GridView repositions all children
+    * all bugs are covered with new tests
+
 ## 0.2.1
 
 * Updated ReadMe
