@@ -123,9 +123,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _updateWrapDataWithFrameCallback();
-    });
+    _updateWrapDataWithFrameCallback();
   }
 
   @override
@@ -133,9 +131,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children.length != widget.children.length) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        _updateWrapDataWithFrameCallback();
-      });
+      _updateWrapDataWithFrameCallback();
     }
   }
 
