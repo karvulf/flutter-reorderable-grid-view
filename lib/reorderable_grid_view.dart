@@ -134,6 +134,19 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   @override
+  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.children.length != widget.children.length) {
+      setState(() {
+        _childrenIdMap = {};
+        _childrenOrderIdMap = {};
+        hasBuiltItems = false;
+      });
+    }
+  }
+
+  @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
     WidgetsBinding.instance?.addPostFrameCallback((_) {
