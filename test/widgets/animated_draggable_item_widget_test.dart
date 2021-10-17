@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../services/reorderable_grid_view_builder.dart';
+import '../services/widget_test_helper.dart';
 
 void main() {
   final builder = ReorderableGridViewBuilder();
@@ -18,6 +19,7 @@ void main() {
     const givenEnableAnimation = false;
     const givenEnableLongPress = false;
     final givenEntry = MapEntry(0, builder.getGridItemEntity());
+    const givenChild = UniqueTestWidget();
 
     // when
     await tester.pumpWidget(
@@ -26,6 +28,7 @@ void main() {
           body: Stack(
             children: [
               AnimatedDraggableItem(
+                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
@@ -49,7 +52,7 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.item == givenEntry.value.item &&
+            widget.child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == kLongPressTimeout &&
@@ -69,6 +72,7 @@ void main() {
     const givenEnabled = false;
     const givenLongPressDelay = Duration(seconds: 100);
     final givenEntry = MapEntry(0, builder.getGridItemEntity());
+    const givenChild = UniqueTestWidget();
 
     // when
     await tester.pumpWidget(
@@ -77,6 +81,7 @@ void main() {
           body: Stack(
             children: [
               AnimatedDraggableItem(
+                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
@@ -102,7 +107,7 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.item == givenEntry.value.item &&
+            widget.child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == givenLongPressDelay &&
@@ -118,11 +123,10 @@ void main() {
     const givenEnableLongPress = false;
     const givenEnableAnimation = true;
     const givenText = 'hallo';
-    const givenItem = Text(givenText);
+    const givenChild = UniqueTestWidget();
     final givenEntry = MapEntry(
       0,
       builder.getGridItemEntity(
-        item: givenItem,
         size: const Size(100, 100),
       ),
     );
@@ -140,6 +144,7 @@ void main() {
             child: Stack(
               children: [
                 AnimatedDraggableItem(
+                  child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
