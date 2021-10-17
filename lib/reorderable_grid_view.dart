@@ -113,10 +113,10 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
   final _scrollController = ScrollController();
 
   /// Position of the [Wrap] that was used to build the widget
-  late final Offset _wrapPosition;
+  late Offset _wrapPosition;
 
   /// Size of the [Wrap] that was used to build the widget
-  late final Size _wrapSize;
+  late Size _wrapSize;
 
   @override
   void initState() {
