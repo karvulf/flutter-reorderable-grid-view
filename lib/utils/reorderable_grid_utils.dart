@@ -17,11 +17,13 @@ int? getItemsCollision({
   required int id,
   required Offset position,
   required Map<int, GridItemEntity> children,
+  required List<int> lockedChildren,
   required double scrollPixelsY,
 }) {
   int? collisionId;
 
-  if (children[id] == null) {
+  // child does not exist or is locked
+  if (children[id] == null || lockedChildren.contains(id)) {
     return null;
   }
 
@@ -62,8 +64,13 @@ void handleOneCollision({
   required int dragId,
   required int collisionId,
   required Map<int, GridItemEntity> children,
+  required List<int> lockedChildren,
 }) {
   assert(dragId != collisionId);
+
+  if (lockedChildren.contains(collisionId)) {
+    return;
+  }
 
   final entryA = children[dragId]!;
   final entryB = children[collisionId]!;
@@ -97,6 +104,7 @@ void handleMultipleCollisionsBackward({
   required int dragItemOrderId,
   required int collisionItemOrderId,
   required Map<int, GridItemEntity> children,
+  required List<int> lockedChildren,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
     int? dragId;
@@ -111,11 +119,25 @@ void handleMultipleCollisionsBackward({
       }
     }
 
+    if (lockedChildren.contains(collisionId)) {
+      while (i - 2 > collisionItemOrderId &&
+          lockedChildren.contains(collisionId)) {
+        // Todo: Handling with map much more performant
+        for (final entry in children.entries) {
+          if (entry.value.orderId == i - 2) {
+            collisionId = entry.key;
+          }
+        }
+        i--;
+      }
+    }
+
     if (dragId != null && collisionId != null) {
       handleOneCollision(
         dragId: dragId,
         collisionId: collisionId,
         children: children,
+        lockedChildren: lockedChildren,
       );
     }
   }
@@ -135,6 +157,7 @@ void handleMultipleCollisionsForward({
   required int dragItemOrderId,
   required int collisionItemOrderId,
   required Map<int, GridItemEntity> children,
+  required List<int> lockedChildren,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
     int? dragId;
@@ -149,11 +172,25 @@ void handleMultipleCollisionsForward({
       }
     }
 
+    if (lockedChildren.contains(collisionId)) {
+      while (i + 2 < collisionItemOrderId &&
+          lockedChildren.contains(collisionId)) {
+        // Todo: Handling with map much more performant
+        for (final entry in children.entries) {
+          if (entry.value.orderId == i + 2) {
+            collisionId = entry.key;
+          }
+        }
+        i++;
+      }
+    }
+
     if (dragId != null && collisionId != null) {
       handleOneCollision(
         dragId: dragId,
         collisionId: collisionId,
         children: children,
+        lockedChildren: lockedChildren,
       );
     }
   }

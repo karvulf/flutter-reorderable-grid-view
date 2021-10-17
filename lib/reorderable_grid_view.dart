@@ -140,7 +140,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                           enableLongPress: widget.enableLongPress,
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
-                          enabled: widget.lockedChildren.contains(e.key),
+                          enabled: !widget.lockedChildren.contains(e.key),
                         ))
                     .toList(),
               ),
@@ -210,6 +210,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
       position: details.globalPosition,
       children: _animatedChildren,
       scrollPixelsY: _scrollController.position.pixels,
+      lockedChildren: widget.lockedChildren,
     );
 
     if (collisionId != null && collisionId != id) {
@@ -222,6 +223,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           collisionItemOrderId: collisionItemOrderId,
           dragItemOrderId: dragItemOrderId,
           children: _animatedChildren,
+          lockedChildren: widget.lockedChildren,
         );
       } else if (collisionItemOrderId < dragItemOrderId &&
           dragItemOrderId - collisionItemOrderId > 1) {
@@ -229,12 +231,14 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           dragItemOrderId: dragItemOrderId,
           collisionItemOrderId: collisionItemOrderId,
           children: _animatedChildren,
+          lockedChildren: widget.lockedChildren,
         );
       } else {
         handleOneCollision(
           dragId: id,
           collisionId: collisionId,
           children: _animatedChildren,
+          lockedChildren: widget.lockedChildren,
         );
       }
 
