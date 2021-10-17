@@ -101,6 +101,8 @@ class ReorderableGridView extends StatefulWidget {
 
 class _ReorderableGridViewState extends State<ReorderableGridView>
     with WidgetsBindingObserver {
+  List<Widget> childrenCopy = <Widget>[];
+
   /// Represents all children inside a map with the index as key
   Map<int, GridItemEntity> _childrenIdMap = {};
 
@@ -121,6 +123,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   @override
   void initState() {
     super.initState();
+    setState(() {
+      childrenCopy = List<Widget>.from(widget.children);
+    });
     WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _updateWrapSize();
@@ -137,12 +142,18 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   void didUpdateWidget(covariant ReorderableGridView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.children.length != widget.children.length) {
-      setState(() {
-        _childrenIdMap = {};
-        _childrenOrderIdMap = {};
-        hasBuiltItems = false;
-      });
+    if (oldWidget.children != widget.children) {
+      if (oldWidget.children.length != widget.children.length) {
+        setState(() {
+          _childrenIdMap = {};
+          _childrenOrderIdMap = {};
+          hasBuiltItems = false;
+        });
+      } else {
+        setState(() {
+          childrenCopy = List<Widget>.from(widget.children);
+        });
+      }
     }
   }
 
@@ -161,14 +172,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   @override
   Widget build(BuildContext context) {
-    final children = widget.children;
-
     return SingleChildScrollView(
       controller: _scrollController,
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (hasBuiltItems && children.length == _childrenIdMap.length) {
+          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
@@ -182,7 +191,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
                           enabled: !widget.lockedChildren.contains(e.key),
-                          child: children[e.value.orderId],
+                          child: childrenCopy[e.value.orderId],
                         ))
                     .toList(),
               ),
@@ -193,9 +202,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
               spacing: widget.spacing,
               runSpacing: widget.runSpacing,
               children: List.generate(
-                children.length,
+                childrenCopy.length,
                 (index) => DraggableItem(
-                  child: children[index],
+                  child: childrenCopy[index],
                   enableLongPress: widget.enableLongPress,
                   id: index,
                   onCreated: _handleCreated,
@@ -270,7 +279,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenIdMap[id] = gridItemEntity;
         _childrenOrderIdMap[id] = gridItemEntity;
 
-        if (_childrenIdMap.entries.length == widget.children.length) {
+        if (_childrenIdMap.entries.length == childrenCopy.length) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
@@ -328,7 +337,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: widget.onUpdate,
+          onUpdate: _handleUpdate,
         );
       }
       // item changes multiple positions to the negative direction
@@ -340,7 +349,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: widget.onUpdate,
+          onUpdate: _handleUpdate,
         );
       }
       // item changes position only to one item
@@ -351,7 +360,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: widget.onUpdate,
+          onUpdate: _handleUpdate,
         );
       }
 
@@ -359,6 +368,17 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenIdMap = _childrenIdMap;
         _childrenOrderIdMap = _childrenOrderIdMap;
       });
+    }
+  }
+
+  void _handleUpdate(int oldIndex, int newIndex) {
+    setState(() {
+      final item = childrenCopy.removeAt(oldIndex);
+      childrenCopy.insert(newIndex, item);
+    });
+
+    if (widget.onUpdate != null) {
+      widget.onUpdate!(oldIndex, newIndex);
     }
   }
 }

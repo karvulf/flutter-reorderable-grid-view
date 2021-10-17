@@ -208,7 +208,8 @@ void main() {
       Text(givenText4),
     ];
 
-    late List<int> actualUpdatedChildren;
+    late int actualOldIndex;
+    late int actualNewIndex;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -216,8 +217,9 @@ void main() {
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndex = oldIndex;
+              actualNewIndex = newIndex;
             },
           ),
         ),
@@ -243,7 +245,8 @@ void main() {
     expect(tester.getCenter(find.text(givenText1)), equals(secondLocation));
     expect(tester.getCenter(find.text(givenText2)), equals(firstLocation));
 
-    expect(actualUpdatedChildren, equals([1, 0, 2, 3]));
+    expect(actualOldIndex, equals(0));
+    expect(actualNewIndex, equals(1));
   });
 
   testWidgets(
@@ -264,7 +267,8 @@ void main() {
       Text(givenText4),
     ];
 
-    late List<int> actualUpdatedChildren;
+    List<int> actualOldIndexList = <int>[];
+    List<int> actualNewIndexList = <int>[];
 
     await tester.pumpWidget(
       MaterialApp(
@@ -272,8 +276,9 @@ void main() {
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndexList.add(oldIndex);
+              actualNewIndexList.add(newIndex);
             },
           ),
         ),
@@ -309,7 +314,8 @@ void main() {
     expect(givenText3EndLocation, equals(givenText2StartLocation));
     expect(givenText4EndLocation, equals(givenText3StartLocation));
 
-    expect(actualUpdatedChildren, equals([3, 0, 1, 2]));
+    expect(actualOldIndexList, equals([0, 1, 2]));
+    expect(actualNewIndexList, equals([1, 2, 3]));
   });
 
   testWidgets(
@@ -330,7 +336,8 @@ void main() {
       Text(givenText4),
     ];
 
-    late List<int> actualUpdatedChildren;
+    List<int> actualOldIndexList = <int>[];
+    List<int> actualNewIndexList = <int>[];
 
     await tester.pumpWidget(
       MaterialApp(
@@ -338,8 +345,9 @@ void main() {
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndexList.add(oldIndex);
+              actualNewIndexList.add(newIndex);
             },
           ),
         ),
@@ -375,7 +383,8 @@ void main() {
     expect(givenText3EndLocation, equals(givenText4StartLocation));
     expect(givenText4EndLocation, equals(givenText2StartLocation));
 
-    expect(actualUpdatedChildren, equals([0, 2, 3, 1]));
+    expect(actualOldIndexList, equals([3, 2]));
+    expect(actualNewIndexList, equals([2, 1]));
   });
 
   testWidgets(
@@ -397,7 +406,8 @@ void main() {
       Text(givenText4),
     ];
 
-    List<int>? actualUpdatedChildren;
+    List<int> actualOldIndexList = <int>[];
+    List<int> actualNewIndexList = <int>[];
 
     await tester.pumpWidget(
       MaterialApp(
@@ -406,8 +416,9 @@ void main() {
             children: givenChildren,
             lockedChildren: const [1],
             enableLongPress: false,
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndexList.add(oldIndex);
+              actualNewIndexList.add(newIndex);
             },
           ),
         ),
@@ -435,7 +446,8 @@ void main() {
     expect(tester.getCenter(find.text(givenText2)), equals(secondLocation));
 
     // because item is locked, the var should still be null
-    expect(actualUpdatedChildren, isNull);
+    expect(actualOldIndexList, isEmpty);
+    expect(actualNewIndexList, isEmpty);
   });
 
   testWidgets(
@@ -457,7 +469,8 @@ void main() {
       Text(givenText4),
     ];
 
-    late List<int> actualUpdatedChildren;
+    List<int> actualOldIndexList = <int>[];
+    List<int> actualNewIndexList = <int>[];
 
     await tester.pumpWidget(
       MaterialApp(
@@ -466,8 +479,9 @@ void main() {
             children: givenChildren,
             enableLongPress: false,
             lockedChildren: const [1],
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndexList.add(oldIndex);
+              actualNewIndexList.add(newIndex);
             },
           ),
         ),
@@ -503,7 +517,8 @@ void main() {
     expect(givenText3EndLocation, equals(givenText1StartLocation));
     expect(givenText4EndLocation, equals(givenText3StartLocation));
 
-    expect(actualUpdatedChildren, equals([3, 1, 0, 2]));
+    expect(actualOldIndexList, equals([0, 2]));
+    expect(actualNewIndexList, equals([2, 3]));
   });
 
   testWidgets(
@@ -525,7 +540,8 @@ void main() {
       Text(givenText4),
     ];
 
-    late List<int> actualUpdatedChildren;
+    List<int> actualOldIndexList = <int>[];
+    List<int> actualNewIndexList = <int>[];
 
     await tester.pumpWidget(
       MaterialApp(
@@ -534,8 +550,9 @@ void main() {
             children: givenChildren,
             enableLongPress: false,
             lockedChildren: const [0, 2],
-            onUpdate: (updatedChildren) {
-              actualUpdatedChildren = updatedChildren;
+            onUpdate: (oldIndex, newIndex) {
+              actualOldIndexList.add(oldIndex);
+              actualNewIndexList.add(newIndex);
             },
           ),
         ),
@@ -571,6 +588,7 @@ void main() {
     expect(givenText3EndLocation, equals(givenText3StartLocation));
     expect(givenText4EndLocation, equals(givenText2StartLocation));
 
-    expect(actualUpdatedChildren, equals([0, 3, 2, 1]));
+    expect(actualOldIndexList, equals([3]));
+    expect(actualNewIndexList, equals([1]));
   });
 }
