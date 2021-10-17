@@ -100,7 +100,9 @@ class ReorderableGridView extends StatefulWidget {
 }
 
 class _ReorderableGridViewState extends State<ReorderableGridView> {
-  Map<int, GridItemEntity> _animatedChildren = {};
+  /// Represents all children inside a map with the index as key
+  Map<int, GridItemEntity> _childrenIdMap = {};
+  Map<int, GridItemEntity> _childrenOrderIdMap = {};
   final _wrapKey = GlobalKey();
   final _scrollController = ScrollController();
 
@@ -127,12 +129,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (_animatedChildren.entries.length == children.length) {
+          if (_childrenIdMap.entries.length == children.length) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
-                children: _animatedChildren.entries
+                children: _childrenIdMap.entries
                     .map((e) => AnimatedDraggableItem(
                           key: Key(e.key.toString()),
                           enableAnimation: widget.enableAnimation,
@@ -184,7 +186,8 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         position.dy - _wrapPosition.dy,
       );
 
-      _animatedChildren[id] = GridItemEntity(
+      final gridItemEntity = GridItemEntity(
+        id: id,
         localPosition: localPosition,
         globalPosition: position,
         size: size,
@@ -192,9 +195,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         orderId: id,
       );
 
-      if (_animatedChildren.entries.length == widget.children.length) {
+      _childrenIdMap[id] = gridItemEntity;
+      _childrenOrderIdMap[id] = gridItemEntity;
+
+      if (_childrenIdMap.entries.length == widget.children.length) {
         setState(() {
-          _animatedChildren = _animatedChildren;
+          _childrenIdMap = _childrenIdMap;
         });
       }
     }
@@ -208,48 +214,51 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     final collisionId = getItemsCollision(
       id: id,
       position: details.globalPosition,
-      children: _animatedChildren,
+      childrenIdMap: _childrenIdMap,
       scrollPixelsY: _scrollController.position.pixels,
       lockedChildren: widget.lockedChildren,
     );
 
     if (collisionId != null && collisionId != id) {
-      final dragItemOrderId = _animatedChildren[id]!.orderId;
-      final collisionItemOrderId = _animatedChildren[collisionId]!.orderId;
+      final dragItemOrderId = _childrenIdMap[id]!.orderId;
+      final collisionItemOrderId = _childrenIdMap[collisionId]!.orderId;
 
       if (collisionItemOrderId > dragItemOrderId &&
           collisionItemOrderId - dragItemOrderId > 1) {
         handleMultipleCollisionsForward(
           collisionItemOrderId: collisionItemOrderId,
           dragItemOrderId: dragItemOrderId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
       } else if (collisionItemOrderId < dragItemOrderId &&
           dragItemOrderId - collisionItemOrderId > 1) {
         handleMultipleCollisionsBackward(
           dragItemOrderId: dragItemOrderId,
           collisionItemOrderId: collisionItemOrderId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
       } else {
         handleOneCollision(
           dragId: id,
           collisionId: collisionId,
-          children: _animatedChildren,
+          childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
+          childrenOrderIdMap: _childrenOrderIdMap,
         );
       }
 
       if (widget.onUpdate != null) {
         final updatedListOrderId =
-            _animatedChildren.values.map((e) => e.orderId).toList();
+            _childrenIdMap.values.map((e) => e.orderId).toList();
         widget.onUpdate!(updatedListOrderId);
       }
 
       setState(() {
-        _animatedChildren = _animatedChildren;
+        _childrenIdMap = _childrenIdMap;
       });
     }
   }

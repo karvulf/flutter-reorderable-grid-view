@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 class GridItemEntity {
+  final int id;
   final Offset localPosition;
   final Offset globalPosition;
   final Size size;
@@ -8,6 +9,7 @@ class GridItemEntity {
   final int orderId;
 
   const GridItemEntity({
+    required this.id,
     required this.localPosition,
     required this.globalPosition,
     required this.size,
@@ -21,6 +23,7 @@ class GridItemEntity {
     int? orderId,
   }) =>
       GridItemEntity(
+        id: id,
         localPosition: localPosition ?? this.localPosition,
         globalPosition: globalPosition ?? this.globalPosition,
         size: size,

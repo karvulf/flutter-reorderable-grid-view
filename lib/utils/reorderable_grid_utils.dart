@@ -1,33 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 
-/// Checks collision of item with given [id] with another one in [children].
+/// Checks collision of item with given [id] with another one in [childrenIdMap].
 ///
-/// Expects that the [id] is existing in [children]. Depending of the current
+/// Expects that the [id] is existing in [childrenIdMap]. Depending of the current
 /// position of the item, it's possible that there is a collision with another
-/// one in [children].
+/// one in [childrenIdMap].
 /// That happens if the dragged item lays above another one.
 /// It's also possible that the item has a collision with itself. In that case
 /// you should check if the returned id is equal to the given [id] because most
 /// of the cases you don't want to update sth if nothing changes.
 ///
 /// If there was no collision, null will be returned otherwise the id of the
-/// collision item in [children].
+/// collision item in [childrenIdMap].
 int? getItemsCollision({
   required int id,
   required Offset position,
-  required Map<int, GridItemEntity> children,
+  required Map<int, GridItemEntity> childrenIdMap,
   required List<int> lockedChildren,
   required double scrollPixelsY,
 }) {
   int? collisionId;
 
   // child does not exist or is locked
-  if (children[id] == null || lockedChildren.contains(id)) {
+  if (childrenIdMap[id] == null || lockedChildren.contains(id)) {
     return null;
   }
 
-  for (final entry in children.entries) {
+  for (final entry in childrenIdMap.entries) {
     final item = entry.value;
     final itemDx = item.globalPosition.dx;
     final itemDy = item.globalPosition.dy;
@@ -62,13 +62,14 @@ int? getItemsCollision({
 /// [collisionId] -> localPosition, globalPosition and orderId.
 ///
 /// It's important that the id does not change because this value is needed to
-/// animate the new position of the given [children].
+/// animate the new position of the given [childrenIdMap].
 ///
-/// There is no return value because [children] gets immediately updated.
+/// There is no return value because [childrenIdMap] gets immediately updated.
 void handleOneCollision({
   required int dragId,
   required int collisionId,
-  required Map<int, GridItemEntity> children,
+  required Map<int, GridItemEntity> childrenIdMap,
+  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
 }) {
   assert(dragId != collisionId);
@@ -77,8 +78,8 @@ void handleOneCollision({
     return;
   }
 
-  final entryA = children[dragId]!;
-  final entryB = children[collisionId]!;
+  final entryA = childrenIdMap[dragId]!;
+  final entryB = childrenIdMap[collisionId]!;
 
   final updatedEntryValueA = entryA.copyWith(
     localPosition: entryB.localPosition,
@@ -91,8 +92,11 @@ void handleOneCollision({
     orderId: entryA.orderId,
   );
 
-  children[dragId] = updatedEntryValueA;
-  children[collisionId] = updatedEntryValueB;
+  childrenIdMap[dragId] = updatedEntryValueA;
+  childrenIdMap[collisionId] = updatedEntryValueB;
+
+  childrenOrderIdMap[entryA.orderId] = updatedEntryValueB;
+  childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
 }
 
 /// Called when the item changes his position between more than one item.
@@ -104,35 +108,22 @@ void handleOneCollision({
 /// It loops over all items that are between [dragItemOrderId] and
 /// [collisionItemOrderId] and handles every collision of them.
 ///
-/// There is no return value because [children] gets immediately updated.
+/// There is no return value because [childrenIdMap] gets immediately updated.
 void handleMultipleCollisionsBackward({
   required int dragItemOrderId,
   required int collisionItemOrderId,
-  required Map<int, GridItemEntity> children,
+  required Map<int, GridItemEntity> childrenIdMap,
+  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
-    int? dragId;
-    int? collisionId;
-
-    // Todo: Handling with map much more performant
-    for (final entry in children.entries) {
-      if (entry.value.orderId == i) {
-        dragId = entry.key;
-      } else if (entry.value.orderId == i - 1) {
-        collisionId = entry.key;
-      }
-    }
+    int? dragId = childrenOrderIdMap[i]?.id;
+    int? collisionId = childrenOrderIdMap[i - 1]?.id;
 
     if (lockedChildren.contains(collisionId)) {
       while (i - 2 >= collisionItemOrderId &&
           lockedChildren.contains(collisionId)) {
-        // Todo: Handling with map much more performant
-        for (final entry in children.entries) {
-          if (entry.value.orderId == i - 2) {
-            collisionId = entry.key;
-          }
-        }
+        collisionId = childrenOrderIdMap[i - 2]?.id;
         i--;
       }
     }
@@ -141,7 +132,8 @@ void handleMultipleCollisionsBackward({
       handleOneCollision(
         dragId: dragId,
         collisionId: collisionId,
-        children: children,
+        childrenIdMap: childrenIdMap,
+        childrenOrderIdMap: childrenOrderIdMap,
         lockedChildren: lockedChildren,
       );
     }
@@ -157,37 +149,23 @@ void handleMultipleCollisionsBackward({
 /// It loops over all items that are between [dragItemOrderId] and
 /// [collisionItemOrderId] and handles every collision of them.
 ///
-/// There is no return value because [children] gets immediately updated.
+/// There is no return value because [childrenIdMap] gets immediately updated.
 void handleMultipleCollisionsForward({
   required int dragItemOrderId,
   required int collisionItemOrderId,
-  required Map<int, GridItemEntity> children,
+  required Map<int, GridItemEntity> childrenIdMap,
+  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
-    int? dragId;
-    int? collisionId;
-
-    // Todo: Handling with map much more performant
-    for (final entry in children.entries) {
-      if (entry.value.orderId == i) {
-        dragId = entry.key;
-      } else if (entry.value.orderId == i + 1) {
-        collisionId = entry.key;
-      }
-    }
+    int? dragId = childrenOrderIdMap[i]?.id;
+    int? collisionId = childrenOrderIdMap[i + 1]?.id;
 
     // look for the next child that has a collision
     if (lockedChildren.contains(collisionId)) {
       while (i + 2 <= collisionItemOrderId &&
           lockedChildren.contains(collisionId)) {
-        // Todo: Handling with map much more performant
-        for (final entry in children.entries) {
-          if (entry.value.orderId == i + 2) {
-            collisionId = entry.key;
-            break;
-          }
-        }
+        collisionId = childrenOrderIdMap[i + 2]?.id;
         i++;
       }
     }
@@ -196,8 +174,9 @@ void handleMultipleCollisionsForward({
       handleOneCollision(
         dragId: dragId,
         collisionId: collisionId,
-        children: children,
+        childrenIdMap: childrenIdMap,
         lockedChildren: lockedChildren,
+        childrenOrderIdMap: childrenOrderIdMap,
       );
     }
   }

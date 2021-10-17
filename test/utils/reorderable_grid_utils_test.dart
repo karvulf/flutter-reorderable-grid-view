@@ -23,7 +23,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -50,7 +50,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -77,7 +77,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -104,7 +104,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -131,7 +131,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -158,7 +158,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
         scrollPixelsY: givenScrollPixelsY,
       );
 
@@ -181,7 +181,7 @@ void main() {
           () => handleOneCollision(
                 dragId: givenId,
                 collisionId: givenId,
-                children: {},
+                childrenIdMap: {},
               ),
           throwsAssertionError);
     });
@@ -199,7 +199,7 @@ void main() {
           () => handleOneCollision(
                 dragId: givenId,
                 collisionId: givenId,
-                children: {},
+                childrenIdMap: {},
               ),
           throwsAssertionError);
     });
@@ -236,7 +236,7 @@ void main() {
       handleOneCollision(
         dragId: givenDragId,
         collisionId: givenCollisionId,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
       );
 
       // then
@@ -307,7 +307,7 @@ void main() {
       handleMultipleCollisionsBackward(
         dragItemOrderId: givenDragOrderId,
         collisionItemOrderId: givenCollisionOrderId,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
       );
 
       // then
@@ -397,7 +397,7 @@ void main() {
       handleMultipleCollisionsForward(
         dragItemOrderId: givenDragOrderId,
         collisionItemOrderId: givenCollisionOrderId,
-        children: givenChildren,
+        childrenIdMap: givenChildren,
       );
 
       // then
