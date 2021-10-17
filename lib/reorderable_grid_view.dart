@@ -123,7 +123,11 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-    _updateWrapDataWithFrameCallback();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+      _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+      _wrapSize = wrapBox.size;
+    });
   }
 
   @override
@@ -133,18 +137,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   @override
-  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.children.length != widget.children.length) {
-      _updateWrapDataWithFrameCallback();
-    }
-  }
-
-  @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
         setState(() {
@@ -205,17 +200,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     );
   }
 
-  void _updateWrapDataWithFrameCallback() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      if (_wrapKey.currentContext != null) {
-        final wrapBox =
-            _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-        _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-        _wrapSize = wrapBox.size;
-      }
-    });
-  }
-
   /// Creates [GridItemEntity] that contains all information for this widget.
   ///
   /// After an item was built inside the [Wrap], this method takes all his
@@ -252,9 +236,14 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       _childrenOrderIdMap[id] = gridItemEntity;
 
       if (_childrenIdMap.entries.length == widget.children.length) {
+        final wrapBox =
+            _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+
         setState(() {
           _childrenIdMap = _childrenIdMap;
           _childrenOrderIdMap = _childrenOrderIdMap;
+          _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+          _wrapSize = wrapBox.size;
         });
       }
     }
