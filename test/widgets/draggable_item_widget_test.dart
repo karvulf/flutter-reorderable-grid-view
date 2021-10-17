@@ -106,6 +106,39 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN enable = false, item and id '
+      'WHEN pumping [DraggableItem] '
+      'THEN should have no Draggable widget and just given item',
+      (WidgetTester tester) async {
+    // given
+    const givenItem = UniqueTestWidget();
+    const givenId = 0;
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DraggableItem(
+            item: givenItem,
+            id: givenId,
+            onCreated: (_, __, ___, ____) {},
+            onDragUpdate: (_, __, ___) {},
+            enabled: false,
+            enableLongPress: false,
+          ),
+        ),
+      ),
+    );
+
+    // then
+    expect(find.byWidgetPredicate((widget) => widget is Draggable<String>),
+        findsNothing);
+    expect(find.byWidgetPredicate((widget) => widget is LongPressDraggable),
+        findsNothing);
+    expect(find.byType(UniqueTestWidget), findsOneWidget);
+  });
+
+  testWidgets(
       'GIVEN enableLongPress = false, item, id and onCreated '
       'WHEN pumping [DraggableItem] '
       'THEN should call onCreated', (WidgetTester tester) async {
