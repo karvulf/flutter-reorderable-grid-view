@@ -465,7 +465,7 @@ void main() {
           body: ReorderableGridView(
             children: givenChildren,
             enableLongPress: false,
-            lockedChildren: [1],
+            lockedChildren: const [1],
             onUpdate: (updatedChildren) {
               actualUpdatedChildren = updatedChildren;
             },
