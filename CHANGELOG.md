@@ -1,3 +1,8 @@
+## 0.2.0
+
+* lockedChildren added to specify items that should not change their positions
+* optimized performance
+
 ## 0.1.0
 
 * onUpdate added to notifiy the user that there was an update while moving items
