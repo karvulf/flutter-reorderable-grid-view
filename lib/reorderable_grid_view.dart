@@ -123,10 +123,17 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-      _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-      _wrapSize = wrapBox.size;
+      _updateWrapData();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.children.length != widget.children.length) {
+      _updateWrapData();
+    }
   }
 
   @override
@@ -177,6 +184,12 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         },
       ),
     );
+  }
+
+  void _updateWrapData() {
+    final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+    _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+    _wrapSize = wrapBox.size;
   }
 
   /// Creates [GridItemEntity] that contains all information for this widget.
