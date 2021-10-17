@@ -122,8 +122,14 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   @override
   void initState() {
     super.initState();
-
+    WidgetsBinding.instance!.addObserver(this);
     _updateWrapDataWithFrameCallback();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
   }
 
   @override
