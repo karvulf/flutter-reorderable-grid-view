@@ -7,6 +7,8 @@ A GridView whose items the user can interactively reorder by dragging.
 Compared to the given `ReorderableListView`, it
 is possible to reorder different sizes of widgets with or without animation.
 
+Also you can lock specific items that should not change their position.
+
 <p>
   <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview_ios.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
@@ -21,6 +23,7 @@ Use this package in your Flutter App to:
 - Simplified widget
 - Works with all kind of widgets that are rendered inside
 - Animated when reordering items
+- Locking all items you don't want to move
 
 ## Getting started
 Simply add `ReordableGridView` to your preferred Widget and specify a list of children.

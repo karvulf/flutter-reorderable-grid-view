@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Updated ReadMe
+
 ## 0.2.0
 
 * lockedChildren added to specify items that should not change their positions
