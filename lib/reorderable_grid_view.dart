@@ -102,11 +102,20 @@ class ReorderableGridView extends StatefulWidget {
 class _ReorderableGridViewState extends State<ReorderableGridView> {
   /// Represents all children inside a map with the index as key
   Map<int, GridItemEntity> _childrenIdMap = {};
+
+  /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
+
+  /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
+
+  /// Controller of the [SingleChildScrollView]
   final _scrollController = ScrollController();
 
+  /// Position of the [Wrap] that was used to build the widget
   late final Offset _wrapPosition;
+
+  /// Size of the [Wrap] that was used to build the widget
   late final Size _wrapSize;
 
   @override
@@ -170,6 +179,13 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     );
   }
 
+  /// Creates [GridItemEntity] that contains all information for this widget.
+  ///
+  /// After an item was built inside the [Wrap], this method takes all his
+  /// information to create a [GridItemEntity]. That includes the size and
+  /// position (global and locally inside [Wrap] of the widget. Also an id and
+  /// orderId is added that are important to know where the item is ordered and
+  /// to identify the original item after changing the position.
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
@@ -201,11 +217,34 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
       if (_childrenIdMap.entries.length == widget.children.length) {
         setState(() {
           _childrenIdMap = _childrenIdMap;
+          _childrenOrderIdMap = _childrenOrderIdMap;
         });
       }
     }
   }
 
+  /// After dragging an item, if will be checked if there are some collisions.
+  ///
+  /// There are three different ways how an item can collision to another.
+  ///
+  /// The simplest way would be that the user drags the item next to another
+  /// item on the left or right side. That means there will be only
+  /// one collision to calculate.
+  ///
+  /// The second possibility would be that the dragged item changes more than
+  /// just one position. For example after dragging above the items. That means
+  /// that all items changes their direction after dragging backwards.
+  ///
+  /// The last way is the opposite of the second possibility. The user drags the
+  /// item e. g. under the item and changes multiple positions.
+  ///
+  /// Another important thing is the possibility that there are locked items. A
+  /// locked item can't change his position and should always be ignored when
+  /// all items around changes their position.
+  ///
+  /// After all the position changes were done, there will be an update to
+  /// [onUpdate] and the state will be updated inside this widget show the new
+  /// positions of the items to the user.
   void _handleDragUpdate(
     BuildContext context,
     DragUpdateDetails details,
@@ -223,6 +262,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
       final dragItemOrderId = _childrenIdMap[id]!.orderId;
       final collisionItemOrderId = _childrenIdMap[collisionId]!.orderId;
 
+      // item changes multiple positions to the positive direction
       if (collisionItemOrderId > dragItemOrderId &&
           collisionItemOrderId - dragItemOrderId > 1) {
         handleMultipleCollisionsForward(
@@ -232,7 +272,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
         );
-      } else if (collisionItemOrderId < dragItemOrderId &&
+      }
+      // item changes multiple positions to the negative direction
+      else if (collisionItemOrderId < dragItemOrderId &&
           dragItemOrderId - collisionItemOrderId > 1) {
         handleMultipleCollisionsBackward(
           dragItemOrderId: dragItemOrderId,
@@ -241,7 +283,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
         );
-      } else {
+      }
+      // item changes position only to one item
+      else {
         handleOneCollision(
           dragId: id,
           collisionId: collisionId,
@@ -251,14 +295,16 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         );
       }
 
+      // notifiy about the update in the list
       if (widget.onUpdate != null) {
-        final updatedListOrderId =
-            _childrenIdMap.values.map((e) => e.orderId).toList();
-        widget.onUpdate!(updatedListOrderId);
+        widget.onUpdate!(
+          _childrenIdMap.values.map((e) => e.orderId).toList(),
+        );
       }
 
       setState(() {
         _childrenIdMap = _childrenIdMap;
+        _childrenOrderIdMap = _childrenOrderIdMap;
       });
     }
   }
