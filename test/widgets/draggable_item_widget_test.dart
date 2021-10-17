@@ -12,8 +12,8 @@ void main() {
       'THEN should have expected widgets', (WidgetTester tester) async {
     // given
     const givenEnableLongPress = false;
-    const givenItem = UniqueTestWidget();
     const givenId = 0;
+    const givenChild = UniqueTestWidget();
 
     // when
     await tester.pumpWidget(
@@ -21,9 +21,9 @@ void main() {
         home: Scaffold(
           body: DraggableItem(
             enableLongPress: givenEnableLongPress,
-            item: givenItem,
+            child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___, ____) {},
+            onCreated: (_, __, ___) {},
             onDragUpdate: (_, __, ___) {},
           ),
         ),
@@ -42,7 +42,7 @@ void main() {
       'THEN should have expected widgets', (WidgetTester tester) async {
     // given
     const givenEnableLongPress = true;
-    const givenItem = UniqueTestWidget();
+    const givenChild = UniqueTestWidget();
     const givenId = 0;
 
     // when
@@ -51,9 +51,9 @@ void main() {
         home: Scaffold(
           body: DraggableItem(
             enableLongPress: givenEnableLongPress,
-            item: givenItem,
+            child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___, ____) {},
+            onCreated: (_, __, ___) {},
             onDragUpdate: (_, __, ___) {},
           ),
         ),
@@ -75,9 +75,9 @@ void main() {
       'THEN should have expected widgets', (WidgetTester tester) async {
     // given
     const givenEnableLongPress = true;
-    const givenItem = UniqueTestWidget();
     const givenId = 0;
     const givenLongPressDelay = Duration(days: 100);
+    const givenChild = UniqueTestWidget();
 
     // when
     await tester.pumpWidget(
@@ -85,9 +85,9 @@ void main() {
         home: Scaffold(
           body: DraggableItem(
             enableLongPress: givenEnableLongPress,
-            item: givenItem,
+            child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___, ____) {},
+            onCreated: (_, __, ___) {},
             onDragUpdate: (_, __, ___) {},
             longPressDelay: givenLongPressDelay,
           ),
@@ -111,17 +111,17 @@ void main() {
       'THEN should have no Draggable widget and just given item',
       (WidgetTester tester) async {
     // given
-    const givenItem = UniqueTestWidget();
     const givenId = 0;
+    const givenChild = UniqueTestWidget();
 
     // when
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: DraggableItem(
-            item: givenItem,
+            child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___, ____) {},
+            onCreated: (_, __, ___) {},
             onDragUpdate: (_, __, ___) {},
             enabled: false,
             enableLongPress: false,
@@ -144,12 +144,11 @@ void main() {
       'THEN should call onCreated', (WidgetTester tester) async {
     // given
     const givenEnableLongPress = false;
-    const givenItem = UniqueTestWidget();
     const givenId = 0;
+    const givenChild = UniqueTestWidget();
 
     BuildContext? expectedContext;
     GlobalKey? expectedKey;
-    Widget? expectedItem;
     int? expectedId;
 
     // when
@@ -157,18 +156,16 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: DraggableItem(
+            child: givenChild,
             enableLongPress: givenEnableLongPress,
-            item: givenItem,
             id: givenId,
             onCreated: (
               BuildContext context,
               GlobalKey key,
-              Widget item,
               int id,
             ) {
               expectedContext = context;
               expectedKey = key;
-              expectedItem = item;
               expectedId = id;
             },
             onDragUpdate: (_, __, ___) {},
@@ -180,7 +177,6 @@ void main() {
     // then
     expect(expectedContext, isNotNull);
     expect(expectedKey, isNotNull);
-    expect(expectedItem, equals(givenItem));
     expect(expectedId, equals(givenId));
   });
 
@@ -191,7 +187,7 @@ void main() {
     // given
     const givenEnableLongPress = false;
     const givenText = 'hallo';
-    const givenItem = Text(givenText);
+    const givenChild = Text(givenText);
     const givenId = 0;
 
     BuildContext? expectedContext;
@@ -205,10 +201,10 @@ void main() {
             height: 1000,
             width: 1000,
             child: DraggableItem(
+              child: givenChild,
               enableLongPress: givenEnableLongPress,
-              item: givenItem,
               id: givenId,
-              onCreated: (_, __, ___, ____) {},
+              onCreated: (_, __, ___) {},
               onDragUpdate: (
                 BuildContext context,
                 DragUpdateDetails details,

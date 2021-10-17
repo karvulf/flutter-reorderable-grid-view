@@ -15,6 +15,8 @@ class AnimatedDraggableItem extends StatelessWidget {
   ) onDragUpdate;
   final bool enableAnimation;
   final bool enableLongPress;
+  final Widget child;
+
   final bool enabled;
   final Duration longPressDelay;
 
@@ -23,6 +25,7 @@ class AnimatedDraggableItem extends StatelessWidget {
     required this.onDragUpdate,
     required this.enableAnimation,
     required this.enableLongPress,
+    required this.child,
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
     Key? key,
@@ -31,12 +34,12 @@ class AnimatedDraggableItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draggableItem = DraggableItem(
-      item: entry.value.item,
       id: entry.key,
       enableLongPress: enableLongPress,
       onDragUpdate: onDragUpdate,
       longPressDelay: longPressDelay,
       enabled: enabled,
+      child: child,
     );
 
     if (!enableAnimation) {

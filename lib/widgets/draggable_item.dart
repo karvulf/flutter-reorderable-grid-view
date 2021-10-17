@@ -3,16 +3,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class DraggableItem extends StatefulWidget {
-  final Widget item;
+  final Widget child;
   final int id;
   final bool enableLongPress;
+
   final Duration longPressDelay;
   final bool enabled;
 
   final Function(
     BuildContext context,
     GlobalKey key,
-    Widget item,
     int id,
   )? onCreated;
   final Function(
@@ -22,7 +22,7 @@ class DraggableItem extends StatefulWidget {
   )? onDragUpdate;
 
   const DraggableItem({
-    required this.item,
+    required this.child,
     required this.id,
     required this.enableLongPress,
     this.longPressDelay = kLongPressTimeout,
@@ -66,7 +66,7 @@ class _DraggableItemState extends State<DraggableItem>
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.onCreated != null) {
-        widget.onCreated!(context, _globalKey, widget.item, widget.id);
+        widget.onCreated!(context, _globalKey, widget.id);
       }
     });
   }
@@ -75,7 +75,7 @@ class _DraggableItemState extends State<DraggableItem>
   Widget build(BuildContext context) {
     final child = Container(
       key: _globalKey,
-      child: widget.item,
+      child: widget.child,
     );
 
     if (!widget.enabled) {
@@ -86,7 +86,7 @@ class _DraggableItemState extends State<DraggableItem>
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
         decoration: decorationTween.animate(_controller),
-        child: widget.item,
+        child: widget.child,
       ),
     );
 

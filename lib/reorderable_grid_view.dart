@@ -35,17 +35,9 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
 ///
-/// [onUpdate] contains a list of int values that represents the current order
-/// in the list.
-/// E. g. if you have two children in a list, then the start value would be
-/// [0, 1]. After swapping their positions, the new order would be [1, 0]. That
-/// means the first child is now on position 1 and the second child is on
-/// position 0.
-/// Or you have four children, than the start order would be [0, 1, 2, 3]. After
-/// changing the position between the first and third item, the list would have
-/// the following order: [2, 0, 1, 3]. That means that the first item is on the
-/// position 2, the second item is on the position 0, the third item is on the
-/// position 1 and the fourth item still has positon 3.
+/// [onUpdate] always give you the old and new index of the moved children.
+/// Make sure to update your list of children that you used to display your data.
+/// See more on the example.
 class ReorderableGridView extends StatefulWidget {
   const ReorderableGridView({
     required this.children,
@@ -81,30 +73,34 @@ class ReorderableGridView extends StatefulWidget {
   /// Can only be used if [enableLongPress] is enabled.
   final Duration longPressDelay;
 
-  /// Every time one ore more items change the position, this function is called.
+  /// Every a child changes his position, this function is called.
   ///
-  /// [updatedChildren] contains a list of all children in the same order they
-  /// were added to this widget. The number in the list represents the current
-  /// order in the list.
+  /// When a child was moved, you get the old index where the child was and
+  /// the new index where the child is positioned now.
   ///
-  /// For example you have three items. At the beginning, the order would be
-  /// [0, 1, 2]. After changing the position between the first and last item,
-  /// the position changes, so the list would have the following order [2, 0, 1].
-  /// All items have still the same order in the list, but the first item has
-  /// now the position 2, the second item the position 0 and the last item the
-  /// position 1.
-  final void Function(List<int> updatedChildren)? onUpdate;
+  /// You should always update your list if you want to make use of the new
+  /// order. Otherwise this widget is just a good-looking widget.
+  ///
+  /// See more on the example.
+  final void Function(int oldIndex, int newIndex)? onUpdate;
 
   @override
   State<ReorderableGridView> createState() => _ReorderableGridViewState();
 }
 
-class _ReorderableGridViewState extends State<ReorderableGridView> {
+class _ReorderableGridViewState extends State<ReorderableGridView>
+    with WidgetsBindingObserver {
+  /// This widget always makes a copy of [widget.children]
+  List<Widget> childrenCopy = <Widget>[];
+
   /// Represents all children inside a map with the index as key
   Map<int, GridItemEntity> _childrenIdMap = {};
 
   /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
+
+  /// Bool to know if all children were build and updated.
+  bool hasBuiltItems = false;
 
   /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
@@ -112,33 +108,70 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
   /// Controller of the [SingleChildScrollView]
   final _scrollController = ScrollController();
 
-  /// Position of the [Wrap] that was used to build the widget
-  late final Offset _wrapPosition;
-
   /// Size of the [Wrap] that was used to build the widget
-  late final Size _wrapSize;
+  late Size _wrapSize;
 
   @override
   void initState() {
     super.initState();
-
+    setState(() {
+      childrenCopy = List<Widget>.from(widget.children);
+    });
+    WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-      _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-      _wrapSize = wrapBox.size;
+      _updateWrapSize();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // childrenCopy has to get an update
+    if (oldWidget.children != widget.children) {
+      // resetting maps to built all children correctly when children size changes
+      if (oldWidget.children.length != widget.children.length) {
+        setState(() {
+          _childrenIdMap = {};
+          _childrenOrderIdMap = {};
+          hasBuiltItems = false;
+          childrenCopy = List<Widget>.from(widget.children);
+        });
+      } else {
+        setState(() {
+          childrenCopy = List<Widget>.from(widget.children);
+        });
+      }
+    }
+  }
+
+  @override
+  void didChangeMetrics() {
+    final orientationBefore = MediaQuery.of(context).orientation;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      final orientationAfter = MediaQuery.of(context).orientation;
+      if (orientationBefore != orientationAfter) {
+        setState(() {
+          hasBuiltItems = false;
+        });
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final children = widget.children;
-
     return SingleChildScrollView(
       controller: _scrollController,
       child: Builder(
         builder: (context) {
           // after all children are added to animatedChildren
-          if (_childrenIdMap.entries.length == children.length) {
+          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
             return SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
@@ -152,6 +185,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
                           enabled: !widget.lockedChildren.contains(e.key),
+                          child: childrenCopy[e.value.orderId],
                         ))
                     .toList(),
               ),
@@ -162,9 +196,9 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
               spacing: widget.spacing,
               runSpacing: widget.runSpacing,
               children: List.generate(
-                children.length,
+                childrenCopy.length,
                 (index) => DraggableItem(
-                  item: children.elementAt(index),
+                  child: childrenCopy[index],
                   enableLongPress: widget.enableLongPress,
                   id: index,
                   onCreated: _handleCreated,
@@ -179,21 +213,36 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     );
   }
 
+  /// Looking for the current size of the [Wrap] and updates it.
+  void _updateWrapSize() {
+    final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+    _wrapSize = wrapBox.size;
+  }
+
   /// Creates [GridItemEntity] that contains all information for this widget.
   ///
-  /// After an item was built inside the [Wrap], this method takes all his
-  /// information to create a [GridItemEntity]. That includes the size and
-  /// position (global and locally inside [Wrap] of the widget. Also an id and
-  /// orderId is added that are important to know where the item is ordered and
-  /// to identify the original item after changing the position.
+  /// There are two different ways when a child was created.
+  ///
+  /// One would be that it already exists and was just updated, e. g. after an
+  /// orientation change. Then the existing child gets an update in terms of
+  /// position.
+  ///
+  /// If the item does not exist, then a new [GridItemEntity] is created.
+  /// That includes the size and position (global and locally inside [Wrap]
+  /// of the widget. Also an id and orderId is added that are important to
+  /// know where the item is ordered and to identify the original item
+  /// after changing the position.
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
-    Widget item,
     int id,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
+
     if (renderObject != null) {
+      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+      final _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+
       final box = renderObject as RenderBox;
       final position = box.localToGlobal(Offset.zero);
       final size = box.size;
@@ -202,23 +251,41 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         position.dy - _wrapPosition.dy,
       );
 
-      final gridItemEntity = GridItemEntity(
-        id: id,
-        localPosition: localPosition,
-        globalPosition: position,
-        size: size,
-        item: item,
-        orderId: id,
-      );
+      // in this case id is equal to orderId and _childrenOrderIdMap must be used
+      final existingItem = _childrenOrderIdMap[id];
 
-      _childrenIdMap[id] = gridItemEntity;
-      _childrenOrderIdMap[id] = gridItemEntity;
+      // if exists update position related to the orderId
+      if (existingItem != null) {
+        final gridItemEntity = existingItem.copyWith(
+          localPosition: localPosition,
+          globalPosition: position,
+        );
+        _childrenOrderIdMap[id] = gridItemEntity;
+        _childrenIdMap[gridItemEntity.id] = gridItemEntity;
 
-      if (_childrenIdMap.entries.length == widget.children.length) {
-        setState(() {
-          _childrenIdMap = _childrenIdMap;
-          _childrenOrderIdMap = _childrenOrderIdMap;
-        });
+        if (id == _childrenIdMap.entries.length - 1) {
+          _updateWrapSize();
+          setState(() {
+            hasBuiltItems = true;
+          });
+        }
+      } else {
+        final gridItemEntity = GridItemEntity(
+          id: id,
+          localPosition: localPosition,
+          globalPosition: position,
+          size: size,
+          orderId: id,
+        );
+        _childrenIdMap[id] = gridItemEntity;
+        _childrenOrderIdMap[id] = gridItemEntity;
+
+        if (_childrenIdMap.entries.length == childrenCopy.length) {
+          _updateWrapSize();
+          setState(() {
+            hasBuiltItems = true;
+          });
+        }
       }
     }
   }
@@ -271,6 +338,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
+          onUpdate: _handleUpdate,
         );
       }
       // item changes multiple positions to the negative direction
@@ -282,6 +350,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
+          onUpdate: _handleUpdate,
         );
       }
       // item changes position only to one item
@@ -292,13 +361,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-        );
-      }
-
-      // notifiy about the update in the list
-      if (widget.onUpdate != null) {
-        widget.onUpdate!(
-          _childrenIdMap.values.map((e) => e.orderId).toList(),
+          onUpdate: _handleUpdate,
         );
       }
 
@@ -306,6 +369,19 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
         _childrenIdMap = _childrenIdMap;
         _childrenOrderIdMap = _childrenOrderIdMap;
       });
+    }
+  }
+
+  void _handleUpdate(int oldIndex, int newIndex) {
+    setState(() {
+      final draggedItem = childrenCopy[oldIndex];
+      final collisionItem = childrenCopy[newIndex];
+      childrenCopy[newIndex] = draggedItem;
+      childrenCopy[oldIndex] = collisionItem;
+    });
+
+    if (widget.onUpdate != null) {
+      widget.onUpdate!(oldIndex, newIndex);
     }
   }
 }

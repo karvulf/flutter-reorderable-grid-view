@@ -287,6 +287,9 @@ void main() {
         givenCollisionOrderId: givenCollisionChild,
       };
 
+      int? actualOldIndex;
+      int? actualNewIndex;
+
       // when
       handleOneCollision(
         dragId: givenDragId,
@@ -294,6 +297,10 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenCollisionId],
+        onUpdate: (oldIndex, newIndex) {
+          actualOldIndex = oldIndex;
+          actualNewIndex = newIndex;
+        },
       );
 
       // then
@@ -336,6 +343,9 @@ void main() {
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
+
+      expect(actualOldIndex, isNull);
+      expect(actualNewIndex, isNull);
     });
 
     test(
@@ -374,6 +384,9 @@ void main() {
         givenCollisionOrderId: givenCollisionChild,
       };
 
+      int? actualOldIndex;
+      int? actualNewIndex;
+
       // when
       handleOneCollision(
         dragId: givenDragId,
@@ -381,6 +394,10 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
+        onUpdate: (oldIndex, newIndex) {
+          actualOldIndex = oldIndex;
+          actualNewIndex = newIndex;
+        },
       );
 
       // then
@@ -421,6 +438,9 @@ void main() {
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
+
+      expect(actualOldIndex, equals(givenDragOrderId));
+      expect(actualNewIndex, equals(givenCollisionOrderId));
     });
   });
 
@@ -490,6 +510,9 @@ void main() {
         givenChildOrderId: givenChild,
       };
 
+      List<int> actualOldIndexList = <int>[];
+      List<int> actualNewIndexList = <int>[];
+
       // when
       handleMultipleCollisionsBackward(
         dragItemOrderId: givenDragOrderId,
@@ -497,6 +520,10 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
+        onUpdate: (oldIndex, newIndex) {
+          actualOldIndexList.add(oldIndex);
+          actualNewIndexList.add(newIndex);
+        },
       );
 
       // then
@@ -588,6 +615,21 @@ void main() {
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
+
+      expect(
+          actualOldIndexList,
+          equals([
+            givenDragOrderId,
+            givenChildOrderId2,
+            givenChildOrderId,
+          ]));
+      expect(
+          actualNewIndexList,
+          equals([
+            givenChildOrderId2,
+            givenChildOrderId,
+            givenCollisionOrderId,
+          ]));
     });
 
     test(
@@ -813,6 +855,9 @@ void main() {
         givenChildOrderId: givenChild,
       };
 
+      List<int> actualOldIndexList = <int>[];
+      List<int> actualNewIndexList = <int>[];
+
       // when
       handleMultipleCollisionsForward(
         dragItemOrderId: givenDragOrderId,
@@ -820,6 +865,10 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
+        onUpdate: (oldIndex, newIndex) {
+          actualOldIndexList.add(oldIndex);
+          actualNewIndexList.add(newIndex);
+        },
       );
 
       // then
@@ -902,6 +951,21 @@ void main() {
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
+
+      expect(
+          actualOldIndexList,
+          equals([
+            givenDragOrderId,
+            givenChildOrderId,
+            givenChildOrderId2,
+          ]));
+      expect(
+          actualNewIndexList,
+          equals([
+            givenChildOrderId,
+            givenChildOrderId2,
+            givenCollisionOrderId,
+          ]));
     });
     test(
         'GIVEN 4 childs and first and last child in orderId changes position '

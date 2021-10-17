@@ -11,16 +11,14 @@ void main() {
     const givenLocalPosition = Offset(0, 0);
     const givenGlobalPosition = Offset(1, 1);
     const givenSize = Size(100, 100);
-    final givenItem = Container();
     const givenOrderId = 0;
     const givenId = 100;
 
     // when
-    final actual = GridItemEntity(
+    const actual = GridItemEntity(
       localPosition: givenLocalPosition,
       globalPosition: givenGlobalPosition,
       size: givenSize,
-      item: givenItem,
       orderId: givenOrderId,
       id: givenId,
     );
@@ -29,7 +27,6 @@ void main() {
     expect(actual.localPosition, equals(givenLocalPosition));
     expect(actual.globalPosition, equals(givenGlobalPosition));
     expect(actual.size, equals(givenSize));
-    expect(actual.item, equals(givenItem));
     expect(actual.orderId, equals(givenOrderId));
     expect(actual.id, equals(givenId));
   });
@@ -40,17 +37,15 @@ void main() {
       'THEN should have copy entity with same values', () {
     // given
     const givenSize = Size(100, 100);
-    final givenItem = Container();
     const givenLocalPosition = Offset(0, 0);
     const givenGlobalPosition = Offset(1, 1);
     const givenOrderId = 0;
     const givenId = 100;
 
-    final givenGridItemEntity = GridItemEntity(
+    const givenGridItemEntity = GridItemEntity(
       localPosition: givenLocalPosition,
       globalPosition: givenGlobalPosition,
       size: givenSize,
-      item: givenItem,
       orderId: givenOrderId,
       id: givenId,
     );
@@ -62,7 +57,6 @@ void main() {
     expect(actual.localPosition, equals(givenLocalPosition));
     expect(actual.globalPosition, equals(givenGlobalPosition));
     expect(actual.size, equals(givenSize));
-    expect(actual.item, equals(givenItem));
     expect(actual.orderId, equals(givenOrderId));
     expect(actual.id, equals(givenId));
   });
@@ -73,13 +67,11 @@ void main() {
       'THEN should have updated values', () {
     // given
     const givenSize = Size(100, 100);
-    final givenItem = Container();
 
-    final givenGridItemEntity = GridItemEntity(
-      localPosition: const Offset(0, 0),
-      globalPosition: const Offset(1, 1),
+    const givenGridItemEntity = GridItemEntity(
+      localPosition: Offset(0, 0),
+      globalPosition: Offset(1, 1),
       size: givenSize,
-      item: givenItem,
       orderId: 0,
       id: 1,
     );
@@ -99,7 +91,6 @@ void main() {
     expect(actual.localPosition, equals(givenUpdatedLocalPosition));
     expect(actual.globalPosition, equals(givenUpdatedGlobalPosition));
     expect(actual.size, equals(givenSize));
-    expect(actual.item, equals(givenItem));
     expect(actual.orderId, equals(givenUpdatedOrderId));
   });
 }
