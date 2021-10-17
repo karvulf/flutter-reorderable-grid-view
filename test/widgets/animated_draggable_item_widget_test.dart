@@ -123,7 +123,7 @@ void main() {
     const givenEnableLongPress = false;
     const givenEnableAnimation = true;
     const givenText = 'hallo';
-    const givenChild = UniqueTestWidget();
+    const givenChild = Text(givenText);
     final givenEntry = MapEntry(
       0,
       builder.getGridItemEntity(

@@ -591,4 +591,152 @@ void main() {
     expect(actualOldIndexList, equals([3]));
     expect(actualNewIndexList, equals([1]));
   });
+
+  testWidgets(
+      'GIVEN [ReorderableGridView] with functionality to add new child '
+      'WHEN tapping add new child button '
+      'THEN should update [ReorderableGridView] with new child',
+      (WidgetTester tester) async {
+    // given
+    const givenNewText = 'hi im new';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: _TestAddOrUpdateChildWidget(
+          newText: givenNewText,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    await tester.tap(find.text('add child'));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenNewText), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN [ReorderableGridView] with functionality to update current child '
+      'WHEN tapping update child button '
+      'THEN should update [ReorderableGridView] with updated child',
+      (WidgetTester tester) async {
+    // given
+    const givenUpdatedText = 'its me an update!';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: _TestAddOrUpdateChildWidget(
+          updatedText: givenUpdatedText,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    await tester.tap(find.text('update child'));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenUpdatedText), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN [ReorderableGridView] with enableLongPress = false and 4 texts '
+      'WHEN changing orientation '
+      'THEN should still display all texts', (WidgetTester tester) async {
+    // given
+    // rotate to portrait
+    tester.binding.window.physicalSizeTestValue = const Size(400, 1600);
+    tester.binding.window.devicePixelRatioTestValue = 1;
+
+    const givenText1 = 'hallo1';
+    const givenText2 = 'hallo2';
+    const givenText3 = 'hallo3';
+    const givenText4 = 'hallo4';
+
+    const givenChildren = <Widget>[
+      Text(givenText1),
+      Text(givenText2),
+      Text(givenText3),
+      Text(givenText4),
+    ];
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ReorderableGridView(
+            children: givenChildren,
+            enableLongPress: false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    // rotate to landscape
+    tester.binding.window.physicalSizeTestValue = const Size(1600, 400);
+    tester.binding.window.devicePixelRatioTestValue = 1;
+
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenText1), findsOneWidget);
+    expect(find.text(givenText2), findsOneWidget);
+    expect(find.text(givenText3), findsOneWidget);
+    expect(find.text(givenText4), findsOneWidget);
+  });
+}
+
+class _TestAddOrUpdateChildWidget extends StatefulWidget {
+  final String? newText;
+  final String? updatedText;
+
+  const _TestAddOrUpdateChildWidget({
+    this.newText,
+    this.updatedText,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_TestAddOrUpdateChildWidget> createState() =>
+      _TestAddOrUpdateChildWidgetState();
+}
+
+class _TestAddOrUpdateChildWidgetState
+    extends State<_TestAddOrUpdateChildWidget> {
+  List<String> children = <String>['test'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                children.add(widget.newText!);
+              });
+            },
+            child: const Text('add child'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                children[0] = widget.updatedText!;
+              });
+            },
+            child: const Text('update child'),
+          ),
+          ReorderableGridView(
+            children: children.map((e) => Text(e)).toList(),
+            enableLongPress: false,
+          ),
+        ],
+      ),
+    );
+  }
 }
