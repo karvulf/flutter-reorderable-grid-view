@@ -182,6 +182,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
                           enabled: !widget.lockedChildren.contains(e.key),
+                          child: children[e.value.id],
                         ))
                     .toList(),
               ),
@@ -200,6 +201,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                   onCreated: _handleCreated,
                   longPressDelay: widget.longPressDelay,
                   enabled: !widget.lockedChildren.contains(index),
+                  child: children[index],
                 ),
               ),
             );

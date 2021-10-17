@@ -6,6 +6,8 @@ class DraggableItem extends StatefulWidget {
   final Widget item;
   final int id;
   final bool enableLongPress;
+  final Widget child;
+
   final Duration longPressDelay;
   final bool enabled;
 
@@ -25,6 +27,7 @@ class DraggableItem extends StatefulWidget {
     required this.item,
     required this.id,
     required this.enableLongPress,
+    required this.child,
     this.longPressDelay = kLongPressTimeout,
     this.enabled = true,
     this.onCreated,
@@ -66,7 +69,7 @@ class _DraggableItemState extends State<DraggableItem>
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.onCreated != null) {
-        widget.onCreated!(context, _globalKey, widget.item, widget.id);
+        widget.onCreated!(context, _globalKey, widget.child, widget.id);
       }
     });
   }
@@ -75,7 +78,7 @@ class _DraggableItemState extends State<DraggableItem>
   Widget build(BuildContext context) {
     final child = Container(
       key: _globalKey,
-      child: widget.item,
+      child: widget.child,
     );
 
     if (!widget.enabled) {
@@ -86,7 +89,7 @@ class _DraggableItemState extends State<DraggableItem>
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
         decoration: decorationTween.animate(_controller),
-        child: widget.item,
+        child: widget.child,
       ),
     );
 
