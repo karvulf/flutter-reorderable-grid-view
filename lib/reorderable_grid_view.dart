@@ -93,7 +93,7 @@ class ReorderableGridView extends StatefulWidget {
   /// All items have still the same order in the list, but the first item has
   /// now the position 2, the second item the position 0 and the last item the
   /// position 1.
-  final void Function(List<int> updatedChildren)? onUpdate;
+  final void Function(int oldIndex, int newIndex)? onUpdate;
 
   @override
   State<ReorderableGridView> createState() => _ReorderableGridViewState();
@@ -329,6 +329,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
+          onUpdate: widget.onUpdate,
         );
       }
       // item changes multiple positions to the negative direction
@@ -340,6 +341,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
+          onUpdate: widget.onUpdate,
         );
       }
       // item changes position only to one item
@@ -350,13 +352,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-        );
-      }
-
-      // notifiy about the update in the list
-      if (widget.onUpdate != null) {
-        widget.onUpdate!(
-          _childrenIdMap.values.map((e) => e.orderId).toList(),
+          onUpdate: widget.onUpdate,
         );
       }
 

@@ -80,6 +80,7 @@ void handleOneCollision({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
+  void Function(int oldIndex, int newIndex)? onUpdate,
 }) {
   assert(dragId != collisionId);
 
@@ -106,6 +107,10 @@ void handleOneCollision({
 
   childrenOrderIdMap[entryA.orderId] = updatedEntryValueB;
   childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
+
+  if (onUpdate != null) {
+    onUpdate(dragId, collisionId);
+  }
 }
 
 /// Called when the item changes his position between more than one item.
@@ -128,6 +133,7 @@ void handleMultipleCollisionsBackward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
+  void Function(int oldIndex, int newIndex)? onUpdate,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -148,6 +154,7 @@ void handleMultipleCollisionsBackward({
         childrenIdMap: childrenIdMap,
         childrenOrderIdMap: childrenOrderIdMap,
         lockedChildren: lockedChildren,
+        onUpdate: onUpdate,
       );
     }
   }
@@ -173,6 +180,7 @@ void handleMultipleCollisionsForward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
+  void Function(int oldIndex, int newIndex)? onUpdate,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -194,6 +202,7 @@ void handleMultipleCollisionsForward({
         childrenIdMap: childrenIdMap,
         lockedChildren: lockedChildren,
         childrenOrderIdMap: childrenOrderIdMap,
+        onUpdate: onUpdate,
       );
     }
   }
