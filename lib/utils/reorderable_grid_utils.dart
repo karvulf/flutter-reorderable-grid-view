@@ -109,7 +109,7 @@ void handleOneCollision({
   childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
 
   if (onUpdate != null) {
-    onUpdate(dragId, collisionId);
+    onUpdate(entryA.orderId, entryB.orderId);
   }
 }
 
