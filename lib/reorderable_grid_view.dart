@@ -142,6 +142,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
+        _updateWrapData();
         setState(() {
           hasBuiltItems = false;
         });
