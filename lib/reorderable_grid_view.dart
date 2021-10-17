@@ -47,17 +47,9 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// position 2, the second item is on the position 0, the third item is on the
 /// position 1 and the fourth item still has positon 3.
 class ReorderableGridView extends StatefulWidget {
-  final List<Widget> children;
-  final double spacing;
-  final double runSpacing;
-  final bool enableAnimation;
-  final bool enableLongPress;
-  final Duration longPressDelay;
-
-  final void Function(List<int> updatedChildren)? onUpdate;
-
   const ReorderableGridView({
     required this.children,
+    this.lockedChildren = const [],
     this.spacing = 8,
     this.runSpacing = 8,
     this.enableAnimation = true,
@@ -66,6 +58,42 @@ class ReorderableGridView extends StatefulWidget {
     this.onUpdate,
     Key? key,
   }) : super(key: key);
+
+  /// Adding [children] that should be displayed inside this widget
+  final List<Widget> children;
+
+  final List<int> lockedChildren;
+
+  /// Spacing between displayed items in horizontal direction
+  final double spacing;
+
+  /// Spacing between displayed items in vertical direction
+  final double runSpacing;
+
+  /// By default animation is enabled when the position of the items changes
+  final bool enableAnimation;
+
+  /// By default long press is enabled when tapping an item
+  final bool enableLongPress;
+
+  /// By default it has a duration of 500ms before an item can be moved.
+  ///
+  /// Can only be used if [enableLongPress] is enabled.
+  final Duration longPressDelay;
+
+  /// Every time one ore more items change the position, this function is called.
+  ///
+  /// [updatedChildren] contains a list of all children in the same order they
+  /// were added to this widget. The number in the list represents the current
+  /// order in the list.
+  ///
+  /// For example you have three items. At the beginning, the order would be
+  /// [0, 1, 2]. After changing the position between the first and last item,
+  /// the position changes, so the list would have the following order [2, 0, 1].
+  /// All items have still the same order in the list, but the first item has
+  /// now the position 2, the second item the position 0 and the last item the
+  /// position 1.
+  final void Function(List<int> updatedChildren)? onUpdate;
 
   @override
   State<ReorderableGridView> createState() => _ReorderableGridViewState();
@@ -112,6 +140,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                           enableLongPress: widget.enableLongPress,
                           onDragUpdate: _handleDragUpdate,
                           longPressDelay: widget.longPressDelay,
+                          enabled: widget.lockedChildren.contains(e.key),
                         ))
                     .toList(),
               ),
@@ -129,6 +158,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
                   id: index,
                   onCreated: _handleCreated,
                   longPressDelay: widget.longPressDelay,
+                  enabled: !widget.lockedChildren.contains(index),
                 ),
               ),
             );
