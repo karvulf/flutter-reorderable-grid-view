@@ -240,7 +240,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         _childrenOrderIdMap[id] = gridItemEntity;
         _childrenIdMap[gridItemEntity.id] = gridItemEntity;
 
-        if (id == _childrenIdMap.entries.length) {
+        if (id == _childrenIdMap.entries.length - 1) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
