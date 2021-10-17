@@ -125,7 +125,7 @@ void handleMultipleCollisionsBackward({
     }
 
     if (lockedChildren.contains(collisionId)) {
-      while (i - 2 > collisionItemOrderId &&
+      while (i - 2 >= collisionItemOrderId &&
           lockedChildren.contains(collisionId)) {
         // Todo: Handling with map much more performant
         for (final entry in children.entries) {
@@ -179,7 +179,7 @@ void handleMultipleCollisionsForward({
 
     // look for the next child that has a collision
     if (lockedChildren.contains(collisionId)) {
-      while (i + 2 < collisionItemOrderId &&
+      while (i + 2 <= collisionItemOrderId &&
           lockedChildren.contains(collisionId)) {
         // Todo: Handling with map much more performant
         for (final entry in children.entries) {
