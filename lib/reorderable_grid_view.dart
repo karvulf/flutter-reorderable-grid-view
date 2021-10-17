@@ -99,7 +99,8 @@ class ReorderableGridView extends StatefulWidget {
   State<ReorderableGridView> createState() => _ReorderableGridViewState();
 }
 
-class _ReorderableGridViewState extends State<ReorderableGridView> {
+class _ReorderableGridViewState extends State<ReorderableGridView>
+    with WidgetsBindingObserver {
   /// Represents all children inside a map with the index as key
   Map<int, GridItemEntity> _childrenIdMap = {};
 
@@ -123,7 +124,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _updateWrapData();
+      _updateWrapDataWithFrameCallback();
     });
   }
 
@@ -133,9 +134,23 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
 
     if (oldWidget.children.length != widget.children.length) {
       WidgetsBinding.instance!.addPostFrameCallback((_) {
-        _updateWrapData();
+        _updateWrapDataWithFrameCallback();
       });
     }
+  }
+
+  @override
+  void didChangeMetrics() {
+    final orientationBefore = MediaQuery.of(context).orientation;
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      final orientationAfter = MediaQuery.of(context).orientation;
+      if (orientationBefore != orientationAfter) {
+        setState(() {
+          _childrenIdMap = {};
+          _childrenOrderIdMap = {};
+        });
+      }
+    });
   }
 
   @override
@@ -188,10 +203,15 @@ class _ReorderableGridViewState extends State<ReorderableGridView> {
     );
   }
 
-  void _updateWrapData() {
-    final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
-    _wrapPosition = wrapBox.localToGlobal(Offset.zero);
-    _wrapSize = wrapBox.size;
+  void _updateWrapDataWithFrameCallback() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (_wrapKey.currentContext != null) {
+        final wrapBox =
+            _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+        _wrapPosition = wrapBox.localToGlobal(Offset.zero);
+        _wrapSize = wrapBox.size;
+      }
+    });
   }
 
   /// Creates [GridItemEntity] that contains all information for this widget.
