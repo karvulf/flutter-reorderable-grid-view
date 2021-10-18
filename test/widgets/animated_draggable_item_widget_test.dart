@@ -52,7 +52,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.child == givenChild &&
+            widget.child is SizedBox &&
+            (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == kLongPressTimeout &&
@@ -107,7 +108,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.child == givenChild &&
+            widget.child is SizedBox &&
+            (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == givenLongPressDelay &&

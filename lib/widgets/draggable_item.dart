@@ -2,6 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+typedef OnCreatedFunction = Function(
+  BuildContext context,
+  GlobalKey key,
+  int id,
+);
+
+typedef OnDragUpdateFunction = Function(
+  BuildContext context,
+  DragUpdateDetails details,
+  int id,
+);
+
 class DraggableItem extends StatefulWidget {
   final Widget child;
   final int id;
@@ -10,16 +22,8 @@ class DraggableItem extends StatefulWidget {
   final Duration longPressDelay;
   final bool enabled;
 
-  final Function(
-    BuildContext context,
-    GlobalKey key,
-    int id,
-  )? onCreated;
-  final Function(
-    BuildContext context,
-    DragUpdateDetails details,
-    int id,
-  )? onDragUpdate;
+  final OnCreatedFunction? onCreated;
+  final OnDragUpdateFunction? onDragUpdate;
 
   const DraggableItem({
     required this.child,

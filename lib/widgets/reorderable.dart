@@ -2,9 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_grid_view_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
+
+typedef ReoderableOnUpdateFunction = void Function(int oldIndex, int newIndex);
 
 /// Ordering [children] in a [Wrap] that can be drag and dropped.
 ///
@@ -38,58 +44,99 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// [onUpdate] always give you the old and new index of the moved children.
 /// Make sure to update your list of children that you used to display your data.
 /// See more on the example.
-class ReorderableGridView extends StatefulWidget {
-  const ReorderableGridView({
+class Reorderable extends StatefulWidget
+    implements
+        ReorderableParameters,
+        ReorderableWrapParameters,
+        ReorderableGridViewParameters {
+  const Reorderable({
     required this.children,
+    required this.reorderableType,
     this.lockedChildren = const [],
     this.spacing = 8,
     this.runSpacing = 8,
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
+    this.mainAxisSpacing = 0,
     this.onUpdate,
+    this.crossAxisCount,
+    this.physics,
+    this.clipBehaviour = Clip.none,
+    this.shrinkWrap = false,
+    this.maxCrossAxisExtent = 0.0,
+    this.crossAxisSpacing = 0.0,
     Key? key,
   }) : super(key: key);
 
-  /// Adding [children] that should be displayed inside this widget
-  final List<Widget> children;
-
-  final List<int> lockedChildren;
-
-  /// Spacing between displayed items in horizontal direction
-  final double spacing;
-
-  /// Spacing between displayed items in vertical direction
-  final double runSpacing;
-
-  /// By default animation is enabled when the position of the items changes
-  final bool enableAnimation;
-
-  /// By default long press is enabled when tapping an item
-  final bool enableLongPress;
-
-  /// By default it has a duration of 500ms before an item can be moved.
   ///
-  /// Can only be used if [enableLongPress] is enabled.
-  final Duration longPressDelay;
-
-  /// Every a child changes his position, this function is called.
+  /// Default Parameter
   ///
-  /// When a child was moved, you get the old index where the child was and
-  /// the new index where the child is positioned now.
-  ///
-  /// You should always update your list if you want to make use of the new
-  /// order. Otherwise this widget is just a good-looking widget.
-  ///
-  /// See more on the example.
-  final void Function(int oldIndex, int newIndex)? onUpdate;
 
   @override
-  State<ReorderableGridView> createState() => _ReorderableGridViewState();
+  final List<Widget> children;
+
+  @override
+  final List<int> lockedChildren;
+
+  @override
+  final bool enableAnimation;
+
+  @override
+  final bool enableLongPress;
+
+  @override
+  final Duration longPressDelay;
+
+  @override
+  final void Function(int oldIndex, int newIndex)? onUpdate;
+
+  ///
+  /// Wrap
+  ///
+
+  @override
+  final double spacing;
+
+  @override
+  final double runSpacing;
+
+  ///
+  /// GridView
+  ///
+  @override
+  final int? crossAxisCount;
+
+  @override
+  final double mainAxisSpacing;
+
+  @override
+  final bool shrinkWrap;
+
+  @override
+  final ScrollPhysics? physics;
+
+  @override
+  final double maxCrossAxisExtent;
+
+  @override
+  final Clip clipBehaviour;
+
+  @override
+  final double crossAxisSpacing;
+
+  ///
+  /// Other
+  ///
+
+  @override
+  final ReorderableType reorderableType;
+
+  @override
+  State<Reorderable> createState() => _ReorderableState();
 }
 
-class _ReorderableGridViewState extends State<ReorderableGridView>
-    with WidgetsBindingObserver {
+class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// This widget always makes a copy of [widget.children]
   List<Widget> childrenCopy = <Widget>[];
 
@@ -130,7 +177,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   @override
-  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
+  void didUpdateWidget(covariant Reorderable oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // childrenCopy has to get an update
@@ -166,13 +213,24 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Builder(
-        builder: (context) {
-          // after all children are added to animatedChildren
-          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-            return SizedBox(
+    final generatedChildren = List.generate(
+      childrenCopy.length,
+      (index) => DraggableItem(
+        child: childrenCopy[index],
+        enableLongPress: widget.enableLongPress,
+        id: index,
+        onCreated: _handleCreated,
+        longPressDelay: widget.longPressDelay,
+        enabled: !widget.lockedChildren.contains(index),
+      ),
+    );
+    return Builder(
+      builder: (context) {
+        // after all children are added to animatedChildren
+        if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
+          return SingleChildScrollView(
+            controller: _scrollController,
+            child: SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
@@ -189,27 +247,39 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                         ))
                     .toList(),
               ),
-            );
-          } else {
-            return Wrap(
-              key: _wrapKey,
-              spacing: widget.spacing,
-              runSpacing: widget.runSpacing,
-              children: List.generate(
-                childrenCopy.length,
-                (index) => DraggableItem(
-                  child: childrenCopy[index],
-                  enableLongPress: widget.enableLongPress,
-                  id: index,
-                  onCreated: _handleCreated,
-                  longPressDelay: widget.longPressDelay,
-                  enabled: !widget.lockedChildren.contains(index),
-                ),
-              ),
-            );
+            ),
+          );
+        } else {
+          switch (widget.reorderableType) {
+            case ReorderableType.wrap:
+              return Wrap(
+                key: _wrapKey,
+                spacing: widget.spacing,
+                runSpacing: widget.runSpacing,
+                children: generatedChildren,
+              );
+            case ReorderableType.gridView:
+              throw UnimplementedError('Widget soon available!');
+            case ReorderableType.gridViewCount:
+              return GridView.count(
+                key: _wrapKey,
+                crossAxisCount: widget.crossAxisCount!,
+                mainAxisSpacing: widget.mainAxisSpacing,
+                children: generatedChildren,
+              );
+            case ReorderableType.gridViewExtent:
+              return GridView.extent(
+                shrinkWrap: widget.shrinkWrap,
+                physics: widget.physics,
+                maxCrossAxisExtent: widget.maxCrossAxisExtent,
+                clipBehavior: widget.clipBehaviour,
+                mainAxisSpacing: widget.mainAxisSpacing,
+                crossAxisSpacing: widget.crossAxisSpacing,
+                children: generatedChildren,
+              );
           }
-        },
-      ),
+        }
+      },
     );
   }
 

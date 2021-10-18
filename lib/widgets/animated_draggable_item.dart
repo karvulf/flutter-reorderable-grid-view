@@ -8,11 +8,7 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// It's possible to disable the animation after changing the position.
 class AnimatedDraggableItem extends StatelessWidget {
   final MapEntry<int, GridItemEntity> entry;
-  final Function(
-    BuildContext context,
-    DragUpdateDetails details,
-    int id,
-  ) onDragUpdate;
+  final OnDragUpdateFunction onDragUpdate;
   final bool enableAnimation;
   final bool enableLongPress;
   final Widget child;
@@ -39,7 +35,11 @@ class AnimatedDraggableItem extends StatelessWidget {
       onDragUpdate: onDragUpdate,
       longPressDelay: longPressDelay,
       enabled: enabled,
-      child: child,
+      child: SizedBox(
+        height: entry.value.size.height,
+        width: entry.value.size.width,
+        child: child,
+      ),
     );
 
     if (!enableAnimation) {
