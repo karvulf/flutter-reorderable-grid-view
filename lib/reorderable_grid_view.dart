@@ -193,6 +193,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           );
         } else {
           return GridView.count(
+            key: _wrapKey,
             crossAxisCount: 2,
             children: List.generate(
               childrenCopy.length,
