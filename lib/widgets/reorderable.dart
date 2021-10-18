@@ -44,7 +44,6 @@ typedef ReoderableOnUpdateFunction = void Function(int oldIndex, int newIndex);
 /// [onUpdate] always give you the old and new index of the moved children.
 /// Make sure to update your list of children that you used to display your data.
 /// See more on the example.
-@protected
 class Reorderable extends StatefulWidget
     implements
         ReorderableParameters,
