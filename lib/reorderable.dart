@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_grid_view_parameters.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
@@ -44,7 +45,10 @@ typedef ReoderableOnUpdateFunction = void Function(int oldIndex, int newIndex);
 /// Make sure to update your list of children that you used to display your data.
 /// See more on the example.
 class Reorderable extends StatefulWidget
-    implements ReorderableParameters, ReorderableWrapParameters {
+    implements
+        ReorderableParameters,
+        ReorderableWrapParameters,
+        ReorderableGridViewParameters {
   const Reorderable({
     required this.children,
     required this.reorderableType,
@@ -54,7 +58,14 @@ class Reorderable extends StatefulWidget
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
+    this.mainAxisSpacing = 0,
     this.onUpdate,
+    this.crossAxisCount,
+    this.physics,
+    this.clipBehaviour = Clip.none,
+    this.shrinkWrap = false,
+    this.maxCrossAxisExtent = 0.0,
+    this.crossAxisSpacing = 0.0,
     Key? key,
   }) : super(key: key);
 
@@ -91,9 +102,34 @@ class Reorderable extends StatefulWidget
   final double runSpacing;
 
   ///
+  /// GridView
+  ///
+  @override
+  final int? crossAxisCount;
+
+  @override
+  final double mainAxisSpacing;
+
+  @override
+  final bool shrinkWrap;
+
+  @override
+  final ScrollPhysics? physics;
+
+  @override
+  final double maxCrossAxisExtent;
+
+  @override
+  final Clip clipBehaviour;
+
+  @override
+  final double crossAxisSpacing;
+
+  ///
   /// Other
   ///
 
+  @override
   final ReorderableType reorderableType;
 
   @override
@@ -177,6 +213,17 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final generatedChildren = List.generate(
+      childrenCopy.length,
+      (index) => DraggableItem(
+        child: childrenCopy[index],
+        enableLongPress: widget.enableLongPress,
+        id: index,
+        onCreated: _handleCreated,
+        longPressDelay: widget.longPressDelay,
+        enabled: !widget.lockedChildren.contains(index),
+      ),
+    );
     return Builder(
       builder: (context) {
         // after all children are added to animatedChildren
@@ -209,36 +256,27 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 key: _wrapKey,
                 spacing: widget.spacing,
                 runSpacing: widget.runSpacing,
-                children: List.generate(
-                  childrenCopy.length,
-                  (index) => DraggableItem(
-                    child: childrenCopy[index],
-                    enableLongPress: widget.enableLongPress,
-                    id: index,
-                    onCreated: _handleCreated,
-                    longPressDelay: widget.longPressDelay,
-                    enabled: !widget.lockedChildren.contains(index),
-                  ),
-                ),
-              );
-            case ReorderableType.gridViewCount:
-              return GridView.count(
-                key: _wrapKey,
-                crossAxisCount: 2,
-                children: List.generate(
-                  childrenCopy.length,
-                  (index) => DraggableItem(
-                    child: childrenCopy[index],
-                    enableLongPress: widget.enableLongPress,
-                    id: index,
-                    onCreated: _handleCreated,
-                    longPressDelay: widget.longPressDelay,
-                    enabled: !widget.lockedChildren.contains(index),
-                  ),
-                ),
+                children: generatedChildren,
               );
             case ReorderableType.gridView:
               throw UnimplementedError('Widget soon available!');
+            case ReorderableType.gridViewCount:
+              return GridView.count(
+                key: _wrapKey,
+                crossAxisCount: widget.crossAxisCount!,
+                mainAxisSpacing: widget.mainAxisSpacing,
+                children: generatedChildren,
+              );
+            case ReorderableType.gridViewExtent:
+              return GridView.extent(
+                shrinkWrap: widget.shrinkWrap,
+                physics: widget.physics,
+                maxCrossAxisExtent: widget.maxCrossAxisExtent,
+                clipBehavior: widget.clipBehaviour,
+                mainAxisSpacing: widget.mainAxisSpacing,
+                crossAxisSpacing: widget.crossAxisSpacing,
+                children: generatedChildren,
+              );
           }
         }
       },
