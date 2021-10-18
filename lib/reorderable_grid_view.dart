@@ -191,6 +191,20 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
               ),
             );
           } else {
+            return GridView.count(
+              crossAxisCount: 2,
+              children: List.generate(
+                childrenCopy.length,
+                (index) => DraggableItem(
+                  child: childrenCopy[index],
+                  enableLongPress: widget.enableLongPress,
+                  id: index,
+                  onCreated: _handleCreated,
+                  longPressDelay: widget.longPressDelay,
+                  enabled: !widget.lockedChildren.contains(index),
+                ),
+              ),
+            );
             return Wrap(
               key: _wrapKey,
               spacing: widget.spacing,
