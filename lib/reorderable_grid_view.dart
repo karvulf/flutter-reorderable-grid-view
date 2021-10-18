@@ -166,13 +166,13 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Builder(
-        builder: (context) {
-          // after all children are added to animatedChildren
-          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-            return SizedBox(
+    return Builder(
+      builder: (context) {
+        // after all children are added to animatedChildren
+        if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
+          return SingleChildScrollView(
+            controller: _scrollController,
+            child: SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
@@ -189,41 +189,41 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                         ))
                     .toList(),
               ),
-            );
-          } else {
-            return GridView.count(
-              crossAxisCount: 2,
-              children: List.generate(
-                childrenCopy.length,
-                (index) => DraggableItem(
-                  child: childrenCopy[index],
-                  enableLongPress: widget.enableLongPress,
-                  id: index,
-                  onCreated: _handleCreated,
-                  longPressDelay: widget.longPressDelay,
-                  enabled: !widget.lockedChildren.contains(index),
-                ),
+            ),
+          );
+        } else {
+          return GridView.count(
+            crossAxisCount: 2,
+            children: List.generate(
+              childrenCopy.length,
+              (index) => DraggableItem(
+                child: childrenCopy[index],
+                enableLongPress: widget.enableLongPress,
+                id: index,
+                onCreated: _handleCreated,
+                longPressDelay: widget.longPressDelay,
+                enabled: !widget.lockedChildren.contains(index),
               ),
-            );
-            return Wrap(
-              key: _wrapKey,
-              spacing: widget.spacing,
-              runSpacing: widget.runSpacing,
-              children: List.generate(
-                childrenCopy.length,
-                (index) => DraggableItem(
-                  child: childrenCopy[index],
-                  enableLongPress: widget.enableLongPress,
-                  id: index,
-                  onCreated: _handleCreated,
-                  longPressDelay: widget.longPressDelay,
-                  enabled: !widget.lockedChildren.contains(index),
-                ),
+            ),
+          );
+          return Wrap(
+            key: _wrapKey,
+            spacing: widget.spacing,
+            runSpacing: widget.runSpacing,
+            children: List.generate(
+              childrenCopy.length,
+              (index) => DraggableItem(
+                child: childrenCopy[index],
+                enableLongPress: widget.enableLongPress,
+                id: index,
+                onCreated: _handleCreated,
+                longPressDelay: widget.longPressDelay,
+                enabled: !widget.lockedChildren.contains(index),
               ),
-            );
-          }
-        },
-      ),
+            ),
+          );
+        }
+      },
     );
   }
 
