@@ -39,7 +39,11 @@ class AnimatedDraggableItem extends StatelessWidget {
       onDragUpdate: onDragUpdate,
       longPressDelay: longPressDelay,
       enabled: enabled,
-      child: child,
+      child: SizedBox(
+        height: entry.value.size.height,
+        width: entry.value.size.width,
+        child: child,
+      ),
     );
 
     if (!enableAnimation) {
