@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
-import 'package:flutter_reorderable_grid_view/reorderable.dart';
-import 'package:flutter_reorderable_grid_view/reorderable_grid_view_layout.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view_layout.dart';
 
 class ReorderableGridView extends ReorderableGridViewLayout {
   const ReorderableGridView.count({

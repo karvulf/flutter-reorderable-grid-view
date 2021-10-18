@@ -1,1 +1,1 @@
-enum ReorderableType { wrap, gridView, gridViewCount }
+enum ReorderableType { wrap, gridView, gridViewCount, gridViewExtent }

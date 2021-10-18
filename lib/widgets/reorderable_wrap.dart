@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
-import 'package:flutter_reorderable_grid_view/reorderable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
 
 class ReorderableWrap extends StatelessWidget
     implements ReorderableParameters, ReorderableWrapParameters {
