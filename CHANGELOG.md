@@ -1,3 +1,11 @@
+## 1.0.0-dev.1
+* Differentiate between Wrap and GridView
+* ReorderableGridView renamed to ReorderableWrap
+* ReorderableGridView created with different GridView Builds
+  * ReorderableGridView.count added
+  * ReorderableGridView.extent added
+  * Hint: Multiple Props still missing
+
 ## 0.3.0
 
 * Fixed some critical bugs

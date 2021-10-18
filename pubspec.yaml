@@ -1,6 +1,6 @@
 name: flutter_reorderable_grid_view
 description: Reordering all children inside ReorderableGridView. By default the reorder is animated.
-version: 0.3.0
+version: 1.0.0-dev.1
 repository: https://github.com/karvulf/flutter-reorderable-grid-view
 
 environment:
