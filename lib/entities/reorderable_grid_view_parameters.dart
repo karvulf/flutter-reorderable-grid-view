@@ -14,7 +14,7 @@ abstract class ReorderableGridViewParameters {
 
   final double maxCrossAxisExtent = 0.0;
 
-  final Clip clipBehaviour = Clip.hardEdge;
+  final Clip clipBehavior = Clip.hardEdge;
 
   final double crossAxisSpacing = 0.0;
 }

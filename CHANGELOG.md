@@ -1,3 +1,6 @@
+## 1.0.0-dev.2
+* Fixed ReorderableGridView.extent
+
 ## 1.0.0-dev.1
 * Differentiate between Wrap and GridView
 * ReorderableGridView renamed to ReorderableWrap

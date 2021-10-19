@@ -18,7 +18,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.onUpdate,
     this.mainAxisSpacing = 0,
     this.physics,
-    this.clipBehaviour = Clip.none,
+    this.clipBehavior = Clip.none,
     this.shrinkWrap = false,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
@@ -62,7 +62,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
   final double maxCrossAxisExtent;
 
   @override
-  final Clip clipBehaviour;
+  final Clip clipBehavior;
 
   @override
   final double crossAxisSpacing;

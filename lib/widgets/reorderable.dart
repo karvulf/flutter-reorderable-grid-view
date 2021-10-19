@@ -62,7 +62,7 @@ class Reorderable extends StatefulWidget
     this.onUpdate,
     this.crossAxisCount,
     this.physics,
-    this.clipBehaviour = Clip.none,
+    this.clipBehavior = Clip.none,
     this.shrinkWrap = false,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
@@ -120,7 +120,7 @@ class Reorderable extends StatefulWidget
   final double maxCrossAxisExtent;
 
   @override
-  final Clip clipBehaviour;
+  final Clip clipBehavior;
 
   @override
   final double crossAxisSpacing;
@@ -272,7 +272,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 shrinkWrap: widget.shrinkWrap,
                 physics: widget.physics,
                 maxCrossAxisExtent: widget.maxCrossAxisExtent,
-                clipBehavior: widget.clipBehaviour,
+                clipBehavior: widget.clipBehavior,
                 mainAxisSpacing: widget.mainAxisSpacing,
                 crossAxisSpacing: widget.crossAxisSpacing,
                 children: generatedChildren,
