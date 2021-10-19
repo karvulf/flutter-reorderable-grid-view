@@ -19,9 +19,9 @@ import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 int? getItemsCollision({
   required int id,
   required Offset position,
+  required Size size,
   required Map<int, GridItemEntity> childrenIdMap,
   required List<int> lockedChildren,
-  required double scrollPixelsY,
 }) {
   int? collisionId;
 
@@ -36,14 +36,14 @@ int? getItemsCollision({
     final itemDy = item.localPosition.dy;
     final itemWidth = item.size.width;
     final itemHeight = item.size.height;
-    final detailsDx = position.dx;
-    final detailsDy = position.dy + scrollPixelsY;
+    final currentDx = position.dx;
+    final currentDy = position.dy;
 
-    // checking collision with full item size and global position
-    if (detailsDx >= itemDx &&
-        detailsDy >= itemDy &&
-        detailsDx <= itemDx + itemWidth &&
-        detailsDy <= itemDy + itemHeight) {
+    // checking collision with full item size and local position
+    if (currentDx + size.width >= itemDx &&
+        currentDy + size.height >= itemDy &&
+        currentDx <= itemDx + itemWidth &&
+        currentDy <= itemDy + itemHeight) {
       collisionId = entry.key;
       break;
     }

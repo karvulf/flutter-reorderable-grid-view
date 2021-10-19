@@ -152,9 +152,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   final _copyReorderableKey = GlobalKey();
 
-  /// Controller of the [SingleChildScrollView]
-  final _scrollController = TrackingScrollController(); // ScrollController();
-
   /// Size of the [Wrap] that was used to build the widget
   late Size _wrapSize;
 
@@ -173,7 +170,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -232,7 +228,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           return SingleChildScrollView(
             key: _copyReorderableKey,
             physics: widget.physics,
-            controller: _scrollController,
             child: SizedBox(
               height: _wrapSize.height,
               width: _wrapSize.width,
@@ -410,8 +405,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final collisionId = getItemsCollision(
       id: id,
       position: localPosition,
+      size: box.size,
       childrenIdMap: _childrenIdMap,
-      scrollPixelsY: _scrollController.position.pixels,
       lockedChildren: widget.lockedChildren,
     );
 
