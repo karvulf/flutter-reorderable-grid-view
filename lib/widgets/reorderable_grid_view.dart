@@ -69,6 +69,13 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       enableLongPress: enableLongPress,
       lockedChildren: lockedChildren,
       longPressDelay: longPressDelay,
+      clipBehavior: clipBehavior,
+      crossAxisSpacing: crossAxisSpacing,
+      mainAxisSpacing: mainAxisSpacing,
+      physics: physics,
+      maxCrossAxisExtent: maxCrossAxisExtent,
+      shrinkWrap: shrinkWrap,
+      crossAxisCount: crossAxisCount,
     );
   }
 }
