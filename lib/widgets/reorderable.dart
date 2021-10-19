@@ -388,6 +388,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     DragUpdateDetails details,
     int id,
   ) {
+    final pixels = Scrollable.of(context)?.position.pixels;
+
     final collisionId = getItemsCollision(
       id: id,
       position: details.globalPosition,
