@@ -24,7 +24,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __) {},
+            onDragUpdate: (_, __, ___) {},
           ),
         ),
       ),
@@ -54,7 +54,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __) {},
+            onDragUpdate: (_, __, ___) {},
           ),
         ),
       ),
@@ -88,7 +88,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __) {},
+            onDragUpdate: (_, __, ___) {},
             longPressDelay: givenLongPressDelay,
           ),
         ),
@@ -122,7 +122,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __) {},
+            onDragUpdate: (_, __, ___) {},
             enabled: false,
             enableLongPress: false,
           ),
@@ -168,7 +168,7 @@ void main() {
               expectedKey = key;
               expectedId = id;
             },
-            onDragUpdate: (_, __) {},
+            onDragUpdate: (_, __, ___) {},
           ),
         ),
       ),
@@ -192,6 +192,7 @@ void main() {
 
     Offset? expectedPosition;
     int? expectedId;
+    Size? expectedSize;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -207,9 +208,11 @@ void main() {
               onDragUpdate: (
                 int id,
                 Offset position,
+                Size size,
               ) {
                 expectedId = id;
                 expectedPosition = position;
+                expectedSize = size;
               },
             ),
           ),
@@ -233,6 +236,7 @@ void main() {
 
     // then
     expect(expectedPosition, isNotNull);
+    expect(expectedSize, isNotNull);
     expect(expectedId, equals(givenId));
   });
 }

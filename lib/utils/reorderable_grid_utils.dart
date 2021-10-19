@@ -37,8 +37,8 @@ int? getItemsCollision({
     final itemWidth = item.size.width;
     final itemHeight = item.size.height;
 
-    final currentDx = position.dx + size.height / 2;
-    final currentDy = position.dy + size.width / 2;
+    final currentDx = position.dx + size.width / 2;
+    final currentDy = position.dy + size.height / 2;
 
     // checking collision with full item size and local position
     if (currentDx >= itemDx &&

@@ -32,7 +32,7 @@ void main() {
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
-                onDragUpdate: (_, __) {},
+                onDragUpdate: (_, __, ___) {},
               ),
             ],
           ),
@@ -87,7 +87,7 @@ void main() {
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
                 enabled: givenEnabled,
-                onDragUpdate: (_, __) {},
+                onDragUpdate: (_, __, ___) {},
                 longPressDelay: givenLongPressDelay,
               ),
             ],
@@ -134,6 +134,7 @@ void main() {
     );
 
     Offset? expectedPosition;
+    Size? expectedSize;
     int? expectedId;
 
     await tester.pumpWidget(
@@ -152,9 +153,11 @@ void main() {
                   onDragUpdate: (
                     int id,
                     Offset position,
+                    Size size,
                   ) {
                     expectedPosition = position;
                     expectedId = id;
+                    expectedSize = size;
                   },
                 ),
               ],
@@ -178,6 +181,7 @@ void main() {
 
     // then
     expect(expectedPosition, isNotNull);
+    expect(expectedSize, isNotNull);
     expect(expectedId, equals(givenEntry.key));
   });
 }

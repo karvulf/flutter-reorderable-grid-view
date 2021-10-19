@@ -16,12 +16,14 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(0, 0);
+      const givenSize = Size(100, 100);
       final givenChildren = <int, GridItemEntity>{};
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
@@ -38,11 +40,13 @@ void main() {
       const givenId = 0;
       const givenPosition = Offset(0, 0);
       final givenChildren = <int, GridItemEntity>{};
+      const givenSize = Size(100, 100);
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [givenId],
       );
@@ -58,10 +62,11 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(199, 200);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
@@ -69,6 +74,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
@@ -84,16 +90,18 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(200, 199);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
@@ -109,10 +117,11 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(401, 200);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
@@ -120,6 +129,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
@@ -135,10 +145,11 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(200, 401);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
@@ -146,6 +157,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
@@ -163,14 +175,15 @@ void main() {
       const givenId = 0;
       const givenCollisionId = 1;
       const givenPosition = Offset(200, 400);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(-200, -200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
         givenCollisionId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
@@ -178,6 +191,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [givenCollisionId],
       );
@@ -193,10 +207,11 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(200, 400);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          size: givenSize,
         ),
       };
 
@@ -204,6 +219,7 @@ void main() {
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
         lockedChildren: [],
       );
