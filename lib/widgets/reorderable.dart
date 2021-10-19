@@ -151,7 +151,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   final _wrapKey = GlobalKey();
 
   /// Controller of the [SingleChildScrollView]
-  final _scrollController = ScrollController();
+  final _scrollController = TrackingScrollController(); // ScrollController();
 
   /// Size of the [Wrap] that was used to build the widget
   late Size _wrapSize;
@@ -171,6 +171,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance!.removeObserver(this);
+    _scrollController.dispose();
     super.dispose();
   }
 
