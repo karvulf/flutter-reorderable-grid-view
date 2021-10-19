@@ -236,6 +236,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               } else if (scrollNotification is ScrollEndNotification) {
                 print('scrolling end');
               }
+              return false;
             },
             child: SingleChildScrollView(
               physics: widget.physics,
