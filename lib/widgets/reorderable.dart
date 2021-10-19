@@ -391,14 +391,16 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     int id,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
-    if (renderObject != null) {
-      final box = renderObject as RenderBox;
-      final position = box.localToGlobal(Offset.zero);
-      print('position $position');
+
+    if (renderObject == null) {
+      return;
     }
+
+    final box = renderObject as RenderBox;
+    final position = box.localToGlobal(Offset.zero);
     final collisionId = getItemsCollision(
       id: id,
-      position: details.globalPosition,
+      position: position,
       childrenIdMap: _childrenIdMap,
       scrollPixelsY: _scrollController.position.pixels,
       lockedChildren: widget.lockedChildren,
