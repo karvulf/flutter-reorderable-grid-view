@@ -227,25 +227,36 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       builder: (context) {
         // after all children are added to animatedChildren
         if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-          return SingleChildScrollView(
-            physics: widget.physics,
-            controller: _scrollController,
-            child: SizedBox(
-              height: _wrapSize.height,
-              width: _wrapSize.width,
-              child: Stack(
-                children: _childrenIdMap.entries
-                    .map((e) => AnimatedDraggableItem(
-                          key: Key(e.key.toString()),
-                          enableAnimation: widget.enableAnimation,
-                          entry: e,
-                          enableLongPress: widget.enableLongPress,
-                          onDragUpdate: _handleDragUpdate,
-                          longPressDelay: widget.longPressDelay,
-                          enabled: !widget.lockedChildren.contains(e.key),
-                          child: childrenCopy[e.value.orderId],
-                        ))
-                    .toList(),
+          return NotificationListener<ScrollNotification>(
+            onNotification: (scrollNotification) {
+              if (scrollNotification is ScrollStartNotification) {
+                print('scrolling start');
+              } else if (scrollNotification is ScrollUpdateNotification) {
+                print('scrolling ... ');
+              } else if (scrollNotification is ScrollEndNotification) {
+                print('scrolling end');
+              }
+            },
+            child: SingleChildScrollView(
+              physics: widget.physics,
+              controller: _scrollController,
+              child: SizedBox(
+                height: _wrapSize.height,
+                width: _wrapSize.width,
+                child: Stack(
+                  children: _childrenIdMap.entries
+                      .map((e) => AnimatedDraggableItem(
+                            key: Key(e.key.toString()),
+                            enableAnimation: widget.enableAnimation,
+                            entry: e,
+                            enableLongPress: widget.enableLongPress,
+                            onDragUpdate: _handleDragUpdate,
+                            longPressDelay: widget.longPressDelay,
+                            enabled: !widget.lockedChildren.contains(e.key),
+                            child: childrenCopy[e.value.orderId],
+                          ))
+                      .toList(),
+                ),
               ),
             ),
           );
@@ -389,8 +400,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     DragUpdateDetails details,
     int id,
   ) {
-    final pixels = Scrollable.of(context)?.position.pixels;
-
     final collisionId = getItemsCollision(
       id: id,
       position: details.globalPosition,
