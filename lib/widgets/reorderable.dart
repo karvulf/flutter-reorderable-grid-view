@@ -150,6 +150,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
 
+  final _copyReorderableKey = GlobalKey();
+
   /// Controller of the [SingleChildScrollView]
   final _scrollController = TrackingScrollController(); // ScrollController();
 
@@ -228,6 +230,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         // after all children are added to animatedChildren
         if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
           return SingleChildScrollView(
+            key: _copyReorderableKey,
             physics: widget.physics,
             controller: _scrollController,
             child: SizedBox(
@@ -391,13 +394,21 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     int id,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
+    final renderParentObject =
+        _copyReorderableKey.currentContext?.findRenderObject();
 
-    if (renderObject == null) {
+    if (renderObject == null && renderParentObject == null) {
       return;
     }
 
     final box = renderObject as RenderBox;
     final position = box.localToGlobal(Offset.zero);
+    print('position $position');
+
+    final parentBox = renderParentObject as RenderBox;
+    final localPosition = parentBox.globalToLocal(position);
+
+    print('localPosition $localPosition');
     final collisionId = getItemsCollision(
       id: id,
       position: position,
