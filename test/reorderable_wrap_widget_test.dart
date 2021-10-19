@@ -249,8 +249,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    final firstLocationAfter = tester.getCenter(find.text(givenText1));
-    final secondLocationAfter = tester.getCenter(find.text(givenText2));
     expect(tester.getCenter(find.text(givenText1)), equals(secondLocation));
     expect(tester.getCenter(find.text(givenText2)), equals(firstLocation));
 

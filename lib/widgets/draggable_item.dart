@@ -123,7 +123,6 @@ class _DraggableItemState extends State<DraggableItem>
     if (widget.onDragUpdate != null) {
       final renderObject = _dragKey.currentContext?.findRenderObject();
       if (renderObject != null) {
-        print('details ${details.globalPosition}');
         final box = renderObject as RenderBox;
         final position = box.localToGlobal(Offset.zero);
         widget.onDragUpdate!(widget.id, position, box.size);

@@ -293,7 +293,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void _updateWrapSize() {
     final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
     _wrapSize = wrapBox.size;
-    print('wrap size $_wrapSize');
   }
 
   /// Creates [GridItemEntity] that contains all information for this widget.
