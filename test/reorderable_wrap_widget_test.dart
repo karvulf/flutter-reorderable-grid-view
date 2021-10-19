@@ -240,13 +240,17 @@ void main() {
     await tester.pump();
 
     // move dragged object
-    await gesture.moveTo(firstLocation);
-    await tester.pump();
     final secondLocation = tester.getCenter(find.text(givenText2));
     await gesture.moveTo(secondLocation);
     await tester.pump();
 
+    // await gesture.moveTo(Offset(secondLocation.dx + 10, secondLocation.dy));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
     // then
+    final firstLocationAfter = tester.getCenter(find.text(givenText1));
+    final secondLocationAfter = tester.getCenter(find.text(givenText2));
     expect(tester.getCenter(find.text(givenText1)), equals(secondLocation));
     expect(tester.getCenter(find.text(givenText2)), equals(firstLocation));
 
