@@ -250,11 +250,14 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         } else {
           switch (widget.reorderableType) {
             case ReorderableType.wrap:
-              return Wrap(
+              return SingleChildScrollView(
                 key: _wrapKey,
-                spacing: widget.spacing,
-                runSpacing: widget.runSpacing,
-                children: generatedChildren,
+                physics: widget.physics,
+                child: Wrap(
+                  spacing: widget.spacing,
+                  runSpacing: widget.runSpacing,
+                  children: generatedChildren,
+                ),
               );
             case ReorderableType.gridView:
               throw UnimplementedError('Widget soon available!');
