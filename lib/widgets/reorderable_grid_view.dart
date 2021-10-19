@@ -57,6 +57,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           shrinkWrap: shrinkWrap,
           maxCrossAxisExtent: maxCrossAxisExtent,
           physics: physics,
+          crossAxisSpacing: crossAxisSpacing,
         );
 
   @override
