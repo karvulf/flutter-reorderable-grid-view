@@ -19,12 +19,13 @@ class GridItemEntity {
     Offset? localPosition,
     Offset? globalPosition,
     int? orderId,
+    Size? size,
   }) =>
       GridItemEntity(
         id: id,
         localPosition: localPosition ?? this.localPosition,
         globalPosition: globalPosition ?? this.globalPosition,
-        size: size,
+        size: size ?? this.size,
         orderId: orderId ?? this.orderId,
       );
 }

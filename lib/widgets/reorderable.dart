@@ -329,6 +329,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         final gridItemEntity = existingItem.copyWith(
           localPosition: localPosition,
           globalPosition: position,
+          size: size,
         );
         _childrenOrderIdMap[id] = gridItemEntity;
         _childrenIdMap[gridItemEntity.id] = gridItemEntity;
