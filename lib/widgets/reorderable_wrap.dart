@@ -31,6 +31,9 @@ class ReorderableWrap extends StatelessWidget
   @override
   final double runSpacing;
 
+  @override
+  final ScrollPhysics? physics;
+
   const ReorderableWrap({
     required this.children,
     required this.onReorder,
@@ -40,6 +43,7 @@ class ReorderableWrap extends StatelessWidget
     this.enableAnimation = true,
     this.spacing = 8,
     this.runSpacing = 8,
+    this.physics,
     Key? key,
   }) : super(key: key);
 
@@ -55,6 +59,7 @@ class ReorderableWrap extends StatelessWidget
       enableLongPress: enableLongPress,
       lockedChildren: lockedChildren,
       longPressDelay: longPressDelay,
+      physics: physics,
     );
   }
 }

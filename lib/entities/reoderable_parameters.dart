@@ -18,6 +18,8 @@ abstract class ReorderableParameters {
   /// Can only be used if [enableLongPress] is enabled.
   final Duration longPressDelay = kLongPressTimeout;
 
+  final ScrollPhysics? physics = null;
+
   /// Every a child changes his position, this function is called.
   ///
   /// When a child was moved, you get the old index where the child was and
