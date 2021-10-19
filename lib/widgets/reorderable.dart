@@ -261,18 +261,20 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             case ReorderableType.gridView:
               throw UnimplementedError('Widget soon available!');
             case ReorderableType.gridViewCount:
-              return GridView.count(
-                key: _wrapKey,
-                physics: widget.physics,
-                crossAxisCount: widget.crossAxisCount!,
-                mainAxisSpacing: widget.mainAxisSpacing,
-                children: generatedChildren,
+              return SingleChildScrollView(
+                child: GridView.count(
+                  key: _wrapKey,
+                  shrinkWrap: true,
+                  physics: widget.physics,
+                  crossAxisCount: widget.crossAxisCount!,
+                  mainAxisSpacing: widget.mainAxisSpacing,
+                  children: generatedChildren,
+                ),
               );
             case ReorderableType.gridViewExtent:
               return SingleChildScrollView(
                 child: GridView.extent(
                   key: _wrapKey,
-                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   maxCrossAxisExtent: widget.maxCrossAxisExtent,
                   clipBehavior: widget.clipBehavior,
