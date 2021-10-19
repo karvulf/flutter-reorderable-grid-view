@@ -32,8 +32,8 @@ int? getItemsCollision({
 
   for (final entry in childrenIdMap.entries) {
     final item = entry.value;
-    final itemDx = item.globalPosition.dx;
-    final itemDy = item.globalPosition.dy;
+    final itemDx = item.localPosition.dx;
+    final itemDy = item.localPosition.dy;
     final itemWidth = item.size.width;
     final itemHeight = item.size.height;
     final detailsDx = position.dx;
