@@ -269,6 +269,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               );
             case ReorderableType.gridViewExtent:
               return GridView.extent(
+                key: _wrapKey,
                 shrinkWrap: widget.shrinkWrap,
                 physics: widget.physics,
                 maxCrossAxisExtent: widget.maxCrossAxisExtent,
