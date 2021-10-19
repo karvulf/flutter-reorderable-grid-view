@@ -221,54 +221,58 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         enabled: !widget.lockedChildren.contains(index),
       ),
     );
-    return SingleChildScrollView(
-      child: Builder(
-        builder: (context) {
-          // after all children are added to animatedChildren
-          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-            return SingleChildScrollView(
-              physics: widget.physics,
-              child: SizedBox(
-                key: _copyReorderableKey,
-                height: _wrapSize.height,
-                width: _wrapSize.width,
-                child: Stack(
-                  children: _childrenIdMap.entries
-                      .map((e) => AnimatedDraggableItem(
-                            key: Key(e.key.toString()),
-                            enableAnimation: widget.enableAnimation,
-                            entry: e,
-                            enableLongPress: widget.enableLongPress,
-                            onDragUpdate: _handleDragUpdate,
-                            longPressDelay: widget.longPressDelay,
-                            enabled: !widget.lockedChildren.contains(e.key),
-                            child: childrenCopy[e.value.orderId],
-                          ))
-                      .toList(),
-                ),
+    return Builder(
+      builder: (context) {
+        // after all children are added to animatedChildren
+        if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
+          return SingleChildScrollView(
+            physics: widget.physics,
+            child: SizedBox(
+              key: _copyReorderableKey,
+              height: _wrapSize.height,
+              width: _wrapSize.width,
+              child: Stack(
+                children: _childrenIdMap.entries
+                    .map((e) => AnimatedDraggableItem(
+                          key: Key(e.key.toString()),
+                          enableAnimation: widget.enableAnimation,
+                          entry: e,
+                          enableLongPress: widget.enableLongPress,
+                          onDragUpdate: _handleDragUpdate,
+                          longPressDelay: widget.longPressDelay,
+                          enabled: !widget.lockedChildren.contains(e.key),
+                          child: childrenCopy[e.value.orderId],
+                        ))
+                    .toList(),
               ),
-            );
-          } else {
-            switch (widget.reorderableType) {
-              case ReorderableType.wrap:
-                return Wrap(
+            ),
+          );
+        } else {
+          switch (widget.reorderableType) {
+            case ReorderableType.wrap:
+              return SingleChildScrollView(
+                child: Wrap(
                   key: _wrapKey,
                   spacing: widget.spacing,
                   runSpacing: widget.runSpacing,
                   children: generatedChildren,
-                );
-              case ReorderableType.gridView:
-                throw UnimplementedError('Widget soon available!');
-              case ReorderableType.gridViewCount:
-                return GridView.count(
+                ),
+              );
+            case ReorderableType.gridView:
+              throw UnimplementedError('Widget soon available!');
+            case ReorderableType.gridViewCount:
+              return SingleChildScrollView(
+                child: GridView.count(
                   key: _wrapKey,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: widget.crossAxisCount!,
                   mainAxisSpacing: widget.mainAxisSpacing,
                   children: generatedChildren,
-                );
-              case ReorderableType.gridViewExtent:
-                return GridView.extent(
+                ),
+              );
+            case ReorderableType.gridViewExtent:
+              return SingleChildScrollView(
+                child: GridView.extent(
                   key: _wrapKey,
                   shrinkWrap: widget.shrinkWrap,
                   physics: const NeverScrollableScrollPhysics(),
@@ -277,11 +281,11 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                   mainAxisSpacing: widget.mainAxisSpacing,
                   crossAxisSpacing: widget.crossAxisSpacing,
                   children: generatedChildren,
-                );
-            }
+                ),
+              );
           }
-        },
-      ),
+        }
+      },
     );
   }
 
@@ -289,6 +293,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void _updateWrapSize() {
     final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
     _wrapSize = wrapBox.size;
+    print('wrap size $_wrapSize');
   }
 
   /// Creates [GridItemEntity] that contains all information for this widget.
