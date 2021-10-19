@@ -317,6 +317,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       final box = renderObject as RenderBox;
       final position = box.localToGlobal(Offset.zero);
       final size = box.size;
+
       final localPosition = Offset(
         position.dx - _wrapPosition.dx,
         position.dy - _wrapPosition.dy,
