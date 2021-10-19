@@ -10,8 +10,6 @@ import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart'
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 
-typedef ReoderableOnUpdateFunction = void Function(int oldIndex, int newIndex);
-
 /// Ordering [children] in a [Wrap] that can be drag and dropped.
 ///
 /// Simple way of drag and drop [children] that were built inside a [Wrap].
@@ -41,7 +39,7 @@ typedef ReoderableOnUpdateFunction = void Function(int oldIndex, int newIndex);
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
 ///
-/// [onUpdate] always give you the old and new index of the moved children.
+/// [onReorder] always give you the old and new index of the moved children.
 /// Make sure to update your list of children that you used to display your data.
 /// See more on the example.
 class Reorderable extends StatefulWidget
@@ -52,6 +50,7 @@ class Reorderable extends StatefulWidget
   const Reorderable({
     required this.children,
     required this.reorderableType,
+    required this.onReorder,
     this.lockedChildren = const [],
     this.spacing = 8,
     this.runSpacing = 8,
@@ -59,7 +58,6 @@ class Reorderable extends StatefulWidget
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0,
-    this.onUpdate,
     this.crossAxisCount,
     this.physics,
     this.clipBehavior = Clip.none,
@@ -89,7 +87,7 @@ class Reorderable extends StatefulWidget
   final Duration longPressDelay;
 
   @override
-  final void Function(int oldIndex, int newIndex)? onUpdate;
+  final ReorderCallback onReorder;
 
   ///
   /// Wrap
@@ -229,6 +227,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         // after all children are added to animatedChildren
         if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
           return SingleChildScrollView(
+            physics: widget.physics,
             controller: _scrollController,
             child: SizedBox(
               height: _wrapSize.height,
@@ -381,7 +380,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// all items around changes their position.
   ///
   /// After all the position changes were done, there will be an update to
-  /// [onUpdate] and the state will be updated inside this widget show the new
+  /// [onReorder] and the state will be updated inside this widget show the new
   /// positions of the items to the user.
   void _handleDragUpdate(
     BuildContext context,
@@ -409,7 +408,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
       // item changes multiple positions to the negative direction
@@ -421,7 +420,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
       // item changes position only to one item
@@ -432,7 +431,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
 
@@ -443,7 +442,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     }
   }
 
-  void _handleUpdate(int oldIndex, int newIndex) {
+  void _handleReorder(int oldIndex, int newIndex) {
     setState(() {
       final draggedItem = childrenCopy[oldIndex];
       final collisionItem = childrenCopy[newIndex];
@@ -451,8 +450,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       childrenCopy[oldIndex] = collisionItem;
     });
 
-    if (widget.onUpdate != null) {
-      widget.onUpdate!(oldIndex, newIndex);
-    }
+    widget.onReorder(oldIndex, newIndex);
   }
 }

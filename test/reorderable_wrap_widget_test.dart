@@ -21,10 +21,11 @@ void main() {
 
     // when
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableWrap(
             children: givenChildren,
+            onReorder: (_, __) {},
           ),
         ),
       ),
@@ -82,7 +83,7 @@ void main() {
 
     // when
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableWrap(
             children: givenChildren,
@@ -92,6 +93,7 @@ void main() {
             spacing: givenSpacing,
             longPressDelay: givenLongPressDelay,
             lockedChildren: givenLockedChildren,
+            onReorder: (_, __) {},
           ),
         ),
       ),
@@ -144,7 +146,7 @@ void main() {
 
     // when
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableWrap(
             children: givenChildren,
@@ -152,6 +154,7 @@ void main() {
             enableAnimation: false,
             runSpacing: givenRunSpacing,
             spacing: givenSpacing,
+            onReorder: (_, __) {},
           ),
         ),
       ),
@@ -217,7 +220,7 @@ void main() {
           body: ReorderableWrap(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndex = oldIndex;
               actualNewIndex = newIndex;
             },
@@ -276,7 +279,7 @@ void main() {
           body: ReorderableWrap(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
               actualNewIndexList.add(newIndex);
             },
@@ -345,7 +348,7 @@ void main() {
           body: ReorderableWrap(
             children: givenChildren,
             enableLongPress: false,
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
               actualNewIndexList.add(newIndex);
             },
@@ -416,7 +419,7 @@ void main() {
             children: givenChildren,
             lockedChildren: const [1],
             enableLongPress: false,
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
               actualNewIndexList.add(newIndex);
             },
@@ -479,7 +482,7 @@ void main() {
             children: givenChildren,
             enableLongPress: false,
             lockedChildren: const [1],
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
               actualNewIndexList.add(newIndex);
             },
@@ -550,7 +553,7 @@ void main() {
             children: givenChildren,
             enableLongPress: false,
             lockedChildren: const [0, 2],
-            onUpdate: (oldIndex, newIndex) {
+            onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
               actualNewIndexList.add(newIndex);
             },
@@ -664,11 +667,12 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: Scaffold(
           body: ReorderableWrap(
             children: givenChildren,
             enableLongPress: false,
+            onReorder: (_, __) {},
           ),
         ),
       ),
@@ -734,6 +738,7 @@ class _TestAddOrUpdateChildWidgetState
           ReorderableWrap(
             children: children.map((e) => Text(e)).toList(),
             enableLongPress: false,
+            onReorder: (_, __) {},
           ),
         ],
       ),

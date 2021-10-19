@@ -247,6 +247,7 @@ void main() {
                 childrenIdMap: {},
                 childrenOrderIdMap: {},
                 lockedChildren: [],
+                onReorder: (_, __) {},
               ),
           throwsAssertionError);
     });
@@ -297,7 +298,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenCollisionId],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
           actualNewIndex = newIndex;
         },
@@ -394,7 +395,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
           actualNewIndex = newIndex;
         },
@@ -520,7 +521,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
           actualNewIndexList.add(newIndex);
         },
@@ -704,6 +705,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenChildId],
+        onReorder: (_, __) {},
       );
 
       // then
@@ -865,7 +867,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
           actualNewIndexList.add(newIndex);
         },
@@ -1039,6 +1041,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenChildId, givenChildId2],
+        onReorder: (_, __) {},
       );
 
       // then

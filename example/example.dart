@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                   enableLongPress: false,
                   lockedChildren: lockedChildren,
                   spacing: 12,
-                  onUpdate: (int oldIndex, int newIndex) {
+                  onReorder: (int oldIndex, int newIndex) {
                     setState(() {
                       final draggedItem = children[oldIndex];
                       final collisionItem = children[newIndex];

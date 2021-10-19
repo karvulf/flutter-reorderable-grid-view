@@ -23,7 +23,7 @@ class ReorderableWrap extends StatelessWidget
   final Duration longPressDelay;
 
   @override
-  final ReoderableOnUpdateFunction? onUpdate;
+  final ReorderCallback onReorder;
 
   @override
   final double spacing;
@@ -33,13 +33,13 @@ class ReorderableWrap extends StatelessWidget
 
   const ReorderableWrap({
     required this.children,
+    required this.onReorder,
     this.lockedChildren = const <int>[],
     this.longPressDelay = kLongPressTimeout,
     this.enableLongPress = true,
     this.enableAnimation = true,
     this.spacing = 8,
     this.runSpacing = 8,
-    this.onUpdate,
     Key? key,
   }) : super(key: key);
 
@@ -49,7 +49,7 @@ class ReorderableWrap extends StatelessWidget
       reorderableType: ReorderableType.wrap,
       children: children,
       spacing: spacing,
-      onUpdate: onUpdate,
+      onReorder: onReorder,
       runSpacing: runSpacing,
       enableAnimation: enableAnimation,
       enableLongPress: enableLongPress,

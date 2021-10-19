@@ -9,11 +9,11 @@ class ReorderableGridView extends ReorderableGridViewLayout {
   const ReorderableGridView.count({
     required List<Widget> children,
     required int crossAxisCount,
+    required ReorderCallback onReorder,
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
     Duration longPressDelay = kLongPressTimeout,
-    ReoderableOnUpdateFunction? onUpdate,
     double mainAxisSpacing = 0.0,
     Key? key,
   }) : super(
@@ -23,7 +23,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           longPressDelay: longPressDelay,
           enableLongPress: enableLongPress,
           enableAnimation: enableAnimation,
-          onUpdate: onUpdate,
+          onReorder: onReorder,
           lockedChildren: lockedChildren,
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: mainAxisSpacing,
@@ -31,6 +31,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
 
   const ReorderableGridView.extent({
     required List<Widget> children,
+    required ReorderCallback onReorder,
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
@@ -40,7 +41,6 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     bool shrinkWrap = false,
     double maxCrossAxisExtent = 0.0,
     double crossAxisSpacing = 0.0,
-    ReoderableOnUpdateFunction? onUpdate,
     ScrollPhysics? physics,
     Key? key,
   }) : super(
@@ -50,7 +50,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           longPressDelay: longPressDelay,
           enableLongPress: enableLongPress,
           enableAnimation: enableAnimation,
-          onUpdate: onUpdate,
+          onReorder: onReorder,
           lockedChildren: lockedChildren,
           mainAxisSpacing: mainAxisSpacing,
           clipBehavior: clipBehavior,
@@ -65,7 +65,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     return Reorderable(
       reorderableType: reorderableType,
       children: children,
-      onUpdate: onUpdate,
+      onReorder: onReorder,
       enableAnimation: enableAnimation,
       enableLongPress: enableLongPress,
       lockedChildren: lockedChildren,

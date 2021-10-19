@@ -27,5 +27,5 @@ abstract class ReorderableParameters {
   /// order. Otherwise this widget is just a good-looking widget.
   ///
   /// See more on the example.
-  final void Function(int oldIndex, int newIndex)? onUpdate = null;
+  final void Function(int oldIndex, int newIndex)? onReorder = null;
 }

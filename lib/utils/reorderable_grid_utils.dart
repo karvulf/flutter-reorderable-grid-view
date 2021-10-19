@@ -80,7 +80,7 @@ void handleOneCollision({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   assert(dragId != collisionId);
 
@@ -108,9 +108,7 @@ void handleOneCollision({
   childrenOrderIdMap[entryA.orderId] = updatedEntryValueB;
   childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
 
-  if (onUpdate != null) {
-    onUpdate(entryA.orderId, entryB.orderId);
-  }
+  onReorder(entryA.orderId, entryB.orderId);
 }
 
 /// Called when the item changes his position between more than one item.
@@ -133,7 +131,7 @@ void handleMultipleCollisionsBackward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -154,7 +152,7 @@ void handleMultipleCollisionsBackward({
         childrenIdMap: childrenIdMap,
         childrenOrderIdMap: childrenOrderIdMap,
         lockedChildren: lockedChildren,
-        onUpdate: onUpdate,
+        onReorder: onReorder,
       );
     }
   }
@@ -180,7 +178,7 @@ void handleMultipleCollisionsForward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -202,7 +200,7 @@ void handleMultipleCollisionsForward({
         childrenIdMap: childrenIdMap,
         lockedChildren: lockedChildren,
         childrenOrderIdMap: childrenOrderIdMap,
-        onUpdate: onUpdate,
+        onReorder: onReorder,
       );
     }
   }
