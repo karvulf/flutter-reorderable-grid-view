@@ -11,6 +11,7 @@ typedef OnCreatedFunction = Function(
 typedef OnDragUpdateFunction = Function(
   BuildContext context,
   DragUpdateDetails details,
+  GlobalKey key,
   int id,
 );
 
@@ -43,6 +44,8 @@ class DraggableItem extends StatefulWidget {
 class _DraggableItemState extends State<DraggableItem>
     with TickerProviderStateMixin {
   final _globalKey = GlobalKey();
+  final _dragKey = GlobalKey();
+
   final DecorationTween decorationTween = DecorationTween(
     begin: const BoxDecoration(),
     end: BoxDecoration(
@@ -87,6 +90,7 @@ class _DraggableItemState extends State<DraggableItem>
     }
 
     final feedback = Material(
+      key: _dragKey,
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
         decoration: decorationTween.animate(_controller),
@@ -118,7 +122,7 @@ class _DraggableItemState extends State<DraggableItem>
 
   void _handleDragUpdate(DragUpdateDetails details) {
     if (widget.onDragUpdate != null) {
-      widget.onDragUpdate!(context, details, widget.id);
+      widget.onDragUpdate!(context, details, _dragKey, widget.id);
     }
   }
 
