@@ -397,7 +397,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final renderParentObject =
         _copyReorderableKey.currentContext?.findRenderObject();
 
-    if (renderObject == null && renderParentObject == null) {
+    if (renderObject == null || renderParentObject == null) {
       return;
     }
 
