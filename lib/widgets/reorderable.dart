@@ -327,7 +327,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       if (existingItem != null) {
         final gridItemEntity = existingItem.copyWith(
           localPosition: localPosition,
-          globalPosition: position,
           size: size,
         );
         _childrenOrderIdMap[id] = gridItemEntity;
@@ -343,7 +342,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         final gridItemEntity = GridItemEntity(
           id: id,
           localPosition: localPosition,
-          globalPosition: position,
           size: size,
           orderId: id,
         );
@@ -383,21 +381,15 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// [onReorder] and the state will be updated inside this widget show the new
   /// positions of the items to the user.
   void _handleDragUpdate(
-    BuildContext context,
-    DragUpdateDetails details,
-    GlobalKey key,
     int id,
+    Offset position,
   ) {
-    final renderObject = key.currentContext?.findRenderObject();
     final renderParentObject =
         _copyReorderableKey.currentContext?.findRenderObject();
 
-    if (renderObject == null || renderParentObject == null) {
+    if (renderParentObject == null) {
       return;
     }
-
-    final box = renderObject as RenderBox;
-    final position = box.localToGlobal(Offset.zero);
 
     final parentBox = renderParentObject as RenderBox;
     final localPosition = parentBox.globalToLocal(position);
@@ -405,7 +397,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final collisionId = getItemsCollision(
       id: id,
       position: localPosition,
-      size: box.size,
       childrenIdMap: _childrenIdMap,
       lockedChildren: widget.lockedChildren,
     );

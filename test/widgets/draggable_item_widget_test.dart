@@ -24,7 +24,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __, ___) {},
+            onDragUpdate: (_, __) {},
           ),
         ),
       ),
@@ -54,7 +54,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __, ___) {},
+            onDragUpdate: (_, __) {},
           ),
         ),
       ),
@@ -88,7 +88,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __, ___) {},
+            onDragUpdate: (_, __) {},
             longPressDelay: givenLongPressDelay,
           ),
         ),
@@ -122,7 +122,7 @@ void main() {
             child: givenChild,
             id: givenId,
             onCreated: (_, __, ___) {},
-            onDragUpdate: (_, __, ___) {},
+            onDragUpdate: (_, __) {},
             enabled: false,
             enableLongPress: false,
           ),
@@ -168,7 +168,7 @@ void main() {
               expectedKey = key;
               expectedId = id;
             },
-            onDragUpdate: (_, __, ___) {},
+            onDragUpdate: (_, __) {},
           ),
         ),
       ),
@@ -190,8 +190,7 @@ void main() {
     const givenChild = Text(givenText);
     const givenId = 0;
 
-    BuildContext? expectedContext;
-    DragUpdateDetails? expectedDragUpdateDetails;
+    Offset? expectedPosition;
     int? expectedId;
 
     await tester.pumpWidget(
@@ -206,13 +205,11 @@ void main() {
               id: givenId,
               onCreated: (_, __, ___) {},
               onDragUpdate: (
-                BuildContext context,
-                DragUpdateDetails details,
                 int id,
+                Offset position,
               ) {
-                expectedContext = context;
-                expectedDragUpdateDetails = details;
                 expectedId = id;
+                expectedPosition = position;
               },
             ),
           ),
@@ -235,8 +232,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(expectedContext, isNotNull);
-    expect(expectedDragUpdateDetails, isNotNull);
+    expect(expectedPosition, isNotNull);
     expect(expectedId, equals(givenId));
   });
 }
