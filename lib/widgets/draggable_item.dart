@@ -125,7 +125,7 @@ class _DraggableItemState extends State<DraggableItem>
       if (renderObject != null) {
         final box = renderObject as RenderBox;
         final position = box.localToGlobal(Offset.zero);
-        widget.onDragUpdate!(widget.id, position, box.size);
+        widget.onDragUpdate!(widget.id, details.localPosition, box.size);
         return;
       }
     }

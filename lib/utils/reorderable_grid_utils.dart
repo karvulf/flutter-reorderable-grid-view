@@ -30,15 +30,15 @@ int? getItemsCollision({
     return null;
   }
 
+  final currentDx = position.dx + size.width / 2;
+  final currentDy = position.dy + size.height / 2;
+
   for (final entry in childrenIdMap.entries) {
     final item = entry.value;
     final itemDx = item.localPosition.dx;
     final itemDy = item.localPosition.dy;
     final itemWidth = item.size.width;
     final itemHeight = item.size.height;
-
-    final currentDx = position.dx + size.width / 2;
-    final currentDy = position.dy + size.height / 2;
 
     // checking collision with full item size and local position
     if (currentDx >= itemDx &&
