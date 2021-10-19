@@ -397,7 +397,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
     final collisionId = getItemsCollision(
       id: id,
-      position: position,
+      position: localPosition,
       size: size,
       childrenIdMap: _childrenIdMap,
       lockedChildren: widget.lockedChildren,
