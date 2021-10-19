@@ -270,11 +270,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               );
             case ReorderableType.gridViewExtent:
               return SingleChildScrollView(
-                primary: true,
                 child: GridView.extent(
                   key: _wrapKey,
-                  physics: widget.physics,
-                  shrinkWrap: widget.shrinkWrap,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                   maxCrossAxisExtent: widget.maxCrossAxisExtent,
                   clipBehavior: widget.clipBehavior,
                   mainAxisSpacing: widget.mainAxisSpacing,
