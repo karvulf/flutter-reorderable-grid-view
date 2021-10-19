@@ -196,7 +196,7 @@ void main() {
   testWidgets(
       'GIVEN pumped [ReorderableWrap] with enableLongPress = false '
       'WHEN dragging text1 to text2 without releasing drag '
-      'THEN should change swap position between text1 and text2',
+      'THEN should swap position between text1 and text2',
       (WidgetTester tester) async {
     // given
     const givenText1 = 'hallo1';

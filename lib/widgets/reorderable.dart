@@ -383,6 +383,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void _handleDragUpdate(
     int id,
     Offset position,
+    Size size,
   ) {
     final renderParentObject =
         _copyReorderableKey.currentContext?.findRenderObject();
@@ -397,6 +398,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final collisionId = getItemsCollision(
       id: id,
       position: localPosition,
+      size: size,
       childrenIdMap: _childrenIdMap,
       lockedChildren: widget.lockedChildren,
     );

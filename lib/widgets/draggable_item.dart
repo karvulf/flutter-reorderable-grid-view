@@ -11,6 +11,7 @@ typedef OnCreatedFunction = Function(
 typedef OnDragUpdateFunction = Function(
   int id,
   Offset position,
+  Size size,
 );
 
 class DraggableItem extends StatefulWidget {
@@ -124,7 +125,7 @@ class _DraggableItemState extends State<DraggableItem>
       if (renderObject != null) {
         final box = renderObject as RenderBox;
         final position = box.localToGlobal(Offset.zero);
-        widget.onDragUpdate!(widget.id, position);
+        widget.onDragUpdate!(widget.id, position, box.size);
         return;
       }
     }
