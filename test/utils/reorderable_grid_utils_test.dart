@@ -56,12 +56,12 @@ void main() {
     });
 
     test(
-        'GIVEN position dx is less than globalPosition '
+        'GIVEN position dx with width is less than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(199, 200);
+      const givenPosition = Offset(99, 200);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
@@ -84,12 +84,12 @@ void main() {
     });
 
     test(
-        'GIVEN position dy is less than globalPosition '
+        'GIVEN position dy with height is less than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 199);
+      const givenPosition = Offset(200, 99);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
@@ -111,12 +111,12 @@ void main() {
     });
 
     test(
-        'GIVEN position dx is higher than globalPosition '
+        'GIVEN position dx with width is bigger than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(401, 200);
+      const givenPosition = Offset(301, 200);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
@@ -139,12 +139,12 @@ void main() {
     });
 
     test(
-        'GIVEN position dy is higher than globalPosition '
+        'GIVEN position dy with width is bigger than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 401);
+      const givenPosition = Offset(200, 301);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
@@ -206,7 +206,7 @@ void main() {
         'THEN should return given id', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 400);
+      const givenPosition = Offset(100, 300);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(

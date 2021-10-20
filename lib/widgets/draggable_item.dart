@@ -121,17 +121,12 @@ class _DraggableItemState extends State<DraggableItem>
 
   void _handleDragUpdate(DragUpdateDetails details) {
     if (widget.onDragUpdate != null) {
+      // after postFrameCallback dragged object is correctly positioned
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         final renderObject = _dragKey.currentContext?.findRenderObject();
         if (renderObject != null) {
           final box = renderObject as RenderBox;
           final position = box.localToGlobal(Offset.zero);
-          final position2 = box.globalToLocal(Offset.zero);
-          print('------------------');
-          print('drag details ${details.localPosition}');
-          print('localToGlobal Pos $position');
-          print('globalToLcoal Pos $position2');
-          print('------------------');
 
           widget.onDragUpdate!(widget.id, position, box.size);
           return;
