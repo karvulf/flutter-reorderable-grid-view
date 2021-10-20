@@ -21,8 +21,10 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 3,
     ),
+    this.childAspectRatio = 1.0,
     this.physics,
     this.crossAxisCount,
+    this.padding,
     Key? key,
   }) : super(key: key);
 
@@ -67,6 +69,12 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
 
   @override
   final SliverGridDelegate gridDelegate;
+
+  @override
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  final double childAspectRatio;
 
   @override
   Widget build(BuildContext context);

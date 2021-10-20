@@ -88,6 +88,8 @@ void main() {
     const givenGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 4,
     );
+    const givenPadding = EdgeInsets.all(20);
+    const givenClipBehavior = Clip.antiAliasWithSaveLayer;
 
     // when
     await tester.pumpWidget(
@@ -98,6 +100,8 @@ void main() {
             reorderableType: ReorderableType.gridView,
             gridDelegate: givenGridDelegate,
             onReorder: (_, __) {},
+            clipBehavior: givenClipBehavior,
+            padding: givenPadding,
           ),
         ),
       ),
@@ -111,7 +115,9 @@ void main() {
         find.byWidgetPredicate((widget) =>
             widget is GridView &&
             widget.gridDelegate == givenGridDelegate &&
-            widget.shrinkWrap),
+            widget.shrinkWrap &&
+            widget.padding == givenPadding &&
+            widget.clipBehavior == givenClipBehavior),
         findsOneWidget);
   });
 
@@ -128,6 +134,8 @@ void main() {
     const givenCrossAxisCount = 3;
     const givenMainAxisSpacing = 20.0;
     const givenPhysics = AlwaysScrollableScrollPhysics();
+    const givenPadding = EdgeInsets.all(10);
+    const givenClipBehavior = Clip.antiAliasWithSaveLayer;
 
     // when
     await tester.pumpWidget(
@@ -140,6 +148,8 @@ void main() {
             mainAxisSpacing: givenMainAxisSpacing,
             physics: givenPhysics,
             onReorder: (_, __) {},
+            padding: givenPadding,
+            clipBehavior: givenClipBehavior,
           ),
         ),
       ),
@@ -159,7 +169,9 @@ void main() {
                 givenCrossAxisCount &&
             (widget.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount)
                     .mainAxisSpacing ==
-                givenMainAxisSpacing),
+                givenMainAxisSpacing &&
+            widget.clipBehavior == givenClipBehavior &&
+            widget.padding == givenPadding),
         findsOneWidget);
   });
 
@@ -177,6 +189,8 @@ void main() {
     const givenClipBehavior = Clip.none;
     const givenMainAxisSpacing = 12.0;
     const givenCrossAxisSpacing = 13.0;
+    const givenChildAspectRatio = 3.5;
+    const givenPadding = EdgeInsets.all(25);
 
     // when
     await tester.pumpWidget(
@@ -190,6 +204,8 @@ void main() {
             mainAxisSpacing: givenMainAxisSpacing,
             crossAxisSpacing: givenCrossAxisSpacing,
             onReorder: (_, __) {},
+            childAspectRatio: givenChildAspectRatio,
+            padding: givenPadding,
           ),
         ),
       ),
@@ -202,12 +218,14 @@ void main() {
     expect(find.byWidgetPredicate((widget) {
       if (widget is GridView &&
           widget.shrinkWrap &&
-          widget.clipBehavior == givenClipBehavior) {
+          widget.clipBehavior == givenClipBehavior &&
+          widget.padding == givenPadding) {
         final delegate =
             widget.gridDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
         if (delegate.maxCrossAxisExtent == givenMaxCrossAxisExtent &&
             delegate.mainAxisSpacing == givenMainAxisSpacing &&
-            delegate.crossAxisSpacing == givenCrossAxisSpacing) {
+            delegate.crossAxisSpacing == givenCrossAxisSpacing &&
+            delegate.childAspectRatio == givenChildAspectRatio) {
           return true;
         }
       }

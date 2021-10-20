@@ -58,14 +58,16 @@ class Reorderable extends StatefulWidget
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0.0,
-    this.crossAxisCount,
-    this.physics,
     this.clipBehavior = Clip.none,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
     this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 3,
     ),
+    this.childAspectRatio = 1.0,
+    this.crossAxisCount,
+    this.physics,
+    this.padding,
     Key? key,
   }) : super(key: key);
 
@@ -124,6 +126,12 @@ class Reorderable extends StatefulWidget
 
   @override
   final SliverGridDelegate gridDelegate;
+
+  @override
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  final double childAspectRatio;
 
   ///
   /// Other
@@ -265,18 +273,21 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                   child: GridView(
                 key: _wrapKey,
                 shrinkWrap: true,
+                padding: widget.padding,
                 gridDelegate: widget.gridDelegate,
                 children: generatedChildren,
+                clipBehavior: widget.clipBehavior,
               ));
             case ReorderableType.gridViewCount:
               return SingleChildScrollView(
                 child: GridView.count(
                   key: _wrapKey,
                   shrinkWrap: true,
-                  physics: widget.physics,
                   crossAxisCount: widget.crossAxisCount!,
                   mainAxisSpacing: widget.mainAxisSpacing,
                   children: generatedChildren,
+                  padding: widget.padding,
+                  clipBehavior: widget.clipBehavior,
                 ),
               );
             case ReorderableType.gridViewExtent:
@@ -289,6 +300,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                   mainAxisSpacing: widget.mainAxisSpacing,
                   crossAxisSpacing: widget.crossAxisSpacing,
                   children: generatedChildren,
+                  padding: widget.padding,
+                  childAspectRatio: widget.childAspectRatio,
                 ),
               );
           }

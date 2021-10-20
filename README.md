@@ -95,13 +95,11 @@ More information about the parameters of `GridView` and `Wrap` are on the flutte
 | **Parameter** | **Description** | **Default Value** |
 | :------------- | :------------- | :-------------: |
 | `children` | Displays all given children that are build inside a Wrap. | **-** |
-| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **
-\<int>[]** |
+| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **<int>[]** |
 | `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
-| `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **
--** |
+| `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **-** |
 
 ## Future Plans
 

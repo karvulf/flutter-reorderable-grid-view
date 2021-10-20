@@ -1,3 +1,11 @@
+## 1.0.0
+
+* Old used `ReorderableGridView` now called `ReorderableWrap`
+* New `ReorderableGridView` added
+    * `ReorderableGridView`
+    * `ReorderableGridView.count`
+    * `ReorderableGridView.extent`
+
 ## 1.0.0-dev.4
 
 * Drag Update Position fixed with PostFrameCallback

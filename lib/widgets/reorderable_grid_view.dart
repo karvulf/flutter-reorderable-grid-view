@@ -14,6 +14,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     bool enableAnimation = true,
     bool enableLongPress = true,
     Duration longPressDelay = kLongPressTimeout,
+    Clip clipBehavior = Clip.none,
+    EdgeInsetsGeometry? padding,
     Key? key,
   }) : super(
           key: key,
@@ -25,6 +27,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           enableLongPress: enableLongPress,
           enableAnimation: enableAnimation,
           longPressDelay: longPressDelay,
+          clipBehavior: clipBehavior,
+          padding: padding,
         );
 
   const ReorderableGridView.count({
@@ -36,6 +40,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     bool enableLongPress = true,
     Duration longPressDelay = kLongPressTimeout,
     double mainAxisSpacing = 0.0,
+    EdgeInsetsGeometry? padding,
+    Clip clipBehavior = Clip.none,
     Key? key,
   }) : super(
           key: key,
@@ -48,6 +54,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           lockedChildren: lockedChildren,
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: mainAxisSpacing,
+          padding: padding,
+          clipBehavior: clipBehavior,
         );
 
   const ReorderableGridView.extent({
@@ -61,7 +69,9 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     double mainAxisSpacing = 0.0,
     Clip clipBehavior = Clip.none,
     double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
     ScrollPhysics? physics,
+    EdgeInsetsGeometry? padding,
     Key? key,
   }) : super(
           key: key,
@@ -77,6 +87,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           maxCrossAxisExtent: maxCrossAxisExtent,
           physics: physics,
           crossAxisSpacing: crossAxisSpacing,
+          childAspectRatio: childAspectRatio,
+          padding: padding,
         );
 
   @override
@@ -96,6 +108,8 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       maxCrossAxisExtent: maxCrossAxisExtent,
       crossAxisCount: crossAxisCount,
       gridDelegate: gridDelegate,
+      padding: padding,
+      childAspectRatio: childAspectRatio,
     );
   }
 }

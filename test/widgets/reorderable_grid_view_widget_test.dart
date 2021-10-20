@@ -58,6 +58,8 @@ void main() {
       const givenEnableAnimation = false;
       const givenEnableLongPress = false;
       const givenLongPressDelay = Duration(days: 100);
+      const givenPadding = EdgeInsets.all(20);
+      const givenClip = Clip.antiAlias;
 
       // when
       await tester.pumpWidget(
@@ -70,6 +72,8 @@ void main() {
             enableLongPress: givenEnableLongPress,
             enableAnimation: givenEnableAnimation,
             longPressDelay: givenLongPressDelay,
+            padding: givenPadding,
+            clipBehavior: givenClip,
           ),
         ),
       );
@@ -85,6 +89,8 @@ void main() {
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 longPressDelay: givenLongPressDelay,
+                padding: givenPadding,
+                clipBehavior: givenClip,
               )),
           findsOneWidget);
     });
@@ -138,6 +144,8 @@ void main() {
       const givenEnableLongPress = false;
       const givenLongPressDelay = Duration(days: 100);
       const givenLockedChildren = [10, 20];
+      const givenPadding = EdgeInsets.all(30);
+      const givenClipBehavior = Clip.antiAliasWithSaveLayer;
 
       // when
       await tester.pumpWidget(
@@ -151,6 +159,8 @@ void main() {
             enableLongPress: givenEnableLongPress,
             enableAnimation: givenEnableAnimation,
             lockedChildren: givenLockedChildren,
+            padding: givenPadding,
+            clipBehavior: givenClipBehavior,
           ),
         ),
       );
@@ -158,15 +168,18 @@ void main() {
       // then
       expect(
           find.byWidgetPredicate((widget) => hasReorderableExpectedValues(
-              widget,
-              reorderableType: ReorderableType.gridViewCount,
-              crossAxisCount: givenCrossAxisCount,
-              lockedChildren: givenLockedChildren,
-              longPressDelay: givenLongPressDelay,
-              enableAnimation: givenEnableAnimation,
-              enableLongPress: givenEnableLongPress,
-              mainAxisSpacing: givenMainAxisSpacing,
-              children: givenChildren)),
+                widget,
+                reorderableType: ReorderableType.gridViewCount,
+                crossAxisCount: givenCrossAxisCount,
+                lockedChildren: givenLockedChildren,
+                longPressDelay: givenLongPressDelay,
+                enableAnimation: givenEnableAnimation,
+                enableLongPress: givenEnableLongPress,
+                mainAxisSpacing: givenMainAxisSpacing,
+                children: givenChildren,
+                clipBehavior: givenClipBehavior,
+                padding: givenPadding,
+              )),
           findsOneWidget);
     });
   });
@@ -223,6 +236,8 @@ void main() {
       const givenCrossAxisSpacing = 10.0;
       const givenMaxCrossAxisExtent = 100.0;
       const givenClipBehavior = Clip.none;
+      const givenChildAspectRatio = 2.5;
+      const givenPadding = EdgeInsets.only(top: 20);
 
       // when
       await tester.pumpWidget(
@@ -239,6 +254,8 @@ void main() {
             lockedChildren: givenLockedChildren,
             physics: givenPhysics,
             clipBehavior: givenClipBehavior,
+            childAspectRatio: givenChildAspectRatio,
+            padding: givenPadding,
           ),
         ),
       );
@@ -258,6 +275,8 @@ void main() {
                 physics: givenPhysics,
                 clipBehavior: givenClipBehavior,
                 mainAxisSpacing: givenMainAxisSpacing,
+                padding: givenPadding,
+                childAspectRatio: givenChildAspectRatio,
               )),
           findsOneWidget);
     });
@@ -280,8 +299,10 @@ bool hasReorderableExpectedValues(
   double crossAxisSpacing = 0.0,
   double maxCrossAxisExtent = 0.0,
   Clip clipBehavior = Clip.none,
+  double childAspectRatio = 1.0,
   int? crossAxisCount,
   ScrollPhysics? physics,
+  EdgeInsetsGeometry? padding,
 }) {
   return widget is Reorderable &&
       widget.reorderableType == reorderableType &&
@@ -295,5 +316,7 @@ bool hasReorderableExpectedValues(
       widget.crossAxisSpacing == crossAxisSpacing &&
       widget.maxCrossAxisExtent == maxCrossAxisExtent &&
       widget.clipBehavior == clipBehavior &&
-      widget.mainAxisSpacing == mainAxisSpacing;
+      widget.mainAxisSpacing == mainAxisSpacing &&
+      widget.padding == padding &&
+      widget.childAspectRatio == childAspectRatio;
 }

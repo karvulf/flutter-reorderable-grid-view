@@ -16,6 +16,10 @@ abstract class ReorderableGridViewParameters {
 
   final double crossAxisSpacing = 0.0;
 
+  final EdgeInsetsGeometry? padding = null;
+
+  final double childAspectRatio = 1.0;
+
   final SliverGridDelegate gridDelegate =
       SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 0);
 }
