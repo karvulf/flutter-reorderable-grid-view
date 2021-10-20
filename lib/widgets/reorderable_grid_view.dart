@@ -6,6 +6,17 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view_layout.dart';
 
 class ReorderableGridView extends ReorderableGridViewLayout {
+  const ReorderableGridView({
+    required List<Widget> children,
+    required ReorderCallback onReorder,
+    Key? key,
+  }) : super(
+          key: key,
+          children: children,
+          onReorder: onReorder,
+          reorderableType: ReorderableType.gridView,
+        );
+
   const ReorderableGridView.count({
     required List<Widget> children,
     required int crossAxisCount,
