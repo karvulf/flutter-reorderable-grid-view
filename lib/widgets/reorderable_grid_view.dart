@@ -10,6 +10,10 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     required List<Widget> children,
     required ReorderCallback onReorder,
     required SliverGridDelegate gridDelegate,
+    List<int> lockedChildren = const [],
+    bool enableAnimation = true,
+    bool enableLongPress = true,
+    Duration longPressDelay = kLongPressTimeout,
     Key? key,
   }) : super(
           key: key,
@@ -17,6 +21,10 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           onReorder: onReorder,
           reorderableType: ReorderableType.gridView,
           gridDelegate: gridDelegate,
+          lockedChildren: lockedChildren,
+          enableLongPress: enableLongPress,
+          enableAnimation: enableAnimation,
+          longPressDelay: longPressDelay,
         );
 
   const ReorderableGridView.count({
@@ -45,14 +53,13 @@ class ReorderableGridView extends ReorderableGridViewLayout {
   const ReorderableGridView.extent({
     required List<Widget> children,
     required ReorderCallback onReorder,
+    required double maxCrossAxisExtent,
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
     Duration longPressDelay = kLongPressTimeout,
-    double mainAxisSpacing = 0,
+    double mainAxisSpacing = 0.0,
     Clip clipBehavior = Clip.none,
-    bool shrinkWrap = false,
-    double maxCrossAxisExtent = 0.0,
     double crossAxisSpacing = 0.0,
     ScrollPhysics? physics,
     Key? key,
@@ -88,6 +95,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       physics: physics,
       maxCrossAxisExtent: maxCrossAxisExtent,
       crossAxisCount: crossAxisCount,
+      gridDelegate: gridDelegate,
     );
   }
 }

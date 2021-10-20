@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets(
-      'GIVEN children '
-      'WHEN pumping [ReorderableWrap] '
+      'GIVEN reorderableType = wrap '
+      'WHEN pumping [Reorderable] '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -23,8 +24,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             onReorder: (_, __) {},
           ),
         ),
@@ -42,12 +44,22 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is ReorderableWrap &&
+            widget is Reorderable &&
             widget.enableLongPress &&
             widget.enableAnimation &&
             widget.spacing == expectedSpacing &&
             widget.runSpacing == expectedRunSpacing &&
-            widget.lockedChildren.isEmpty),
+            widget.lockedChildren.isEmpty &&
+            widget.gridDelegate ==
+                const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ) &&
+            widget.reorderableType == ReorderableType.wrap &&
+            widget.physics == null &&
+            widget.crossAxisCount == null &&
+            widget.maxCrossAxisExtent == 0.0 &&
+            widget.mainAxisSpacing == 0 &&
+            widget.crossAxisSpacing == 0.0),
         findsOneWidget);
 
     expect(
@@ -64,9 +76,149 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN reorderableType = gridView '
+      'WHEN pumping [Reorderable] '
+      'THEN should show expected widgets and have default values',
+      (WidgetTester tester) async {
+    // given
+    const givenChildren = <Widget>[
+      Text('hallo1'),
+      Text('hallo2'),
+    ];
+    const givenGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 4,
+    );
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Reorderable(
+            children: givenChildren,
+            reorderableType: ReorderableType.gridView,
+            gridDelegate: givenGridDelegate,
+            onReorder: (_, __) {},
+          ),
+        ),
+      ),
+    );
+
+    // then
+    expect(find.byWidget(givenChildren[0]), findsOneWidget);
+    expect(find.byWidget(givenChildren[1]), findsOneWidget);
+
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is GridView &&
+            widget.gridDelegate == givenGridDelegate &&
+            widget.shrinkWrap),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN reorderableType = gridViewCount '
+      'WHEN pumping [Reorderable] '
+      'THEN should show expected widgets and have default values',
+      (WidgetTester tester) async {
+    // given
+    const givenChildren = <Widget>[
+      Text('hallo1'),
+      Text('hallo2'),
+    ];
+    const givenCrossAxisCount = 3;
+    const givenMainAxisSpacing = 20.0;
+    const givenPhysics = AlwaysScrollableScrollPhysics();
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Reorderable(
+            children: givenChildren,
+            reorderableType: ReorderableType.gridViewCount,
+            crossAxisCount: givenCrossAxisCount,
+            mainAxisSpacing: givenMainAxisSpacing,
+            physics: givenPhysics,
+            onReorder: (_, __) {},
+          ),
+        ),
+      ),
+    );
+
+    // then
+    expect(find.byWidget(givenChildren[0]), findsOneWidget);
+    expect(find.byWidget(givenChildren[1]), findsOneWidget);
+
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is GridView &&
+            widget.shrinkWrap &&
+            widget.physics == givenPhysics &&
+            (widget.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount)
+                    .crossAxisCount ==
+                givenCrossAxisCount &&
+            (widget.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount)
+                    .mainAxisSpacing ==
+                givenMainAxisSpacing),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN reorderableType = gridViewExtent '
+      'WHEN pumping [Reorderable] '
+      'THEN should show expected widgets and have default values',
+      (WidgetTester tester) async {
+    // given
+    const givenChildren = <Widget>[
+      Text('hallo1'),
+      Text('hallo2'),
+    ];
+    const givenMaxCrossAxisExtent = 100.0;
+    const givenClipBehavior = Clip.none;
+    const givenMainAxisSpacing = 12.0;
+    const givenCrossAxisSpacing = 13.0;
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Reorderable(
+            children: givenChildren,
+            reorderableType: ReorderableType.gridViewExtent,
+            maxCrossAxisExtent: givenMaxCrossAxisExtent,
+            clipBehavior: givenClipBehavior,
+            mainAxisSpacing: givenMainAxisSpacing,
+            crossAxisSpacing: givenCrossAxisSpacing,
+            onReorder: (_, __) {},
+          ),
+        ),
+      ),
+    );
+
+    // then
+    expect(find.byWidget(givenChildren[0]), findsOneWidget);
+    expect(find.byWidget(givenChildren[1]), findsOneWidget);
+
+    expect(find.byWidgetPredicate((widget) {
+      if (widget is GridView &&
+          widget.shrinkWrap &&
+          widget.clipBehavior == givenClipBehavior) {
+        final delegate =
+            widget.gridDelegate as SliverGridDelegateWithMaxCrossAxisExtent;
+        if (delegate.maxCrossAxisExtent == givenMaxCrossAxisExtent &&
+            delegate.mainAxisSpacing == givenMainAxisSpacing &&
+            delegate.crossAxisSpacing == givenCrossAxisSpacing) {
+          return true;
+        }
+      }
+      return false;
+    }), findsOneWidget);
+  });
+
+  testWidgets(
       'GIVEN children, enableLongPress = false, spacing = 24.0, '
       'longPressDelay = 5s, runSpacing 20.0 and lockedChildren = [0, 1]'
-      'WHEN pumping [ReorderableWrap] '
+      'WHEN pumping [Reorderable] '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -85,8 +237,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             enableAnimation: false,
             runSpacing: givenRunSpacing,
@@ -112,7 +265,7 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is ReorderableWrap &&
+            widget is Reorderable &&
             !widget.enableLongPress &&
             !widget.enableAnimation &&
             widget.spacing == givenSpacing &&
@@ -131,7 +284,7 @@ void main() {
 
   testWidgets(
       'GIVEN children and fully added children to idMap and orderIdMap '
-      'WHEN pumping [ReorderableWrap] finished '
+      'WHEN pumping [Reorderable] finished '
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
@@ -148,8 +301,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             enableAnimation: false,
             runSpacing: givenRunSpacing,
@@ -194,7 +348,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false '
+      'GIVEN pumped [Reorderable] with enableLongPress = false '
       'WHEN dragging text1 to text2 without releasing drag '
       'THEN should swap position between text1 and text2',
       (WidgetTester tester) async {
@@ -217,8 +371,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (oldIndex, newIndex) {
               actualOldIndex = oldIndex;
@@ -254,7 +409,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false '
+      'GIVEN pumped [Reorderable] with enableLongPress = false '
       'WHEN dragging text1 to text4 without releasing drag '
       'THEN should change swap position of all given texts',
       (WidgetTester tester) async {
@@ -277,8 +432,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
@@ -323,7 +479,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false '
+      'GIVEN pumped [Reorderable] with enableLongPress = false '
       'WHEN dragging text4 to text2 without releasing drag '
       'THEN should change swap position of all given texts',
       (WidgetTester tester) async {
@@ -346,8 +502,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (oldIndex, newIndex) {
               actualOldIndexList.add(oldIndex);
@@ -392,7 +549,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false and '
+      'GIVEN pumped [Reorderable] with enableLongPress = false and '
       'lockedChildren containing text2 index '
       'WHEN dragging text1 to text2 without releasing drag '
       'THEN should not swap position between text1 and text2',
@@ -416,8 +573,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             lockedChildren: const [1],
             enableLongPress: false,
             onReorder: (oldIndex, newIndex) {
@@ -455,7 +613,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false and'
+      'GIVEN pumped [Reorderable] with enableLongPress = false and'
       'text2 index is in lockedChildren '
       'WHEN dragging text1 to text4 without releasing drag '
       'THEN should change swap position of all given texts but text2',
@@ -479,8 +637,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             lockedChildren: const [1],
             onReorder: (oldIndex, newIndex) {
@@ -526,7 +685,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableWrap] with enableLongPress = false and '
+      'GIVEN pumped [Reorderable] with enableLongPress = false and '
       'text1 and text3 are locked '
       'WHEN dragging text4 to text2 without releasing drag '
       'THEN should swap only position of text4 and text2',
@@ -550,8 +709,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             lockedChildren: const [0, 2],
             onReorder: (oldIndex, newIndex) {
@@ -597,9 +757,9 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN [ReorderableWrap] with functionality to add new child '
+      'GIVEN [Reorderable] with functionality to add new child '
       'WHEN tapping add new child button '
-      'THEN should update [ReorderableWrap] with new child',
+      'THEN should update [Reorderable] with new child',
       (WidgetTester tester) async {
     // given
     const givenNewText = 'hi im new';
@@ -622,9 +782,9 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN [ReorderableWrap] with functionality to update current child '
+      'GIVEN [Reorderable] with functionality to update current child '
       'WHEN tapping update child button '
-      'THEN should update [ReorderableWrap] with updated child',
+      'THEN should update [Reorderable] with updated child',
       (WidgetTester tester) async {
     // given
     const givenUpdatedText = 'its me an update!';
@@ -647,7 +807,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN [ReorderableWrap] with enableLongPress = false and 4 texts '
+      'GIVEN [Reorderable] with enableLongPress = false and 4 texts '
       'WHEN changing orientation '
       'THEN should still display all texts', (WidgetTester tester) async {
     // given
@@ -670,8 +830,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ReorderableWrap(
+          body: Reorderable(
             children: givenChildren,
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (_, __) {},
           ),
@@ -736,8 +897,9 @@ class _TestAddOrUpdateChildWidgetState
             },
             child: const Text('update child'),
           ),
-          ReorderableWrap(
+          Reorderable(
             children: children.map((e) => Text(e)).toList(),
+            reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (_, __) {},
           ),

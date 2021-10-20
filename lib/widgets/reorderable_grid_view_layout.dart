@@ -14,7 +14,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
-    this.mainAxisSpacing = 0,
+    this.mainAxisSpacing = 0.0,
     this.clipBehavior = Clip.none,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
