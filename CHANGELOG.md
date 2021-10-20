@@ -1,3 +1,8 @@
+## 1.0.0-dev.4
+
+* Drag Update Position fixed with PostFrameCallback
+* All tests now passes
+
 ## 1.0.0-dev.3
 
 * Fixed Scrolling Bugs in and outside widget
