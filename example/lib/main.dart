@@ -158,6 +158,9 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
           onReorder: _handleReorder,
           children: generatedChildren,
         );

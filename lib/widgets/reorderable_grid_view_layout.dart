@@ -10,16 +10,19 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     required this.children,
     required this.reorderableType,
     required this.onReorder,
-    this.crossAxisCount,
     this.lockedChildren = const [],
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0,
-    this.physics,
     this.clipBehavior = Clip.none,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+    ),
+    this.physics,
+    this.crossAxisCount,
     Key? key,
   }) : super(key: key);
 
@@ -61,6 +64,9 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
 
   @override
   final double crossAxisSpacing;
+
+  @override
+  final SliverGridDelegate gridDelegate;
 
   @override
   Widget build(BuildContext context);

@@ -63,6 +63,9 @@ class Reorderable extends StatefulWidget
     this.clipBehavior = Clip.none,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+    ),
     Key? key,
   }) : super(key: key);
 
@@ -118,6 +121,9 @@ class Reorderable extends StatefulWidget
 
   @override
   final double crossAxisSpacing;
+
+  @override
+  final SliverGridDelegate gridDelegate;
 
   ///
   /// Other
@@ -255,7 +261,13 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 ),
               );
             case ReorderableType.gridView:
-              throw UnimplementedError('Widget soon available!');
+              return SingleChildScrollView(
+                  child: GridView(
+                key: _wrapKey,
+                shrinkWrap: true,
+                gridDelegate: widget.gridDelegate,
+                children: generatedChildren,
+              ));
             case ReorderableType.gridViewCount:
               return SingleChildScrollView(
                 child: GridView.count(

@@ -15,4 +15,7 @@ abstract class ReorderableGridViewParameters {
   final Clip clipBehavior = Clip.hardEdge;
 
   final double crossAxisSpacing = 0.0;
+
+  final SliverGridDelegate gridDelegate =
+      SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 0);
 }

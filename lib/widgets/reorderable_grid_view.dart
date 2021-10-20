@@ -9,12 +9,14 @@ class ReorderableGridView extends ReorderableGridViewLayout {
   const ReorderableGridView({
     required List<Widget> children,
     required ReorderCallback onReorder,
+    required SliverGridDelegate gridDelegate,
     Key? key,
   }) : super(
           key: key,
           children: children,
           onReorder: onReorder,
           reorderableType: ReorderableType.gridView,
+          gridDelegate: gridDelegate,
         );
 
   const ReorderableGridView.count({
