@@ -2,12 +2,9 @@
 ![Codecov](https://img.shields.io/codecov/c/gh/karvulf/flutter-reorderable-grid-view?style=flat-square)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/karvulf/flutter-reorderable-grid-view/master?style=flat-square)
 
-A GridView whose items the user can interactively reorder by dragging. 
+A GridView and Wrap whose items the user can interactively reorder by dragging.
 
-Compared to the given `ReorderableListView`, it
-is possible to reorder different sizes of widgets with or without animation.
-
-Also you can lock specific items that should not change their position.
+Animated Reordering with different type of widgets: GridView and Wrap.
 
 <p>
   <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview_ios.gif?raw=true"
@@ -19,15 +16,18 @@ Also you can lock specific items that should not change their position.
 ## Features
 
 Use this package in your Flutter App to:
+
 - Enable a reordering logic with different widgets
 - Simplified widget
 - Works with all kind of widgets that are rendered inside
 - Animated when reordering items
 - Locking all items you don't want to move
+- Using GridView and Wrap as before but with animation
 - Tested workflows like updating children or changing orientation
 
 ## Getting started
-Simply add `ReordableGridView` to your preferred Widget and specify a list of children.
+
+Simply add `ReordableWrap` or `ReorderableGridView` to your preferred Widget and specify a list of children.
 
 ## Usage
 
@@ -46,21 +46,22 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: ReorderableGridView(
+          child: ReorderableWrap(
             children: List.generate(
               20,
-                  (index) => Container(
-                color: Colors.blue,
-                height: 100,
-                width: 100,
-                child: Text(
-                  'test $index',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
+                  (index) =>
+                  Container(
+                    color: Colors.blue,
+                    height: 100,
+                    width: 100,
+                    child: Text(
+                      'test $index',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ),
             ),
           ),
         ),
@@ -70,21 +71,43 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+To see more examples, just start the Example App and use the DropDown to test all type of widgets.
+
+### Supported Widgets
+
+* `ReorderableWrap`
+* `ReorderableGridView`
+* `ReorderableGridView.count`
+* `ReorderableGridView.extent`
+
 ## Additional information
-### ReordableGridView
+
+`ReorderableWrap` and `ReorderableGridView` are just an extension of the known widgets `Wrap` and `GridView`.
+
+The extension includes the functionality to reorder their items.
+
+In the following description you get information about the new parameters.
+
+More information about the parameters of `GridView` and `Wrap` are on the flutter documentation.
+
+### Parameters
 
 | **Parameter** | **Description** | **Default Value** |
 | :------------- | :------------- | :-------------: |
 | `children` | Displays all given children that are build inside a Wrap. | **-** |
-| `spacing` | Spacing in vertical direction between children. | **8** |
-| `runSpacing` | Spacing in horizontal direction between children. | **8** |
+| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **
+\<int>[]** |
 | `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
-| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **\<int>[]** |
-| `onUpdate` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **-** |
+| `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **
+-** |
 
-## Future
+## Future Plans
+
+Currently, I didn't implement all types of GridView. Also, some parameters are still missing. But be sure that they are
+coming.
+
 If you have feature requests or found some problems, feel free and open your issues in the GitHub project.
 
 Thank you for using this package.
