@@ -2,6 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_grid_view_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
@@ -35,61 +39,112 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// With [enableLongPress] you can decide if the user needs a long press to move
 /// the item around. The default value is true.
 ///
-/// [onUpdate] always give you the old and new index of the moved children.
+/// [onReorder] always give you the old and new index of the moved children.
 /// Make sure to update your list of children that you used to display your data.
 /// See more on the example.
-class ReorderableGridView extends StatefulWidget {
-  const ReorderableGridView({
+class Reorderable extends StatefulWidget
+    implements
+        ReorderableParameters,
+        ReorderableWrapParameters,
+        ReorderableGridViewParameters {
+  const Reorderable({
     required this.children,
+    required this.reorderableType,
+    required this.onReorder,
     this.lockedChildren = const [],
-    this.spacing = 8,
-    this.runSpacing = 8,
+    this.spacing = 8.0,
+    this.runSpacing = 8.0,
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
-    this.onUpdate,
+    this.mainAxisSpacing = 0.0,
+    this.clipBehavior = Clip.none,
+    this.maxCrossAxisExtent = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3,
+    ),
+    this.childAspectRatio = 1.0,
+    this.crossAxisCount,
+    this.physics,
+    this.padding,
     Key? key,
   }) : super(key: key);
 
-  /// Adding [children] that should be displayed inside this widget
-  final List<Widget> children;
-
-  final List<int> lockedChildren;
-
-  /// Spacing between displayed items in horizontal direction
-  final double spacing;
-
-  /// Spacing between displayed items in vertical direction
-  final double runSpacing;
-
-  /// By default animation is enabled when the position of the items changes
-  final bool enableAnimation;
-
-  /// By default long press is enabled when tapping an item
-  final bool enableLongPress;
-
-  /// By default it has a duration of 500ms before an item can be moved.
   ///
-  /// Can only be used if [enableLongPress] is enabled.
-  final Duration longPressDelay;
-
-  /// Every a child changes his position, this function is called.
+  /// Default Parameter
   ///
-  /// When a child was moved, you get the old index where the child was and
-  /// the new index where the child is positioned now.
-  ///
-  /// You should always update your list if you want to make use of the new
-  /// order. Otherwise this widget is just a good-looking widget.
-  ///
-  /// See more on the example.
-  final void Function(int oldIndex, int newIndex)? onUpdate;
 
   @override
-  State<ReorderableGridView> createState() => _ReorderableGridViewState();
+  final List<Widget> children;
+
+  @override
+  final List<int> lockedChildren;
+
+  @override
+  final bool enableAnimation;
+
+  @override
+  final bool enableLongPress;
+
+  @override
+  final Duration longPressDelay;
+
+  @override
+  final ReorderCallback onReorder;
+
+  ///
+  /// Wrap
+  ///
+
+  @override
+  final double spacing;
+
+  @override
+  final double runSpacing;
+
+  ///
+  /// GridView
+  ///
+  @override
+  final int? crossAxisCount;
+
+  @override
+  final double mainAxisSpacing;
+
+  @override
+  final ScrollPhysics? physics;
+
+  @override
+  final double maxCrossAxisExtent;
+
+  @override
+  final Clip clipBehavior;
+
+  @override
+  final double crossAxisSpacing;
+
+  @override
+  final SliverGridDelegate gridDelegate;
+
+  @override
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  final double childAspectRatio;
+
+  ///
+  /// Other
+  ///
+
+  @override
+  final ReorderableType reorderableType;
+
+  @override
+  State<Reorderable> createState() => _ReorderableState();
 }
 
-class _ReorderableGridViewState extends State<ReorderableGridView>
-    with WidgetsBindingObserver {
+class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// This widget always makes a copy of [widget.children]
   List<Widget> childrenCopy = <Widget>[];
 
@@ -105,8 +160,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
 
-  /// Controller of the [SingleChildScrollView]
-  final _scrollController = ScrollController();
+  final _copyReorderableKey = GlobalKey();
 
   /// Size of the [Wrap] that was used to build the widget
   late Size _wrapSize;
@@ -130,7 +184,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   }
 
   @override
-  void didUpdateWidget(covariant ReorderableGridView oldWidget) {
+  void didUpdateWidget(covariant Reorderable oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // childrenCopy has to get an update
@@ -166,13 +220,25 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Builder(
-        builder: (context) {
-          // after all children are added to animatedChildren
-          if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-            return SizedBox(
+    final generatedChildren = List.generate(
+      childrenCopy.length,
+      (index) => DraggableItem(
+        child: childrenCopy[index],
+        enableLongPress: widget.enableLongPress,
+        id: index,
+        onCreated: _handleCreated,
+        longPressDelay: widget.longPressDelay,
+        enabled: !widget.lockedChildren.contains(index),
+      ),
+    );
+    return Builder(
+      builder: (context) {
+        // after all children are added to animatedChildren
+        if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
+          return SingleChildScrollView(
+            physics: widget.physics,
+            child: SizedBox(
+              key: _copyReorderableKey,
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
@@ -189,27 +255,58 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
                         ))
                     .toList(),
               ),
-            );
-          } else {
-            return Wrap(
-              key: _wrapKey,
-              spacing: widget.spacing,
-              runSpacing: widget.runSpacing,
-              children: List.generate(
-                childrenCopy.length,
-                (index) => DraggableItem(
-                  child: childrenCopy[index],
-                  enableLongPress: widget.enableLongPress,
-                  id: index,
-                  onCreated: _handleCreated,
-                  longPressDelay: widget.longPressDelay,
-                  enabled: !widget.lockedChildren.contains(index),
+            ),
+          );
+        } else {
+          switch (widget.reorderableType) {
+            case ReorderableType.wrap:
+              return SingleChildScrollView(
+                child: Wrap(
+                  key: _wrapKey,
+                  spacing: widget.spacing,
+                  runSpacing: widget.runSpacing,
+                  children: generatedChildren,
                 ),
-              ),
-            );
+              );
+            case ReorderableType.gridView:
+              return SingleChildScrollView(
+                  child: GridView(
+                key: _wrapKey,
+                shrinkWrap: true,
+                padding: widget.padding,
+                gridDelegate: widget.gridDelegate,
+                children: generatedChildren,
+                clipBehavior: widget.clipBehavior,
+              ));
+            case ReorderableType.gridViewCount:
+              return SingleChildScrollView(
+                child: GridView.count(
+                  key: _wrapKey,
+                  shrinkWrap: true,
+                  crossAxisCount: widget.crossAxisCount!,
+                  mainAxisSpacing: widget.mainAxisSpacing,
+                  children: generatedChildren,
+                  padding: widget.padding,
+                  clipBehavior: widget.clipBehavior,
+                ),
+              );
+            case ReorderableType.gridViewExtent:
+              return SingleChildScrollView(
+                child: GridView.extent(
+                  key: _wrapKey,
+                  shrinkWrap: true,
+                  maxCrossAxisExtent: widget.maxCrossAxisExtent,
+                  clipBehavior: widget.clipBehavior,
+                  mainAxisSpacing: widget.mainAxisSpacing,
+                  crossAxisSpacing: widget.crossAxisSpacing,
+                  children: generatedChildren,
+                  padding: widget.padding,
+                  childAspectRatio: widget.childAspectRatio,
+                ),
+              );
           }
-        },
-      ),
+        }
+      },
     );
   }
 
@@ -246,6 +343,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       final box = renderObject as RenderBox;
       final position = box.localToGlobal(Offset.zero);
       final size = box.size;
+
       final localPosition = Offset(
         position.dx - _wrapPosition.dx,
         position.dy - _wrapPosition.dy,
@@ -258,7 +356,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       if (existingItem != null) {
         final gridItemEntity = existingItem.copyWith(
           localPosition: localPosition,
-          globalPosition: position,
+          size: size,
         );
         _childrenOrderIdMap[id] = gridItemEntity;
         _childrenIdMap[gridItemEntity.id] = gridItemEntity;
@@ -273,7 +371,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
         final gridItemEntity = GridItemEntity(
           id: id,
           localPosition: localPosition,
-          globalPosition: position,
           size: size,
           orderId: id,
         );
@@ -310,18 +407,28 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
   /// all items around changes their position.
   ///
   /// After all the position changes were done, there will be an update to
-  /// [onUpdate] and the state will be updated inside this widget show the new
+  /// [onReorder] and the state will be updated inside this widget show the new
   /// positions of the items to the user.
   void _handleDragUpdate(
-    BuildContext context,
-    DragUpdateDetails details,
     int id,
+    Offset position,
+    Size size,
   ) {
+    final renderParentObject =
+        _copyReorderableKey.currentContext?.findRenderObject();
+
+    if (renderParentObject == null) {
+      return;
+    }
+
+    final parentBox = renderParentObject as RenderBox;
+    final localPosition = parentBox.globalToLocal(position);
+
     final collisionId = getItemsCollision(
       id: id,
-      position: details.globalPosition,
+      position: localPosition,
+      size: size,
       childrenIdMap: _childrenIdMap,
-      scrollPixelsY: _scrollController.position.pixels,
       lockedChildren: widget.lockedChildren,
     );
 
@@ -338,7 +445,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
       // item changes multiple positions to the negative direction
@@ -350,7 +457,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
       // item changes position only to one item
@@ -361,7 +468,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
           childrenOrderIdMap: _childrenOrderIdMap,
-          onUpdate: _handleUpdate,
+          onReorder: _handleReorder,
         );
       }
 
@@ -372,7 +479,7 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
     }
   }
 
-  void _handleUpdate(int oldIndex, int newIndex) {
+  void _handleReorder(int oldIndex, int newIndex) {
     setState(() {
       final draggedItem = childrenCopy[oldIndex];
       final collisionItem = childrenCopy[newIndex];
@@ -380,8 +487,6 @@ class _ReorderableGridViewState extends State<ReorderableGridView>
       childrenCopy[oldIndex] = collisionItem;
     });
 
-    if (widget.onUpdate != null) {
-      widget.onUpdate!(oldIndex, newIndex);
-    }
+    widget.onReorder(oldIndex, newIndex);
   }
 }

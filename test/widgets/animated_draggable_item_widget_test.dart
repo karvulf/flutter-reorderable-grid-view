@@ -52,7 +52,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.child == givenChild &&
+            widget.child is SizedBox &&
+            (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == kLongPressTimeout &&
@@ -107,7 +108,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DraggableItem &&
-            widget.child == givenChild &&
+            widget.child is SizedBox &&
+            (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.id == givenEntry.key &&
             widget.longPressDelay == givenLongPressDelay &&
@@ -131,8 +133,8 @@ void main() {
       ),
     );
 
-    BuildContext? expectedContext;
-    DragUpdateDetails? expectedDragUpdateDetails;
+    Offset? expectedPosition;
+    Size? expectedSize;
     int? expectedId;
 
     await tester.pumpWidget(
@@ -149,13 +151,13 @@ void main() {
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
                   onDragUpdate: (
-                    BuildContext context,
-                    DragUpdateDetails details,
                     int id,
+                    Offset position,
+                    Size size,
                   ) {
-                    expectedContext = context;
-                    expectedDragUpdateDetails = details;
+                    expectedPosition = position;
                     expectedId = id;
+                    expectedSize = size;
                   },
                 ),
               ],
@@ -178,8 +180,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(expectedContext, isNotNull);
-    expect(expectedDragUpdateDetails, isNotNull);
+    expect(expectedPosition, isNotNull);
+    expect(expectedSize, isNotNull);
     expect(expectedId, equals(givenEntry.key));
   });
 }

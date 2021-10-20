@@ -2,6 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+typedef OnCreatedFunction = Function(
+  BuildContext context,
+  GlobalKey key,
+  int id,
+);
+
+typedef OnDragUpdateFunction = Function(
+  int id,
+  Offset position,
+  Size size,
+);
+
 class DraggableItem extends StatefulWidget {
   final Widget child;
   final int id;
@@ -10,16 +22,8 @@ class DraggableItem extends StatefulWidget {
   final Duration longPressDelay;
   final bool enabled;
 
-  final Function(
-    BuildContext context,
-    GlobalKey key,
-    int id,
-  )? onCreated;
-  final Function(
-    BuildContext context,
-    DragUpdateDetails details,
-    int id,
-  )? onDragUpdate;
+  final OnCreatedFunction? onCreated;
+  final OnDragUpdateFunction? onDragUpdate;
 
   const DraggableItem({
     required this.child,
@@ -39,6 +43,8 @@ class DraggableItem extends StatefulWidget {
 class _DraggableItemState extends State<DraggableItem>
     with TickerProviderStateMixin {
   final _globalKey = GlobalKey();
+  final _dragKey = GlobalKey();
+
   final DecorationTween decorationTween = DecorationTween(
     begin: const BoxDecoration(),
     end: BoxDecoration(
@@ -83,6 +89,7 @@ class _DraggableItemState extends State<DraggableItem>
     }
 
     final feedback = Material(
+      key: _dragKey,
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
         decoration: decorationTween.animate(_controller),
@@ -114,7 +121,17 @@ class _DraggableItemState extends State<DraggableItem>
 
   void _handleDragUpdate(DragUpdateDetails details) {
     if (widget.onDragUpdate != null) {
-      widget.onDragUpdate!(context, details, widget.id);
+      // after postFrameCallback dragged object is correctly positioned
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        final renderObject = _dragKey.currentContext?.findRenderObject();
+        if (renderObject != null) {
+          final box = renderObject as RenderBox;
+          final position = box.localToGlobal(Offset.zero);
+
+          widget.onDragUpdate!(widget.id, position, box.size);
+          return;
+        }
+      });
     }
   }
 

@@ -19,9 +19,9 @@ import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 int? getItemsCollision({
   required int id,
   required Offset position,
+  required Size size,
   required Map<int, GridItemEntity> childrenIdMap,
   required List<int> lockedChildren,
-  required double scrollPixelsY,
 }) {
   int? collisionId;
 
@@ -30,20 +30,21 @@ int? getItemsCollision({
     return null;
   }
 
+  final currentDx = position.dx + size.width / 2;
+  final currentDy = position.dy + size.height / 2;
+
   for (final entry in childrenIdMap.entries) {
     final item = entry.value;
-    final itemDx = item.globalPosition.dx;
-    final itemDy = item.globalPosition.dy;
+    final itemDx = item.localPosition.dx;
+    final itemDy = item.localPosition.dy;
     final itemWidth = item.size.width;
     final itemHeight = item.size.height;
-    final detailsDx = position.dx;
-    final detailsDy = position.dy + scrollPixelsY;
 
-    // checking collision with full item size and global position
-    if (detailsDx >= itemDx &&
-        detailsDy >= itemDy &&
-        detailsDx <= itemDx + itemWidth &&
-        detailsDy <= itemDy + itemHeight) {
+    // checking collision with full item size and local position
+    if (currentDx >= itemDx &&
+        currentDy >= itemDy &&
+        currentDx <= itemDx + itemWidth &&
+        currentDy <= itemDy + itemHeight) {
       collisionId = entry.key;
       break;
     }
@@ -80,7 +81,7 @@ void handleOneCollision({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   assert(dragId != collisionId);
 
@@ -93,12 +94,10 @@ void handleOneCollision({
 
   final updatedEntryValueA = entryA.copyWith(
     localPosition: entryB.localPosition,
-    globalPosition: entryB.globalPosition,
     orderId: entryB.orderId,
   );
   final updatedEntryValueB = entryB.copyWith(
     localPosition: entryA.localPosition,
-    globalPosition: entryA.globalPosition,
     orderId: entryA.orderId,
   );
 
@@ -108,9 +107,7 @@ void handleOneCollision({
   childrenOrderIdMap[entryA.orderId] = updatedEntryValueB;
   childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
 
-  if (onUpdate != null) {
-    onUpdate(entryA.orderId, entryB.orderId);
-  }
+  onReorder(entryA.orderId, entryB.orderId);
 }
 
 /// Called when the item changes his position between more than one item.
@@ -133,7 +130,7 @@ void handleMultipleCollisionsBackward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -154,7 +151,7 @@ void handleMultipleCollisionsBackward({
         childrenIdMap: childrenIdMap,
         childrenOrderIdMap: childrenOrderIdMap,
         lockedChildren: lockedChildren,
-        onUpdate: onUpdate,
+        onReorder: onReorder,
       );
     }
   }
@@ -180,7 +177,7 @@ void handleMultipleCollisionsForward({
   required Map<int, GridItemEntity> childrenIdMap,
   required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
-  void Function(int oldIndex, int newIndex)? onUpdate,
+  required ReorderCallback onReorder,
 }) {
   for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
     int? dragId = childrenOrderIdMap[i]?.id;
@@ -202,7 +199,7 @@ void handleMultipleCollisionsForward({
         childrenIdMap: childrenIdMap,
         lockedChildren: lockedChildren,
         childrenOrderIdMap: childrenOrderIdMap,
-        onUpdate: onUpdate,
+        onReorder: onReorder,
       );
     }
   }

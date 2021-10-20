@@ -190,9 +190,9 @@ void main() {
     const givenChild = Text(givenText);
     const givenId = 0;
 
-    BuildContext? expectedContext;
-    DragUpdateDetails? expectedDragUpdateDetails;
+    Offset? expectedPosition;
     int? expectedId;
+    Size? expectedSize;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -206,13 +206,13 @@ void main() {
               id: givenId,
               onCreated: (_, __, ___) {},
               onDragUpdate: (
-                BuildContext context,
-                DragUpdateDetails details,
                 int id,
+                Offset position,
+                Size size,
               ) {
-                expectedContext = context;
-                expectedDragUpdateDetails = details;
                 expectedId = id;
+                expectedPosition = position;
+                expectedSize = size;
               },
             ),
           ),
@@ -235,8 +235,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(expectedContext, isNotNull);
-    expect(expectedDragUpdateDetails, isNotNull);
+    expect(expectedPosition, isNotNull);
+    expect(expectedSize, isNotNull);
     expect(expectedId, equals(givenId));
   });
 }

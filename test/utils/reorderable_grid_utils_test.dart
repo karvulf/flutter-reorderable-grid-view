@@ -16,15 +16,15 @@ void main() {
       // given
       const givenId = 0;
       const givenPosition = Offset(0, 0);
+      const givenSize = Size(100, 100);
       final givenChildren = <int, GridItemEntity>{};
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -40,14 +40,14 @@ void main() {
       const givenId = 0;
       const givenPosition = Offset(0, 0);
       final givenChildren = <int, GridItemEntity>{};
-      const givenScrollPixelsY = 0.0;
+      const givenSize = Size(100, 100);
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [givenId],
       );
 
@@ -56,26 +56,26 @@ void main() {
     });
 
     test(
-        'GIVEN position dx is less than globalPosition '
+        'GIVEN position dx with width is less than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(199, 200);
+      const givenPosition = Offset(99, 200);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -84,26 +84,25 @@ void main() {
     });
 
     test(
-        'GIVEN position dy is less than globalPosition '
+        'GIVEN position dy with height is less than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 199);
+      const givenPosition = Offset(200, 99);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
-      // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -112,26 +111,26 @@ void main() {
     });
 
     test(
-        'GIVEN position dx is higher than globalPosition '
+        'GIVEN position dx with width is bigger than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(401, 200);
+      const givenPosition = Offset(301, 200);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -140,26 +139,26 @@ void main() {
     });
 
     test(
-        'GIVEN position dy is higher than globalPosition '
+        'GIVEN position dy with width is bigger than globalPosition '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 401);
+      const givenPosition = Offset(200, 301);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -176,24 +175,24 @@ void main() {
       const givenId = 0;
       const givenCollisionId = 1;
       const givenPosition = Offset(200, 400);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(-200, -200),
-          size: const Size(200, 200),
+          localPosition: const Offset(-200, -200),
+          size: givenSize,
         ),
         givenCollisionId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [givenCollisionId],
       );
 
@@ -207,21 +206,21 @@ void main() {
         'THEN should return given id', () {
       // given
       const givenId = 0;
-      const givenPosition = Offset(200, 400);
+      const givenPosition = Offset(100, 300);
+      const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
         givenId: builder.getGridItemEntity(
-          globalPosition: const Offset(200, 200),
-          size: const Size(200, 200),
+          localPosition: const Offset(200, 200),
+          size: givenSize,
         ),
       };
-      const givenScrollPixelsY = 0.0;
 
       // when
       final actual = getItemsCollision(
         id: givenId,
         position: givenPosition,
+        size: givenSize,
         childrenIdMap: givenChildren,
-        scrollPixelsY: givenScrollPixelsY,
         lockedChildren: [],
       );
 
@@ -247,6 +246,7 @@ void main() {
                 childrenIdMap: {},
                 childrenOrderIdMap: {},
                 lockedChildren: [],
+                onReorder: (_, __) {},
               ),
           throwsAssertionError);
     });
@@ -297,7 +297,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenCollisionId],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
           actualNewIndex = newIndex;
         },
@@ -309,7 +309,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -319,7 +318,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenDragId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -329,7 +327,6 @@ void main() {
             givenChildrenIdMap[givenCollisionId]!,
             id: givenCollisionId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -339,7 +336,6 @@ void main() {
             givenChildrenOrderIdMap[givenCollisionOrderId]!,
             id: givenCollisionId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -355,24 +351,20 @@ void main() {
       // given
       const givenDragId = 0;
       const givenDragOrderId = 2;
-      const givenDragGlobalPosition = Offset(0, 0);
       const givenDragLocalPosition = Offset(2, 2);
 
       const givenCollisionId = 1;
       const givenCollisionOrderId = 3;
-      const givenCollisionGlobalPosition = Offset(1, 1);
       const givenCollisionLocalPosition = Offset(3, 3);
 
       final givenDragChild = builder.getGridItemEntity(
         id: givenDragId,
         orderId: givenDragOrderId,
         localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
       );
       final givenCollisionChild = builder.getGridItemEntity(
         id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
       final givenChildrenIdMap = {
@@ -394,7 +386,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
           actualNewIndex = newIndex;
         },
@@ -406,7 +398,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -415,7 +406,6 @@ void main() {
             givenChildrenOrderIdMap[givenCollisionOrderId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -425,7 +415,6 @@ void main() {
             givenChildrenIdMap[givenCollisionId]!,
             id: givenCollisionId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -434,7 +423,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenCollisionId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -520,7 +508,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
           actualNewIndexList.add(newIndex);
         },
@@ -535,8 +523,6 @@ void main() {
             id: givenCollisionId,
             // collision was moved to child and get his orderId
             orderId: givenChildOrderId,
-            // collision was moved to child and get his globalPosition
-            globalPosition: givenChildGlobalPosition,
             // collision was moved to child and get his localPosition
             localPosition: givenChildLocalPosition,
           ),
@@ -549,8 +535,6 @@ void main() {
             id: givenDragId,
             // the draggedChild has now orderId of the collision child
             orderId: givenCollisionOrderId,
-            // the draggedChild has now globalPosition of the collision child
-            globalPosition: givenCollisionGlobalPosition,
             // the draggedChild has now localPosition of the collision child
             localPosition: givenCollisionLocalPosition,
           ),
@@ -562,7 +546,6 @@ void main() {
             givenChildrenIdMap[givenChildId]!,
             id: givenChildId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -571,7 +554,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId]!,
             id: givenCollisionId,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -582,7 +564,6 @@ void main() {
             givenChildrenIdMap[givenChildId2]!,
             id: givenChildId2,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -591,7 +572,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId2]!,
             id: givenChildId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -602,7 +582,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -611,7 +590,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenChildId2,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -704,6 +682,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenChildId],
+        onReorder: (_, __) {},
       );
 
       // then
@@ -713,7 +692,6 @@ void main() {
             givenChildrenIdMap[givenCollisionId]!,
             id: givenCollisionId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -722,7 +700,6 @@ void main() {
             givenChildrenOrderIdMap[givenCollisionOrderId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -733,7 +710,6 @@ void main() {
             givenChildrenIdMap[givenChildId]!,
             id: givenChildId,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -742,7 +718,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId]!,
             id: givenChildId,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -753,7 +728,6 @@ void main() {
             givenChildrenIdMap[givenChildId2]!,
             id: givenChildId2,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -762,7 +736,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId2]!,
             id: givenCollisionId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -773,7 +746,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -782,7 +754,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenChildId2,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -865,7 +836,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
-        onUpdate: (oldIndex, newIndex) {
+        onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
           actualNewIndexList.add(newIndex);
         },
@@ -878,7 +849,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -887,7 +857,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenChildId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -898,7 +867,6 @@ void main() {
             givenChildrenIdMap[givenChildId]!,
             id: givenChildId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -907,7 +875,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId]!,
             id: givenChildId2,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -918,7 +885,6 @@ void main() {
             givenChildrenIdMap[givenChildId2]!,
             id: givenChildId2,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -927,7 +893,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId2]!,
             id: givenCollisionId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -938,7 +903,6 @@ void main() {
             givenChildrenIdMap[givenCollisionId]!,
             id: givenCollisionId,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -947,7 +911,6 @@ void main() {
             givenChildrenOrderIdMap[givenCollisionOrderId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -1039,6 +1002,7 @@ void main() {
         childrenIdMap: givenChildrenIdMap,
         childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenChildId, givenChildId2],
+        onReorder: (_, __) {},
       );
 
       // then
@@ -1048,7 +1012,6 @@ void main() {
             givenChildrenIdMap[givenDragId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -1057,7 +1020,6 @@ void main() {
             givenChildrenOrderIdMap[givenDragOrderId]!,
             id: givenCollisionId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -1068,7 +1030,6 @@ void main() {
             givenChildrenIdMap[givenChildId]!,
             id: givenChildId,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -1077,7 +1038,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId]!,
             id: givenChildId,
             orderId: givenChildOrderId,
-            globalPosition: givenChildGlobalPosition,
             localPosition: givenChildLocalPosition,
           ),
           isTrue);
@@ -1088,7 +1048,6 @@ void main() {
             givenChildrenIdMap[givenChildId2]!,
             id: givenChildId2,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -1097,7 +1056,6 @@ void main() {
             givenChildrenOrderIdMap[givenChildOrderId2]!,
             id: givenChildId2,
             orderId: givenChildOrderId2,
-            globalPosition: givenChildGlobalPosition2,
             localPosition: givenChildLocalPosition2,
           ),
           isTrue);
@@ -1108,7 +1066,6 @@ void main() {
             givenChildrenIdMap[givenCollisionId]!,
             id: givenCollisionId,
             orderId: givenDragOrderId,
-            globalPosition: givenDragGlobalPosition,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
@@ -1117,7 +1074,6 @@ void main() {
             givenChildrenOrderIdMap[givenCollisionOrderId]!,
             id: givenDragId,
             orderId: givenCollisionOrderId,
-            globalPosition: givenCollisionGlobalPosition,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
@@ -1129,11 +1085,9 @@ bool hasGridItemEntityValues(
   GridItemEntity item, {
   required int id,
   required int orderId,
-  required Offset globalPosition,
   required Offset localPosition,
 }) {
   return item.id == id &&
       item.orderId == orderId &&
-      item.globalPosition == globalPosition &&
       item.localPosition == localPosition;
 }
