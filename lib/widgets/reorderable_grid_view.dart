@@ -54,7 +54,6 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           lockedChildren: lockedChildren,
           mainAxisSpacing: mainAxisSpacing,
           clipBehavior: clipBehavior,
-          shrinkWrap: shrinkWrap,
           maxCrossAxisExtent: maxCrossAxisExtent,
           physics: physics,
           crossAxisSpacing: crossAxisSpacing,
@@ -75,7 +74,6 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       mainAxisSpacing: mainAxisSpacing,
       physics: physics,
       maxCrossAxisExtent: maxCrossAxisExtent,
-      shrinkWrap: shrinkWrap,
       crossAxisCount: crossAxisCount,
     );
   }

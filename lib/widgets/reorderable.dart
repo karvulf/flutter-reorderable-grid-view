@@ -61,7 +61,6 @@ class Reorderable extends StatefulWidget
     this.crossAxisCount,
     this.physics,
     this.clipBehavior = Clip.none,
-    this.shrinkWrap = false,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
     Key? key,
@@ -107,9 +106,6 @@ class Reorderable extends StatefulWidget
 
   @override
   final double mainAxisSpacing;
-
-  @override
-  final bool shrinkWrap;
 
   @override
   final ScrollPhysics? physics;

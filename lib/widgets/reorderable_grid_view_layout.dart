@@ -18,7 +18,6 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.mainAxisSpacing = 0,
     this.physics,
     this.clipBehavior = Clip.none,
-    this.shrinkWrap = false,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
     Key? key,
@@ -50,9 +49,6 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
 
   @override
   final double mainAxisSpacing;
-
-  @override
-  final bool shrinkWrap;
 
   @override
   final ScrollPhysics? physics;

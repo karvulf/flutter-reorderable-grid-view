@@ -8,8 +8,6 @@ abstract class ReorderableGridViewParameters {
 
   final double mainAxisSpacing = 0.0;
 
-  final bool shrinkWrap = false;
-
   final ScrollPhysics? physics = null;
 
   final double maxCrossAxisExtent = 0.0;
