@@ -1,3 +1,6 @@
+## 1.0.1
+* fixed ClipBehavior
+
 ## 1.0.0
 
 * Old used `ReorderableGridView` now called `ReorderableWrap`
