@@ -242,6 +242,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               height: _wrapSize.height,
               width: _wrapSize.width,
               child: Stack(
+                clipBehavior: widget.clipBehavior,
                 children: _childrenIdMap.entries
                     .map((e) => AnimatedDraggableItem(
                           key: Key(e.key.toString()),
