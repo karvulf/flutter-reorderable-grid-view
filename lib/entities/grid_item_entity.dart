@@ -5,12 +5,14 @@ class GridItemEntity {
   final Offset localPosition;
   final Size size;
   final int orderId;
+  final Key? key;
 
   const GridItemEntity({
     required this.id,
     required this.localPosition,
     required this.size,
     required this.orderId,
+    this.key,
   });
 
   GridItemEntity copyWith({
@@ -23,5 +25,6 @@ class GridItemEntity {
         localPosition: localPosition ?? this.localPosition,
         size: size ?? this.size,
         orderId: orderId ?? this.orderId,
+        key: key,
       );
 }

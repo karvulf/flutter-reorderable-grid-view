@@ -129,6 +129,7 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
+        key: Key(children[index].toString()),
         color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
         height: 100,
         width: 100,

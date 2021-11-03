@@ -221,14 +221,20 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final generatedChildren = List.generate(
-      childrenCopy.length,
-      (index) => DraggableItem(
-        child: childrenCopy[index],
-        enableLongPress: widget.enableLongPress,
-        id: index,
-        onCreated: _handleCreated,
-        longPressDelay: widget.longPressDelay,
-        enabled: !widget.lockedChildren.contains(index),
+      widget.children.length,
+      (index) => Visibility(
+        visible: false,
+        maintainAnimation: true,
+        maintainSize: true,
+        maintainState: true,
+        child: DraggableItem(
+          child: childrenCopy[index],
+          enableLongPress: widget.enableLongPress,
+          id: index,
+          onCreated: _handleCreated,
+          longPressDelay: widget.longPressDelay,
+          enabled: !widget.lockedChildren.contains(index),
+        ),
       ),
     );
     return Builder(
@@ -245,7 +251,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 clipBehavior: widget.clipBehavior,
                 children: _childrenIdMap.entries
                     .map((e) => AnimatedDraggableItem(
-                          key: Key(e.key.toString()),
+                          key: e.value.key ?? Key(e.key.toString()),
                           enableAnimation: widget.enableAnimation,
                           entry: e,
                           enableLongPress: widget.enableLongPress,
@@ -334,6 +340,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     BuildContext context,
     GlobalKey key,
     int id,
+    Key? childKey,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
 
@@ -374,11 +381,12 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           localPosition: localPosition,
           size: size,
           orderId: id,
+          key: childKey,
         );
         _childrenIdMap[id] = gridItemEntity;
         _childrenOrderIdMap[id] = gridItemEntity;
 
-        if (_childrenIdMap.entries.length == childrenCopy.length) {
+        if (_childrenIdMap.entries.length == widget.children.length) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
