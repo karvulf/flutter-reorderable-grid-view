@@ -16,6 +16,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final lockedChildren = <int>[];
 
+  int keyCounter = 0;
   List<int> children = <int>[];
   ReorderableType reorderableType = ReorderableType.wrap;
 
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
                       ContainerButton(
                         onTap: () {
                           setState(() {
-                            children = children..add(children.length);
+                            children = children..add(keyCounter++);
                           });
                         },
                         color: Colors.green,
@@ -61,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeLast();
+                              children = children..removeAt(0);
                             });
                           }
                         },

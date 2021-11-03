@@ -150,9 +150,11 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   /// Represents all children inside a map with the index as key
   Map<int, GridItemEntity> _childrenIdMap = {};
+  Map<int, GridItemEntity> _childrenIdMapProxy = {};
 
   /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
+  Map<int, GridItemEntity> _childrenOrderIdMapProxy = {};
 
   /// Bool to know if all children were build and updated.
   bool hasBuiltItems = false;
@@ -163,7 +165,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   final _copyReorderableKey = GlobalKey();
 
   /// Size of the [Wrap] that was used to build the widget
-  late Size _wrapSize;
+  Size _wrapSize = Size.zero;
 
   @override
   void initState() {
@@ -192,10 +194,14 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       // resetting maps to built all children correctly when children size changes
       if (oldWidget.children.length != widget.children.length) {
         setState(() {
-          _childrenIdMap = {};
-          _childrenOrderIdMap = {};
+          _childrenIdMapProxy = {};
+          _childrenOrderIdMapProxy = {};
           hasBuiltItems = false;
-          childrenCopy = List<Widget>.from(widget.children);
+          if (widget.children.isEmpty) {
+            _childrenIdMap = {};
+            _childrenOrderIdMap = {};
+            childrenCopy.clear();
+          }
         });
       } else {
         setState(() {
@@ -228,7 +234,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         maintainSize: true,
         maintainState: true,
         child: DraggableItem(
-          child: childrenCopy[index],
+          child: widget.children[index],
           enableLongPress: widget.enableLongPress,
           id: index,
           onCreated: _handleCreated,
@@ -237,83 +243,88 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         ),
       ),
     );
-    return Builder(
-      builder: (context) {
-        // after all children are added to animatedChildren
-        if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
-          return SingleChildScrollView(
-            physics: widget.physics,
-            child: SizedBox(
-              key: _copyReorderableKey,
-              height: _wrapSize.height,
-              width: _wrapSize.width,
-              child: Stack(
-                clipBehavior: widget.clipBehavior,
-                children: _childrenIdMap.entries
-                    .map((e) => AnimatedDraggableItem(
-                          key: e.value.key ?? Key(e.key.toString()),
-                          enableAnimation: widget.enableAnimation,
-                          entry: e,
-                          enableLongPress: widget.enableLongPress,
-                          onDragUpdate: _handleDragUpdate,
-                          longPressDelay: widget.longPressDelay,
-                          enabled: !widget.lockedChildren.contains(e.key),
-                          child: childrenCopy[e.value.orderId],
-                        ))
-                    .toList(),
-              ),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          physics: widget.physics,
+          child: SizedBox(
+            key: _copyReorderableKey,
+            height: _wrapSize.height,
+            width: _wrapSize.width,
+            child: Stack(
+              clipBehavior: widget.clipBehavior,
+              children: _childrenIdMap.entries
+                  .map((e) => AnimatedDraggableItem(
+                        key: e.value.key ?? Key(e.key.toString()),
+                        enableAnimation: widget.enableAnimation,
+                        entry: e,
+                        enableLongPress: widget.enableLongPress,
+                        onDragUpdate: _handleDragUpdate,
+                        longPressDelay: widget.longPressDelay,
+                        enabled: !widget.lockedChildren.contains(e.key),
+                        child: childrenCopy[e.value.orderId],
+                      ))
+                  .toList(),
             ),
-          );
-        } else {
-          switch (widget.reorderableType) {
-            case ReorderableType.wrap:
-              return SingleChildScrollView(
-                child: Wrap(
-                  key: _wrapKey,
-                  spacing: widget.spacing,
-                  runSpacing: widget.runSpacing,
-                  children: generatedChildren,
-                ),
-              );
-            case ReorderableType.gridView:
-              return SingleChildScrollView(
-                  child: GridView(
-                key: _wrapKey,
-                shrinkWrap: true,
-                padding: widget.padding,
-                gridDelegate: widget.gridDelegate,
-                children: generatedChildren,
-                clipBehavior: widget.clipBehavior,
-              ));
-            case ReorderableType.gridViewCount:
-              return SingleChildScrollView(
-                child: GridView.count(
-                  key: _wrapKey,
-                  shrinkWrap: true,
-                  crossAxisCount: widget.crossAxisCount!,
-                  mainAxisSpacing: widget.mainAxisSpacing,
-                  children: generatedChildren,
-                  padding: widget.padding,
-                  clipBehavior: widget.clipBehavior,
-                ),
-              );
-            case ReorderableType.gridViewExtent:
-              return SingleChildScrollView(
-                child: GridView.extent(
-                  key: _wrapKey,
-                  shrinkWrap: true,
-                  maxCrossAxisExtent: widget.maxCrossAxisExtent,
-                  clipBehavior: widget.clipBehavior,
-                  mainAxisSpacing: widget.mainAxisSpacing,
-                  crossAxisSpacing: widget.crossAxisSpacing,
-                  children: generatedChildren,
-                  padding: widget.padding,
-                  childAspectRatio: widget.childAspectRatio,
-                ),
-              );
-          }
-        }
-      },
+          ),
+        ),
+        Builder(
+          builder: (context) {
+            // after all children are added to animatedChildren
+            if (!hasBuiltItems) {
+              switch (widget.reorderableType) {
+                case ReorderableType.wrap:
+                  return SingleChildScrollView(
+                    child: Wrap(
+                      key: _wrapKey,
+                      spacing: widget.spacing,
+                      runSpacing: widget.runSpacing,
+                      children: generatedChildren,
+                    ),
+                  );
+                case ReorderableType.gridView:
+                  return SingleChildScrollView(
+                      child: GridView(
+                    key: _wrapKey,
+                    shrinkWrap: true,
+                    padding: widget.padding,
+                    gridDelegate: widget.gridDelegate,
+                    children: generatedChildren,
+                    clipBehavior: widget.clipBehavior,
+                  ));
+                case ReorderableType.gridViewCount:
+                  return SingleChildScrollView(
+                    child: GridView.count(
+                      key: _wrapKey,
+                      shrinkWrap: true,
+                      crossAxisCount: widget.crossAxisCount!,
+                      mainAxisSpacing: widget.mainAxisSpacing,
+                      children: generatedChildren,
+                      padding: widget.padding,
+                      clipBehavior: widget.clipBehavior,
+                    ),
+                  );
+                case ReorderableType.gridViewExtent:
+                  return SingleChildScrollView(
+                    child: GridView.extent(
+                      key: _wrapKey,
+                      shrinkWrap: true,
+                      maxCrossAxisExtent: widget.maxCrossAxisExtent,
+                      clipBehavior: widget.clipBehavior,
+                      mainAxisSpacing: widget.mainAxisSpacing,
+                      crossAxisSpacing: widget.crossAxisSpacing,
+                      children: generatedChildren,
+                      padding: widget.padding,
+                      childAspectRatio: widget.childAspectRatio,
+                    ),
+                  );
+              }
+            } else {
+              return const SingleChildScrollView();
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -358,7 +369,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       );
 
       // in this case id is equal to orderId and _childrenOrderIdMap must be used
-      final existingItem = _childrenOrderIdMap[id];
+      final existingItem = _childrenOrderIdMapProxy[id];
 
       // if exists update position related to the orderId
       if (existingItem != null) {
@@ -366,10 +377,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           localPosition: localPosition,
           size: size,
         );
-        _childrenOrderIdMap[id] = gridItemEntity;
-        _childrenIdMap[gridItemEntity.id] = gridItemEntity;
+        _childrenOrderIdMapProxy[id] = gridItemEntity;
+        _childrenIdMapProxy[gridItemEntity.id] = gridItemEntity;
 
-        if (id == _childrenIdMap.entries.length - 1) {
+        if (id == _childrenIdMapProxy.entries.length - 1) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
@@ -383,13 +394,16 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           orderId: id,
           key: childKey,
         );
-        _childrenIdMap[id] = gridItemEntity;
-        _childrenOrderIdMap[id] = gridItemEntity;
+        _childrenIdMapProxy[id] = gridItemEntity;
+        _childrenOrderIdMapProxy[id] = gridItemEntity;
 
-        if (_childrenIdMap.entries.length == widget.children.length) {
+        if (_childrenIdMapProxy.entries.length == widget.children.length) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
+            childrenCopy = widget.children;
+            _childrenIdMap = _childrenIdMapProxy;
+            _childrenOrderIdMap = _childrenOrderIdMapProxy;
           });
         }
       }
