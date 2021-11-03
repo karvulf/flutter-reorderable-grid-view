@@ -146,11 +146,14 @@ class Reorderable extends StatefulWidget
 
 class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// This widget always makes a copy of [widget.children]
-  List<Widget> childrenCopy = <Widget>[];
+  var childrenCopy = <Widget>[];
+
+  var removedChildrenMap = <int, GridItemEntity>{};
+  var removedChildrenCopy = <Widget>[];
 
   /// Represents all children inside a map with the index as key
-  Map<int, GridItemEntity> _childrenIdMap = {};
-  Map<int, GridItemEntity> _childrenIdMapProxy = {};
+  var _childrenIdMap = <int, GridItemEntity>{};
+  var _childrenIdMapProxy = <int, GridItemEntity>{};
 
   /// Represents all children inside a map with the orderId as key
   Map<int, GridItemEntity> _childrenOrderIdMap = {};
@@ -166,6 +169,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   /// Size of the [Wrap] that was used to build the widget
   Size _wrapSize = Size.zero;
+
+  Size removedWrapSize = Size.zero;
 
   @override
   void initState() {
@@ -265,6 +270,33 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                         child: childrenCopy[e.value.orderId],
                       ))
                   .toList(),
+            ),
+          ),
+        ),
+        IgnorePointer(
+          ignoring: true,
+          child: SingleChildScrollView(
+            physics: widget.physics,
+            child: SizedBox(
+              height: _wrapSize.height,
+              width: _wrapSize.width,
+              child: Stack(
+                clipBehavior: widget.clipBehavior,
+                children: removedChildrenMap.entries
+                    .map((e) => AnimatedDraggableItem(
+                          enableAnimation: widget.enableAnimation,
+                          entry: e,
+                          enableLongPress: widget.enableLongPress,
+                          longPressDelay: widget.longPressDelay,
+                          enabled: true,
+                          child: removedChildrenCopy[e.value.orderId],
+                          onRemovedItem: (int id) {
+                            removedChildrenMap.remove(id);
+                          },
+                          removeWithAnimation: true,
+                        ))
+                    .toList(),
+              ),
             ),
           ),
         ),
@@ -398,7 +430,31 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         _childrenOrderIdMapProxy[id] = gridItemEntity;
 
         if (_childrenIdMapProxy.entries.length == widget.children.length) {
+          if (_childrenIdMapProxy.length < _childrenIdMap.length) {
+            final removedChildrenMap = <int, GridItemEntity>{};
+            // find all removed children
+            for (final entry in _childrenIdMap.entries) {
+              bool found = false;
+              for (final entry2 in _childrenIdMapProxy.entries) {
+                if (entry.value.key == entry2.value.key) {
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                print('removed item with key ${entry.key}');
+                removedChildrenMap[entry.key] = entry.value;
+              }
+            }
+
+            setState(() {
+              this.removedChildrenMap = removedChildrenMap;
+              removedChildrenCopy = childrenCopy;
+              removedWrapSize = _wrapSize;
+            });
+          }
           _updateWrapSize();
+
           setState(() {
             hasBuiltItems = true;
             childrenCopy = widget.children;

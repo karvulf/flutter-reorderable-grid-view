@@ -8,7 +8,6 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// It's possible to disable the animation after changing the position.
 class AnimatedDraggableItem extends StatefulWidget {
   final MapEntry<int, GridItemEntity> entry;
-  final OnDragUpdateFunction onDragUpdate;
   final bool enableAnimation;
   final bool enableLongPress;
   final Widget child;
@@ -16,14 +15,21 @@ class AnimatedDraggableItem extends StatefulWidget {
   final bool enabled;
   final Duration longPressDelay;
 
+  final bool removeWithAnimation;
+
+  final OnDragUpdateFunction? onDragUpdate;
+  final Function(int id)? onRemovedItem;
+
   const AnimatedDraggableItem({
     required this.entry,
-    required this.onDragUpdate,
     required this.enableAnimation,
     required this.enableLongPress,
     required this.child,
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
+    this.removeWithAnimation = false,
+    this.onDragUpdate,
+    this.onRemovedItem,
     Key? key,
   }) : super(key: key);
 
@@ -41,10 +47,19 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
   void initState() {
     super.initState();
     controller = AnimationController(
-      duration: animationDuration,
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    animation = Tween<double>(begin: 0, end: 1).animate(controller);
+    if (widget.removeWithAnimation) {
+      animation = Tween<double>(begin: 1, end: 0).animate(controller)
+        ..addStatusListener(
+          (state) {
+            widget.onRemovedItem!(widget.entry.key);
+          },
+        );
+    } else {
+      animation = Tween<double>(begin: 0, end: 1).animate(controller);
+    }
     controller.forward();
   }
 
