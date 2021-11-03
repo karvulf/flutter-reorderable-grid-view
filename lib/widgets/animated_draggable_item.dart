@@ -6,7 +6,7 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// This widget acts like a copy of the original child.
 ///
 /// It's possible to disable the animation after changing the position.
-class AnimatedDraggableItem extends StatelessWidget {
+class AnimatedDraggableItem extends StatefulWidget {
   final MapEntry<int, GridItemEntity> entry;
   final OnDragUpdateFunction onDragUpdate;
   final bool enableAnimation;
@@ -28,37 +28,72 @@ class AnimatedDraggableItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<AnimatedDraggableItem> createState() => _AnimatedDraggableItemState();
+}
+
+class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
+    with SingleTickerProviderStateMixin {
+  final animationDuration = const Duration(milliseconds: 300);
+  late Animation<double> animation;
+  late AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      duration: animationDuration,
+      vsync: this,
+    );
+    animation = Tween<double>(begin: 0, end: 1).animate(controller);
+    controller.forward();
+  }
+
+  @override
+  void dispose() {
+    Future.delayed(animationDuration, () {
+      controller.reverse();
+    });
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final draggableItem = DraggableItem(
-      id: entry.key,
-      enableLongPress: enableLongPress,
-      onDragUpdate: onDragUpdate,
-      longPressDelay: longPressDelay,
-      enabled: enabled,
+      id: widget.entry.key,
+      enableLongPress: widget.enableLongPress,
+      onDragUpdate: widget.onDragUpdate,
+      longPressDelay: widget.longPressDelay,
+      enabled: widget.enabled,
       child: SizedBox(
-        height: entry.value.size.height,
-        width: entry.value.size.width,
-        child: child,
+        height: widget.entry.value.size.height,
+        width: widget.entry.value.size.width,
+        child: widget.child,
       ),
     );
 
-    if (!enableAnimation) {
+    if (!widget.enableAnimation) {
       return Positioned(
-        top: entry.value.localPosition.dy,
-        left: entry.value.localPosition.dx,
-        height: entry.value.size.height,
-        width: entry.value.size.width,
+        top: widget.entry.value.localPosition.dy,
+        left: widget.entry.value.localPosition.dx,
+        height: widget.entry.value.size.height,
+        width: widget.entry.value.size.width,
         child: draggableItem,
       );
     } else {
       return AnimatedPositioned(
-        duration: const Duration(milliseconds: 300),
-        top: entry.value.localPosition.dy,
-        left: entry.value.localPosition.dx,
-        height: entry.value.size.height,
-        width: entry.value.size.width,
+        duration: animationDuration,
+        top: widget.entry.value.localPosition.dy,
+        left: widget.entry.value.localPosition.dx,
+        height: widget.entry.value.size.height,
+        width: widget.entry.value.size.width,
         curve: Curves.easeInOutSine,
-        child: draggableItem,
+        child: FadeTransition(
+          opacity: Tween<double>(
+            begin: 0,
+            end: 1,
+          ).animate(animation),
+          child: draggableItem,
+        ),
       );
     }
   }
