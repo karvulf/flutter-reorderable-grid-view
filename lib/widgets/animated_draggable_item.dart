@@ -18,7 +18,7 @@ class AnimatedDraggableItem extends StatefulWidget {
   final bool removeWithAnimation;
 
   final OnDragUpdateFunction? onDragUpdate;
-  final Function(int id)? onRemovedItem;
+  final Function(int id, Widget child)? onRemovedItem;
 
   const AnimatedDraggableItem({
     required this.entry,
@@ -54,7 +54,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       animation = Tween<double>(begin: 1, end: 0).animate(controller)
         ..addStatusListener(
           (state) {
-            widget.onRemovedItem!(widget.entry.key);
+            widget.onRemovedItem!(widget.entry.key, widget.child);
           },
         );
     } else {

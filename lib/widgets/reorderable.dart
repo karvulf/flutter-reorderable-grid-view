@@ -7,8 +7,8 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_grid_view_par
 import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_grid_utils.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_single_child_scroll_view.dart';
 
 /// Ordering [children] in a [Wrap] that can be drag and dropped.
 ///
@@ -146,10 +146,10 @@ class Reorderable extends StatefulWidget
 
 class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// This widget always makes a copy of [widget.children]
-  var childrenCopy = <Widget>[];
+  var _renderedChildren = <Widget>[];
 
-  var removedChildrenMap = <int, GridItemEntity>{};
-  var removedChildrenCopy = <Widget>[];
+  var _removedChildrenMap = <int, GridItemEntity>{};
+  var _removedChildren = <Widget>[];
 
   /// Represents all children inside a map with the index as key
   var _childrenIdMap = <int, GridItemEntity>{};
@@ -176,7 +176,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     setState(() {
-      childrenCopy = List<Widget>.from(widget.children);
+      _renderedChildren = List<Widget>.from(widget.children);
     });
     WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -205,12 +205,12 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           if (widget.children.isEmpty) {
             _childrenIdMap = {};
             _childrenOrderIdMap = {};
-            childrenCopy.clear();
+            _renderedChildren.clear();
           }
         });
       } else {
         setState(() {
-          childrenCopy = List<Widget>.from(widget.children);
+          _renderedChildren = List<Widget>.from(widget.children);
         });
       }
     }
@@ -234,6 +234,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    print('_removedChildren length: ${_removedChildren.length}');
     final generatedChildren = List.generate(
       widget.children.length,
       (index) => Visibility(
@@ -253,54 +254,35 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     );
     return Stack(
       children: [
-        SingleChildScrollView(
+        ReorderableSingleChildScrollView(
+          key: _copyReorderableKey,
           physics: widget.physics,
-          child: SizedBox(
-            key: _copyReorderableKey,
-            height: _wrapSize.height,
-            width: _wrapSize.width,
-            child: Stack(
-              clipBehavior: widget.clipBehavior,
-              children: _childrenIdMap.entries
-                  .map((e) => AnimatedDraggableItem(
-                        key: e.value.key ?? Key(e.key.toString()),
-                        enableAnimation: widget.enableAnimation,
-                        entry: e,
-                        enableLongPress: widget.enableLongPress,
-                        onDragUpdate: _handleDragUpdate,
-                        longPressDelay: widget.longPressDelay,
-                        enabled: !widget.lockedChildren.contains(e.key),
-                        child: childrenCopy[e.value.orderId],
-                      ))
-                  .toList(),
-            ),
-          ),
+          height: _wrapSize.height,
+          width: _wrapSize.width,
+          clipBehavior: widget.clipBehavior,
+          childrenIdMap: _childrenIdMap,
+          enableAnimation: widget.enableAnimation,
+          enableLongPress: widget.enableLongPress,
+          longPressDelay: widget.longPressDelay,
+          lockedChildren: widget.lockedChildren,
+          children: _renderedChildren,
+          onDragUpdate: _handleDragUpdate,
         ),
         IgnorePointer(
           ignoring: true,
-          child: SingleChildScrollView(
-            physics: widget.physics,
-            child: SizedBox(
-              height: _wrapSize.height,
-              width: _wrapSize.width,
-              child: Stack(
-                clipBehavior: widget.clipBehavior,
-                children: removedChildrenMap.entries
-                    .map((e) => AnimatedDraggableItem(
-                          enableAnimation: widget.enableAnimation,
-                          entry: e,
-                          enableLongPress: widget.enableLongPress,
-                          longPressDelay: widget.longPressDelay,
-                          enabled: true,
-                          child: removedChildrenCopy[e.value.orderId],
-                          onRemovedItem: (int id) {
-                            removedChildrenMap.remove(id);
-                          },
-                          removeWithAnimation: true,
-                        ))
-                    .toList(),
-              ),
-            ),
+          child: ReorderableSingleChildScrollView(
+            height: _wrapSize.height,
+            width: _wrapSize.width,
+            clipBehavior: widget.clipBehavior,
+            childrenIdMap: _removedChildrenMap,
+            children: _removedChildren,
+            removeWithAnimation: true,
+            onRemovedItem: (int id, Widget child) {
+              _removedChildrenMap.remove(id);
+              _removedChildren.removeWhere(
+                (element) => element.key == child.key,
+              );
+            },
           ),
         ),
         Builder(
@@ -432,27 +414,31 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         _childrenIdMapProxy[id] = gridItemEntity;
         _childrenOrderIdMapProxy[id] = gridItemEntity;
 
-        if (_childrenIdMapProxy.entries.length == widget.children.length) {
+        if (_childrenIdMapProxy.length == widget.children.length) {
           if (_childrenIdMapProxy.length < _childrenIdMap.length) {
-            final removedChildrenMap = <int, GridItemEntity>{};
             // find all removed children
             for (final entry in _childrenIdMap.entries) {
-              bool found = false;
+              Key? key;
+
               for (final entry2 in _childrenIdMapProxy.entries) {
                 if (entry.value.key == entry2.value.key) {
-                  found = true;
+                  key = entry.value.key;
                   break;
                 }
               }
-              if (!found) {
-                print('removed item with key ${entry.key}');
-                removedChildrenMap[entry.key] = entry.value;
+              if (key != null) {
+                final child = _renderedChildren.firstWhere(
+                  (element) => element.key == key,
+                );
+                print('child to remove ${child.key}');
+                _removedChildrenMap[entry.key] = entry.value;
+                _removedChildren.add(child);
               }
             }
 
             setState(() {
-              this.removedChildrenMap = removedChildrenMap;
-              removedChildrenCopy = childrenCopy;
+              _removedChildrenMap = _removedChildrenMap;
+              _removedChildren = _removedChildren;
               removedWrapSize = _wrapSize;
             });
           }
@@ -460,7 +446,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
           setState(() {
             hasBuiltItems = true;
-            childrenCopy = widget.children;
+            _renderedChildren = widget.children;
             _childrenIdMap = _childrenIdMapProxy;
             _childrenOrderIdMap = _childrenOrderIdMapProxy;
           });
@@ -563,10 +549,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   void _handleReorder(int oldIndex, int newIndex) {
     setState(() {
-      final draggedItem = childrenCopy[oldIndex];
-      final collisionItem = childrenCopy[newIndex];
-      childrenCopy[newIndex] = draggedItem;
-      childrenCopy[oldIndex] = collisionItem;
+      final draggedItem = _renderedChildren[oldIndex];
+      final collisionItem = _renderedChildren[newIndex];
+      _renderedChildren[newIndex] = draggedItem;
+      _renderedChildren[oldIndex] = collisionItem;
     });
 
     widget.onReorder(oldIndex, newIndex);
