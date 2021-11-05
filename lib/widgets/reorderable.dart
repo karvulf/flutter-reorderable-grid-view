@@ -220,6 +220,9 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
         setState(() {
