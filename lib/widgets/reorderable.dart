@@ -145,15 +145,20 @@ class Reorderable extends StatefulWidget
 }
 
 class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
-  var _removedChildrenMap = <int, GridItemEntity>{};
-
-  /// Represents all children inside a map with the index as key
-  var _childrenIdMap = <int, GridItemEntity>{};
+  /// Represents a copy of current [widget.children] as a Map with ids
   var _childrenIdMapProxy = <int, GridItemEntity>{};
 
-  /// Represents all children inside a map with the orderId as key
-  Map<int, GridItemEntity> _childrenOrderIdMap = {};
+  /// Represents a copy of current [widget.children] as a Map with orderIds
   Map<int, GridItemEntity> _childrenOrderIdMapProxy = {};
+
+  /// Represents the current children that are displayed as a Map
+  var _childrenIdMap = <int, GridItemEntity>{};
+
+  /// Represents the current children that are displayed as a Map
+  Map<int, GridItemEntity> _childrenOrderIdMap = {};
+
+  /// Represents all children that were removed to animate them
+  var _removedChildrenMap = <int, GridItemEntity>{};
 
   /// Bool to know if all children were build and updated.
   bool hasBuiltItems = false;
@@ -351,7 +356,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     GlobalKey key,
     int id,
     Widget child,
-    Key? childKey,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
 
@@ -392,33 +396,16 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           localPosition: localPosition,
           size: size,
           orderId: id,
-          key: childKey,
           child: child,
         );
         _childrenIdMapProxy[id] = gridItemEntity;
         _childrenOrderIdMapProxy[id] = gridItemEntity;
 
+        // checking if all widgets were built in proxy map
         if (_childrenIdMapProxy.length == widget.children.length) {
+          // that means that at least one child were removed
           if (_childrenIdMapProxy.length < _childrenIdMap.length) {
-            // find all removed children
-            for (final entry in _childrenIdMap.entries) {
-              var found = false;
-
-              for (final entry2 in _childrenIdMapProxy.entries) {
-                if (entry.value.key == entry2.value.key) {
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                _removedChildrenMap[entry.key] = entry.value;
-              }
-            }
-
-            setState(() {
-              _removedChildrenMap = _removedChildrenMap;
-              removedWrapSize = _wrapSize;
-            });
+            updateRemovedChildren();
           }
           _updateWrapSize();
 
@@ -430,6 +417,32 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         }
       }
     }
+  }
+
+  /// Searching for removed children and updates [_removedChildrenMap].
+  ///
+  /// Compares [_childrenIdMapProxy] that represents all new children and
+  /// [_childrenIdMap] that represents the children before the update. When one
+  /// child in [_childrenIdMapProxy] wasn't found, then that means it was removed.
+  void updateRemovedChildren() {
+    for (final entry in _childrenIdMap.entries) {
+      var found = false;
+
+      for (final proxyEntry in _childrenIdMapProxy.entries) {
+        if (entry.value.child.key == proxyEntry.value.child.key) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        _removedChildrenMap[entry.key] = entry.value;
+      }
+    }
+
+    setState(() {
+      _removedChildrenMap = _removedChildrenMap;
+      removedWrapSize = _wrapSize;
+    });
   }
 
   /// After dragging an item, if will be checked if there are some collisions.

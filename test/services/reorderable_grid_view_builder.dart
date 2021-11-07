@@ -14,5 +14,6 @@ class ReorderableGridViewBuilder {
         size: size ?? const Size(0, 0),
         orderId: orderId ?? 0,
         id: id ?? 1,
+        child: Container(),
       );
 }

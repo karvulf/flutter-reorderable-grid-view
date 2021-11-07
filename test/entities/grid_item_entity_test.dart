@@ -12,13 +12,15 @@ void main() {
     const givenSize = Size(100, 100);
     const givenOrderId = 0;
     const givenId = 100;
+    final givenChild = Container();
 
     // when
-    const actual = GridItemEntity(
+    final actual = GridItemEntity(
       localPosition: givenLocalPosition,
       size: givenSize,
       orderId: givenOrderId,
       id: givenId,
+      child: givenChild,
     );
 
     // then
@@ -26,6 +28,7 @@ void main() {
     expect(actual.size, equals(givenSize));
     expect(actual.orderId, equals(givenOrderId));
     expect(actual.id, equals(givenId));
+    expect(actual.child, equals(givenChild));
   });
 
   test(
@@ -37,12 +40,14 @@ void main() {
     const givenLocalPosition = Offset(0, 0);
     const givenOrderId = 0;
     const givenId = 100;
+    final givenChild = Container();
 
-    const givenGridItemEntity = GridItemEntity(
+    final givenGridItemEntity = GridItemEntity(
       localPosition: givenLocalPosition,
       size: givenSize,
       orderId: givenOrderId,
       id: givenId,
+      child: givenChild,
     );
 
     // when
@@ -53,6 +58,7 @@ void main() {
     expect(actual.size, equals(givenSize));
     expect(actual.orderId, equals(givenOrderId));
     expect(actual.id, equals(givenId));
+    expect(actual.child, equals(givenChild));
   });
 
   test(
@@ -60,27 +66,34 @@ void main() {
       'WHEN calling #copyWith with all values '
       'THEN should have updated values', () {
     // given
-    const givenSize = Size(100, 100);
+    const givenId = 1;
 
-    const givenGridItemEntity = GridItemEntity(
-      localPosition: Offset(0, 0),
-      size: givenSize,
+    final givenGridItemEntity = GridItemEntity(
+      localPosition: const Offset(0, 0),
+      size: const Size(100, 100),
       orderId: 0,
-      id: 1,
+      id: givenId,
+      child: Container(),
     );
 
     const givenUpdatedLocalPosition = Offset(3, 3);
     const givenUpdatedOrderId = 1;
+    const givenUpdatedChild = Text('text');
+    const givenUpdatedSize = Size(400, 400);
 
     // when
     final actual = givenGridItemEntity.copyWith(
       localPosition: givenUpdatedLocalPosition,
       orderId: givenUpdatedOrderId,
+      child: givenUpdatedChild,
+      size: givenUpdatedSize,
     );
 
     // then
     expect(actual.localPosition, equals(givenUpdatedLocalPosition));
-    expect(actual.size, equals(givenSize));
     expect(actual.orderId, equals(givenUpdatedOrderId));
+    expect(actual.size, equals(givenUpdatedSize));
+    expect(actual.child, equals(givenUpdatedChild));
+    expect(actual.id, equals(givenId));
   });
 }

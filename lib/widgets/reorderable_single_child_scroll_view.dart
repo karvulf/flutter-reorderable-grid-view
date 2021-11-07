@@ -47,7 +47,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
           children: childrenIdMap.entries
               .map(
                 (e) => AnimatedDraggableItem(
-                  key: e.value.key ?? Key(e.key.toString()),
+                  key: e.value.child.key ?? Key(e.key.toString()),
                   removeWithAnimation: removeWithAnimation,
                   enableAnimation: enableAnimation,
                   entry: e,

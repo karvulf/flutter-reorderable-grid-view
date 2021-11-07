@@ -23,7 +23,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___) {},
+            onCreated: (_, __, ___, ____) {},
             onDragUpdate: (_, __, ___) {},
           ),
         ),
@@ -53,7 +53,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___) {},
+            onCreated: (_, __, ___, ____) {},
             onDragUpdate: (_, __, ___) {},
           ),
         ),
@@ -87,7 +87,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___) {},
+            onCreated: (_, __, ___, ____) {},
             onDragUpdate: (_, __, ___) {},
             longPressDelay: givenLongPressDelay,
           ),
@@ -121,7 +121,7 @@ void main() {
           body: DraggableItem(
             child: givenChild,
             id: givenId,
-            onCreated: (_, __, ___) {},
+            onCreated: (_, __, ___, ____) {},
             onDragUpdate: (_, __, ___) {},
             enabled: false,
             enableLongPress: false,
@@ -150,6 +150,7 @@ void main() {
     BuildContext? expectedContext;
     GlobalKey? expectedKey;
     int? expectedId;
+    Widget? expectedChild;
 
     // when
     await tester.pumpWidget(
@@ -163,10 +164,12 @@ void main() {
               BuildContext context,
               GlobalKey key,
               int id,
+              Widget child,
             ) {
               expectedContext = context;
               expectedKey = key;
               expectedId = id;
+              expectedChild = child;
             },
             onDragUpdate: (_, __, ___) {},
           ),
@@ -178,6 +181,7 @@ void main() {
     expect(expectedContext, isNotNull);
     expect(expectedKey, isNotNull);
     expect(expectedId, equals(givenId));
+    expect(expectedChild, equals(givenChild));
   });
 
   testWidgets(
@@ -204,7 +208,7 @@ void main() {
               child: givenChild,
               enableLongPress: givenEnableLongPress,
               id: givenId,
-              onCreated: (_, __, ___) {},
+              onCreated: (_, __, ___, ____) {},
               onDragUpdate: (
                 int id,
                 Offset position,

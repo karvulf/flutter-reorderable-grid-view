@@ -6,7 +6,6 @@ class GridItemEntity {
   final Size size;
   final int orderId;
   final Widget child;
-  final Key? key;
 
   const GridItemEntity({
     required this.id,
@@ -14,7 +13,6 @@ class GridItemEntity {
     required this.size,
     required this.orderId,
     required this.child,
-    this.key,
   });
 
   GridItemEntity copyWith({
@@ -28,7 +26,6 @@ class GridItemEntity {
         localPosition: localPosition ?? this.localPosition,
         size: size ?? this.size,
         orderId: orderId ?? this.orderId,
-        key: key,
         child: child ?? this.child,
       );
 }
