@@ -206,20 +206,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             _childrenOrderIdMap = {};
           }
         });
-      } else {
-        // looking for the children that were updated and updating them in [_childrenIdMap]
-        for (int i = 0; i < oldWidget.children.length; i++) {
-          final child = oldWidget.children[i];
-          for (final entry in _childrenIdMap.entries) {
-            if (entry.value.child.key == child.key) {
-              final updatedChild = widget.children[i];
-              _childrenIdMap[entry.key] = entry.value.copyWith(
-                child: updatedChild,
-              );
-              break;
-            }
-          }
-        }
       }
     }
   }

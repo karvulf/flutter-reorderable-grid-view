@@ -306,11 +306,15 @@ void main() {
       'THEN should show expected widgets and have default values',
       (WidgetTester tester) async {
     // given
+    const givenKey1 = Key('0');
+    const givenKey2 = Key('1');
+    const givenKey3 = Key('2');
+    const givenKey4 = Key('3');
     const givenChildren = <Widget>[
-      Text('hallo1', key: Key('0')),
-      Text('hallo2', key: Key('1')),
-      Text('hallo3', key: Key('2')),
-      Text('hallo4', key: Key('3')),
+      Text('hallo1', key: givenKey1),
+      Text('hallo2', key: givenKey2),
+      Text('hallo3', key: givenKey3),
+      Text('hallo4', key: givenKey4),
     ];
     const givenRunSpacing = 20.0;
     const givenSpacing = 24.0;
@@ -347,22 +351,82 @@ void main() {
         findsNWidgets(givenChildren.length));
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is AnimatedDraggableItem && widget.key == const Key('0')),
+            widget is AnimatedDraggableItem && widget.key == givenKey1),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is AnimatedDraggableItem && widget.key == const Key('1')),
+            widget is AnimatedDraggableItem && widget.key == givenKey2),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is AnimatedDraggableItem && widget.key == const Key('2')),
+            widget is AnimatedDraggableItem && widget.key == givenKey3),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is AnimatedDraggableItem && widget.key == const Key('3')),
+            widget is AnimatedDraggableItem && widget.key == givenKey4),
         findsOneWidget);
 
     expect(find.byType(Wrap), findsNothing);
+  });
+
+  testWidgets(
+      'GIVEN pumped [Reorderable] with enableLongPress = false and two text '
+      'WHEN dragging text1 to text2 and dragging back without releasing drag '
+      'THEN should not change positions', (WidgetTester tester) async {
+    // given
+    const givenText1 = 'hallo1';
+    const givenText2 = 'hallo2';
+
+    const givenChildren = <Widget>[
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+    ];
+
+    List<int> actualOldIndices = [];
+    List<int> actualNewIndices = [];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Reorderable(
+            children: givenChildren,
+            reorderableType: ReorderableType.wrap,
+            enableLongPress: false,
+            onReorder: (oldIndex, newIndex) {
+              actualOldIndices.add(oldIndex);
+              actualNewIndices.add(newIndex);
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    // start dragging
+    final firstLocation = tester.getCenter(find.text(givenText1));
+    final gesture = await tester.startGesture(
+      firstLocation,
+      pointer: 7,
+    );
+    await tester.pump();
+
+    // move dragged object
+    final secondLocation = tester.getCenter(find.text(givenText2));
+    await gesture.moveTo(secondLocation);
+    await tester.pump();
+
+    // move back
+    await gesture.moveTo(firstLocation);
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    // then
+    expect(tester.getCenter(find.text(givenText1)), equals(firstLocation));
+    expect(tester.getCenter(find.text(givenText2)), equals(secondLocation));
+
+    expect(actualOldIndices, equals([0, 1]));
+    expect(actualNewIndices, equals([1, 0]));
   });
 
   testWidgets(
@@ -429,7 +493,7 @@ void main() {
   testWidgets(
       'GIVEN pumped [Reorderable] with enableLongPress = false '
       'WHEN dragging text1 to text4 without releasing drag '
-      'THEN should change swap position of all given texts',
+      'THEN should change position of all given texts',
       (WidgetTester tester) async {
     // given
     const givenText1 = 'hallo1';

@@ -95,10 +95,12 @@ void handleOneCollision({
   final updatedEntryValueA = entryA.copyWith(
     localPosition: entryB.localPosition,
     orderId: entryB.orderId,
+    // child: entryB.child,
   );
   final updatedEntryValueB = entryB.copyWith(
     localPosition: entryA.localPosition,
     orderId: entryA.orderId,
+    // child: entryA.child,
   );
 
   childrenIdMap[dragId] = updatedEntryValueA;
