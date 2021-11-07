@@ -17,16 +17,16 @@ import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 /// [lockedChildren], then null will be returned.
 /// Otherwise the id of the collision item in [childrenIdMap].
 int? getItemsCollision({
-  required int id,
+  required int orderId,
   required Offset position,
   required Size size,
   required Map<int, GridItemEntity> childrenIdMap,
   required List<int> lockedChildren,
 }) {
-  int? collisionId;
+  int? collisionOrderId;
 
   // child does not exist or is locked
-  if (childrenIdMap[id] == null || lockedChildren.contains(id)) {
+  if (lockedChildren.contains(orderId)) {
     return null;
   }
 
@@ -45,26 +45,26 @@ int? getItemsCollision({
         currentDy >= itemDy &&
         currentDx <= itemDx + itemWidth &&
         currentDy <= itemDy + itemHeight) {
-      collisionId = entry.key;
+      collisionOrderId = entry.value.orderId;
       break;
     }
   }
 
-  if (lockedChildren.contains(collisionId)) {
+  if (lockedChildren.contains(collisionOrderId)) {
     return null;
   }
 
-  return collisionId;
+  return collisionOrderId;
 }
 
-/// Swapping positions and orderId of items with [dragId] and [collisionId].
+/// Swapping positions and orderId of items with [dragOrderId] and [collisionOrderId].
 ///
 /// Usually this is called after a collision happens between two items while
 /// dragging it.
-/// The [dragId] and [collisionId] should be different and the [collisionId]
+/// The [dragOrderId] and [collisionOrderId] should be different and the [collisionOrderId]
 /// should not be in [lockedChildren].
 /// If that is not the case, then the following values are swapped between
-/// the two items with [dragId] and [collisionId]
+/// the two items with [dragOrderId] and [collisionOrderId]
 /// -> localPosition, globalPosition and orderId.
 ///
 /// Also [childrenOrderIdMap] gets an update by swapping the values of the
@@ -76,50 +76,48 @@ int? getItemsCollision({
 /// There is no return value because [childrenIdMap] and [childrenOrderIdMap]
 /// gets immediately updated.
 void handleOneCollision({
-  required int dragId,
-  required int collisionId,
+  required int dragOrderId,
+  required int collisionOrderId,
   required Map<int, GridItemEntity> childrenIdMap,
-  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
   required ReorderCallback onReorder,
 }) {
-  assert(dragId != collisionId);
+  assert(dragOrderId != collisionOrderId);
 
-  if (lockedChildren.contains(collisionId)) {
+  if (lockedChildren.contains(collisionOrderId)) {
     return;
   }
 
-  final entryA = childrenIdMap[dragId]!;
-  final entryB = childrenIdMap[collisionId]!;
-
-  final updatedEntryValueA = entryA.copyWith(
-    localPosition: entryB.localPosition,
-    orderId: entryB.orderId,
-    // child: entryB.child,
+  final entryA = childrenIdMap.entries.firstWhere(
+    (entry) => entry.value.orderId == dragOrderId,
   );
-  final updatedEntryValueB = entryB.copyWith(
-    localPosition: entryA.localPosition,
-    orderId: entryA.orderId,
-    // child: entryA.child,
+  final entryB = childrenIdMap.entries.firstWhere(
+    (entry) => entry.value.orderId == collisionOrderId,
   );
 
-  childrenIdMap[dragId] = updatedEntryValueA;
-  childrenIdMap[collisionId] = updatedEntryValueB;
+  final updatedEntryValueA = entryA.value.copyWith(
+    localPosition: entryB.value.localPosition,
+    orderId: entryB.value.orderId,
+  );
+  final updatedEntryValueB = entryB.value.copyWith(
+    localPosition: entryA.value.localPosition,
+    orderId: entryA.value.orderId,
+  );
 
-  childrenOrderIdMap[entryA.orderId] = updatedEntryValueB;
-  childrenOrderIdMap[entryB.orderId] = updatedEntryValueA;
+  childrenIdMap[entryA.key] = updatedEntryValueA;
+  childrenIdMap[entryB.key] = updatedEntryValueB;
 
-  onReorder(entryA.orderId, entryB.orderId);
+  onReorder(entryA.value.orderId, entryB.value.orderId);
 }
 
 /// Called when the item changes his position between more than one item.
 ///
-/// After the user drags the item with the given [dragItemOrderId] to another
+/// After the user drags the item with the given [dragOrderId] to another
 /// position above the current item and there would be more than one update of
 /// the positions, then this method should be called.
 ///
-/// It loops over all items that are between [dragItemOrderId] and
-/// [collisionItemOrderId] and handles every collision of them.
+/// It loops over all items that are between [dragOrderId] and
+/// [collisionOrderId] and handles every collision of them.
 ///
 /// The Map [childrenOrderIdMap] is important to improve the performance for
 /// searching children with a specific orderId.
@@ -127,31 +125,29 @@ void handleOneCollision({
 /// There is no return value because [childrenIdMap] and [childrenOrderIdMap]
 /// gets immediately updated.
 void handleMultipleCollisionsBackward({
-  required int dragItemOrderId,
-  required int collisionItemOrderId,
+  required int dragOrderId,
+  required int collisionOrderId,
   required Map<int, GridItemEntity> childrenIdMap,
-  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
   required ReorderCallback onReorder,
 }) {
-  for (int i = dragItemOrderId; i > collisionItemOrderId; i--) {
-    int? dragId = childrenOrderIdMap[i]?.id;
-    int? collisionId = childrenOrderIdMap[i - 1]?.id;
+  for (int i = dragOrderId; i > collisionOrderId; i--) {
+    int currentDragOrderId = i;
+    int foundCollisionOrderId = i - 1;
 
-    if (lockedChildren.contains(collisionId)) {
-      while (i - 2 >= collisionItemOrderId &&
-          lockedChildren.contains(collisionId)) {
-        collisionId = childrenOrderIdMap[i - 2]?.id;
+    if (lockedChildren.contains(foundCollisionOrderId)) {
+      while (i - 2 >= collisionOrderId &&
+          lockedChildren.contains(foundCollisionOrderId)) {
+        foundCollisionOrderId = i - 2;
         i--;
       }
     }
 
-    if (dragId != null && collisionId != null) {
+    if (foundCollisionOrderId >= collisionOrderId) {
       handleOneCollision(
-        dragId: dragId,
-        collisionId: collisionId,
+        dragOrderId: currentDragOrderId,
+        collisionOrderId: foundCollisionOrderId,
         childrenIdMap: childrenIdMap,
-        childrenOrderIdMap: childrenOrderIdMap,
         lockedChildren: lockedChildren,
         onReorder: onReorder,
       );
@@ -161,12 +157,12 @@ void handleMultipleCollisionsBackward({
 
 /// Called when the item changes his position between more than one item.
 ///
-/// After the user drags the item with the given [dragItemOrderId] to another
+/// After the user drags the item with the given [dragOrderId] to another
 /// position under the current item and there would be more than one update of
 /// the positions, then this method should be called.
 ///
-/// It loops over all items that are between [dragItemOrderId] and
-/// [collisionItemOrderId] and handles every collision of them.
+/// It loops over all items that are between [dragOrderId] and
+/// [collisionOrderId] and handles every collision of them.
 ///
 /// The Map [childrenOrderIdMap] is important to improve the performance for
 /// searching children with a specific orderId.
@@ -174,33 +170,31 @@ void handleMultipleCollisionsBackward({
 /// There is no return value because [childrenIdMap] and [childrenOrderIdMap]
 /// gets immediately updated.
 void handleMultipleCollisionsForward({
-  required int dragItemOrderId,
-  required int collisionItemOrderId,
+  required int dragOrderId,
+  required int collisionOrderId,
   required Map<int, GridItemEntity> childrenIdMap,
-  required Map<int, GridItemEntity> childrenOrderIdMap,
   required List<int> lockedChildren,
   required ReorderCallback onReorder,
 }) {
-  for (int i = dragItemOrderId; i < collisionItemOrderId; i++) {
-    int? dragId = childrenOrderIdMap[i]?.id;
-    int? collisionId = childrenOrderIdMap[i + 1]?.id;
+  for (int i = dragOrderId; i < collisionOrderId; i++) {
+    int currentDragOrderId = i;
+    int foundCollisionOrderId = i + 1;
 
     // look for the next child that has a collision
-    if (lockedChildren.contains(collisionId)) {
-      while (i + 2 <= collisionItemOrderId &&
-          lockedChildren.contains(collisionId)) {
-        collisionId = childrenOrderIdMap[i + 2]?.id;
+    if (lockedChildren.contains(foundCollisionOrderId)) {
+      while (i + 2 <= collisionOrderId &&
+          lockedChildren.contains(foundCollisionOrderId)) {
+        foundCollisionOrderId = i + 2;
         i++;
       }
     }
 
-    if (dragId != null && collisionId != null) {
+    if (foundCollisionOrderId <= collisionOrderId) {
       handleOneCollision(
-        dragId: dragId,
-        collisionId: collisionId,
+        dragOrderId: currentDragOrderId,
+        collisionOrderId: foundCollisionOrderId,
         childrenIdMap: childrenIdMap,
         lockedChildren: lockedChildren,
-        childrenOrderIdMap: childrenOrderIdMap,
         onReorder: onReorder,
       );
     }

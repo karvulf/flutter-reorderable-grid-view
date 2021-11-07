@@ -11,7 +11,6 @@ void main() {
     const givenLocalPosition = Offset(0, 0);
     const givenSize = Size(100, 100);
     const givenOrderId = 0;
-    const givenId = 100;
     final givenChild = Container();
 
     // when
@@ -19,7 +18,6 @@ void main() {
       localPosition: givenLocalPosition,
       size: givenSize,
       orderId: givenOrderId,
-      id: givenId,
       child: givenChild,
     );
 
@@ -27,7 +25,6 @@ void main() {
     expect(actual.localPosition, equals(givenLocalPosition));
     expect(actual.size, equals(givenSize));
     expect(actual.orderId, equals(givenOrderId));
-    expect(actual.id, equals(givenId));
     expect(actual.child, equals(givenChild));
   });
 
@@ -39,14 +36,12 @@ void main() {
     const givenSize = Size(100, 100);
     const givenLocalPosition = Offset(0, 0);
     const givenOrderId = 0;
-    const givenId = 100;
     final givenChild = Container();
 
     final givenGridItemEntity = GridItemEntity(
       localPosition: givenLocalPosition,
       size: givenSize,
       orderId: givenOrderId,
-      id: givenId,
       child: givenChild,
     );
 
@@ -57,7 +52,6 @@ void main() {
     expect(actual.localPosition, equals(givenLocalPosition));
     expect(actual.size, equals(givenSize));
     expect(actual.orderId, equals(givenOrderId));
-    expect(actual.id, equals(givenId));
     expect(actual.child, equals(givenChild));
   });
 
@@ -66,13 +60,10 @@ void main() {
       'WHEN calling #copyWith with all values '
       'THEN should have updated values', () {
     // given
-    const givenId = 1;
-
     final givenGridItemEntity = GridItemEntity(
       localPosition: const Offset(0, 0),
       size: const Size(100, 100),
       orderId: 0,
-      id: givenId,
       child: Container(),
     );
 
@@ -94,6 +85,5 @@ void main() {
     expect(actual.orderId, equals(givenUpdatedOrderId));
     expect(actual.size, equals(givenUpdatedSize));
     expect(actual.child, equals(givenUpdatedChild));
-    expect(actual.id, equals(givenId));
   });
 }

@@ -148,14 +148,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// Represents a copy of current [widget.children] as a Map with ids
   var _childrenIdMapProxy = <int, GridItemEntity>{};
 
-  /// Represents a copy of current [widget.children] as a Map with orderIds
-  Map<int, GridItemEntity> _childrenOrderIdMapProxy = {};
-
   /// Represents the current children that are displayed as a Map
   var _childrenIdMap = <int, GridItemEntity>{};
-
-  /// Represents the current children that are displayed as a Map
-  Map<int, GridItemEntity> _childrenOrderIdMap = {};
 
   /// Represents all children that were removed to animate them
   var _removedChildrenMap = <int, GridItemEntity>{};
@@ -198,12 +192,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       if (oldWidget.children.length != widget.children.length) {
         setState(() {
           _childrenIdMapProxy = {};
-          _childrenOrderIdMapProxy = {};
           hasBuiltItems = false;
           if (widget.children.isEmpty) {
             _removedChildrenMap = _childrenIdMap;
             _childrenIdMap = {};
-            _childrenOrderIdMap = {};
           }
         });
       }
@@ -272,7 +264,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                   child: DraggableItem(
                     child: widget.children[index],
                     enableLongPress: widget.enableLongPress,
-                    id: index,
+                    orderId: index,
                     onCreated: _handleCreated,
                     longPressDelay: widget.longPressDelay,
                     enabled: !widget.lockedChildren.contains(index),
@@ -357,7 +349,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   void _handleCreated(
     BuildContext context,
     GlobalKey key,
-    int id,
+    int orderId,
     Widget child,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
@@ -376,18 +368,24 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
       );
 
       // in this case id is equal to orderId and _childrenOrderIdMap must be used
-      final existingItem = _childrenOrderIdMapProxy[id];
+      MapEntry<int, GridItemEntity>? existingEntry;
+      for (final entry in _childrenIdMapProxy.entries) {
+        if (entry.value.orderId == orderId) {
+          existingEntry = entry;
+          break;
+        }
+      }
 
       // if exists update position related to the orderId
-      if (existingItem != null) {
-        final gridItemEntity = existingItem.copyWith(
+      if (existingEntry != null) {
+        final updatedGridItemEntity = existingEntry.value.copyWith(
           localPosition: localPosition,
           size: size,
         );
-        _childrenOrderIdMapProxy[id] = gridItemEntity;
-        _childrenIdMapProxy[gridItemEntity.id] = gridItemEntity;
+        _childrenIdMapProxy[existingEntry.key] = updatedGridItemEntity;
 
-        if (id == _childrenIdMapProxy.entries.length - 1) {
+        // finished building all entries
+        if (orderId == _childrenIdMapProxy.entries.length - 1) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
@@ -395,14 +393,12 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         }
       } else {
         final gridItemEntity = GridItemEntity(
-          id: id,
           localPosition: localPosition,
           size: size,
-          orderId: id,
+          orderId: orderId,
           child: child,
         );
-        _childrenIdMapProxy[id] = gridItemEntity;
-        _childrenOrderIdMapProxy[id] = gridItemEntity;
+        _childrenIdMapProxy[orderId] = gridItemEntity;
 
         // checking if all widgets were built in proxy map
         if (_childrenIdMapProxy.length == widget.children.length) {
@@ -415,7 +411,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           setState(() {
             hasBuiltItems = true;
             _childrenIdMap = _childrenIdMapProxy;
-            _childrenOrderIdMap = _childrenOrderIdMapProxy;
           });
         }
       }
@@ -471,7 +466,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// [onReorder] and the state will be updated inside this widget show the new
   /// positions of the items to the user.
   void _handleDragUpdate(
-    int id,
+    int dragOrderId,
     Offset position,
     Size size,
   ) {
@@ -485,62 +480,55 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final parentBox = renderParentObject as RenderBox;
     final localPosition = parentBox.globalToLocal(position);
 
-    final collisionId = getItemsCollision(
-      id: id,
+    final collisionOrderId = getItemsCollision(
+      orderId: dragOrderId,
       position: localPosition,
       size: size,
       childrenIdMap: _childrenIdMap,
       lockedChildren: widget.lockedChildren,
     );
 
-    if (collisionId != null && collisionId != id) {
-      final dragItemOrderId = _childrenIdMap[id]!.orderId;
-      final collisionItemOrderId = _childrenIdMap[collisionId]!.orderId;
-
+    if (collisionOrderId != null && collisionOrderId != dragOrderId) {
       // item changes multiple positions to the positive direction
-      if (collisionItemOrderId > dragItemOrderId &&
-          collisionItemOrderId - dragItemOrderId > 1) {
+      if (collisionOrderId > dragOrderId &&
+          collisionOrderId - dragOrderId > 1) {
         handleMultipleCollisionsForward(
-          collisionItemOrderId: collisionItemOrderId,
-          dragItemOrderId: dragItemOrderId,
+          collisionOrderId: collisionOrderId,
+          dragOrderId: dragOrderId,
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
-          childrenOrderIdMap: _childrenOrderIdMap,
           onReorder: _handleReorder,
         );
       }
       // item changes multiple positions to the negative direction
-      else if (collisionItemOrderId < dragItemOrderId &&
-          dragItemOrderId - collisionItemOrderId > 1) {
+      else if (collisionOrderId < dragOrderId &&
+          dragOrderId - collisionOrderId > 1) {
         handleMultipleCollisionsBackward(
-          dragItemOrderId: dragItemOrderId,
-          collisionItemOrderId: collisionItemOrderId,
+          dragOrderId: dragOrderId,
+          collisionOrderId: collisionOrderId,
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
-          childrenOrderIdMap: _childrenOrderIdMap,
           onReorder: _handleReorder,
         );
       }
       // item changes position only to one item
       else {
         handleOneCollision(
-          dragId: id,
-          collisionId: collisionId,
+          dragOrderId: dragOrderId,
+          collisionOrderId: collisionOrderId,
           childrenIdMap: _childrenIdMap,
           lockedChildren: widget.lockedChildren,
-          childrenOrderIdMap: _childrenOrderIdMap,
           onReorder: _handleReorder,
         );
       }
 
       setState(() {
         _childrenIdMap = _childrenIdMap;
-        _childrenOrderIdMap = _childrenOrderIdMap;
       });
     }
   }
 
   void _handleReorder(int oldIndex, int newIndex) {
-    widget.onReorder(oldIndex, newIndex);
+    // widget.onReorder(oldIndex, newIndex);
   }
 }

@@ -76,7 +76,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
   @override
   Widget build(BuildContext context) {
     final draggableItem = DraggableItem(
-      id: widget.entry.key,
+      orderId: widget.entry.value.orderId,
       enableLongPress: widget.enableLongPress,
       onDragUpdate: widget.onDragUpdate,
       longPressDelay: widget.longPressDelay,

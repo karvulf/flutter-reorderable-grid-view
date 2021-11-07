@@ -10,18 +10,18 @@ void main() {
 
   group('#getItemsCollision', () {
     test(
-        'GIVEN id = 0 and children with no ids '
+        'GIVEN orderId = 0 and children with no ids '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(0, 0);
       const givenSize = Size(100, 100);
       final givenChildren = <int, GridItemEntity>{};
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -33,22 +33,22 @@ void main() {
     });
 
     test(
-        'GIVEN id = 0, children but id is in lockedChildren '
+        'GIVEN oderId = 0, children but id is in lockedChildren '
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(0, 0);
       final givenChildren = <int, GridItemEntity>{};
       const givenSize = Size(100, 100);
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
-        lockedChildren: [givenId],
+        lockedChildren: [givenOrderId],
       );
 
       // then
@@ -60,19 +60,20 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(99, 200);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
       };
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -88,18 +89,19 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(200, 99);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
       };
 
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -115,19 +117,20 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(301, 200);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
       };
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -143,19 +146,20 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(200, 301);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
       };
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -172,24 +176,26 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return null', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenCollisionId = 1;
       const givenPosition = Offset(200, 400);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(-200, -200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
-        givenCollisionId: builder.getGridItemEntity(
+        1: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenCollisionId,
         ),
       };
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -205,19 +211,20 @@ void main() {
         'WHEN calling #getItemsCollision '
         'THEN should return given id', () {
       // given
-      const givenId = 0;
+      const givenOrderId = 0;
       const givenPosition = Offset(100, 300);
       const givenSize = Size(200, 200);
       final givenChildren = <int, GridItemEntity>{
-        givenId: builder.getGridItemEntity(
+        0: builder.getGridItemEntity(
           localPosition: const Offset(200, 200),
           size: givenSize,
+          orderId: givenOrderId,
         ),
       };
 
       // when
       final actual = getItemsCollision(
-        id: givenId,
+        orderId: givenOrderId,
         position: givenPosition,
         size: givenSize,
         childrenIdMap: givenChildren,
@@ -225,7 +232,7 @@ void main() {
       );
 
       // then
-      expect(actual, equals(givenId));
+      expect(actual, equals(givenOrderId));
     });
   });
 
@@ -241,10 +248,9 @@ void main() {
       // then
       expect(
           () => handleOneCollision(
-                dragId: givenId,
-                collisionId: givenId,
+                dragOrderId: givenId,
+                collisionOrderId: givenId,
                 childrenIdMap: {},
-                childrenOrderIdMap: {},
                 lockedChildren: [],
                 onReorder: (_, __) {},
               ),
@@ -258,33 +264,23 @@ void main() {
       // given
       const givenDragId = 0;
       const givenDragOrderId = 2;
-      const givenDragGlobalPosition = Offset(0, 0);
       const givenDragLocalPosition = Offset(2, 2);
 
       const givenCollisionId = 1;
       const givenCollisionOrderId = 3;
-      const givenCollisionGlobalPosition = Offset(1, 1);
       const givenCollisionLocalPosition = Offset(3, 3);
 
       final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
         orderId: givenDragOrderId,
         localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
       );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
       final givenChildrenIdMap = {
         givenDragId: givenDragChild,
         givenCollisionId: givenCollisionChild,
-      };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenCollisionOrderId: givenCollisionChild,
       };
 
       int? actualOldIndex;
@@ -292,10 +288,9 @@ void main() {
 
       // when
       handleOneCollision(
-        dragId: givenDragId,
-        collisionId: givenCollisionId,
+        dragOrderId: givenDragId,
+        collisionOrderId: givenCollisionId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [givenCollisionId],
         onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
@@ -307,16 +302,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
-
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenDragId,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
           ),
@@ -325,16 +310,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
-            orderId: givenCollisionOrderId,
-            localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
-
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            id: givenCollisionId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
           ),
@@ -358,12 +333,10 @@ void main() {
       const givenCollisionLocalPosition = Offset(3, 3);
 
       final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
         orderId: givenDragOrderId,
         localPosition: givenDragLocalPosition,
       );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
         localPosition: givenCollisionLocalPosition,
       );
@@ -371,20 +344,15 @@ void main() {
         givenDragId: givenDragChild,
         givenCollisionId: givenCollisionChild,
       };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenCollisionOrderId: givenCollisionChild,
-      };
 
       int? actualOldIndex;
       int? actualNewIndex;
 
       // when
       handleOneCollision(
-        dragId: givenDragId,
-        collisionId: givenCollisionId,
+        dragOrderId: givenDragOrderId,
+        collisionOrderId: givenCollisionOrderId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
         onReorder: (oldIndex, newIndex) {
           actualOldIndex = oldIndex;
@@ -396,15 +364,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
-            orderId: givenCollisionOrderId,
-            localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            id: givenDragId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
           ),
@@ -413,15 +372,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenCollisionId,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
           ),
@@ -434,68 +384,51 @@ void main() {
 
   group('#handleMultipleCollisionsBackward', () {
     test(
-        'GIVEN 4 childs and last and first child in orderId changes position '
-        'and no childs are in lockedChildren '
+        'GIVEN 4 children and last and first child in orderId changes position '
+        'and no children are in lockedChildren '
         'WHEN calling #handleMultipleCollisionsBackward '
         'THEN should swap all positions correctly', () {
       // given
       // sorted by orderId
       const givenCollisionId = 0;
       const givenCollisionOrderId = 0;
-      const givenCollisionGlobalPosition = Offset(0, 0);
       const givenCollisionLocalPosition = Offset(2, 2);
 
       const givenChildId = 3;
       const givenChildOrderId = 1;
-      const givenChildGlobalPosition = Offset(4, 4);
       const givenChildLocalPosition = Offset(5, 5);
 
       const givenChildId2 = 2;
       const givenChildOrderId2 = 2;
-      const givenChildGlobalPosition2 = Offset(6, 6);
       const givenChildLocalPosition2 = Offset(7, 7);
 
       const givenDragId = 1;
       const givenDragOrderId = 3;
-      const givenDragGlobalPosition = Offset(1, 1);
       const givenDragLocalPosition = Offset(3, 3);
 
       // sorted by id
-      final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
-        orderId: givenDragOrderId,
-        localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
-      );
-      final givenChild = builder.getGridItemEntity(
-        id: givenChildId,
-        orderId: givenChildOrderId,
-        localPosition: givenChildLocalPosition,
-        globalPosition: givenChildGlobalPosition,
-      );
-      final givenChild2 = builder.getGridItemEntity(
-        id: givenChildId2,
-        orderId: givenChildOrderId2,
-        localPosition: givenChildLocalPosition2,
-        globalPosition: givenChildGlobalPosition2,
-      );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
+      final givenChild = builder.getGridItemEntity(
+        orderId: givenChildOrderId,
+        localPosition: givenChildLocalPosition,
+      );
+      final givenChild2 = builder.getGridItemEntity(
+        orderId: givenChildOrderId2,
+        localPosition: givenChildLocalPosition2,
+      );
+      final givenDragChild = builder.getGridItemEntity(
+        orderId: givenDragOrderId,
+        localPosition: givenDragLocalPosition,
+      );
+
       final givenChildrenIdMap = {
-        givenDragId: givenDragChild,
-        givenChildId2: givenChild2,
         givenCollisionId: givenCollisionChild,
+        givenChildId2: givenChild2,
         givenChildId: givenChild,
-      };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenChildOrderId2: givenChild2,
-        givenCollisionOrderId: givenCollisionChild,
-        givenChildOrderId: givenChild,
+        givenDragId: givenDragChild,
       };
 
       List<int> actualOldIndexList = <int>[];
@@ -503,10 +436,9 @@ void main() {
 
       // when
       handleMultipleCollisionsBackward(
-        dragItemOrderId: givenDragOrderId,
-        collisionItemOrderId: givenCollisionOrderId,
+        dragOrderId: givenDragOrderId,
+        collisionOrderId: givenCollisionOrderId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
         onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
@@ -520,23 +452,10 @@ void main() {
           hasGridItemEntityValues(
             // collision has new values but same id (id can't change)
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
             // collision was moved to child and get his orderId
             orderId: givenChildOrderId,
             // collision was moved to child and get his localPosition
             localPosition: givenChildLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            // updated position with drag child
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            // dragged child was moved to collision child
-            id: givenDragId,
-            // the draggedChild has now orderId of the collision child
-            orderId: givenCollisionOrderId,
-            // the draggedChild has now localPosition of the collision child
-            localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
 
@@ -544,17 +463,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId]!,
-            id: givenChildId,
             orderId: givenChildOrderId2,
             localPosition: givenChildLocalPosition2,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId]!,
-            id: givenCollisionId,
-            orderId: givenChildOrderId,
-            localPosition: givenChildLocalPosition,
           ),
           isTrue);
 
@@ -562,17 +472,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId2]!,
-            id: givenChildId2,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId2]!,
-            id: givenChildId,
-            orderId: givenChildOrderId2,
-            localPosition: givenChildLocalPosition2,
           ),
           isTrue);
 
@@ -580,17 +481,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenChildId2,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
           ),
           isTrue);
 
@@ -611,7 +503,7 @@ void main() {
     });
 
     test(
-        'GIVEN 4 childs and last and first child in orderId changes position '
+        'GIVEN 4 children and last and first child in orderId changes position '
         'and second child is in lockedChildren '
         'WHEN calling #handleMultipleCollisionsBackward '
         'THEN should swap all positions correctly but second child', () {
@@ -619,70 +511,58 @@ void main() {
       // sorted by orderId
       const givenCollisionId = 0;
       const givenCollisionOrderId = 0;
-      const givenCollisionGlobalPosition = Offset(0, 0);
       const givenCollisionLocalPosition = Offset(2, 2);
 
-      const givenChildId = 3;
-      const givenChildOrderId = 1;
-      const givenChildGlobalPosition = Offset(4, 4);
-      const givenChildLocalPosition = Offset(5, 5);
+      const givenLockedChildId = 3;
+      const givenLockedChildOrderId = 1;
+      const givenLockedChildLocalPosition = Offset(5, 5);
 
-      const givenChildId2 = 2;
-      const givenChildOrderId2 = 2;
-      const givenChildGlobalPosition2 = Offset(6, 6);
-      const givenChildLocalPosition2 = Offset(7, 7);
+      const givenChildId = 2;
+      const givenChildOrderId = 2;
+      const givenChildLocalPosition = Offset(7, 7);
 
       const givenDragId = 1;
       const givenDragOrderId = 3;
-      const givenDragGlobalPosition = Offset(1, 1);
       const givenDragLocalPosition = Offset(3, 3);
 
       // sorted by id
-      final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
-        orderId: givenDragOrderId,
-        localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
-      );
-      final givenChild = builder.getGridItemEntity(
-        id: givenChildId,
-        orderId: givenChildOrderId,
-        localPosition: givenChildLocalPosition,
-        globalPosition: givenChildGlobalPosition,
-      );
-      final givenChild2 = builder.getGridItemEntity(
-        id: givenChildId2,
-        orderId: givenChildOrderId2,
-        localPosition: givenChildLocalPosition2,
-        globalPosition: givenChildGlobalPosition2,
-      );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
+      final givenLockedChild = builder.getGridItemEntity(
+        orderId: givenLockedChildOrderId,
+        localPosition: givenLockedChildLocalPosition,
+      );
+      final givenChild = builder.getGridItemEntity(
+        orderId: givenChildOrderId,
+        localPosition: givenChildLocalPosition,
+      );
+      final givenDragChild = builder.getGridItemEntity(
+        orderId: givenDragOrderId,
+        localPosition: givenDragLocalPosition,
+      );
+
       final givenChildrenIdMap = {
-        givenDragId: givenDragChild,
-        givenChildId2: givenChild2,
         givenCollisionId: givenCollisionChild,
+        givenLockedChildId: givenLockedChild,
         givenChildId: givenChild,
+        givenDragId: givenDragChild,
       };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenChildOrderId2: givenChild2,
-        givenCollisionOrderId: givenCollisionChild,
-        givenChildOrderId: givenChild,
-      };
+
+      List<int> actualOldIndexList = <int>[];
+      List<int> actualNewIndexList = <int>[];
 
       // when
       handleMultipleCollisionsBackward(
-        dragItemOrderId: givenDragOrderId,
-        collisionItemOrderId: givenCollisionOrderId,
+        dragOrderId: givenDragOrderId,
+        collisionOrderId: givenCollisionOrderId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
-        lockedChildren: [givenChildId],
-        onReorder: (_, __) {},
+        lockedChildren: [givenLockedChildOrderId],
+        onReorder: (oldIndex, newIndex) {
+          actualOldIndexList.add(oldIndex);
+          actualNewIndexList.add(newIndex);
+        },
       );
 
       // then
@@ -690,53 +570,26 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
-            orderId: givenChildOrderId2,
-            localPosition: givenChildLocalPosition2,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            id: givenDragId,
-            orderId: givenCollisionOrderId,
-            localPosition: givenCollisionLocalPosition,
+            orderId: givenChildOrderId,
+            localPosition: givenChildLocalPosition,
           ),
           isTrue);
 
       // child does not change because locked
       expect(
           hasGridItemEntityValues(
-            givenChildrenIdMap[givenChildId]!,
-            id: givenChildId,
-            orderId: givenChildOrderId,
-            localPosition: givenChildLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId]!,
-            id: givenChildId,
-            orderId: givenChildOrderId,
-            localPosition: givenChildLocalPosition,
+            givenChildrenIdMap[givenLockedChildId]!,
+            orderId: givenLockedChildOrderId,
+            localPosition: givenLockedChildLocalPosition,
           ),
           isTrue);
 
       // child2 -> dragChild
       expect(
           hasGridItemEntityValues(
-            givenChildrenIdMap[givenChildId2]!,
-            id: givenChildId2,
+            givenChildrenIdMap[givenChildId]!,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId2]!,
-            id: givenCollisionId,
-            orderId: givenChildOrderId2,
-            localPosition: givenChildLocalPosition2,
           ),
           isTrue);
 
@@ -744,25 +597,28 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
       expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenChildId2,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
+          actualOldIndexList,
+          equals([
+            givenDragOrderId,
+            givenChildOrderId,
+          ]));
+      expect(
+          actualNewIndexList,
+          equals([
+            givenChildOrderId,
+            givenCollisionOrderId,
+          ]));
     });
   });
 
   group('#handleMultipleCollisionsForward', () {
     test(
-        'GIVEN 4 childs and first and last child in orderId changes position '
+        'GIVEN 4 children and first and last child in orderId changes position '
         'and there are no locked children '
         'WHEN calling #handleMultipleCollisionsForward '
         'THEN should swap all positions correctly', () {
@@ -770,60 +626,43 @@ void main() {
       // sorted by orderId
       const givenDragId = 1;
       const givenDragOrderId = 0;
-      const givenDragGlobalPosition = Offset(0, 0);
       const givenDragLocalPosition = Offset(2, 2);
 
       const givenChildId = 3;
       const givenChildOrderId = 1;
-      const givenChildGlobalPosition = Offset(4, 4);
       const givenChildLocalPosition = Offset(5, 5);
 
       const givenChildId2 = 2;
       const givenChildOrderId2 = 2;
-      const givenChildGlobalPosition2 = Offset(6, 6);
       const givenChildLocalPosition2 = Offset(7, 7);
 
       const givenCollisionId = 0;
       const givenCollisionOrderId = 3;
-      const givenCollisionGlobalPosition = Offset(1, 1);
       const givenCollisionLocalPosition = Offset(3, 3);
 
       // sorted by id
       final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
         orderId: givenDragOrderId,
         localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
       );
       final givenChild = builder.getGridItemEntity(
-        id: givenChildId,
         orderId: givenChildOrderId,
         localPosition: givenChildLocalPosition,
-        globalPosition: givenChildGlobalPosition,
       );
       final givenChild2 = builder.getGridItemEntity(
-        id: givenChildId2,
         orderId: givenChildOrderId2,
         localPosition: givenChildLocalPosition2,
-        globalPosition: givenChildGlobalPosition2,
       );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
+
       final givenChildrenIdMap = {
         givenDragId: givenDragChild,
         givenChildId2: givenChild2,
-        givenCollisionId: givenCollisionChild,
         givenChildId: givenChild,
-      };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenChildOrderId2: givenChild2,
-        givenCollisionOrderId: givenCollisionChild,
-        givenChildOrderId: givenChild,
+        givenCollisionId: givenCollisionChild,
       };
 
       List<int> actualOldIndexList = <int>[];
@@ -831,10 +670,9 @@ void main() {
 
       // when
       handleMultipleCollisionsForward(
-        dragItemOrderId: givenDragOrderId,
-        collisionItemOrderId: givenCollisionOrderId,
+        dragOrderId: givenDragOrderId,
+        collisionOrderId: givenCollisionOrderId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
         lockedChildren: [],
         onReorder: (oldIndex, newIndex) {
           actualOldIndexList.add(oldIndex);
@@ -847,17 +685,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenChildId,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
           ),
           isTrue);
 
@@ -865,17 +694,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId]!,
-            id: givenChildId,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId]!,
-            id: givenChildId2,
-            orderId: givenChildOrderId,
-            localPosition: givenChildLocalPosition,
           ),
           isTrue);
 
@@ -883,17 +703,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId2]!,
-            id: givenChildId2,
             orderId: givenChildOrderId,
             localPosition: givenChildLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId2]!,
-            id: givenCollisionId,
-            orderId: givenChildOrderId2,
-            localPosition: givenChildLocalPosition2,
           ),
           isTrue);
 
@@ -901,17 +712,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
             orderId: givenChildOrderId2,
             localPosition: givenChildLocalPosition2,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            id: givenDragId,
-            orderId: givenCollisionOrderId,
-            localPosition: givenCollisionLocalPosition,
           ),
           isTrue);
 
@@ -931,7 +733,7 @@ void main() {
           ]));
     });
     test(
-        'GIVEN 4 childs and first and last child in orderId changes position '
+        'GIVEN 4 children and first and last child in orderId changes position '
         'but second and third child is in lockedChildren '
         'WHEN calling #handleMultipleCollisionsForward '
         'THEN should swap only positions of dragged and collisioned item', () {
@@ -939,47 +741,35 @@ void main() {
       // sorted by orderId
       const givenDragId = 1;
       const givenDragOrderId = 0;
-      const givenDragGlobalPosition = Offset(0, 0);
       const givenDragLocalPosition = Offset(2, 2);
 
       const givenChildId = 3;
       const givenChildOrderId = 1;
-      const givenChildGlobalPosition = Offset(4, 4);
       const givenChildLocalPosition = Offset(5, 5);
 
       const givenChildId2 = 2;
       const givenChildOrderId2 = 2;
-      const givenChildGlobalPosition2 = Offset(6, 6);
       const givenChildLocalPosition2 = Offset(7, 7);
 
       const givenCollisionId = 0;
       const givenCollisionOrderId = 3;
-      const givenCollisionGlobalPosition = Offset(1, 1);
       const givenCollisionLocalPosition = Offset(3, 3);
 
       // sorted by id
       final givenDragChild = builder.getGridItemEntity(
-        id: givenDragId,
         orderId: givenDragOrderId,
         localPosition: givenDragLocalPosition,
-        globalPosition: givenDragGlobalPosition,
       );
       final givenChild = builder.getGridItemEntity(
-        id: givenChildId,
         orderId: givenChildOrderId,
         localPosition: givenChildLocalPosition,
-        globalPosition: givenChildGlobalPosition,
       );
       final givenChild2 = builder.getGridItemEntity(
-        id: givenChildId2,
         orderId: givenChildOrderId2,
         localPosition: givenChildLocalPosition2,
-        globalPosition: givenChildGlobalPosition2,
       );
       final givenCollisionChild = builder.getGridItemEntity(
-        id: givenCollisionId,
         orderId: givenCollisionOrderId,
-        globalPosition: givenCollisionGlobalPosition,
         localPosition: givenCollisionLocalPosition,
       );
       final givenChildrenIdMap = {
@@ -988,21 +778,20 @@ void main() {
         givenCollisionId: givenCollisionChild,
         givenChildId: givenChild,
       };
-      final givenChildrenOrderIdMap = {
-        givenDragOrderId: givenDragChild,
-        givenChildOrderId2: givenChild2,
-        givenCollisionOrderId: givenCollisionChild,
-        givenChildOrderId: givenChild,
-      };
+
+      List<int> actualOldIndexList = <int>[];
+      List<int> actualNewIndexList = <int>[];
 
       // when
       handleMultipleCollisionsForward(
-        dragItemOrderId: givenDragOrderId,
-        collisionItemOrderId: givenCollisionOrderId,
+        dragOrderId: givenDragOrderId,
+        collisionOrderId: givenCollisionOrderId,
         childrenIdMap: givenChildrenIdMap,
-        childrenOrderIdMap: givenChildrenOrderIdMap,
-        lockedChildren: [givenChildId, givenChildId2],
-        onReorder: (_, __) {},
+        lockedChildren: [givenChildOrderId, givenChildOrderId2],
+        onReorder: (oldIndex, newIndex) {
+          actualOldIndexList.add(oldIndex);
+          actualNewIndexList.add(newIndex);
+        },
       );
 
       // then
@@ -1010,17 +799,8 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenDragId]!,
-            id: givenDragId,
             orderId: givenCollisionOrderId,
             localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenDragOrderId]!,
-            id: givenCollisionId,
-            orderId: givenDragOrderId,
-            localPosition: givenDragLocalPosition,
           ),
           isTrue);
 
@@ -1028,15 +808,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId]!,
-            id: givenChildId,
-            orderId: givenChildOrderId,
-            localPosition: givenChildLocalPosition,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId]!,
-            id: givenChildId,
             orderId: givenChildOrderId,
             localPosition: givenChildLocalPosition,
           ),
@@ -1046,15 +817,6 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenChildId2]!,
-            id: givenChildId2,
-            orderId: givenChildOrderId2,
-            localPosition: givenChildLocalPosition2,
-          ),
-          isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenChildOrderId2]!,
-            id: givenChildId2,
             orderId: givenChildOrderId2,
             localPosition: givenChildLocalPosition2,
           ),
@@ -1064,30 +826,20 @@ void main() {
       expect(
           hasGridItemEntityValues(
             givenChildrenIdMap[givenCollisionId]!,
-            id: givenCollisionId,
             orderId: givenDragOrderId,
             localPosition: givenDragLocalPosition,
           ),
           isTrue);
-      expect(
-          hasGridItemEntityValues(
-            givenChildrenOrderIdMap[givenCollisionOrderId]!,
-            id: givenDragId,
-            orderId: givenCollisionOrderId,
-            localPosition: givenCollisionLocalPosition,
-          ),
-          isTrue);
+      expect(actualOldIndexList, equals([givenDragOrderId]));
+      expect(actualNewIndexList, equals([givenCollisionOrderId]));
     });
   });
 }
 
 bool hasGridItemEntityValues(
   GridItemEntity item, {
-  required int id,
   required int orderId,
   required Offset localPosition,
 }) {
-  return item.id == id &&
-      item.orderId == orderId &&
-      item.localPosition == localPosition;
+  return item.orderId == orderId && item.localPosition == localPosition;
 }

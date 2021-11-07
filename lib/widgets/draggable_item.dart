@@ -5,19 +5,19 @@ import 'package:flutter/material.dart';
 typedef OnCreatedFunction = Function(
   BuildContext context,
   GlobalKey key,
-  int id,
+  int orderId,
   Widget child,
 );
 
 typedef OnDragUpdateFunction = Function(
-  int id,
+  int dragOrderId,
   Offset position,
   Size size,
 );
 
 class DraggableItem extends StatefulWidget {
   final Widget child;
-  final int id;
+  final int orderId;
   final bool enableLongPress;
 
   final Duration longPressDelay;
@@ -28,7 +28,7 @@ class DraggableItem extends StatefulWidget {
 
   const DraggableItem({
     required this.child,
-    required this.id,
+    required this.orderId,
     required this.enableLongPress,
     this.longPressDelay = kLongPressTimeout,
     this.enabled = true,
@@ -73,7 +73,7 @@ class _DraggableItemState extends State<DraggableItem>
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.onCreated != null) {
-        widget.onCreated!(context, _globalKey, widget.id, widget.child);
+        widget.onCreated!(context, _globalKey, widget.orderId, widget.child);
       }
     });
   }
@@ -129,7 +129,7 @@ class _DraggableItemState extends State<DraggableItem>
           final box = renderObject as RenderBox;
           final position = box.localToGlobal(Offset.zero);
 
-          widget.onDragUpdate!(widget.id, position, box.size);
+          widget.onDragUpdate!(widget.orderId, position, box.size);
           return;
         }
       });
