@@ -11,6 +11,7 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 class AnimatedDraggableItem extends StatefulWidget {
   static const animationDuration = Duration(milliseconds: 300);
 
+  final Widget child;
   final MapEntry<int, GridItemEntity> entry;
   final bool enableAnimation;
   final bool enableLongPress;
@@ -21,9 +22,10 @@ class AnimatedDraggableItem extends StatefulWidget {
   final bool willBeRemoved;
 
   final OnDragUpdateFunction? onDragUpdate;
-  final Function(int key)? onRemoveItem;
+  final Function(int id, Key key)? onRemoveItem;
 
   const AnimatedDraggableItem({
+    required this.child,
     required this.entry,
     required this.enableAnimation,
     required this.enableLongPress,
@@ -58,7 +60,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
         ..addStatusListener(
           (state) {
             if (state == AnimationStatus.completed) {
-              widget.onRemoveItem!(widget.entry.key);
+              widget.onRemoveItem!(widget.entry.key, widget.child.key!);
             }
           },
         );
@@ -84,7 +86,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       child: SizedBox(
         height: widget.entry.value.size.height,
         width: widget.entry.value.size.width,
-        child: widget.entry.value.child,
+        child: widget.child,
       ),
     );
 

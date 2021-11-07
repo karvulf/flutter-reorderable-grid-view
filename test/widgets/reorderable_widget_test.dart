@@ -415,6 +415,7 @@ void main() {
     final secondLocation = tester.getCenter(find.text(givenText2));
     await gesture.moveTo(secondLocation);
     await tester.pump();
+    await tester.pumpAndSettle();
 
     // move back
     await gesture.moveTo(firstLocation);

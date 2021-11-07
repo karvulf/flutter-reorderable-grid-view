@@ -16,10 +16,7 @@ void main() {
       'THEN should throw AssertionException', (WidgetTester tester) async {
     // given
     const givenChild = UniqueTestWidget();
-    final givenEntry = MapEntry(
-      0,
-      builder.getGridItemEntity(child: givenChild),
-    );
+    final givenEntry = MapEntry(0, builder.getGridItemEntity());
 
     // when
     // then
@@ -30,6 +27,7 @@ void main() {
                   body: Stack(
                     children: [
                       AnimatedDraggableItem(
+                        child: givenChild,
                         enableAnimation: true,
                         enableLongPress: true,
                         entry: givenEntry,
@@ -51,12 +49,10 @@ void main() {
     const givenEnableAnimation = false;
     const givenEnableLongPress = false;
     const givenChild = UniqueTestWidget();
-    final givenEntry = MapEntry(
-      0,
-      builder.getGridItemEntity(child: givenChild),
-    );
+    final givenEntry = MapEntry(0, builder.getGridItemEntity());
 
-    int? expectedKey;
+    int? expectedId;
+    Key? expectedKey;
 
     // when
     await tester.pumpWidget(
@@ -66,11 +62,13 @@ void main() {
             children: [
               AnimatedDraggableItem(
                 key: const Key('key'),
+                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
-                onRemoveItem: (int key) {
+                onRemoveItem: (int id, Key key) {
                   expectedKey = key;
+                  expectedId = id;
                 },
               ),
             ],
@@ -95,11 +93,12 @@ void main() {
             widget.child is SizedBox &&
             (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
-            widget.id == givenEntry.key &&
+            widget.orderId == givenEntry.value.orderId &&
             widget.longPressDelay == kLongPressTimeout &&
             widget.enabled),
         findsOneWidget);
     expect(expectedKey, isNull);
+    expect(expectedId, isNull);
   });
 
   testWidgets(
@@ -114,10 +113,7 @@ void main() {
     const givenEnabled = false;
     const givenLongPressDelay = Duration(seconds: 100);
     const givenChild = UniqueTestWidget();
-    final givenEntry = MapEntry(
-      0,
-      builder.getGridItemEntity(child: givenChild),
-    );
+    final givenEntry = MapEntry(0, builder.getGridItemEntity());
 
     // when
     await tester.pumpWidget(
@@ -127,6 +123,7 @@ void main() {
             children: [
               AnimatedDraggableItem(
                 key: const Key('key'),
+                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
@@ -155,7 +152,7 @@ void main() {
             widget.child is SizedBox &&
             (widget.child as SizedBox).child == givenChild &&
             widget.enableLongPress == givenEnableLongPress &&
-            widget.id == givenEntry.key &&
+            widget.orderId == givenEntry.value.orderId &&
             widget.longPressDelay == givenLongPressDelay &&
             !widget.enabled),
         findsOneWidget);
@@ -174,7 +171,6 @@ void main() {
       0,
       builder.getGridItemEntity(
         size: const Size(100, 100),
-        child: givenChild,
       ),
     );
 
@@ -192,6 +188,7 @@ void main() {
               children: [
                 AnimatedDraggableItem(
                   key: const Key('key'),
+                  child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
@@ -238,16 +235,17 @@ void main() {
     const givenEnableLongPress = false;
     const givenEnableAnimation = true;
     const givenText = 'hallo';
-    const givenChild = Text(givenText);
+    const givenKey = Key('test');
+    const givenChild = Text(givenText, key: givenKey);
     final givenEntry = MapEntry(
       0,
       builder.getGridItemEntity(
         size: const Size(100, 100),
-        child: givenChild,
       ),
     );
 
-    int? expectedKey;
+    int? expectedId;
+    Key? expectedKey;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -259,11 +257,13 @@ void main() {
               children: [
                 AnimatedDraggableItem(
                   key: const Key('key'),
+                  child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
                   willBeRemoved: true,
-                  onRemoveItem: (int key) {
+                  onRemoveItem: (int id, Key key) {
+                    expectedId = id;
                     expectedKey = key;
                   },
                 ),
@@ -278,6 +278,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(expectedKey, equals(givenEntry.key));
+    expect(expectedId, equals(givenEntry.key));
+    expect(expectedKey, equals(givenKey));
   });
 }

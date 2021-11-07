@@ -10,16 +10,16 @@ void main() {
   final builder = ReorderableGridViewBuilder();
 
   final givenChildrenIdMap = {
-    0: builder.getGridItemEntity(
-      child: Container(key: const Key('key1')),
-    ),
-    1: builder.getGridItemEntity(
-      child: Container(key: const Key('key2')),
-    ),
-    2: builder.getGridItemEntity(
-      child: Container(key: const Key('key3')),
-    ),
+    0: builder.getGridItemEntity(orderId: 0),
+    1: builder.getGridItemEntity(orderId: 1),
+    2: builder.getGridItemEntity(orderId: 2),
   };
+
+  final givenChildren = [
+    Container(key: const Key('key1')),
+    Container(key: const Key('key2')),
+    Container(key: const Key('key3')),
+  ];
 
   testWidgets(
       'GIVEN height, width and childrenIdMap '
@@ -35,6 +35,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ReorderableSingleChildScrollView(
+            children: givenChildren,
             height: givenHeight,
             width: givenWidth,
             clipBehavior: givenClipBehavior,

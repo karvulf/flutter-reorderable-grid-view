@@ -6,12 +6,10 @@ class ReorderableGridViewBuilder {
     Offset? localPosition,
     Size? size,
     int? orderId,
-    Widget? child,
   }) =>
       GridItemEntity(
         localPosition: localPosition ?? const Offset(0, 0),
         size: size ?? const Size(0, 0),
         orderId: orderId ?? 0,
-        child: child ?? Container(),
       );
 }
