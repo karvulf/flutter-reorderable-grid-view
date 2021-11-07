@@ -24,6 +24,8 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
   final OnDragUpdateFunction? onDragUpdate;
   final Function(int id, Key key)? onRemoveItem;
 
+  final Key? sizedBoxKey;
+
   const ReorderableSingleChildScrollView({
     required this.children,
     required this.height,
@@ -38,6 +40,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     this.willBeRemoved = false,
     this.onRemoveItem,
     this.physics,
+    this.sizedBoxKey,
     Key? key,
   }) : super(key: key);
 
@@ -46,6 +49,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     return SingleChildScrollView(
       physics: physics,
       child: SizedBox(
+        key: sizedBoxKey,
         height: height,
         width: width,
         child: Stack(

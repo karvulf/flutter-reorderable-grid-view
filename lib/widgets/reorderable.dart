@@ -163,7 +163,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// Key of the [Wrap] that was used to build the widget
   final _wrapKey = GlobalKey();
 
-  final _copyReorderableKey = GlobalKey();
+  final _reorderableContentKey = GlobalKey();
 
   /// Size of the [Wrap] that was used to build the widget
   Size _wrapSize = Size.zero;
@@ -231,7 +231,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     return Stack(
       children: [
         ReorderableSingleChildScrollView(
-          key: _copyReorderableKey,
+          sizedBoxKey: _reorderableContentKey,
           children: _childrenCopy,
           physics: widget.physics,
           height: _wrapSize.height,
@@ -491,14 +491,17 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     Size size,
   ) {
     final renderParentObject =
-        _copyReorderableKey.currentContext?.findRenderObject();
+        _reorderableContentKey.currentContext?.findRenderObject();
 
     if (renderParentObject == null) {
       return;
     }
+    print(Scrollable.of(context)?.position.pixels);
 
     final parentBox = renderParentObject as RenderBox;
     final localPosition = parentBox.globalToLocal(position);
+    print('position $position');
+    print('localPosition $localPosition');
 
     final collisionOrderId = getItemsCollision(
       orderId: dragOrderId,
@@ -509,6 +512,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     );
 
     if (collisionOrderId != null && collisionOrderId != dragOrderId) {
+      print('dragOrderId $dragOrderId collisionOrderId $collisionOrderId');
       // item changes multiple positions to the positive direction
       if (collisionOrderId > dragOrderId &&
           collisionOrderId - dragOrderId > 1) {
