@@ -4,6 +4,10 @@ import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 
+/// Represents the copied children of a [Wrap] or [GridView] and displays them.
+///
+/// This widget builts all his children inside a [SingleChildScrollView] and positions
+/// all children.
 class ReorderableSingleChildScrollView extends StatelessWidget {
   final double height;
   final double width;
@@ -55,7 +59,6 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
                   onDragUpdate: onDragUpdate,
                   longPressDelay: longPressDelay,
                   enabled: !lockedChildren.contains(e.key),
-                  child: e.value.child,
                   onRemoveItem: onRemoveItem,
                 ),
               )

@@ -14,7 +14,6 @@ class AnimatedDraggableItem extends StatefulWidget {
   final MapEntry<int, GridItemEntity> entry;
   final bool enableAnimation;
   final bool enableLongPress;
-  final Widget child;
 
   final bool enabled;
   final Duration longPressDelay;
@@ -28,7 +27,6 @@ class AnimatedDraggableItem extends StatefulWidget {
     required this.entry,
     required this.enableAnimation,
     required this.enableLongPress,
-    required this.child,
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
     this.willBeRemoved = false,
@@ -86,7 +84,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       child: SizedBox(
         height: widget.entry.value.size.height,
         width: widget.entry.value.size.width,
-        child: widget.child,
+        child: widget.entry.value.child,
       ),
     );
 

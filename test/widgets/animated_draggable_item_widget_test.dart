@@ -15,8 +15,11 @@ void main() {
       'WHEN pumping [AnimatedDraggableItem] '
       'THEN should throw AssertionException', (WidgetTester tester) async {
     // given
-    final givenEntry = MapEntry(0, builder.getGridItemEntity());
     const givenChild = UniqueTestWidget();
+    final givenEntry = MapEntry(
+      0,
+      builder.getGridItemEntity(child: givenChild),
+    );
 
     // when
     // then
@@ -27,7 +30,6 @@ void main() {
                   body: Stack(
                     children: [
                       AnimatedDraggableItem(
-                        child: givenChild,
                         enableAnimation: true,
                         enableLongPress: true,
                         entry: givenEntry,
@@ -48,8 +50,11 @@ void main() {
     // given
     const givenEnableAnimation = false;
     const givenEnableLongPress = false;
-    final givenEntry = MapEntry(0, builder.getGridItemEntity());
     const givenChild = UniqueTestWidget();
+    final givenEntry = MapEntry(
+      0,
+      builder.getGridItemEntity(child: givenChild),
+    );
 
     int? expectedKey;
 
@@ -61,7 +66,6 @@ void main() {
             children: [
               AnimatedDraggableItem(
                 key: const Key('key'),
-                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
@@ -109,8 +113,11 @@ void main() {
     const givenEnableLongPress = true;
     const givenEnabled = false;
     const givenLongPressDelay = Duration(seconds: 100);
-    final givenEntry = MapEntry(0, builder.getGridItemEntity());
     const givenChild = UniqueTestWidget();
+    final givenEntry = MapEntry(
+      0,
+      builder.getGridItemEntity(child: givenChild),
+    );
 
     // when
     await tester.pumpWidget(
@@ -120,7 +127,6 @@ void main() {
             children: [
               AnimatedDraggableItem(
                 key: const Key('key'),
-                child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
                 entry: givenEntry,
@@ -168,6 +174,7 @@ void main() {
       0,
       builder.getGridItemEntity(
         size: const Size(100, 100),
+        child: givenChild,
       ),
     );
 
@@ -185,7 +192,6 @@ void main() {
               children: [
                 AnimatedDraggableItem(
                   key: const Key('key'),
-                  child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
@@ -237,6 +243,7 @@ void main() {
       0,
       builder.getGridItemEntity(
         size: const Size(100, 100),
+        child: givenChild,
       ),
     );
 
@@ -252,7 +259,6 @@ void main() {
               children: [
                 AnimatedDraggableItem(
                   key: const Key('key'),
-                  child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
                   entry: givenEntry,
