@@ -145,11 +145,7 @@ class Reorderable extends StatefulWidget
 }
 
 class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
-  /// This widget always makes a copy of [widget.children]
-  var _renderedChildren = <Widget>[];
-
   var _removedChildrenMap = <int, GridItemEntity>{};
-  var _removedChildren = <Widget>[];
 
   /// Represents all children inside a map with the index as key
   var _childrenIdMap = <int, GridItemEntity>{};
@@ -175,9 +171,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _renderedChildren = List<Widget>.from(widget.children);
-    });
     WidgetsBinding.instance!.addObserver(this);
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _updateWrapSize();
@@ -205,12 +198,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           if (widget.children.isEmpty) {
             _childrenIdMap = {};
             _childrenOrderIdMap = {};
-            _renderedChildren.clear();
           }
-        });
-      } else {
-        setState(() {
-          _renderedChildren = List<Widget>.from(widget.children);
         });
       }
     }
@@ -234,24 +222,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print('_removedChildren length: ${_removedChildren.length}');
-    final generatedChildren = List.generate(
-      widget.children.length,
-      (index) => Visibility(
-        visible: false,
-        maintainAnimation: true,
-        maintainSize: true,
-        maintainState: true,
-        child: DraggableItem(
-          child: widget.children[index],
-          enableLongPress: widget.enableLongPress,
-          id: index,
-          onCreated: _handleCreated,
-          longPressDelay: widget.longPressDelay,
-          enabled: !widget.lockedChildren.contains(index),
-        ),
-      ),
-    );
     return Stack(
       children: [
         ReorderableSingleChildScrollView(
@@ -265,7 +235,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           enableLongPress: widget.enableLongPress,
           longPressDelay: widget.longPressDelay,
           lockedChildren: widget.lockedChildren,
-          children: _renderedChildren,
           onDragUpdate: _handleDragUpdate,
         ),
         IgnorePointer(
@@ -275,13 +244,9 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             width: _wrapSize.width,
             clipBehavior: widget.clipBehavior,
             childrenIdMap: _removedChildrenMap,
-            children: _removedChildren,
             removeWithAnimation: true,
             onRemovedItem: (int id, Widget child) {
               _removedChildrenMap.remove(id);
-              _removedChildren.removeWhere(
-                (element) => element.key == child.key,
-              );
             },
           ),
         ),
@@ -289,6 +254,23 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           builder: (context) {
             // after all children are added to animatedChildren
             if (!hasBuiltItems) {
+              final generatedChildren = List.generate(
+                widget.children.length,
+                (index) => Visibility(
+                  visible: false,
+                  maintainAnimation: true,
+                  maintainSize: true,
+                  maintainState: true,
+                  child: DraggableItem(
+                    child: widget.children[index],
+                    enableLongPress: widget.enableLongPress,
+                    id: index,
+                    onCreated: _handleCreated,
+                    longPressDelay: widget.longPressDelay,
+                    enabled: !widget.lockedChildren.contains(index),
+                  ),
+                ),
+              );
               switch (widget.reorderableType) {
                 case ReorderableType.wrap:
                   return SingleChildScrollView(
@@ -368,6 +350,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     BuildContext context,
     GlobalKey key,
     int id,
+    Widget child,
     Key? childKey,
   ) {
     final renderObject = key.currentContext?.findRenderObject();
@@ -410,6 +393,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           size: size,
           orderId: id,
           key: childKey,
+          child: child,
         );
         _childrenIdMapProxy[id] = gridItemEntity;
         _childrenOrderIdMapProxy[id] = gridItemEntity;
@@ -418,27 +402,21 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           if (_childrenIdMapProxy.length < _childrenIdMap.length) {
             // find all removed children
             for (final entry in _childrenIdMap.entries) {
-              Key? key;
+              var found = false;
 
               for (final entry2 in _childrenIdMapProxy.entries) {
                 if (entry.value.key == entry2.value.key) {
-                  key = entry.value.key;
+                  found = true;
                   break;
                 }
               }
-              if (key != null) {
-                final child = _renderedChildren.firstWhere(
-                  (element) => element.key == key,
-                );
-                print('child to remove ${child.key}');
+              if (!found) {
                 _removedChildrenMap[entry.key] = entry.value;
-                _removedChildren.add(child);
               }
             }
 
             setState(() {
               _removedChildrenMap = _removedChildrenMap;
-              _removedChildren = _removedChildren;
               removedWrapSize = _wrapSize;
             });
           }
@@ -446,7 +424,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
           setState(() {
             hasBuiltItems = true;
-            _renderedChildren = widget.children;
             _childrenIdMap = _childrenIdMapProxy;
             _childrenOrderIdMap = _childrenOrderIdMapProxy;
           });
@@ -548,13 +525,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   }
 
   void _handleReorder(int oldIndex, int newIndex) {
-    setState(() {
-      final draggedItem = _renderedChildren[oldIndex];
-      final collisionItem = _renderedChildren[newIndex];
-      _renderedChildren[newIndex] = draggedItem;
-      _renderedChildren[oldIndex] = collisionItem;
-    });
-
     widget.onReorder(oldIndex, newIndex);
   }
 }

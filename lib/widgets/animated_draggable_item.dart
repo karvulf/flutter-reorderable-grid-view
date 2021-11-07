@@ -54,7 +54,9 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       animation = Tween<double>(begin: 1, end: 0).animate(controller)
         ..addStatusListener(
           (state) {
-            widget.onRemovedItem!(widget.entry.key, widget.child);
+            if (state == AnimationStatus.completed) {
+              widget.onRemovedItem!(widget.entry.key, widget.child);
+            }
           },
         );
     } else {

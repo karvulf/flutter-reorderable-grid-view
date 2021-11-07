@@ -13,7 +13,6 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final List<int> lockedChildren;
-  final List<Widget> children;
   final bool removeWithAnimation;
 
   final ScrollPhysics? physics;
@@ -25,7 +24,6 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     required this.width,
     required this.clipBehavior,
     required this.childrenIdMap,
-    required this.children,
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
@@ -57,7 +55,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
                   onDragUpdate: onDragUpdate,
                   longPressDelay: longPressDelay,
                   enabled: !lockedChildren.contains(e.key),
-                  child: children[e.value.orderId],
+                  child: e.value.child,
                   onRemovedItem: onRemovedItem,
                 ),
               )

@@ -6,6 +6,7 @@ typedef OnCreatedFunction = Function(
   BuildContext context,
   GlobalKey key,
   int id,
+  Widget child,
   Key? childKey,
 );
 
@@ -73,7 +74,13 @@ class _DraggableItemState extends State<DraggableItem>
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.onCreated != null) {
-        widget.onCreated!(context, _globalKey, widget.id, widget.child.key);
+        widget.onCreated!(
+          context,
+          _globalKey,
+          widget.id,
+          widget.child,
+          widget.child.key,
+        );
       }
     });
   }
