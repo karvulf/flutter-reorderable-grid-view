@@ -250,8 +250,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             clipBehavior: widget.clipBehavior,
             childrenIdMap: _removedChildrenMap,
             removeWithAnimation: true,
-            onRemovedItem: (int id, Widget child) {
-              _removedChildrenMap.remove(id);
+            onRemoveItem: (int key) {
+              _removedChildrenMap.remove(key);
             },
           ),
         ),

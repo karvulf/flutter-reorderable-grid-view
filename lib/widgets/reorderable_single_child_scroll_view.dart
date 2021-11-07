@@ -17,7 +17,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
 
   final ScrollPhysics? physics;
   final OnDragUpdateFunction? onDragUpdate;
-  final Function(int id, Widget child)? onRemovedItem;
+  final Function(int key)? onRemoveItem;
 
   const ReorderableSingleChildScrollView({
     required this.height,
@@ -30,7 +30,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     this.lockedChildren = const <int>[],
     this.onDragUpdate,
     this.removeWithAnimation = false,
-    this.onRemovedItem,
+    this.onRemoveItem,
     this.physics,
     Key? key,
   }) : super(key: key);
@@ -47,8 +47,8 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
           children: childrenIdMap.entries
               .map(
                 (e) => AnimatedDraggableItem(
-                  key: e.value.child.key ?? Key(e.key.toString()),
-                  removeWithAnimation: removeWithAnimation,
+                  key: e.value.child.key,
+                  willBeRemoved: removeWithAnimation,
                   enableAnimation: enableAnimation,
                   entry: e,
                   enableLongPress: enableLongPress,
@@ -56,7 +56,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
                   longPressDelay: longPressDelay,
                   enabled: !lockedChildren.contains(e.key),
                   child: e.value.child,
-                  onRemovedItem: onRemovedItem,
+                  onRemoveItem: onRemoveItem,
                 ),
               )
               .toList(),

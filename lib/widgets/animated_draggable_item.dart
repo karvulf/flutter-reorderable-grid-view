@@ -6,7 +6,11 @@ import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 /// This widget acts like a copy of the original child.
 ///
 /// It's possible to disable the animation after changing the position.
+/// Also when the child was added or will be removed, it's animated with a
+/// fade in or out effect.
 class AnimatedDraggableItem extends StatefulWidget {
+  static const animationDuration = Duration(milliseconds: 300);
+
   final MapEntry<int, GridItemEntity> entry;
   final bool enableAnimation;
   final bool enableLongPress;
@@ -15,10 +19,10 @@ class AnimatedDraggableItem extends StatefulWidget {
   final bool enabled;
   final Duration longPressDelay;
 
-  final bool removeWithAnimation;
+  final bool willBeRemoved;
 
   final OnDragUpdateFunction? onDragUpdate;
-  final Function(int id, Widget child)? onRemovedItem;
+  final Function(int key)? onRemoveItem;
 
   const AnimatedDraggableItem({
     required this.entry,
@@ -27,11 +31,13 @@ class AnimatedDraggableItem extends StatefulWidget {
     required this.child,
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
-    this.removeWithAnimation = false,
+    this.willBeRemoved = false,
     this.onDragUpdate,
-    this.onRemovedItem,
+    this.onRemoveItem,
     Key? key,
-  }) : super(key: key);
+  })  : assert(key != null,
+            'Key of child was null. You need to add a unique key to the child!'),
+        super(key: key);
 
   @override
   State<AnimatedDraggableItem> createState() => _AnimatedDraggableItemState();
@@ -39,7 +45,6 @@ class AnimatedDraggableItem extends StatefulWidget {
 
 class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
     with SingleTickerProviderStateMixin {
-  final animationDuration = const Duration(milliseconds: 300);
   late Animation<double> animation;
   late AnimationController controller;
 
@@ -50,12 +55,12 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    if (widget.removeWithAnimation) {
+    if (widget.willBeRemoved) {
       animation = Tween<double>(begin: 1, end: 0).animate(controller)
         ..addStatusListener(
           (state) {
             if (state == AnimationStatus.completed) {
-              widget.onRemovedItem!(widget.entry.key, widget.child);
+              widget.onRemoveItem!(widget.entry.key);
             }
           },
         );
@@ -67,9 +72,6 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
 
   @override
   void dispose() {
-    Future.delayed(animationDuration, () {
-      controller.reverse();
-    });
     super.dispose();
   }
 
@@ -98,7 +100,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       );
     } else {
       return AnimatedPositioned(
-        duration: animationDuration,
+        duration: AnimatedDraggableItem.animationDuration,
         top: widget.entry.value.localPosition.dy,
         left: widget.entry.value.localPosition.dx,
         height: widget.entry.value.size.height,
