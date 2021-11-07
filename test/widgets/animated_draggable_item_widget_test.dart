@@ -11,6 +11,36 @@ void main() {
   final builder = ReorderableGridViewBuilder();
 
   testWidgets(
+      'GIVEN no key for [AnimatedDraggableItem] '
+      'WHEN pumping [AnimatedDraggableItem] '
+      'THEN should throw AssertionException', (WidgetTester tester) async {
+    // given
+    final givenEntry = MapEntry(0, builder.getGridItemEntity());
+    const givenChild = UniqueTestWidget();
+
+    // when
+    // then
+    expect(
+        () => tester.pumpWidget(
+              MaterialApp(
+                home: Scaffold(
+                  body: Stack(
+                    children: [
+                      AnimatedDraggableItem(
+                        child: givenChild,
+                        enableAnimation: true,
+                        enableLongPress: true,
+                        entry: givenEntry,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        throwsAssertionError);
+  });
+
+  testWidgets(
       'GIVEN enableAnimation = false, enableLongPress = false and entry '
       'WHEN pumping [AnimatedDraggableItem] '
       'THEN should show expected widgets, have expected values and should not '
@@ -30,6 +60,7 @@ void main() {
           body: Stack(
             children: [
               AnimatedDraggableItem(
+                key: const Key('key'),
                 child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
@@ -88,6 +119,7 @@ void main() {
           body: Stack(
             children: [
               AnimatedDraggableItem(
+                key: const Key('key'),
                 child: givenChild,
                 enableAnimation: givenEnableAnimation,
                 enableLongPress: givenEnableLongPress,
@@ -152,6 +184,7 @@ void main() {
             child: Stack(
               children: [
                 AnimatedDraggableItem(
+                  key: const Key('key'),
                   child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,
@@ -218,6 +251,7 @@ void main() {
             child: Stack(
               children: [
                 AnimatedDraggableItem(
+                  key: const Key('key'),
                   child: givenChild,
                   enableAnimation: givenEnableAnimation,
                   enableLongPress: givenEnableLongPress,

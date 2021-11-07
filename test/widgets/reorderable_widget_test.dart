@@ -307,10 +307,10 @@ void main() {
       (WidgetTester tester) async {
     // given
     const givenChildren = <Widget>[
-      Text('hallo1'),
-      Text('hallo2'),
-      Text('hallo3'),
-      Text('hallo4'),
+      Text('hallo1', key: Key('0')),
+      Text('hallo2', key: Key('1')),
+      Text('hallo3', key: Key('2')),
+      Text('hallo4', key: Key('3')),
     ];
     const givenRunSpacing = 20.0;
     const givenSpacing = 24.0;
@@ -377,10 +377,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     late int actualOldIndex;
@@ -438,10 +438,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     List<int> actualOldIndexList = <int>[];
@@ -508,10 +508,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     List<int> actualOldIndexList = <int>[];
@@ -579,10 +579,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     List<int> actualOldIndexList = <int>[];
@@ -643,10 +643,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     List<int> actualOldIndexList = <int>[];
@@ -715,10 +715,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     List<int> actualOldIndexList = <int>[];
@@ -839,10 +839,10 @@ void main() {
     const givenText4 = 'hallo4';
 
     const givenChildren = <Widget>[
-      Text(givenText1),
-      Text(givenText2),
-      Text(givenText3),
-      Text(givenText4),
+      Text(givenText1, key: Key('1')),
+      Text(givenText2, key: Key('2')),
+      Text(givenText3, key: Key('3')),
+      Text(givenText4, key: Key('4')),
     ];
 
     await tester.pumpWidget(
@@ -916,7 +916,7 @@ class _TestAddOrUpdateChildWidgetState
             child: const Text('update child'),
           ),
           Reorderable(
-            children: children.map((e) => Text(e)).toList(),
+            children: children.map((e) => Text(e, key: Key(e))).toList(),
             reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (_, __) {},
