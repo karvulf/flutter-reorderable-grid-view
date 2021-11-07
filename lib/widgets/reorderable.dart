@@ -198,6 +198,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           hasBuiltItems = false;
           if (widget.children.isEmpty) {
             _removedChildrenMap = _childrenIdMap;
+            _removedChildren = List<Widget>.from(_childrenCopy);
             _childrenIdMap = {};
           }
         });
@@ -448,7 +449,9 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           (entry) => entry.value.orderId == orderId,
         );
         if (!_removedChildrenMap.containsKey(entry.key)) {
-          _removedChildrenMap[entry.key] = entry.value;
+          _removedChildrenMap[entry.key] = entry.value.copyWith(
+            orderId: _removedChildrenMap.length,
+          );
           _removedChildren.add(child);
         }
       }

@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final lockedChildren = <int>[];
+  final lockedChildren = <int>[2, 4];
 
   int keyCounter = 0;
   List<int> children = <int>[];
@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeAt(0);
+                              children = children..removeLast();
                             });
                           }
                         },
