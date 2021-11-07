@@ -201,6 +201,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           _childrenOrderIdMapProxy = {};
           hasBuiltItems = false;
           if (widget.children.isEmpty) {
+            _removedChildrenMap = _childrenIdMap;
             _childrenIdMap = {};
             _childrenOrderIdMap = {};
           }
@@ -263,9 +264,11 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             width: _wrapSize.width,
             clipBehavior: widget.clipBehavior,
             childrenIdMap: _removedChildrenMap,
-            removeWithAnimation: true,
+            willBeRemoved: true,
             onRemoveItem: (int key) {
-              _removedChildrenMap.remove(key);
+              setState(() {
+                _removedChildrenMap.remove(key);
+              });
             },
           ),
         ),

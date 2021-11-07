@@ -133,8 +133,8 @@ class _MyAppState extends State<MyApp> {
         // uncomment key to disable animation when item size changes
         key: Key(children[index].toString()),
         color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
-        height: 100,
-        width: 100,
+        height: 100.0,
+        width: 100.0,
         child: Center(
           child: Text(
             'test ${children[index]}',

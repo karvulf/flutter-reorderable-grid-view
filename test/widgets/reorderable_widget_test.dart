@@ -873,15 +873,75 @@ void main() {
     expect(find.text(givenText3), findsOneWidget);
     expect(find.text(givenText4), findsOneWidget);
   });
+
+  testWidgets(
+      'GIVEN [Reorderable] with one child '
+      'WHEN tapping remove child button '
+      'THEN should not show removed child [Reorderable]',
+      (WidgetTester tester) async {
+    // given
+    const givenText = 'remove me';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: _TestAddOrUpdateChildWidget(
+          startValue: givenText,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    await tester.tap(find.text('remove child'));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenText), findsNothing);
+  });
+
+  testWidgets(
+      'GIVEN [Reorderable] with three children '
+      'WHEN tapping remove child button '
+      'THEN should remove first child of [Reorderable]',
+      (WidgetTester tester) async {
+    // given
+    const givenStartValue = 'remove me';
+    const givenNewText = 'let me';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: _TestAddOrUpdateChildWidget(
+          startValue: givenStartValue,
+          newText: givenNewText,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('add child'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('add child'));
+    await tester.pumpAndSettle();
+
+    // when
+    await tester.tap(find.text('remove child'));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenStartValue), findsNothing);
+    expect(find.text(givenNewText), findsNWidgets(2));
+  });
 }
 
 class _TestAddOrUpdateChildWidget extends StatefulWidget {
   final String? newText;
   final String? updatedText;
+  final String startValue;
 
   const _TestAddOrUpdateChildWidget({
     this.newText,
     this.updatedText,
+    this.startValue = 'Test',
     Key? key,
   }) : super(key: key);
 
@@ -892,7 +952,13 @@ class _TestAddOrUpdateChildWidget extends StatefulWidget {
 
 class _TestAddOrUpdateChildWidgetState
     extends State<_TestAddOrUpdateChildWidget> {
-  List<String> children = <String>['test'];
+  late List<String> children;
+
+  @override
+  void initState() {
+    children = <String>[widget.startValue];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -915,8 +981,22 @@ class _TestAddOrUpdateChildWidgetState
             },
             child: const Text('update child'),
           ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                children.removeAt(0);
+              });
+            },
+            child: const Text('remove child'),
+          ),
           Reorderable(
-            children: children.map((e) => Text(e, key: Key(e))).toList(),
+            children: List.generate(
+              children.length,
+              (index) => Text(
+                children[index],
+                key: Key(index.toString()),
+              ),
+            ),
             reorderableType: ReorderableType.wrap,
             enableLongPress: false,
             onReorder: (_, __) {},
