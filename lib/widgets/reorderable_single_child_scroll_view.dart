@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 
@@ -12,13 +12,12 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
   final double height;
   final double width;
   final Clip clipBehavior;
-  final Map<int, GridItemEntity> childrenIdMap;
+  final ReorderableEntity reorderableEntity;
   final bool enableAnimation;
   final bool enableLongPress;
   final Duration longPressDelay;
   final List<int> lockedChildren;
   final bool willBeRemoved;
-  final List<Widget> children;
 
   final ScrollPhysics? physics;
   final OnDragUpdateFunction? onDragUpdate;
@@ -27,11 +26,10 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
   final Key? sizedBoxKey;
 
   const ReorderableSingleChildScrollView({
-    required this.children,
+    required this.reorderableEntity,
     required this.height,
     required this.width,
     required this.clipBehavior,
-    required this.childrenIdMap,
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
@@ -46,6 +44,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final children = reorderableEntity.children;
     return SingleChildScrollView(
       physics: physics,
       child: SizedBox(
@@ -54,7 +53,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
         width: width,
         child: Stack(
           clipBehavior: clipBehavior,
-          children: childrenIdMap.entries
+          children: reorderableEntity.idMap.entries
               .map(
                 (e) => AnimatedDraggableItem(
                   key: children[e.value.orderId].key,
