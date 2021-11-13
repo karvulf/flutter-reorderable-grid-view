@@ -146,22 +146,21 @@ class Reorderable extends StatefulWidget
 }
 
 class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
-  var _reorderableEntity = ReorderableEntity(children: [], idMap: {});
-  var _removedReorderableEntity = ReorderableEntity(children: [], idMap: {});
-  var _proxyReorderableEntity = ReorderableEntity(children: [], idMap: {});
+  var _reorderableEntity = ReorderableEntity.create();
+  final _removedReorderableEntity = ReorderableEntity.create();
+  var _proxyReorderableEntity = ReorderableEntity.create();
 
   /// Bool to know if all children were build and updated.
   bool hasBuiltItems = false;
 
-  /// Key of the [Wrap] that was used to build the widget
-  final _wrapKey = GlobalKey();
+  /// Key of the [Wrap] or [GridView] that was used to build the widget
+  final _reorderableKey = GlobalKey();
 
+  /// Important for detecting the correct position of the dragged child inside Content
   final _reorderableContentKey = GlobalKey();
 
   /// Size of the [Wrap] that was used to build the widget
   Size _wrapSize = Size.zero;
-
-  Size removedWrapSize = Size.zero;
 
   @override
   void initState() {
@@ -190,18 +189,13 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           _proxyReorderableEntity = _proxyReorderableEntity.copyWith(idMap: {});
           hasBuiltItems = false;
           if (widget.children.isEmpty) {
-            _removedReorderableEntity = _removedReorderableEntity.copyWith(
-              children: List<Widget>.from(_reorderableEntity.children),
-              idMap: _reorderableEntity.idMap,
-            );
-            _reorderableEntity = _reorderableEntity.copyWith(idMap: {});
+            _updateRemovedChildren();
+            _reorderableEntity.clear();
           }
         });
       } else {
         setState(() {
-          _reorderableEntity = _reorderableEntity.copyWith(
-            children: List<Widget>.from(widget.children),
-          );
+          _reorderableEntity.children = List<Widget>.from(widget.children);
         });
       }
     }
@@ -248,14 +242,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             width: _wrapSize.width,
             clipBehavior: widget.clipBehavior,
             willBeRemoved: true,
-            onRemoveItem: (int id, Key key) {
-              setState(() {
-                _removedReorderableEntity.idMap.remove(id);
-                _removedReorderableEntity.children.removeWhere(
-                  (child) => child.key == key,
-                );
-              });
-            },
+            onRemoveItem: _handleRemoveItem,
           ),
         ),
         Builder(
@@ -283,7 +270,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 case ReorderableType.wrap:
                   return SingleChildScrollView(
                     child: Wrap(
-                      key: _wrapKey,
+                      key: _reorderableKey,
                       spacing: widget.spacing,
                       runSpacing: widget.runSpacing,
                       children: generatedChildren,
@@ -292,7 +279,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 case ReorderableType.gridView:
                   return SingleChildScrollView(
                       child: GridView(
-                    key: _wrapKey,
+                    key: _reorderableKey,
                     shrinkWrap: true,
                     padding: widget.padding,
                     gridDelegate: widget.gridDelegate,
@@ -302,7 +289,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 case ReorderableType.gridViewCount:
                   return SingleChildScrollView(
                     child: GridView.count(
-                      key: _wrapKey,
+                      key: _reorderableKey,
                       shrinkWrap: true,
                       crossAxisCount: widget.crossAxisCount!,
                       mainAxisSpacing: widget.mainAxisSpacing,
@@ -314,7 +301,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                 case ReorderableType.gridViewExtent:
                   return SingleChildScrollView(
                     child: GridView.extent(
-                      key: _wrapKey,
+                      key: _reorderableKey,
                       shrinkWrap: true,
                       maxCrossAxisExtent: widget.maxCrossAxisExtent,
                       clipBehavior: widget.clipBehavior,
@@ -337,7 +324,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
 
   /// Looking for the current size of the [Wrap] and updates it.
   void _updateWrapSize() {
-    final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+    final wrapBox =
+        _reorderableKey.currentContext!.findRenderObject()! as RenderBox;
     _wrapSize = wrapBox.size;
   }
 
@@ -363,7 +351,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null) {
-      final wrapBox = _wrapKey.currentContext!.findRenderObject()! as RenderBox;
+      final wrapBox =
+          _reorderableKey.currentContext!.findRenderObject()! as RenderBox;
       final _wrapPosition = wrapBox.localToGlobal(Offset.zero);
 
       final box = renderObject as RenderBox;
@@ -413,7 +402,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           // that means that at least one child were removed
           if (_proxyReorderableEntity.idMap.length <
               _reorderableEntity.idMap.length) {
-            updateRemovedChildren();
+            _updateRemovedChildren();
           }
           _updateWrapSize();
 
@@ -434,7 +423,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   /// Compares [_childrenIdMapProxy] that represents all new children and
   /// [_childrenIdMap] that represents the children before the update. When one
   /// child in [_childrenIdMapProxy] wasn't found, then that means it was removed.
-  void updateRemovedChildren() {
+  void _updateRemovedChildren() {
     for (int orderId = 0;
         orderId < _reorderableEntity.children.length;
         orderId++) {
@@ -459,10 +448,28 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         }
       }
     }
+  }
 
+  /// Called after item was removed with animation
+  ///
+  /// Updates all children that have a bigger orderId to make sure that
+  /// there is no access to a child that is outside children list when the
+  /// child was removed.
+  void _handleRemoveItem(int id, Key key) {
+    final idMap = _removedReorderableEntity.idMap;
+    final entry = idMap[id]!;
+    for (int i = entry.orderId + 1; i < idMap.length; i++) {
+      for (final entry in idMap.entries) {
+        if (entry.value.orderId == i) {
+          idMap[entry.key] = entry.value.copyWith(orderId: i - 1);
+        }
+      }
+    }
     setState(() {
-      _removedReorderableEntity = _removedReorderableEntity;
-      removedWrapSize = _wrapSize;
+      idMap.remove(id);
+      _removedReorderableEntity.children.removeWhere(
+        (child) => child.key == key,
+      );
     });
   }
 

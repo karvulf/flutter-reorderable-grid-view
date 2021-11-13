@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
                       ContainerButton(
                         onTap: () {
                           setState(() {
-                            children = children..add(keyCounter++);
+                            children = children..add(children.length);
                           });
                         },
                         color: Colors.green,

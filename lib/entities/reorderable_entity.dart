@@ -2,13 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 
 class ReorderableEntity {
-  final List<Widget> children;
-  final Map<int, GridItemEntity> idMap;
+  List<Widget> children;
+  Map<int, GridItemEntity> idMap;
 
+  // don't use const to ensure that map and list is modifiable
   ReorderableEntity({
     required this.children,
     required this.idMap,
   });
+
+  factory ReorderableEntity.create() => ReorderableEntity(
+        children: [],
+        idMap: {},
+      );
 
   ReorderableEntity copyWith({
     List<Widget>? children,
@@ -22,5 +28,9 @@ class ReorderableEntity {
   void clear() {
     children.clear();
     idMap.clear();
+  }
+
+  void addEntry(MapEntry<int, GridItemEntity> entry) {
+    idMap[entry.key] = entry.value;
   }
 }
