@@ -60,6 +60,7 @@ void main() {
       const givenLongPressDelay = Duration(days: 100);
       const givenPadding = EdgeInsets.all(20);
       const givenClip = Clip.antiAlias;
+      const givenPhysics = NeverScrollableScrollPhysics();
 
       // when
       await tester.pumpWidget(
@@ -72,6 +73,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             enableAnimation: givenEnableAnimation,
             longPressDelay: givenLongPressDelay,
+            physics: givenPhysics,
             padding: givenPadding,
             clipBehavior: givenClip,
           ),
@@ -91,6 +93,7 @@ void main() {
                 longPressDelay: givenLongPressDelay,
                 padding: givenPadding,
                 clipBehavior: givenClip,
+                physics: givenPhysics,
               )),
           findsOneWidget);
     });
@@ -146,6 +149,7 @@ void main() {
       const givenLockedChildren = [10, 20];
       const givenPadding = EdgeInsets.all(30);
       const givenClipBehavior = Clip.antiAliasWithSaveLayer;
+      const givenPhysics = NeverScrollableScrollPhysics();
 
       // when
       await tester.pumpWidget(
@@ -161,6 +165,7 @@ void main() {
             lockedChildren: givenLockedChildren,
             padding: givenPadding,
             clipBehavior: givenClipBehavior,
+            physics: givenPhysics,
           ),
         ),
       );
@@ -179,6 +184,7 @@ void main() {
                 children: givenChildren,
                 clipBehavior: givenClipBehavior,
                 padding: givenPadding,
+                physics: givenPhysics,
               )),
           findsOneWidget);
     });
@@ -232,7 +238,7 @@ void main() {
       const givenEnableLongPress = false;
       const givenLongPressDelay = Duration(days: 100);
       const givenLockedChildren = [10, 20];
-      const givenPhysics = AlwaysScrollableScrollPhysics();
+      const givenPhysics = NeverScrollableScrollPhysics();
       const givenCrossAxisSpacing = 10.0;
       const givenMaxCrossAxisExtent = 100.0;
       const givenClipBehavior = Clip.none;
@@ -301,7 +307,7 @@ bool hasReorderableExpectedValues(
   Clip clipBehavior = Clip.none,
   double childAspectRatio = 1.0,
   int? crossAxisCount,
-  ScrollPhysics? physics,
+  ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
   EdgeInsetsGeometry? padding,
 }) {
   return widget is Reorderable &&
