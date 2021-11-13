@@ -439,9 +439,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         final entry = _reorderableEntity.idMap.entries.firstWhere(
           (entry) => entry.value.orderId == orderId,
         );
-        if (!_removedReorderableEntity.idMap.containsKey(entry.key)) {
-          _removedReorderableEntity.idMap[entry.key] = entry.value.copyWith(
-            orderId: _removedReorderableEntity.idMap.length,
+        final removeIdMap = _removedReorderableEntity.idMap;
+        if (!removeIdMap.containsKey(entry.key)) {
+          removeIdMap[entry.key] = entry.value.copyWith(
+            orderId: removeIdMap.length,
           );
           _removedReorderableEntity.children.add(child);
         }

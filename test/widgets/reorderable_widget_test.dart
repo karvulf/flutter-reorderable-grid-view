@@ -975,6 +975,35 @@ void main() {
 
   testWidgets(
       'GIVEN [Reorderable] with three children '
+      'WHEN tapping remove child button two times '
+      'THEN should not remove both children', (WidgetTester tester) async {
+    // given
+    const givenText1 = 'remove me 1';
+    const givenText2 = 'remove me 2';
+    const givenText3 = 'remove me not 3';
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: _TestAddOrUpdateChildWidget(
+          children: [givenText1, givenText2, givenText3],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // when
+    await tester.tap(find.text('remove first child'));
+    await tester.tap(find.text('remove first child'));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.text(givenText1), findsNothing);
+    expect(find.text(givenText2), findsNothing);
+    expect(find.text(givenText3), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN [Reorderable] with three children '
       'WHEN tapping remove first child button '
       'THEN should remove first child of [Reorderable]',
       (WidgetTester tester) async {
