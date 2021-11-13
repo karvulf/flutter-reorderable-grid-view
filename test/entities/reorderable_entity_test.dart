@@ -30,6 +30,8 @@ void main() {
     final givenReorderableEntity = ReorderableEntity.create();
     final givenIdMap = {
       0: builder.getGridItemEntity(),
+      1: builder.getGridItemEntity(),
+      2: builder.getGridItemEntity(),
     };
     final givenChildren = [Container()];
 
