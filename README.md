@@ -50,6 +50,7 @@ class HomePage extends StatelessWidget {
       20,
           (index) =>
           Container(
+            key: Key(index.toString()),
             color: Colors.blue,
             height: 100,
             width: 100,
