@@ -22,7 +22,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
       crossAxisCount: 3,
     ),
     this.childAspectRatio = 1.0,
-    this.physics,
+    this.physics = const AlwaysScrollableScrollPhysics(),
     this.crossAxisCount,
     this.padding,
     Key? key,

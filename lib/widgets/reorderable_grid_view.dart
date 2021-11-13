@@ -16,6 +16,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     Duration longPressDelay = kLongPressTimeout,
     Clip clipBehavior = Clip.none,
     EdgeInsetsGeometry? padding,
+    ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
     Key? key,
   }) : super(
           key: key,
@@ -29,6 +30,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           longPressDelay: longPressDelay,
           clipBehavior: clipBehavior,
           padding: padding,
+          physics: physics,
         );
 
   const ReorderableGridView.count({
@@ -42,6 +44,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     double mainAxisSpacing = 0.0,
     EdgeInsetsGeometry? padding,
     Clip clipBehavior = Clip.none,
+    ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
     Key? key,
   }) : super(
           key: key,
@@ -56,6 +59,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           mainAxisSpacing: mainAxisSpacing,
           padding: padding,
           clipBehavior: clipBehavior,
+          physics: physics,
         );
 
   const ReorderableGridView.extent({
@@ -70,7 +74,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     Clip clipBehavior = Clip.none,
     double crossAxisSpacing = 0.0,
     double childAspectRatio = 1.0,
-    ScrollPhysics? physics,
+    ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
     EdgeInsetsGeometry? padding,
     Key? key,
   }) : super(
