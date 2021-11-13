@@ -47,6 +47,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     final children = reorderableEntity.children;
     return SingleChildScrollView(
       physics: physics,
+      clipBehavior: clipBehavior,
       child: SizedBox(
         key: sizedBoxKey,
         height: height,
