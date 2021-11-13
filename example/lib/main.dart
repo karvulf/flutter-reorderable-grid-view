@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final lockedChildren = <int>[2, 4];
+  final lockedChildren = <int>[2, 4, 5];
 
   int keyCounter = 0;
   List<int> children = <int>[];
@@ -161,6 +161,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
+          lockedChildren: lockedChildren,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 4,
@@ -173,6 +174,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewCount:
         return ReorderableGridView.count(
           key: const Key('gridViewCount'),
+          lockedChildren: lockedChildren,
           onReorder: _handleReorder,
           mainAxisSpacing: 12,
           crossAxisCount: 12,
@@ -181,6 +183,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewExtent:
         return ReorderableGridView.extent(
           key: const Key('gridViewExtent'),
+          lockedChildren: lockedChildren,
           onReorder: _handleReorder,
           maxCrossAxisExtent: 150,
           mainAxisSpacing: 12,

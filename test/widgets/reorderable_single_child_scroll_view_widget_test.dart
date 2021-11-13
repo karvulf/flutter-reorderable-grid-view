@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_single_child_scroll_view.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,11 @@ void main() {
     Container(key: const Key('key3')),
   ];
 
+  final givenReorderableEntity = ReorderableEntity(
+    children: givenChildren,
+    idMap: givenChildrenIdMap,
+  );
+
   testWidgets(
       'GIVEN height, width and childrenIdMap '
       'WHEN pumping [ReorderableSingleChildScrollView] '
@@ -35,11 +41,10 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ReorderableSingleChildScrollView(
-            children: givenChildren,
+            reorderableEntity: givenReorderableEntity,
             height: givenHeight,
             width: givenWidth,
             clipBehavior: givenClipBehavior,
-            childrenIdMap: givenChildrenIdMap,
           ),
         ),
       ),

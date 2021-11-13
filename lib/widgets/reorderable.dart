@@ -364,9 +364,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         position.dy - _wrapPosition.dy,
       );
 
+      final proxyIdMap = _proxyReorderableEntity.idMap;
       // in this case id is equal to orderId and _childrenOrderIdMap must be used
       MapEntry<int, GridItemEntity>? existingEntry;
-      for (final entry in _proxyReorderableEntity.idMap.entries) {
+      for (final entry in proxyIdMap.entries) {
         if (entry.value.orderId == orderId) {
           existingEntry = entry;
           break;
@@ -379,11 +380,10 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           localPosition: localPosition,
           size: size,
         );
-        _proxyReorderableEntity.idMap[existingEntry.key] =
-            updatedGridItemEntity;
+        proxyIdMap[existingEntry.key] = updatedGridItemEntity;
 
         // finished building all entries
-        if (orderId == _proxyReorderableEntity.idMap.entries.length - 1) {
+        if (orderId == proxyIdMap.entries.length - 1) {
           _updateWrapSize();
           setState(() {
             hasBuiltItems = true;
@@ -395,13 +395,12 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           size: size,
           orderId: orderId,
         );
-        _proxyReorderableEntity.idMap[orderId] = gridItemEntity;
+        proxyIdMap[orderId] = gridItemEntity;
 
         // checking if all widgets were built in proxy map
-        if (_proxyReorderableEntity.idMap.length == widget.children.length) {
+        if (proxyIdMap.length == widget.children.length) {
           // that means that at least one child were removed
-          if (_proxyReorderableEntity.idMap.length <
-              _reorderableEntity.idMap.length) {
+          if (proxyIdMap.length < _reorderableEntity.idMap.length) {
             _updateRemovedChildren();
           }
           _updateWrapSize();
@@ -410,7 +409,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
             hasBuiltItems = true;
             _reorderableEntity = _reorderableEntity.copyWith(
               children: List<Widget>.from(widget.children),
-              idMap: _proxyReorderableEntity.idMap,
+              idMap: proxyIdMap,
             );
           });
         }
