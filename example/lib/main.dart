@@ -14,8 +14,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final lockedChildren = <int>[];
+  final lockedChildren = <int>[2, 4, 5];
 
+  int keyCounter = 0;
   List<int> children = <int>[];
   ReorderableType reorderableType = ReorderableType.wrap;
 
@@ -61,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeLast();
+                              children = children..removeAt(6);
                             });
                           }
                         },
@@ -129,9 +130,10 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
+        key: Key(children[index].toString()),
         color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
-        height: 100,
-        width: 100,
+        height: 100.0,
+        width: 100.0,
         child: Center(
           child: Text(
             'test ${children[index]}',
@@ -158,6 +160,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
+          lockedChildren: lockedChildren,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 4,
@@ -170,6 +173,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewCount:
         return ReorderableGridView.count(
           key: const Key('gridViewCount'),
+          lockedChildren: lockedChildren,
           onReorder: _handleReorder,
           mainAxisSpacing: 12,
           crossAxisCount: 12,
@@ -178,6 +182,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewExtent:
         return ReorderableGridView.extent(
           key: const Key('gridViewExtent'),
+          lockedChildren: lockedChildren,
           onReorder: _handleReorder,
           maxCrossAxisExtent: 150,
           mainAxisSpacing: 12,

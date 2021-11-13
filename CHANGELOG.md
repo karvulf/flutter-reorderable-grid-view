@@ -1,7 +1,17 @@
+## 1.1.0
+
+* Added animation for the following cases:
+    * Item was added to children
+    * Item was removed from children
+    * all children are animated when an item is added or removed
+* From now, you have to add a unique key for every child in your list, see more on the example app
+
 ## 1.0.2
+
 * fixed scrolling e. g. for `RefreshIndicator`
 
 ## 1.0.1
+
 * fixed ClipBehavior
 
 ## 1.0.0
