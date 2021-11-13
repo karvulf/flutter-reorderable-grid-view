@@ -1,3 +1,6 @@
+## 1.0.2
+* fixed scrolling e. g. for `RefreshIndicator`
+
 ## 1.0.1
 * fixed ClipBehavior
 
