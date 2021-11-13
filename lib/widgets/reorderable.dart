@@ -237,6 +237,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         if (hasBuiltItems && childrenCopy.length == _childrenIdMap.length) {
           return SingleChildScrollView(
             physics: widget.physics,
+            clipBehavior: widget.clipBehavior,
             child: SizedBox(
               key: _copyReorderableKey,
               height: _wrapSize.height,
@@ -271,14 +272,15 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               );
             case ReorderableType.gridView:
               return SingleChildScrollView(
-                  child: GridView(
-                key: _wrapKey,
-                shrinkWrap: true,
-                padding: widget.padding,
-                gridDelegate: widget.gridDelegate,
-                children: generatedChildren,
-                clipBehavior: widget.clipBehavior,
-              ));
+                child: GridView(
+                  key: _wrapKey,
+                  shrinkWrap: true,
+                  padding: widget.padding,
+                  gridDelegate: widget.gridDelegate,
+                  children: generatedChildren,
+                  clipBehavior: widget.clipBehavior,
+                ),
+              );
             case ReorderableType.gridViewCount:
               return SingleChildScrollView(
                 child: GridView.count(
