@@ -1,4 +1,4 @@
-## 1.1.0
+## 1.1.1
 * Some Readme changes
 * fixed clipBehavior while scrolling (clipBehavior is now Clip.hardEdge)
 
