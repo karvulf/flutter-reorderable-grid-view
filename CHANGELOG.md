@@ -1,4 +1,8 @@
 ## 1.1.0
+* Some Readme changes
+* fixed clipBehavior while scrolling (clipBehavior is now Clip.hardEdge)
+
+## 1.1.0
 
 * Added animation for the following cases:
     * Item was added to children
