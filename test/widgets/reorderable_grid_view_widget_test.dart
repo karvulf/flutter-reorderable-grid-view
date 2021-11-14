@@ -304,7 +304,7 @@ bool hasReorderableExpectedValues(
   double mainAxisSpacing = 0.0,
   double crossAxisSpacing = 0.0,
   double maxCrossAxisExtent = 0.0,
-  Clip clipBehavior = Clip.none,
+  Clip clipBehavior = Clip.hardEdge,
   double childAspectRatio = 1.0,
   int? crossAxisCount,
   ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),

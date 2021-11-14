@@ -29,7 +29,6 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     required this.reorderableEntity,
     required this.height,
     required this.width,
-    required this.clipBehavior,
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
@@ -38,6 +37,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     this.willBeRemoved = false,
     this.onRemoveItem,
     this.physics,
+    this.clipBehavior = Clip.hardEdge,
     this.sizedBoxKey,
     Key? key,
   }) : super(key: key);
