@@ -59,7 +59,7 @@ class Reorderable extends StatefulWidget
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0.0,
-    this.clipBehavior = Clip.none,
+    this.clipBehavior = Clip.hardEdge,
     this.maxCrossAxisExtent = 0.0,
     this.crossAxisSpacing = 0.0,
     this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
@@ -220,6 +220,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      fit: StackFit.passthrough,
       children: [
         ReorderableSingleChildScrollView(
           reorderableEntity: _reorderableEntity,
@@ -273,6 +274,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                       key: _reorderableKey,
                       spacing: widget.spacing,
                       runSpacing: widget.runSpacing,
+                      clipBehavior: widget.clipBehavior,
                       children: generatedChildren,
                     ),
                   );
@@ -283,8 +285,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                     shrinkWrap: true,
                     padding: widget.padding,
                     gridDelegate: widget.gridDelegate,
-                    children: generatedChildren,
                     clipBehavior: widget.clipBehavior,
+                    children: generatedChildren,
                   ));
                 case ReorderableType.gridViewCount:
                   return SingleChildScrollView(
@@ -294,8 +296,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                       crossAxisCount: widget.crossAxisCount!,
                       mainAxisSpacing: widget.mainAxisSpacing,
                       children: generatedChildren,
-                      padding: widget.padding,
                       clipBehavior: widget.clipBehavior,
+                      padding: widget.padding,
                     ),
                   );
                 case ReorderableType.gridViewExtent:
@@ -304,11 +306,11 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                       key: _reorderableKey,
                       shrinkWrap: true,
                       maxCrossAxisExtent: widget.maxCrossAxisExtent,
-                      clipBehavior: widget.clipBehavior,
                       mainAxisSpacing: widget.mainAxisSpacing,
                       crossAxisSpacing: widget.crossAxisSpacing,
                       children: generatedChildren,
                       padding: widget.padding,
+                      clipBehavior: widget.clipBehavior,
                       childAspectRatio: widget.childAspectRatio,
                     ),
                   );
