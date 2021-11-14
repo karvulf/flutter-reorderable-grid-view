@@ -118,9 +118,9 @@ More information about the parameters of `GridView` and `Wrap` are on the flutte
 
 Currently, I didn't implement all types of GridView.
 
-Also there is an animation when removing or adding items but currently you can decide your preferred animation.
+Also there is an animation when removing or adding items but currently you cannot decide your preferred animation.
 
-And the code could be more readable and less complex, so in the future I might refacotring the code a bit more.
+And the code could be more readable and less complex, so in the future I might refactor the code a bit more.
 
 If you have feature **requests** or found some **issues**, feel free and open your issues in the GitHub project.
 
