@@ -69,8 +69,13 @@ class _DraggableItemState extends State<DraggableItem>
   void initState() {
     super.initState();
 
+    final beginDragBoxDecoration = widget.dragBoxDecoration?.copyWith(
+      color: Colors.transparent,
+      boxShadow: [],
+    );
+
     decorationTween = DecorationTween(
-      begin: const BoxDecoration(),
+      begin: beginDragBoxDecoration ?? const BoxDecoration(),
       end: widget.dragBoxDecoration ?? _defaultBoxDecoration,
     );
 
