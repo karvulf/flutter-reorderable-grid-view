@@ -35,6 +35,7 @@ void main() {
     const givenHeight = 200.0;
     const givenWidth = 200.0;
     const givenClipBehavior = Clip.none;
+    const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
 
     // when
     await tester.pumpWidget(
@@ -45,6 +46,7 @@ void main() {
             height: givenHeight,
             width: givenWidth,
             clipBehavior: givenClipBehavior,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
           ),
         ),
       ),
@@ -52,7 +54,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(find.byType(AnimatedDraggableItem),
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is AnimatedDraggableItem &&
+            widget.dragBoxDecoration == givenDragChildBoxDecoration),
         findsNWidgets(givenChildrenIdMap.length));
     expect(
         find.byWidgetPredicate((widget) =>

@@ -59,12 +59,15 @@ void main() {
             widget.crossAxisCount == null &&
             widget.maxCrossAxisExtent == 0.0 &&
             widget.mainAxisSpacing == 0 &&
-            widget.crossAxisSpacing == 0.0),
+            widget.crossAxisSpacing == 0.0 &&
+            widget.dragChildBoxDecoration == null),
         findsOneWidget);
 
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is DraggableItem && widget.enableLongPress),
+        find.byWidgetPredicate((widget) =>
+            widget is DraggableItem &&
+            widget.enableLongPress &&
+            widget.dragBoxDecoration == null),
         findsNWidgets(givenChildren.length));
 
     expect(
@@ -250,6 +253,7 @@ void main() {
     const givenSpacing = 24.0;
     const givenLongPressDelay = Duration(days: 10);
     const givenLockedChildren = [0, 1];
+    const givenDragChildBoxDecoration = BoxDecoration(color: Colors.blue);
 
     // when
     await tester.pumpWidget(
@@ -264,6 +268,7 @@ void main() {
             spacing: givenSpacing,
             longPressDelay: givenLongPressDelay,
             lockedChildren: givenLockedChildren,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
             onReorder: (_, __) {},
           ),
         ),
@@ -277,8 +282,10 @@ void main() {
     expect(find.byWidget(givenChildren[3]), findsOneWidget);
 
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is DraggableItem && !widget.enableLongPress),
+        find.byWidgetPredicate((widget) =>
+            widget is DraggableItem &&
+            !widget.enableLongPress &&
+            widget.dragBoxDecoration == null),
         findsNWidgets(givenChildren.length));
 
     expect(
@@ -318,6 +325,7 @@ void main() {
     ];
     const givenRunSpacing = 20.0;
     const givenSpacing = 24.0;
+    const givenDragChildBoxDecoration = BoxDecoration(color: Colors.blue);
 
     // when
     await tester.pumpWidget(
@@ -330,6 +338,7 @@ void main() {
             enableAnimation: false,
             runSpacing: givenRunSpacing,
             spacing: givenSpacing,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
             onReorder: (_, __) {},
           ),
         ),
@@ -344,10 +353,13 @@ void main() {
     expect(find.byWidget(givenChildren[3]), findsOneWidget);
 
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is AnimatedDraggableItem &&
-            !widget.enableLongPress &&
-            !widget.enableAnimation),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AnimatedDraggableItem &&
+              !widget.enableLongPress &&
+              !widget.enableAnimation &&
+              widget.dragBoxDecoration == givenDragChildBoxDecoration,
+        ),
         findsNWidgets(givenChildren.length));
     expect(
         find.byWidgetPredicate((widget) =>

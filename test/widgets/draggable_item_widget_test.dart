@@ -37,39 +37,6 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN enableLongPress = true, item and id '
-      'WHEN pumping [DraggableItem] '
-      'THEN should have expected widgets', (WidgetTester tester) async {
-    // given
-    const givenEnableLongPress = true;
-    const givenChild = UniqueTestWidget();
-    const givenOrderId = 0;
-
-    // when
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: DraggableItem(
-            enableLongPress: givenEnableLongPress,
-            child: givenChild,
-            orderId: givenOrderId,
-            onCreated: (_, __, ___, ____) {},
-            onDragUpdate: (_, __, ___) {},
-          ),
-        ),
-      ),
-    );
-
-    // then
-    expect(find.byWidgetPredicate((widget) => widget is Draggable<String>),
-        findsNothing);
-    expect(
-        find.byWidgetPredicate((widget) =>
-            widget is LongPressDraggable && widget.delay == kLongPressTimeout),
-        findsOneWidget);
-  });
-
-  testWidgets(
       'GIVEN enableLongPress = true, longPressDelay, item and id '
       'WHEN pumping [DraggableItem] '
       'THEN should have expected widgets', (WidgetTester tester) async {
@@ -78,6 +45,9 @@ void main() {
     const givenOrderId = 0;
     const givenLongPressDelay = Duration(days: 100);
     const givenChild = UniqueTestWidget();
+    const givenDragBoxDecoration = BoxDecoration(
+      shape: BoxShape.rectangle,
+    );
 
     // when
     await tester.pumpWidget(
@@ -87,6 +57,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             child: givenChild,
             orderId: givenOrderId,
+            dragBoxDecoration: givenDragBoxDecoration,
             onCreated: (_, __, ___, ____) {},
             onDragUpdate: (_, __, ___) {},
             longPressDelay: givenLongPressDelay,
@@ -106,7 +77,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN enable = false, item and id '
+      'GIVEN enabled = false, item and id '
       'WHEN pumping [DraggableItem] '
       'THEN should have no Draggable widget and just given item',
       (WidgetTester tester) async {

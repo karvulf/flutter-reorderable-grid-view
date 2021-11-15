@@ -17,6 +17,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     Clip clipBehavior = Clip.hardEdge,
     EdgeInsetsGeometry? padding,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -31,6 +32,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           clipBehavior: clipBehavior,
           padding: padding,
           physics: physics,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   const ReorderableGridView.count({
@@ -45,6 +47,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     EdgeInsetsGeometry? padding,
     Clip clipBehavior = Clip.hardEdge,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -60,6 +63,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           padding: padding,
           clipBehavior: clipBehavior,
           physics: physics,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   const ReorderableGridView.extent({
@@ -76,6 +80,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     double childAspectRatio = 1.0,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
     EdgeInsetsGeometry? padding,
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -93,6 +98,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           crossAxisSpacing: crossAxisSpacing,
           childAspectRatio: childAspectRatio,
           padding: padding,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   @override
@@ -114,6 +120,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       gridDelegate: gridDelegate,
       padding: padding,
       childAspectRatio: childAspectRatio,
+      dragChildBoxDecoration: dragChildBoxDecoration,
     );
   }
 }

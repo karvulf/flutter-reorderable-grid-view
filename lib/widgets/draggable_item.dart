@@ -23,6 +23,7 @@ class DraggableItem extends StatefulWidget {
   final Duration longPressDelay;
   final bool enabled;
 
+  final BoxDecoration? dragBoxDecoration;
   final OnCreatedFunction? onCreated;
   final OnDragUpdateFunction? onDragUpdate;
 
@@ -32,6 +33,7 @@ class DraggableItem extends StatefulWidget {
     required this.enableLongPress,
     this.longPressDelay = kLongPressTimeout,
     this.enabled = true,
+    this.dragBoxDecoration,
     this.onCreated,
     this.onDragUpdate,
     Key? key,
@@ -43,32 +45,40 @@ class DraggableItem extends StatefulWidget {
 
 class _DraggableItemState extends State<DraggableItem>
     with TickerProviderStateMixin {
+  late final DecorationTween _decorationTween;
+  late final AnimationController _controller;
+
   final _globalKey = GlobalKey();
   final _dragKey = GlobalKey();
-
-  final DecorationTween decorationTween = DecorationTween(
-    begin: const BoxDecoration(),
-    end: BoxDecoration(
-      boxShadow: <BoxShadow>[
-        BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          spreadRadius: 5,
-          blurRadius: 6,
-          offset: const Offset(0, 3), // changes position of shadow
-        ),
-      ],
-      // No shadow.
-    ),
-  );
-
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 250),
+  final _defaultBoxDecoration = BoxDecoration(
+    boxShadow: <BoxShadow>[
+      BoxShadow(
+        color: Colors.black.withOpacity(0.2),
+        spreadRadius: 5,
+        blurRadius: 6,
+        offset: const Offset(0, 3), // changes position of shadow
+      ),
+    ],
   );
 
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    final beginDragBoxDecoration = widget.dragBoxDecoration?.copyWith(
+      color: Colors.transparent,
+      boxShadow: [],
+    );
+
+    _decorationTween = DecorationTween(
+      begin: beginDragBoxDecoration ?? const BoxDecoration(),
+      end: widget.dragBoxDecoration ?? _defaultBoxDecoration,
+    );
 
     // called only one time
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -91,9 +101,10 @@ class _DraggableItemState extends State<DraggableItem>
 
     final feedback = Material(
       key: _dragKey,
+      color: Colors.transparent,
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
-        decoration: decorationTween.animate(_controller),
+        decoration: _decorationTween.animate(_controller),
         child: widget.child,
       ),
     );

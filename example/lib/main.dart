@@ -131,7 +131,9 @@ class _MyAppState extends State<MyApp> {
       children.length,
       (index) => Container(
         key: Key(children[index].toString()),
-        color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
+        decoration: BoxDecoration(
+          color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
+        ),
         height: 100.0,
         width: 100.0,
         child: Center(

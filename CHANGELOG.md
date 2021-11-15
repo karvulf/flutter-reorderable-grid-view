@@ -1,7 +1,13 @@
+## 1.1.3
+
+* BoxDecoration added for dragged child
+
 ## 1.1.2
+
 * AnimationController disposing
 
 ## 1.1.1
+
 * Some Readme changes
 * fixed clipBehavior while scrolling (clipBehavior is now Clip.hardEdge)
 

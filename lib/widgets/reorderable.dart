@@ -69,6 +69,7 @@ class Reorderable extends StatefulWidget
     this.crossAxisCount,
     this.physics,
     this.padding,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -140,6 +141,9 @@ class Reorderable extends StatefulWidget
 
   @override
   final ReorderableType reorderableType;
+
+  @override
+  final BoxDecoration? dragChildBoxDecoration;
 
   @override
   State<Reorderable> createState() => _ReorderableState();
@@ -233,6 +237,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
           enableLongPress: widget.enableLongPress,
           longPressDelay: widget.longPressDelay,
           lockedChildren: widget.lockedChildren,
+          dragChildBoxDecoration: widget.dragChildBoxDecoration,
           onDragUpdate: _handleDragUpdate,
         ),
         IgnorePointer(

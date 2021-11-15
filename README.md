@@ -112,6 +112,7 @@ More information about the parameters of `GridView` and `Wrap` are on the flutte
 | `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
+| `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. | **-** |
 | `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **-** |
 
 ## Future Plans

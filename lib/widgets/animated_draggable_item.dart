@@ -21,6 +21,7 @@ class AnimatedDraggableItem extends StatefulWidget {
 
   final bool willBeRemoved;
 
+  final BoxDecoration? dragBoxDecoration;
   final OnDragUpdateFunction? onDragUpdate;
   final Function(int id, Key key)? onRemoveItem;
 
@@ -32,6 +33,7 @@ class AnimatedDraggableItem extends StatefulWidget {
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
     this.willBeRemoved = false,
+    this.dragBoxDecoration,
     this.onDragUpdate,
     this.onRemoveItem,
     Key? key,
@@ -45,18 +47,18 @@ class AnimatedDraggableItem extends StatefulWidget {
 
 class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
     with SingleTickerProviderStateMixin {
-  late Animation<double> animation;
-  late AnimationController controller;
+  late Animation<double> _animation;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    controller = AnimationController(
+    _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     if (widget.willBeRemoved) {
-      animation = Tween<double>(begin: 1, end: 0).animate(controller)
+      _animation = Tween<double>(begin: 1, end: 0).animate(_controller)
         ..addStatusListener(
           (state) {
             if (state == AnimationStatus.completed) {
@@ -65,14 +67,14 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
           },
         );
     } else {
-      animation = Tween<double>(begin: 0, end: 1).animate(controller);
+      _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
     }
-    controller.forward();
+    _controller.forward();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -83,6 +85,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       enableLongPress: widget.enableLongPress,
       onDragUpdate: widget.onDragUpdate,
       longPressDelay: widget.longPressDelay,
+      dragBoxDecoration: widget.dragBoxDecoration,
       enabled: widget.enabled,
       child: SizedBox(
         height: widget.entry.value.size.height,
@@ -111,7 +114,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
           opacity: Tween<double>(
             begin: 0,
             end: 1,
-          ).animate(animation),
+          ).animate(_animation),
           child: draggableItem,
         ),
       );
