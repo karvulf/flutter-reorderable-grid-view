@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeAt(6);
+                              children = children..removeLast();
                             });
                           }
                         },

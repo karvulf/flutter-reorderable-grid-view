@@ -72,6 +72,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
 
   @override
   void dispose() {
+    controller.dispose();
     super.dispose();
   }
 
