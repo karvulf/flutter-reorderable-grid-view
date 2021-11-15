@@ -88,14 +88,17 @@ void main() {
             widget.height == givenEntry.value.size.height),
         findsOneWidget);
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is DraggableItem &&
-            widget.child is SizedBox &&
-            (widget.child as SizedBox).child == givenChild &&
-            widget.enableLongPress == givenEnableLongPress &&
-            widget.orderId == givenEntry.value.orderId &&
-            widget.longPressDelay == kLongPressTimeout &&
-            widget.enabled),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DraggableItem &&
+              widget.child is SizedBox &&
+              (widget.child as SizedBox).child == givenChild &&
+              widget.enableLongPress == givenEnableLongPress &&
+              widget.orderId == givenEntry.value.orderId &&
+              widget.longPressDelay == kLongPressTimeout &&
+              widget.enabled &&
+              widget.dragBoxDecoration == null,
+        ),
         findsOneWidget);
     expect(expectedKey, isNull);
     expect(expectedId, isNull);
@@ -103,7 +106,7 @@ void main() {
 
   testWidgets(
       'GIVEN enableAnimation = true, enableLongPress = true, enabled = false, '
-      'and entry '
+      'boxDecoration and entry '
       'WHEN pumping [AnimatedDraggableItem] '
       'THEN should show expected widgets and have expected values',
       (WidgetTester tester) async {
@@ -114,6 +117,10 @@ void main() {
     const givenLongPressDelay = Duration(seconds: 100);
     const givenChild = UniqueTestWidget();
     final givenEntry = MapEntry(0, builder.getGridItemEntity());
+    const givenDragBoxDecoration = BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.red,
+    );
 
     // when
     await tester.pumpWidget(
@@ -129,6 +136,7 @@ void main() {
                 entry: givenEntry,
                 enabled: givenEnabled,
                 longPressDelay: givenLongPressDelay,
+                dragBoxDecoration: givenDragBoxDecoration,
               ),
             ],
           ),
@@ -154,7 +162,8 @@ void main() {
             widget.enableLongPress == givenEnableLongPress &&
             widget.orderId == givenEntry.value.orderId &&
             widget.longPressDelay == givenLongPressDelay &&
-            !widget.enabled),
+            !widget.enabled &&
+            widget.dragBoxDecoration == givenDragBoxDecoration),
         findsOneWidget);
   });
 

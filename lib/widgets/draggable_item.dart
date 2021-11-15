@@ -45,6 +45,9 @@ class DraggableItem extends StatefulWidget {
 
 class _DraggableItemState extends State<DraggableItem>
     with TickerProviderStateMixin {
+  late final DecorationTween _decorationTween;
+  late final AnimationController _controller;
+
   final _globalKey = GlobalKey();
   final _dragKey = GlobalKey();
   final _defaultBoxDecoration = BoxDecoration(
@@ -58,23 +61,21 @@ class _DraggableItemState extends State<DraggableItem>
     ],
   );
 
-  late final DecorationTween decorationTween;
-
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 250),
-  );
-
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
 
     final beginDragBoxDecoration = widget.dragBoxDecoration?.copyWith(
       color: Colors.transparent,
       boxShadow: [],
     );
 
-    decorationTween = DecorationTween(
+    _decorationTween = DecorationTween(
       begin: beginDragBoxDecoration ?? const BoxDecoration(),
       end: widget.dragBoxDecoration ?? _defaultBoxDecoration,
     );
@@ -103,7 +104,7 @@ class _DraggableItemState extends State<DraggableItem>
       color: Colors.transparent,
       child: DecoratedBoxTransition(
         position: DecorationPosition.background,
-        decoration: decorationTween.animate(_controller),
+        decoration: _decorationTween.animate(_controller),
         child: widget.child,
       ),
     );

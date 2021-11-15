@@ -61,6 +61,7 @@ void main() {
       const givenPadding = EdgeInsets.all(20);
       const givenClip = Clip.antiAlias;
       const givenPhysics = NeverScrollableScrollPhysics();
+      const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
 
       // when
       await tester.pumpWidget(
@@ -76,6 +77,7 @@ void main() {
             physics: givenPhysics,
             padding: givenPadding,
             clipBehavior: givenClip,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
           ),
         ),
       );
@@ -94,6 +96,7 @@ void main() {
                 padding: givenPadding,
                 clipBehavior: givenClip,
                 physics: givenPhysics,
+                dragChildBoxDecoration: givenDragChildBoxDecoration,
               )),
           findsOneWidget);
     });
@@ -150,6 +153,7 @@ void main() {
       const givenPadding = EdgeInsets.all(30);
       const givenClipBehavior = Clip.antiAliasWithSaveLayer;
       const givenPhysics = NeverScrollableScrollPhysics();
+      const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
 
       // when
       await tester.pumpWidget(
@@ -166,6 +170,7 @@ void main() {
             padding: givenPadding,
             clipBehavior: givenClipBehavior,
             physics: givenPhysics,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
           ),
         ),
       );
@@ -185,6 +190,7 @@ void main() {
                 clipBehavior: givenClipBehavior,
                 padding: givenPadding,
                 physics: givenPhysics,
+                dragChildBoxDecoration: givenDragChildBoxDecoration,
               )),
           findsOneWidget);
     });
@@ -244,6 +250,7 @@ void main() {
       const givenClipBehavior = Clip.none;
       const givenChildAspectRatio = 2.5;
       const givenPadding = EdgeInsets.only(top: 20);
+      const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
 
       // when
       await tester.pumpWidget(
@@ -262,6 +269,7 @@ void main() {
             clipBehavior: givenClipBehavior,
             childAspectRatio: givenChildAspectRatio,
             padding: givenPadding,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
           ),
         ),
       );
@@ -283,6 +291,7 @@ void main() {
                 mainAxisSpacing: givenMainAxisSpacing,
                 padding: givenPadding,
                 childAspectRatio: givenChildAspectRatio,
+                dragChildBoxDecoration: givenDragChildBoxDecoration,
               )),
           findsOneWidget);
     });
@@ -309,6 +318,7 @@ bool hasReorderableExpectedValues(
   int? crossAxisCount,
   ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
   EdgeInsetsGeometry? padding,
+  BoxDecoration? dragChildBoxDecoration,
 }) {
   return widget is Reorderable &&
       widget.reorderableType == reorderableType &&
@@ -324,5 +334,6 @@ bool hasReorderableExpectedValues(
       widget.clipBehavior == clipBehavior &&
       widget.mainAxisSpacing == mainAxisSpacing &&
       widget.padding == padding &&
-      widget.childAspectRatio == childAspectRatio;
+      widget.childAspectRatio == childAspectRatio &&
+      widget.dragChildBoxDecoration == dragChildBoxDecoration;
 }

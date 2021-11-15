@@ -133,7 +133,6 @@ class _MyAppState extends State<MyApp> {
         key: Key(children[index].toString()),
         decoration: BoxDecoration(
           color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
-          shape: BoxShape.circle,
         ),
         height: 100.0,
         width: 100.0,
@@ -159,16 +158,6 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           physics: const AlwaysScrollableScrollPhysics(),
           children: generatedChildren,
-          dragChildBoxDecoration: BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.red.withOpacity(0.2),
-                spreadRadius: 5,
-                blurRadius: 6,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
-          ),
         );
       case ReorderableType.gridView:
         return ReorderableGridView(

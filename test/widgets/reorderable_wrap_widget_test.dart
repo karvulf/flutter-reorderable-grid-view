@@ -60,6 +60,7 @@ void main() {
     const givenRunSpacing = 10.0;
     const givenLockedChildren = [10, 20];
     const givenSpacing = 100.0;
+    const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
 
     // when
     await tester.pumpWidget(
@@ -74,21 +75,25 @@ void main() {
           runSpacing: givenRunSpacing,
           lockedChildren: givenLockedChildren,
           spacing: givenSpacing,
+          dragChildBoxDecoration: givenDragChildBoxDecoration,
         ),
       ),
     );
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is Reorderable &&
-            widget.physics == givenPhysics &&
-            widget.lockedChildren == givenLockedChildren &&
-            widget.longPressDelay == givenLongPressDelay &&
-            widget.enableLongPress == givenEnableLongPress &&
-            widget.enableAnimation == givenEnableAnimation &&
-            widget.spacing == givenSpacing &&
-            widget.runSpacing == givenRunSpacing),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Reorderable &&
+              widget.physics == givenPhysics &&
+              widget.lockedChildren == givenLockedChildren &&
+              widget.longPressDelay == givenLongPressDelay &&
+              widget.enableLongPress == givenEnableLongPress &&
+              widget.enableAnimation == givenEnableAnimation &&
+              widget.spacing == givenSpacing &&
+              widget.runSpacing == givenRunSpacing &&
+              widget.dragChildBoxDecoration == givenDragChildBoxDecoration,
+        ),
         findsOneWidget);
   });
 }
