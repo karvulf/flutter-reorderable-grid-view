@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
 
@@ -34,6 +34,9 @@ class ReorderableWrap extends StatelessWidget
   @override
   final ScrollPhysics? physics;
 
+  @override
+  final List<BoxShadow>? dragBoxShadow;
+
   const ReorderableWrap({
     required this.children,
     required this.onReorder,
@@ -43,6 +46,7 @@ class ReorderableWrap extends StatelessWidget
     this.enableAnimation = true,
     this.spacing = 8,
     this.runSpacing = 8,
+    this.dragBoxShadow,
     this.physics,
     Key? key,
   }) : super(key: key);
@@ -60,6 +64,7 @@ class ReorderableWrap extends StatelessWidget
       lockedChildren: lockedChildren,
       longPressDelay: longPressDelay,
       physics: physics,
+      dragBoxShadow: dragBoxShadow,
     );
   }
 }
