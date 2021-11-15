@@ -17,7 +17,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     Clip clipBehavior = Clip.hardEdge,
     EdgeInsetsGeometry? padding,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
-    List<BoxShadow>? dragBoxShadow,
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -32,7 +32,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           clipBehavior: clipBehavior,
           padding: padding,
           physics: physics,
-          dragBoxShadow: dragBoxShadow,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   const ReorderableGridView.count({
@@ -47,7 +47,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     EdgeInsetsGeometry? padding,
     Clip clipBehavior = Clip.hardEdge,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
-    List<BoxShadow>? dragBoxShadow,
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -63,7 +63,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           padding: padding,
           clipBehavior: clipBehavior,
           physics: physics,
-          dragBoxShadow: dragBoxShadow,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   const ReorderableGridView.extent({
@@ -80,7 +80,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     double childAspectRatio = 1.0,
     ScrollPhysics physics = const AlwaysScrollableScrollPhysics(),
     EdgeInsetsGeometry? padding,
-    List<BoxShadow>? dragBoxShadow,
+    BoxDecoration? dragChildBoxDecoration,
     Key? key,
   }) : super(
           key: key,
@@ -98,7 +98,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           crossAxisSpacing: crossAxisSpacing,
           childAspectRatio: childAspectRatio,
           padding: padding,
-          dragBoxShadow: dragBoxShadow,
+          dragChildBoxDecoration: dragChildBoxDecoration,
         );
 
   @override
@@ -120,7 +120,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       gridDelegate: gridDelegate,
       padding: padding,
       childAspectRatio: childAspectRatio,
-      dragBoxShadow: dragBoxShadow,
+      dragChildBoxDecoration: dragChildBoxDecoration,
     );
   }
 }

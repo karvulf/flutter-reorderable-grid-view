@@ -23,7 +23,7 @@ class DraggableItem extends StatefulWidget {
   final Duration longPressDelay;
   final bool enabled;
 
-  final List<BoxShadow>? dragBoxShadow;
+  final BoxDecoration? dragBoxDecoration;
   final OnCreatedFunction? onCreated;
   final OnDragUpdateFunction? onDragUpdate;
 
@@ -33,7 +33,7 @@ class DraggableItem extends StatefulWidget {
     required this.enableLongPress,
     this.longPressDelay = kLongPressTimeout,
     this.enabled = true,
-    this.dragBoxShadow,
+    this.dragBoxDecoration,
     this.onCreated,
     this.onDragUpdate,
     Key? key,
@@ -47,14 +47,16 @@ class _DraggableItemState extends State<DraggableItem>
     with TickerProviderStateMixin {
   final _globalKey = GlobalKey();
   final _dragKey = GlobalKey();
-  final _defaultDragBoxShadow = <BoxShadow>[
-    BoxShadow(
-      color: Colors.black.withOpacity(0.2),
-      spreadRadius: 5,
-      blurRadius: 6,
-      offset: const Offset(0, 3), // changes position of shadow
-    ),
-  ];
+  final _defaultBoxDecoration = BoxDecoration(
+    boxShadow: <BoxShadow>[
+      BoxShadow(
+        color: Colors.black.withOpacity(0.2),
+        spreadRadius: 5,
+        blurRadius: 6,
+        offset: const Offset(0, 3), // changes position of shadow
+      ),
+    ],
+  );
 
   late final DecorationTween decorationTween;
 
@@ -69,10 +71,7 @@ class _DraggableItemState extends State<DraggableItem>
 
     decorationTween = DecorationTween(
       begin: const BoxDecoration(),
-      end: BoxDecoration(
-        boxShadow: widget.dragBoxShadow ?? _defaultDragBoxShadow,
-        // No shadow.
-      ),
+      end: widget.dragBoxDecoration ?? _defaultBoxDecoration,
     );
 
     // called only one time

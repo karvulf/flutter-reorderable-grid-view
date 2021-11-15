@@ -21,7 +21,7 @@ class AnimatedDraggableItem extends StatefulWidget {
 
   final bool willBeRemoved;
 
-  final List<BoxShadow>? boxShadow;
+  final BoxDecoration? dragBoxDecoration;
   final OnDragUpdateFunction? onDragUpdate;
   final Function(int id, Key key)? onRemoveItem;
 
@@ -33,7 +33,7 @@ class AnimatedDraggableItem extends StatefulWidget {
     this.enabled = true,
     this.longPressDelay = kLongPressTimeout,
     this.willBeRemoved = false,
-    this.boxShadow,
+    this.dragBoxDecoration,
     this.onDragUpdate,
     this.onRemoveItem,
     Key? key,
@@ -85,7 +85,7 @@ class _AnimatedDraggableItemState extends State<AnimatedDraggableItem>
       enableLongPress: widget.enableLongPress,
       onDragUpdate: widget.onDragUpdate,
       longPressDelay: widget.longPressDelay,
-      dragBoxShadow: widget.boxShadow,
+      dragBoxDecoration: widget.dragBoxDecoration,
       enabled: widget.enabled,
       child: SizedBox(
         height: widget.entry.value.size.height,

@@ -19,7 +19,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
   final List<int> lockedChildren;
   final bool willBeRemoved;
 
-  final List<BoxShadow>? dragBoxShadow;
+  final BoxDecoration? dragChildBoxDecoration;
   final ScrollPhysics? physics;
   final OnDragUpdateFunction? onDragUpdate;
   final Function(int id, Key key)? onRemoveItem;
@@ -40,7 +40,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
     this.physics,
     this.clipBehavior = Clip.hardEdge,
     this.sizedBoxKey,
-    this.dragBoxShadow,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -69,7 +69,7 @@ class ReorderableSingleChildScrollView extends StatelessWidget {
                   enabled: !lockedChildren.contains(e.key),
                   onRemoveItem: onRemoveItem,
                   child: children[e.value.orderId],
-                  boxShadow: dragBoxShadow,
+                  dragBoxDecoration: dragChildBoxDecoration,
                 ),
               )
               .toList(),

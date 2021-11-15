@@ -25,7 +25,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.physics = const AlwaysScrollableScrollPhysics(),
     this.crossAxisCount,
     this.padding,
-    this.dragBoxShadow,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -78,7 +78,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
   final double childAspectRatio;
 
   @override
-  final List<BoxShadow>? dragBoxShadow;
+  final BoxDecoration? dragChildBoxDecoration;
 
   @override
   Widget build(BuildContext context);

@@ -20,20 +20,23 @@ abstract class ReorderableParameters {
 
   final ScrollPhysics? physics = null;
 
-  /// Define a custom shadow when dragging the child.
+  /// Define a custom [BoxDecoration] when dragging the child.
   ///
-  /// Default shadow:
+  /// Default [BoxDecoration]
+  ///
   /// ```dart
-  /// <BoxShadow>[
-  ///     BoxShadow(
-  ///       color: Colors.black.withOpacity(0.2),
-  ///       spreadRadius: 5,
-  ///       blurRadius: 6,
-  ///       offset: const Offset(0, 3), // changes position of shadow
-  ///     ),
-  ///   ]
+  /// BoxDecoration(
+  ///     boxShadow: <BoxShadow>[
+  ///       BoxShadow(
+  ///         color: Colors.black.withOpacity(0.2),
+  ///         spreadRadius: 5,
+  ///         blurRadius: 6,
+  ///         offset: const Offset(0, 3), // changes position of shadow
+  ///       ),
+  ///     ],
+  ///   )
   /// ```
-  final List<BoxShadow>? dragBoxShadow = null;
+  final BoxDecoration? dragChildBoxDecoration = null;
 
   /// Every a child changes his position, this function is called.
   ///

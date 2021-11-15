@@ -35,7 +35,7 @@ class ReorderableWrap extends StatelessWidget
   final ScrollPhysics? physics;
 
   @override
-  final List<BoxShadow>? dragBoxShadow;
+  final BoxDecoration? dragChildBoxDecoration;
 
   const ReorderableWrap({
     required this.children,
@@ -46,7 +46,7 @@ class ReorderableWrap extends StatelessWidget
     this.enableAnimation = true,
     this.spacing = 8,
     this.runSpacing = 8,
-    this.dragBoxShadow,
+    this.dragChildBoxDecoration,
     this.physics,
     Key? key,
   }) : super(key: key);
@@ -64,7 +64,7 @@ class ReorderableWrap extends StatelessWidget
       lockedChildren: lockedChildren,
       longPressDelay: longPressDelay,
       physics: physics,
-      dragBoxShadow: dragBoxShadow,
+      dragChildBoxDecoration: dragChildBoxDecoration,
     );
   }
 }

@@ -159,14 +159,16 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           physics: const AlwaysScrollableScrollPhysics(),
           children: generatedChildren,
-          dragBoxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 5,
-              blurRadius: 6,
-              offset: const Offset(0, 3), // changes position of shadow
-            ),
-          ],
+          dragChildBoxDecoration: BoxDecoration(
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.red.withOpacity(0.2),
+                spreadRadius: 5,
+                blurRadius: 6,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
         );
       case ReorderableType.gridView:
         return ReorderableGridView(
