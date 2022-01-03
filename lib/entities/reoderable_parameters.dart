@@ -48,4 +48,6 @@ abstract class ReorderableParameters {
   ///
   /// See more on the example.
   final void Function(int oldIndex, int newIndex)? onReorder = null;
+
+  final bool enableReorder = true;
 }

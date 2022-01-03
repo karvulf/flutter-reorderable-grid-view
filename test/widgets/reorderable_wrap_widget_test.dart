@@ -35,7 +35,8 @@ void main() {
             widget.enableLongPress &&
             widget.enableAnimation &&
             widget.spacing == 8 &&
-            widget.runSpacing == 8),
+            widget.runSpacing == 8 &&
+            widget.enableReorder),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -61,6 +62,7 @@ void main() {
     const givenLockedChildren = [10, 20];
     const givenSpacing = 100.0;
     const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
+    const givenEnableReorder = false;
 
     // when
     await tester.pumpWidget(
@@ -76,6 +78,7 @@ void main() {
           lockedChildren: givenLockedChildren,
           spacing: givenSpacing,
           dragChildBoxDecoration: givenDragChildBoxDecoration,
+          enableReorder: givenEnableReorder,
         ),
       ),
     );
@@ -92,7 +95,8 @@ void main() {
               widget.enableAnimation == givenEnableAnimation &&
               widget.spacing == givenSpacing &&
               widget.runSpacing == givenRunSpacing &&
-              widget.dragChildBoxDecoration == givenDragChildBoxDecoration,
+              widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
+              widget.enableReorder == givenEnableReorder,
         ),
         findsOneWidget);
   });

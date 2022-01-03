@@ -13,6 +13,7 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
     this.lockedChildren = const [],
     this.enableAnimation = true,
     this.enableLongPress = true,
+    this.enableReorder = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0.0,
     this.clipBehavior = Clip.hardEdge,
@@ -79,6 +80,9 @@ abstract class ReorderableGridViewLayout extends StatelessWidget
 
   @override
   final BoxDecoration? dragChildBoxDecoration;
+
+  @override
+  final bool enableReorder;
 
   @override
   Widget build(BuildContext context);

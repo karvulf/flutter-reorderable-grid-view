@@ -62,6 +62,7 @@ void main() {
       const givenClip = Clip.antiAlias;
       const givenPhysics = NeverScrollableScrollPhysics();
       const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
+      const givenEnableReorder = false;
 
       // when
       await tester.pumpWidget(
@@ -78,6 +79,7 @@ void main() {
             padding: givenPadding,
             clipBehavior: givenClip,
             dragChildBoxDecoration: givenDragChildBoxDecoration,
+            enableReorder: givenEnableReorder,
           ),
         ),
       );
@@ -97,6 +99,7 @@ void main() {
                 clipBehavior: givenClip,
                 physics: givenPhysics,
                 dragChildBoxDecoration: givenDragChildBoxDecoration,
+                enableReorder: givenEnableReorder,
               )),
           findsOneWidget);
     });
@@ -154,6 +157,7 @@ void main() {
       const givenClipBehavior = Clip.antiAliasWithSaveLayer;
       const givenPhysics = NeverScrollableScrollPhysics();
       const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
+      const givenEnableReorder = false;
 
       // when
       await tester.pumpWidget(
@@ -171,6 +175,7 @@ void main() {
             clipBehavior: givenClipBehavior,
             physics: givenPhysics,
             dragChildBoxDecoration: givenDragChildBoxDecoration,
+            enableReorder: givenEnableReorder,
           ),
         ),
       );
@@ -178,20 +183,20 @@ void main() {
       // then
       expect(
           find.byWidgetPredicate((widget) => hasReorderableExpectedValues(
-                widget,
-                reorderableType: ReorderableType.gridViewCount,
-                crossAxisCount: givenCrossAxisCount,
-                lockedChildren: givenLockedChildren,
-                longPressDelay: givenLongPressDelay,
-                enableAnimation: givenEnableAnimation,
-                enableLongPress: givenEnableLongPress,
-                mainAxisSpacing: givenMainAxisSpacing,
-                children: givenChildren,
-                clipBehavior: givenClipBehavior,
-                padding: givenPadding,
-                physics: givenPhysics,
-                dragChildBoxDecoration: givenDragChildBoxDecoration,
-              )),
+              widget,
+              reorderableType: ReorderableType.gridViewCount,
+              crossAxisCount: givenCrossAxisCount,
+              lockedChildren: givenLockedChildren,
+              longPressDelay: givenLongPressDelay,
+              enableAnimation: givenEnableAnimation,
+              enableLongPress: givenEnableLongPress,
+              mainAxisSpacing: givenMainAxisSpacing,
+              children: givenChildren,
+              clipBehavior: givenClipBehavior,
+              padding: givenPadding,
+              physics: givenPhysics,
+              dragChildBoxDecoration: givenDragChildBoxDecoration,
+              enableReorder: givenEnableReorder)),
           findsOneWidget);
     });
   });
@@ -251,6 +256,7 @@ void main() {
       const givenChildAspectRatio = 2.5;
       const givenPadding = EdgeInsets.only(top: 20);
       const givenDragChildBoxDecoration = BoxDecoration(color: Colors.orange);
+      const givenEnableReorder = false;
 
       // when
       await tester.pumpWidget(
@@ -270,6 +276,7 @@ void main() {
             childAspectRatio: givenChildAspectRatio,
             padding: givenPadding,
             dragChildBoxDecoration: givenDragChildBoxDecoration,
+            enableReorder: givenEnableReorder,
           ),
         ),
       );
@@ -292,6 +299,7 @@ void main() {
                 padding: givenPadding,
                 childAspectRatio: givenChildAspectRatio,
                 dragChildBoxDecoration: givenDragChildBoxDecoration,
+                enableReorder: givenEnableReorder,
               )),
           findsOneWidget);
     });
@@ -306,6 +314,7 @@ bool hasReorderableExpectedValues(
   Duration longPressDelay = kLongPressTimeout,
   bool enableLongPress = true,
   bool enableAnimation = true,
+  bool enableReorder = true,
   SliverGridDelegate gridDelegate =
       const SliverGridDelegateWithFixedCrossAxisCount(
     crossAxisCount: 3,
@@ -335,5 +344,6 @@ bool hasReorderableExpectedValues(
       widget.mainAxisSpacing == mainAxisSpacing &&
       widget.padding == padding &&
       widget.childAspectRatio == childAspectRatio &&
-      widget.dragChildBoxDecoration == dragChildBoxDecoration;
+      widget.dragChildBoxDecoration == dragChildBoxDecoration &&
+      widget.enableReorder == enableReorder;
 }

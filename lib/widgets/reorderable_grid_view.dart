@@ -13,6 +13,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
+    bool enableReorder = true,
     Duration longPressDelay = kLongPressTimeout,
     Clip clipBehavior = Clip.hardEdge,
     EdgeInsetsGeometry? padding,
@@ -33,6 +34,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           padding: padding,
           physics: physics,
           dragChildBoxDecoration: dragChildBoxDecoration,
+          enableReorder: enableReorder,
         );
 
   const ReorderableGridView.count({
@@ -42,6 +44,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
+    bool enableReorder = true,
     Duration longPressDelay = kLongPressTimeout,
     double mainAxisSpacing = 0.0,
     EdgeInsetsGeometry? padding,
@@ -64,6 +67,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           clipBehavior: clipBehavior,
           physics: physics,
           dragChildBoxDecoration: dragChildBoxDecoration,
+          enableReorder: enableReorder,
         );
 
   const ReorderableGridView.extent({
@@ -73,6 +77,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
     List<int> lockedChildren = const [],
     bool enableAnimation = true,
     bool enableLongPress = true,
+    bool enableReorder = true,
     Duration longPressDelay = kLongPressTimeout,
     double mainAxisSpacing = 0.0,
     Clip clipBehavior = Clip.hardEdge,
@@ -99,6 +104,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
           childAspectRatio: childAspectRatio,
           padding: padding,
           dragChildBoxDecoration: dragChildBoxDecoration,
+          enableReorder: enableReorder,
         );
 
   @override
@@ -121,6 +127,7 @@ class ReorderableGridView extends ReorderableGridViewLayout {
       padding: padding,
       childAspectRatio: childAspectRatio,
       dragChildBoxDecoration: dragChildBoxDecoration,
+      enableReorder: enableReorder,
     );
   }
 }

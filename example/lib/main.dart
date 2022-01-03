@@ -158,6 +158,7 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           physics: const AlwaysScrollableScrollPhysics(),
           children: generatedChildren,
+          enableReorder: false,
         );
       case ReorderableType.gridView:
         return ReorderableGridView(
