@@ -230,33 +230,48 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     return Stack(
       fit: StackFit.passthrough,
       children: [
-        ReorderableSingleChildScrollView(
-          reorderableEntity: _reorderableEntity,
-          sizedBoxKey: _reorderableContentKey,
-          physics: widget.physics,
-          height: _wrapSize.height,
-          width: _wrapSize.width,
-          clipBehavior: widget.clipBehavior,
-          enableAnimation: widget.enableAnimation,
-          enableLongPress: widget.enableLongPress,
-          longPressDelay: widget.longPressDelay,
-          lockedChildren: widget.lockedChildren,
-          dragChildBoxDecoration: widget.dragChildBoxDecoration,
-          onDragUpdate: _handleDragUpdate,
-        ),
-        IgnorePointer(
-          ignoring: true,
-          child: ReorderableSingleChildScrollView(
-            reorderableEntity: _removedReorderableEntity,
+        if (widget.enableReorder)
+          ReorderableSingleChildScrollView(
+            reorderableEntity: _reorderableEntity,
+            sizedBoxKey: _reorderableContentKey,
+            physics: widget.physics,
             height: _wrapSize.height,
             width: _wrapSize.width,
             clipBehavior: widget.clipBehavior,
-            willBeRemoved: true,
-            onRemoveItem: _handleRemoveItem,
+            enableAnimation: widget.enableAnimation,
+            enableLongPress: widget.enableLongPress,
+            longPressDelay: widget.longPressDelay,
+            lockedChildren: widget.lockedChildren,
+            dragChildBoxDecoration: widget.dragChildBoxDecoration,
+            onDragUpdate: _handleDragUpdate,
           ),
-        ),
+        if (widget.enableReorder)
+          IgnorePointer(
+            ignoring: true,
+            child: ReorderableSingleChildScrollView(
+              reorderableEntity: _removedReorderableEntity,
+              height: _wrapSize.height,
+              width: _wrapSize.width,
+              clipBehavior: widget.clipBehavior,
+              willBeRemoved: true,
+              onRemoveItem: _handleRemoveItem,
+            ),
+          ),
         Builder(
           builder: (context) {
+            if (!widget.enableReorder) {
+              final generatedChildren = List.generate(
+                widget.children.length,
+                (index) => DraggableItem(
+                  child: widget.children[index],
+                  enableLongPress: widget.enableLongPress,
+                  orderId: index,
+                  longPressDelay: widget.longPressDelay,
+                  enabled: false,
+                ),
+              );
+              return _getReorderableWidget(children: generatedChildren);
+            }
             // after all children are added to animatedChildren
             if (!hasBuiltItems) {
               final generatedChildren = List.generate(
@@ -276,54 +291,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                   ),
                 ),
               );
-              switch (widget.reorderableType) {
-                case ReorderableType.wrap:
-                  return SingleChildScrollView(
-                    child: Wrap(
-                      key: _reorderableKey,
-                      spacing: widget.spacing,
-                      runSpacing: widget.runSpacing,
-                      clipBehavior: widget.clipBehavior,
-                      children: generatedChildren,
-                    ),
-                  );
-                case ReorderableType.gridView:
-                  return SingleChildScrollView(
-                      child: GridView(
-                    key: _reorderableKey,
-                    shrinkWrap: true,
-                    padding: widget.padding,
-                    gridDelegate: widget.gridDelegate,
-                    clipBehavior: widget.clipBehavior,
-                    children: generatedChildren,
-                  ));
-                case ReorderableType.gridViewCount:
-                  return SingleChildScrollView(
-                    child: GridView.count(
-                      key: _reorderableKey,
-                      shrinkWrap: true,
-                      crossAxisCount: widget.crossAxisCount!,
-                      mainAxisSpacing: widget.mainAxisSpacing,
-                      children: generatedChildren,
-                      clipBehavior: widget.clipBehavior,
-                      padding: widget.padding,
-                    ),
-                  );
-                case ReorderableType.gridViewExtent:
-                  return SingleChildScrollView(
-                    child: GridView.extent(
-                      key: _reorderableKey,
-                      shrinkWrap: true,
-                      maxCrossAxisExtent: widget.maxCrossAxisExtent,
-                      mainAxisSpacing: widget.mainAxisSpacing,
-                      crossAxisSpacing: widget.crossAxisSpacing,
-                      children: generatedChildren,
-                      padding: widget.padding,
-                      clipBehavior: widget.clipBehavior,
-                      childAspectRatio: widget.childAspectRatio,
-                    ),
-                  );
-              }
+              return _getReorderableWidget(children: generatedChildren);
             } else {
               return const SingleChildScrollView();
             }
@@ -331,6 +299,57 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
         ),
       ],
     );
+  }
+
+  Widget _getReorderableWidget({required List<Widget> children}) {
+    switch (widget.reorderableType) {
+      case ReorderableType.wrap:
+        return SingleChildScrollView(
+          child: Wrap(
+            key: _reorderableKey,
+            spacing: widget.spacing,
+            runSpacing: widget.runSpacing,
+            clipBehavior: widget.clipBehavior,
+            children: children,
+          ),
+        );
+      case ReorderableType.gridView:
+        return SingleChildScrollView(
+            child: GridView(
+          key: _reorderableKey,
+          shrinkWrap: true,
+          padding: widget.padding,
+          gridDelegate: widget.gridDelegate,
+          clipBehavior: widget.clipBehavior,
+          children: children,
+        ));
+      case ReorderableType.gridViewCount:
+        return SingleChildScrollView(
+          child: GridView.count(
+            key: _reorderableKey,
+            shrinkWrap: true,
+            crossAxisCount: widget.crossAxisCount!,
+            mainAxisSpacing: widget.mainAxisSpacing,
+            children: children,
+            clipBehavior: widget.clipBehavior,
+            padding: widget.padding,
+          ),
+        );
+      case ReorderableType.gridViewExtent:
+        return SingleChildScrollView(
+          child: GridView.extent(
+            key: _reorderableKey,
+            shrinkWrap: true,
+            maxCrossAxisExtent: widget.maxCrossAxisExtent,
+            mainAxisSpacing: widget.mainAxisSpacing,
+            crossAxisSpacing: widget.crossAxisSpacing,
+            children: children,
+            padding: widget.padding,
+            clipBehavior: widget.clipBehavior,
+            childAspectRatio: widget.childAspectRatio,
+          ),
+        );
+    }
   }
 
   /// Looking for the current size of the [Wrap] and updates it.
@@ -359,8 +378,6 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     int orderId,
     Widget child,
   ) {
-    if (!widget.enableReorder) return;
-
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null) {

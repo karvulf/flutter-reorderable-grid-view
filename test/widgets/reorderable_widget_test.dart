@@ -353,11 +353,14 @@ void main() {
             widget.padding == givenPadding &&
             widget.clipBehavior == givenClipBehavior),
         findsOneWidget);
+    expect(find.byType(ReorderableSingleChildScrollView), findsNothing);
+
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is ReorderableSingleChildScrollView &&
-            widget.reorderableEntity.children.isEmpty),
-        findsNWidgets(2));
+            widget is DraggableItem &&
+            !widget.enabled &&
+            widget.onCreated == null),
+        findsNWidgets(givenChildren.length));
   });
 
   testWidgets(

@@ -1,3 +1,7 @@
+## 1.1.5
+
+* Fixed a bug when changing from `enableReorder` `false` to `true`
+
 ## 1.1.4
 
 * Added parameter `enableReorder` with default value `true`
