@@ -57,6 +57,7 @@ class Reorderable extends StatefulWidget
     this.runSpacing = 8.0,
     this.enableAnimation = true,
     this.enableLongPress = true,
+    this.enableReorder = true,
     this.longPressDelay = kLongPressTimeout,
     this.mainAxisSpacing = 0.0,
     this.clipBehavior = Clip.hardEdge,
@@ -144,6 +145,9 @@ class Reorderable extends StatefulWidget
 
   @override
   final BoxDecoration? dragChildBoxDecoration;
+
+  @override
+  final bool enableReorder;
 
   @override
   State<Reorderable> createState() => _ReorderableState();
@@ -258,7 +262,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
               final generatedChildren = List.generate(
                 widget.children.length,
                 (index) => Visibility(
-                  visible: false,
+                  visible: !widget.enableReorder,
                   maintainAnimation: true,
                   maintainSize: true,
                   maintainState: true,
@@ -268,7 +272,7 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
                     orderId: index,
                     onCreated: _handleCreated,
                     longPressDelay: widget.longPressDelay,
-                    enabled: !widget.lockedChildren.contains(index),
+                    enabled: false,
                   ),
                 ),
               );
@@ -355,6 +359,8 @@ class _ReorderableState extends State<Reorderable> with WidgetsBindingObserver {
     int orderId,
     Widget child,
   ) {
+    if (!widget.enableReorder) return;
+
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null) {

@@ -114,6 +114,7 @@ More information about the parameters of `GridView` and `Wrap` are on the flutte
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
 | `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. | **-** |
 | `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **-** |
+| `enableReorder` | Enables the functionality to reorder the children.| **true** |
 
 ## Future Plans
 

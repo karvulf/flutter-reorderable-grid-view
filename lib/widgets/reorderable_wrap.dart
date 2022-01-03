@@ -20,6 +20,9 @@ class ReorderableWrap extends StatelessWidget
   final bool enableLongPress;
 
   @override
+  final bool enableReorder;
+
+  @override
   final Duration longPressDelay;
 
   @override
@@ -44,6 +47,7 @@ class ReorderableWrap extends StatelessWidget
     this.longPressDelay = kLongPressTimeout,
     this.enableLongPress = true,
     this.enableAnimation = true,
+    this.enableReorder = true,
     this.spacing = 8,
     this.runSpacing = 8,
     this.dragChildBoxDecoration,
@@ -65,6 +69,7 @@ class ReorderableWrap extends StatelessWidget
       longPressDelay: longPressDelay,
       physics: physics,
       dragChildBoxDecoration: dragChildBoxDecoration,
+      enableReorder: enableReorder,
     );
   }
 }

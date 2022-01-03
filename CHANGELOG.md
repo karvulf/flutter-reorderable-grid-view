@@ -1,3 +1,7 @@
+## 1.1.4
+
+* Added parameter `enableReorder` with default value `true`
+
 ## 1.1.3
 
 * BoxDecoration added for dragged child

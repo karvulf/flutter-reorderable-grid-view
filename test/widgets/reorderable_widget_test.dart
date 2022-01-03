@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated_draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_single_child_scroll_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -60,7 +61,8 @@ void main() {
             widget.maxCrossAxisExtent == 0.0 &&
             widget.mainAxisSpacing == 0 &&
             widget.crossAxisSpacing == 0.0 &&
-            widget.dragChildBoxDecoration == null),
+            widget.dragChildBoxDecoration == null &&
+            widget.enableReorder),
         findsOneWidget);
 
     expect(
@@ -244,10 +246,10 @@ void main() {
       (WidgetTester tester) async {
     // given
     const givenChildren = <Widget>[
-      Text('hallo1'),
-      Text('hallo2'),
-      Text('hallo3'),
-      Text('hallo4'),
+      Text('hallo1', key: Key('1')),
+      Text('hallo2', key: Key('2')),
+      Text('hallo3', key: Key('3')),
+      Text('hallo4', key: Key('4')),
     ];
     const givenRunSpacing = 20.0;
     const givenSpacing = 24.0;
@@ -274,6 +276,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     // then
     expect(find.byWidget(givenChildren[0]), findsOneWidget);
@@ -283,10 +286,9 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is DraggableItem &&
-            !widget.enableLongPress &&
-            widget.dragBoxDecoration == null),
-        findsNWidgets(givenChildren.length));
+            widget is ReorderableSingleChildScrollView &&
+            widget.reorderableEntity.children.length == givenChildren.length),
+        findsOneWidget);
 
     expect(
         find.byWidgetPredicate((widget) =>
@@ -301,10 +303,61 @@ void main() {
 
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is Wrap &&
-            widget.runSpacing == givenRunSpacing &&
-            widget.spacing == givenSpacing),
+            widget is ReorderableSingleChildScrollView &&
+            widget.reorderableEntity.children.isEmpty),
         findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN children, reorderableType = .gridView and enableReorder = false '
+      'WHEN pumping [Reorderable] '
+      'THEN should still show original GridView', (WidgetTester tester) async {
+    // given
+    const givenChildren = <Widget>[
+      Text('hallo1'),
+      Text('hallo2'),
+    ];
+    const givenGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 4,
+    );
+    const givenPadding = EdgeInsets.all(20);
+    const givenClipBehavior = Clip.antiAliasWithSaveLayer;
+
+    // when
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Reorderable(
+            children: givenChildren,
+            reorderableType: ReorderableType.gridView,
+            gridDelegate: givenGridDelegate,
+            onReorder: (_, __) {},
+            clipBehavior: givenClipBehavior,
+            padding: givenPadding,
+            enableReorder: false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // then
+    expect(find.byWidget(givenChildren[0]), findsOneWidget);
+    expect(find.byWidget(givenChildren[1]), findsOneWidget);
+
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is GridView &&
+            widget.gridDelegate == givenGridDelegate &&
+            widget.shrinkWrap &&
+            widget.padding == givenPadding &&
+            widget.clipBehavior == givenClipBehavior),
+        findsOneWidget);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is ReorderableSingleChildScrollView &&
+            widget.reorderableEntity.children.isEmpty),
+        findsNWidgets(2));
   });
 
   testWidgets(
