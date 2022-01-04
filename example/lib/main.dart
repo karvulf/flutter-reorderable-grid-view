@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/flutter_reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_grid_view.dart';
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -17,8 +18,8 @@ class _MyAppState extends State<MyApp> {
   final lockedChildren = <int>[2, 4, 5];
 
   int keyCounter = 0;
-  List<int> children = <int>[];
-  ReorderableType reorderableType = ReorderableType.wrap;
+  List<int> children = <int>[1, 2, 3];
+  ReorderableType reorderableType = ReorderableType.gridView;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +162,9 @@ class _MyAppState extends State<MyApp> {
           enableReorder: false,
         );
       case ReorderableType.gridView:
+        return ReorderableGridView2(
+          children: generatedChildren,
+        );
         return ReorderableGridView(
           key: const Key('gridView'),
           lockedChildren: lockedChildren,
