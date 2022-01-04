@@ -2,11 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+typedef OnCreatedFunction = Function(
+  int orderId,
+  GlobalKey key,
+);
+
+typedef OnDragUpdateFunction = Function(
+  int orderId,
+  DragUpdateDetails details,
+);
+
 class ReorderableDraggable extends StatefulWidget {
   final Widget child;
+  final OnCreatedFunction onCreated;
+  final OnDragUpdateFunction onDragUpdate;
+  final int orderId;
 
   const ReorderableDraggable({
     required this.child,
+    required this.onCreated,
+    required this.onDragUpdate,
+    required this.orderId,
     Key? key,
   }) : super(key: key);
 
@@ -18,9 +34,15 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
 
+  final _globalKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      widget.onCreated(widget.orderId, _globalKey);
+    });
 
     _controller = AnimationController(
       vsync: this,
@@ -30,6 +52,11 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   @override
   Widget build(BuildContext context) {
+    final child = Container(
+      key: _globalKey,
+      child: widget.child,
+    );
+
     final feedback = Material(
       color: Colors.transparent,
       child: widget.child,
@@ -40,12 +67,17 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       onDragStarted: _controller.forward,
       onDragEnd: _handleDragEnd,
       feedback: feedback,
-      childWhenDragging: Container(),
-      child: widget.child,
+      childWhenDragging: Visibility(
+        visible: false,
+        child: child,
+      ),
+      child: child,
     );
   }
 
-  void _handleDragUpdate(DragUpdateDetails details) {}
+  void _handleDragUpdate(DragUpdateDetails details) {
+    widget.onDragUpdate(widget.orderId, details);
+  }
 
   void _handleDragEnd(DraggableDetails details) {
     _controller.reset();
