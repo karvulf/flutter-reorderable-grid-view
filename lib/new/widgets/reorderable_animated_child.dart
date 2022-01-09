@@ -2,9 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_draggable.dart';
 
+typedef OnAnimationEndFunction = Function(
+  int hashKey,
+  ReorderableEntity reorderableEntity,
+);
+
 class ReorderableAnimatedChild extends StatelessWidget {
   final Widget child;
-  final ReorderCallback onReorder;
+  final OnAnimationEndFunction onAnimationEnd;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
 
@@ -14,7 +19,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.child,
     required this.onCreated,
     required this.onDragUpdate,
-    required this.onReorder,
+    required this.onAnimationEnd,
     this.reorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -30,7 +35,11 @@ class ReorderableAnimatedChild extends StatelessWidget {
           right: 0 + dx,
           top: 0 + dy,
           bottom: 0 - dy,
-          onEnd: _handleAnimationEnd,
+          onEnd: () {
+            if (reorderableEntity != null) {
+              onAnimationEnd(child.key.hashCode, reorderableEntity!);
+            }
+          },
           child: ReorderableDraggable(
             child: child,
             onCreated: onCreated,
@@ -39,17 +48,6 @@ class ReorderableAnimatedChild extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  void _handleAnimationEnd() {
-    final reorderableUpdatedEntity =
-        reorderableEntity?.reorderableUpdatedEntity;
-    final oldIndex = reorderableUpdatedEntity?.oldIndex;
-    final newIndex = reorderableUpdatedEntity?.oldIndex;
-
-    if (oldIndex != null && newIndex != null) {
-      onReorder(oldIndex, newIndex);
-    }
   }
 
   double get dx {

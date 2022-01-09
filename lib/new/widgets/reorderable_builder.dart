@@ -26,9 +26,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    print('child1: ${widget.children[0].key.hashCode}');
-    print('child2: ${widget.children[1].key.hashCode}');
-    print('child3: ${widget.children[2].key.hashCode}');
     return widget.builder(
       _getDraggableChildren(),
     );
@@ -46,7 +43,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           child: child,
           onCreated: _handleCreated,
           reorderableEntity: childMapEntry,
-          onReorder: widget.onReorder,
+          onAnimationEnd: _handleChildAnimationEnd,
         ),
       );
     }
@@ -96,7 +93,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       final collisionIndex = widget.children.indexWhere(
         (element) => element.key.hashCode == collisionMapEntry.key,
       );
-      print('collision detected with draggedOffset $draggedOffset');
+      print(
+          'Dragged index $draggedIndex detected collision with $collisionIndex');
 
       // update for collision entity
       final updatedCollisionEntity = collisionMapEntry.value.copyWith(
@@ -140,4 +138,27 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       }
     }
   }
+
+  void _handleChildAnimationEnd(
+    int hashKey,
+    ReorderableEntity reorderableEntity,
+  ) {
+    print('animation ended for ${getChildIndex(hashKey)}');
+    final updatedReorderableEntity = ReorderableEntity(
+      originalOffset: reorderableEntity.originalOffset,
+      size: reorderableEntity.size,
+    );
+    childrenMap[hashKey] = updatedReorderableEntity;
+
+    final oldIndex = reorderableEntity.reorderableUpdatedEntity?.oldIndex;
+    final newIndex = reorderableEntity.reorderableUpdatedEntity?.newIndex;
+
+    if (oldIndex != null && newIndex != null) {
+      widget.onReorder(oldIndex, newIndex);
+    }
+  }
+
+  int getChildIndex(int hashKey) => widget.children.indexWhere(
+        (element) => element.key.hashCode == hashKey,
+      );
 }
