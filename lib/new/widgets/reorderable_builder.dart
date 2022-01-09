@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(List<Widget> draggableChildren);
 
@@ -36,11 +36,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     for (int i = 0; i < widget.children.length; i++) {
       final child = widget.children[i];
       draggableChildren.add(
-        ReorderableDraggable(
-          child: child,
+        ReorderableAnimatedChild(
           orderId: i,
-          onCreated: _handleCreated,
           onDragUpdate: _handleDragUpdate,
+          child: child,
+          onCreated: _handleCreated,
+          offset: childrenMap[i]?.offset,
         ),
       );
     }
@@ -57,7 +58,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       final position = renderBox.localToGlobal(Offset.zero);
       final size = renderBox.size;
       childrenMap[orderId] = ReorderableEntity(
-        position: position,
+        offset: position,
         size: size,
       );
       print('Added child $orderId with position $position');
@@ -83,6 +84,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     if (collisionMapEntry != null && collisionMapEntry.key != orderId) {
       print('collision detected with orderId ${collisionMapEntry.key}');
       // update all items and notify change
+      // Problem: wie soll das ganze hier animiert werden, wenn es zur collision kommt und die gridView immer noch verwendet wird?
     }
   }
 
@@ -90,10 +92,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     required int orderId,
     required DragUpdateDetails details,
   }) {
-    final draggedPosition = childrenMap[orderId]!.position;
+    final draggedPosition = childrenMap[orderId]!.offset;
 
     for (final entry in childrenMap.entries) {
-      final localPosition = entry.value.position;
+      final localPosition = entry.value.offset;
       final size = entry.value.size;
 
       if (draggedPosition == localPosition) {

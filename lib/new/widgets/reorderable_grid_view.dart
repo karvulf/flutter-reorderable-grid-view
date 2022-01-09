@@ -18,6 +18,7 @@ class ReorderableGridView2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableBuilder(
       children: children,
+      onReorder: (_, __) {},
       builder: (draggableChildren) {
         return GridView(
           // key: _reorderableKey,
