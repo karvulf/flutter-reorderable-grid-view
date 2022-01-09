@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/new/entities/reorderable_updated_entity.dart';
 import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(List<Widget> draggableChildren);
@@ -25,6 +26,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   @override
   Widget build(BuildContext context) {
+    print('child1: ${widget.children[0].key.hashCode}');
+    print('child2: ${widget.children[1].key.hashCode}');
+    print('child3: ${widget.children[2].key.hashCode}');
     return widget.builder(
       _getDraggableChildren(),
     );
@@ -35,13 +39,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
     for (int i = 0; i < widget.children.length; i++) {
       final child = widget.children[i];
+      final childMapEntry = childrenMap[child.key.hashCode];
       draggableChildren.add(
         ReorderableAnimatedChild(
-          orderId: i,
           onDragUpdate: _handleDragUpdate,
           child: child,
           onCreated: _handleCreated,
-          offset: childrenMap[i]?.offset,
+          reorderableEntity: childMapEntry,
+          onReorder: widget.onReorder,
         ),
       );
     }
@@ -49,56 +54,80 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return draggableChildren;
   }
 
-  void _handleCreated(int orderId, GlobalKey key) {
+  void _handleCreated(int hashKey, GlobalKey key) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
       assert(false, 'RenderBox of child should not be null!');
     } else {
-      final position = renderBox.localToGlobal(Offset.zero);
+      final offset = renderBox.localToGlobal(Offset.zero);
       final size = renderBox.size;
-      childrenMap[orderId] = ReorderableEntity(
-        offset: position,
+      childrenMap[hashKey] = ReorderableEntity(
+        originalOffset: offset,
         size: size,
       );
-      print('Added child $orderId with position $position');
+      print('Added child $hashKey with position $offset');
     }
   }
 
-  void _handleDragUpdate(int orderId, DragUpdateDetails details) {
-    final updatedMap = _checkForCollisions(
+  void _handleDragUpdate(int hashKey, DragUpdateDetails details) {
+    _checkForCollisions(
       details: details,
-      orderId: orderId,
+      hashKey: hashKey,
     );
   }
 
   void _checkForCollisions({
-    required int orderId,
+    required int hashKey,
     required DragUpdateDetails details,
   }) {
+    final draggedReorderableEntity = childrenMap[hashKey]!;
+    final draggedOffset = draggedReorderableEntity.currentOffset;
+
     final collisionMapEntry = _getCollisionMapEntry(
-      orderId: orderId,
+      draggedOffset: draggedOffset,
       details: details,
     );
 
-    if (collisionMapEntry != null && collisionMapEntry.key != orderId) {
-      print('collision detected with orderId ${collisionMapEntry.key}');
-      // update all items and notify change
-      // Problem: wie soll das ganze hier animiert werden, wenn es zur collision kommt und die gridView immer noch verwendet wird?
+    if (collisionMapEntry != null && collisionMapEntry.key != hashKey) {
+      final draggedIndex = widget.children.indexWhere(
+        (element) => element.key.hashCode == hashKey,
+      );
+      final collisionIndex = widget.children.indexWhere(
+        (element) => element.key.hashCode == collisionMapEntry.key,
+      );
+      print('collision detected with draggedOffset $draggedOffset');
+
+      // update for collision entity
+      final updatedCollisionEntity = collisionMapEntry.value.copyWith(
+        reorderableUpdatedEntity: ReorderableUpdatedEntity(
+          offset: draggedOffset,
+          oldIndex: draggedIndex,
+          newIndex: collisionIndex,
+        ),
+      );
+      childrenMap[collisionMapEntry.key] = updatedCollisionEntity;
+
+      // update for dragged entity
+      final updatedDraggedEntity = draggedReorderableEntity.copyWith(
+        reorderableUpdatedEntity: ReorderableUpdatedEntity(
+          offset: collisionMapEntry.value.currentOffset,
+        ),
+      );
+      childrenMap[hashKey] = updatedDraggedEntity;
+      setState(() {});
     }
   }
 
   MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
-    required int orderId,
+    required Offset draggedOffset,
     required DragUpdateDetails details,
   }) {
-    final draggedPosition = childrenMap[orderId]!.offset;
-
     for (final entry in childrenMap.entries) {
-      final localPosition = entry.value.offset;
+      final localPosition = entry.value.originalOffset;
       final size = entry.value.size;
 
-      if (draggedPosition == localPosition) {
+      if (draggedOffset == localPosition) {
         continue;
       }
 

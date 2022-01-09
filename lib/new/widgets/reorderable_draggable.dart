@@ -1,14 +1,12 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 typedef OnCreatedFunction = Function(
-  int orderId,
+  int hashKey,
   GlobalKey key,
 );
 
 typedef OnDragUpdateFunction = Function(
-  int orderId,
+  int hashKey,
   DragUpdateDetails details,
 );
 
@@ -16,13 +14,11 @@ class ReorderableDraggable extends StatefulWidget {
   final Widget child;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
-  final int orderId;
 
   const ReorderableDraggable({
     required this.child,
     required this.onCreated,
     required this.onDragUpdate,
-    required this.orderId,
     Key? key,
   }) : super(key: key);
 
@@ -41,7 +37,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      widget.onCreated(widget.orderId, _globalKey);
+      widget.onCreated(widget.child.key.hashCode, _globalKey);
     });
 
     _controller = AnimationController(
@@ -76,7 +72,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    widget.onDragUpdate(widget.orderId, details);
+    widget.onDragUpdate(widget.child.key.hashCode, details);
   }
 
   void _handleDragEnd(DraggableDetails details) {

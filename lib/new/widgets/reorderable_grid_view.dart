@@ -3,12 +3,14 @@ import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_builder.da
 
 class ReorderableGridView2 extends StatelessWidget {
   final List<Widget> children;
+  final ReorderCallback onReorder;
 
   final EdgeInsets? padding;
   final Clip? clipBehavior;
 
   const ReorderableGridView2({
     required this.children,
+    required this.onReorder,
     this.padding,
     this.clipBehavior,
     Key? key,
@@ -18,7 +20,7 @@ class ReorderableGridView2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableBuilder(
       children: children,
-      onReorder: (_, __) {},
+      onReorder: onReorder,
       builder: (draggableChildren) {
         return GridView(
           // key: _reorderableKey,
