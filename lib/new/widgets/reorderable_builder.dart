@@ -22,7 +22,32 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
+  Widget? draggedChild;
   var childrenMap = <int, ReorderableEntity>{};
+
+  @override
+  void initState() {
+    super.initState();
+
+    for (final child in widget.children) {
+      final hashKey = child.key.hashCode;
+      childrenMap[hashKey] = ReorderableEntity(child: child);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.children != oldWidget.children) {
+      for (final child in widget.children) {
+        final hashKey = child.key.hashCode;
+        // childrenMap[hashKey] = ReorderableEntity(child: child);
+      }
+
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,16 +59,15 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   List<Widget> _getDraggableChildren() {
     final draggableChildren = <Widget>[];
 
-    for (int i = 0; i < widget.children.length; i++) {
-      final child = widget.children[i];
-      final childMapEntry = childrenMap[child.key.hashCode];
+    for (final reorderableEntity in childrenMap.values) {
       draggableChildren.add(
         ReorderableAnimatedChild(
           onDragUpdate: _handleDragUpdate,
-          child: child,
+          draggedChild: draggedChild,
           onCreated: _handleCreated,
-          reorderableEntity: childMapEntry,
+          reorderableEntity: reorderableEntity,
           onAnimationEnd: _handleChildAnimationEnd,
+          onDragStarted: _handleDragStarted,
         ),
       );
     }
@@ -59,12 +83,18 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     } else {
       final offset = renderBox.localToGlobal(Offset.zero);
       final size = renderBox.size;
-      childrenMap[hashKey] = ReorderableEntity(
+      childrenMap[hashKey] = childrenMap[hashKey]!.copyWith(
         originalOffset: offset,
         size: size,
       );
       print('Added child $hashKey with position $offset');
     }
+  }
+
+  void _handleDragStarted(Widget child) {
+    setState(() {
+      draggedChild = child;
+    });
   }
 
   void _handleDragUpdate(int hashKey, DragUpdateDetails details) {
@@ -144,7 +174,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     ReorderableEntity reorderableEntity,
   ) {
     print('animation ended for ${getChildIndex(hashKey)}');
-    final updatedReorderableEntity = ReorderableEntity(
+    final updatedReorderableEntity = childrenMap[hashKey]!.copyWith(
       originalOffset: reorderableEntity.originalOffset,
       size: reorderableEntity.size,
     );

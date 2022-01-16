@@ -8,24 +8,28 @@ typedef OnAnimationEndFunction = Function(
 );
 
 class ReorderableAnimatedChild extends StatelessWidget {
-  final Widget child;
+  final ReorderableEntity reorderableEntity;
+
+  final Widget? draggedChild;
   final OnAnimationEndFunction onAnimationEnd;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
-
-  final ReorderableEntity? reorderableEntity;
+  final Function(Widget child) onDragStarted;
 
   const ReorderableAnimatedChild({
-    required this.child,
+    required this.reorderableEntity,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onAnimationEnd,
-    this.reorderableEntity,
+    required this.onDragStarted,
+    this.draggedChild,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final child = reorderableEntity.child;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -36,14 +40,16 @@ class ReorderableAnimatedChild extends StatelessWidget {
           top: 0 + dy,
           bottom: 0 - dy,
           onEnd: () {
-            if (reorderableEntity != null) {
-              onAnimationEnd(child.key.hashCode, reorderableEntity!);
-            }
+            onAnimationEnd(child.key.hashCode, reorderableEntity);
           },
           child: ReorderableDraggable(
             child: child,
+            draggedChild: child.key.hashCode == draggedChild?.key.hashCode
+                ? draggedChild
+                : null,
             onCreated: onCreated,
             onDragUpdate: onDragUpdate,
+            onDragStarted: onDragStarted,
           ),
         ),
       ],
@@ -51,10 +57,10 @@ class ReorderableAnimatedChild extends StatelessWidget {
   }
 
   double get dx {
-    final originalOffset = reorderableEntity?.originalOffset;
-    final updatedOffset = reorderableEntity?.reorderableUpdatedEntity?.offset;
+    final originalOffset = reorderableEntity.originalOffset;
+    final updatedOffset = reorderableEntity.reorderableUpdatedEntity?.offset;
 
-    if (originalOffset != null && updatedOffset != null) {
+    if (updatedOffset != null) {
       return originalOffset.dx - updatedOffset.dx;
     }
     return 0.0;
