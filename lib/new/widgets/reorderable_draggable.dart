@@ -12,10 +12,12 @@ typedef OnDragUpdateFunction = Function(
 
 class ReorderableDraggable extends StatefulWidget {
   final Widget child;
-  final Widget? draggedChild;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
   final Function(Widget child) onDragStarted;
+  final DragEndCallback onDragEnd;
+
+  final Widget? draggedChild;
 
   const ReorderableDraggable({
     required this.child,
@@ -23,6 +25,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
+    required this.onDragEnd,
     Key? key,
   }) : super(key: key);
 
@@ -57,11 +60,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       child: widget.child,
     );
 
-    print('draggedChild ${widget.draggedChild}');
     final feedback = Material(
       color: Colors.transparent,
       child: widget.child,
     );
+
+    final visible = widget.draggedChild == null;
 
     return LongPressDraggable(
       onDragUpdate: _handleDragUpdate,
@@ -72,10 +76,13 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       onDragEnd: _handleDragEnd,
       feedback: feedback,
       childWhenDragging: Visibility(
-        visible: widget.draggedChild == null,
+        visible: visible,
         child: child,
       ),
-      child: child,
+      child: Visibility(
+        visible: visible,
+        child: child,
+      ),
     );
   }
 
@@ -85,5 +92,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   void _handleDragEnd(DraggableDetails details) {
     _controller.reset();
+
+    widget.onDragEnd(details);
   }
 }

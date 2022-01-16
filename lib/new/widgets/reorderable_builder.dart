@@ -25,28 +25,49 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   Widget? draggedChild;
   var childrenMap = <int, ReorderableEntity>{};
 
+  var offsetMap = <int, Offset>{};
+
   @override
   void initState() {
     super.initState();
 
-    for (final child in widget.children) {
-      final hashKey = child.key.hashCode;
-      childrenMap[hashKey] = ReorderableEntity(child: child);
-    }
+    _updateChildren();
   }
 
   @override
   void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.children != oldWidget.children) {
-      for (final child in widget.children) {
-        final hashKey = child.key.hashCode;
-        // childrenMap[hashKey] = ReorderableEntity(child: child);
+    if (oldWidget.children.length != widget.children.length) {
+      _updateChildren();
+    }
+  }
+
+  void _updateChildren() {
+    var counter = 0;
+
+    final checkDuplicatedKeyList = <int>[];
+
+    for (final child in widget.children) {
+      final hashKey = child.key.hashCode;
+
+      if (!checkDuplicatedKeyList.contains(hashKey)) {
+        checkDuplicatedKeyList.add(hashKey);
+      } else {
+        throw Exception('Duplicated key $hashKey found in children');
       }
 
-      setState(() {});
+      final reorderableEntity = childrenMap[hashKey];
+      if (reorderableEntity == null) {
+        childrenMap[hashKey] = ReorderableEntity(
+          child: child,
+          orderId: counter,
+        );
+      }
+
+      counter++;
     }
+    setState(() {});
   }
 
   @override
@@ -58,8 +79,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   List<Widget> _getDraggableChildren() {
     final draggableChildren = <Widget>[];
+    final sortedChildren = childrenMap.values.toList()
+      ..sort(
+        (a, b) => a.orderId.compareTo(b.orderId),
+      );
 
-    for (final reorderableEntity in childrenMap.values) {
+    for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         ReorderableAnimatedChild(
           onDragUpdate: _handleDragUpdate,
@@ -68,6 +93,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           reorderableEntity: reorderableEntity,
           onAnimationEnd: _handleChildAnimationEnd,
           onDragStarted: _handleDragStarted,
+          onDragEnd: _handleDragEnd,
         ),
       );
     }
@@ -81,13 +107,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     if (renderBox == null) {
       assert(false, 'RenderBox of child should not be null!');
     } else {
+      final reorderableEntity = childrenMap[hashKey]!;
       final offset = renderBox.localToGlobal(Offset.zero);
       final size = renderBox.size;
-      childrenMap[hashKey] = childrenMap[hashKey]!.copyWith(
+      childrenMap[hashKey] = reorderableEntity.copyWith(
         originalOffset: offset,
         size: size,
+        reorderableUpdatedEntity: null,
       );
       print('Added child $hashKey with position $offset');
+      offsetMap[reorderableEntity.orderId] = offset;
     }
   }
 
@@ -132,6 +161,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           offset: draggedOffset,
           oldIndex: draggedIndex,
           newIndex: collisionIndex,
+          newOrderId: draggedReorderableEntity.orderId,
         ),
       );
       childrenMap[collisionMapEntry.key] = updatedCollisionEntity;
@@ -140,6 +170,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       final updatedDraggedEntity = draggedReorderableEntity.copyWith(
         reorderableUpdatedEntity: ReorderableUpdatedEntity(
           offset: collisionMapEntry.value.currentOffset,
+          newOrderId: collisionMapEntry.value.orderId,
         ),
       );
       childrenMap[hashKey] = updatedDraggedEntity;
@@ -173,12 +204,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     int hashKey,
     ReorderableEntity reorderableEntity,
   ) {
-    print('animation ended for ${getChildIndex(hashKey)}');
-    final updatedReorderableEntity = childrenMap[hashKey]!.copyWith(
-      originalOffset: reorderableEntity.originalOffset,
-      size: reorderableEntity.size,
-    );
-    childrenMap[hashKey] = updatedReorderableEntity;
+    final reorderableEntity = childrenMap[hashKey]!;
 
     final oldIndex = reorderableEntity.reorderableUpdatedEntity?.oldIndex;
     final newIndex = reorderableEntity.reorderableUpdatedEntity?.newIndex;
@@ -191,4 +217,30 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   int getChildIndex(int hashKey) => widget.children.indexWhere(
         (element) => element.key.hashCode == hashKey,
       );
+
+  /// Updates all children in map when dragging ends.
+  ///
+  /// Every updated child gets a new offset and orderId.
+  void _handleDragEnd(DraggableDetails details) {
+    var counter = 0;
+
+    for (final child in widget.children) {
+      final hashKey = child.key.hashCode;
+      final reorderableEntity = childrenMap[hashKey];
+
+      if (reorderableEntity != null) {
+        childrenMap[hashKey] = reorderableEntity.copyWith(
+          child: child,
+          orderId: counter,
+          originalOffset: offsetMap[counter]!,
+          reorderableUpdatedEntity: null,
+        );
+      }
+      counter++;
+    }
+
+    setState(() {
+      draggedChild = null;
+    });
+  }
 }
