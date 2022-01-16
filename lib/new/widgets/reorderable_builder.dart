@@ -210,7 +210,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final newIndex = reorderableEntity.reorderableUpdatedEntity?.newIndex;
 
     if (oldIndex != null && newIndex != null) {
-      widget.onReorder(oldIndex, newIndex);
+      // widget.onReorder(oldIndex, newIndex);
+    }
+
+    final newOrderId = reorderableEntity.reorderableUpdatedEntity?.newOrderId;
+    if (newOrderId != null) {
+      childrenMap[hashKey] = reorderableEntity.copyWith(
+        orderId: newOrderId,
+        originalOffset: offsetMap[newOrderId]!,
+        reorderableUpdatedEntity: null,
+      );
     }
   }
 

@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   final lockedChildren = <int>[2, 4, 5];
 
   int keyCounter = 4;
-  List<int> children = <int>[1, 2, 3];
+  List<int> children = <int>[1, 2];
   ReorderableType reorderableType = ReorderableType.gridView;
 
   @override
