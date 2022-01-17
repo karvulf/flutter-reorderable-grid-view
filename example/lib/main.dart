@@ -15,10 +15,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  static const _startCounter = 30;
   final lockedChildren = <int>[2, 4, 5];
 
-  int keyCounter = 7;
-  List<int> children = <int>[1, 2, 3, 4, 5, 6];
+  int keyCounter = _startCounter;
+  List<int> children = List.generate(_startCounter, (index) => index);
   ReorderableType reorderableType = ReorderableType.gridView;
 
   @override

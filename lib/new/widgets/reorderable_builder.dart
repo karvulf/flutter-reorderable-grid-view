@@ -169,7 +169,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
       childrenMap = updatedChildrenMap;
     } else {
-      print('No update while reordered children!');
+      print('No update while reordering children!');
     }
 
     setState(() {
@@ -199,35 +199,41 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
       final difference = draggedOrderId - collisionOrderId;
       if (difference > 1) {
-        // handle multiple collisions backwards
-        while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
-          final collisionMapEntry = childrenMap.entries.firstWhere((entry) =>
-              entry.value.updatedOrderId ==
-              draggedReorderableEntity!.updatedOrderId - 1);
-
-          _updateCollision(
-            draggedHashKey: draggedHashKey,
-            collisionMapEntry: collisionMapEntry,
-          );
-        }
+        _updateMultipleCollisions(
+          collisionOrderId: collisionOrderId,
+          draggedHashKey: draggedHashKey,
+          isBackwards: true,
+        );
       } else if (difference < -1) {
-        // handle multiple collisions forwards
-        while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
-          final collisionMapEntry = childrenMap.entries.firstWhere((entry) =>
-              entry.value.updatedOrderId ==
-              draggedReorderableEntity!.updatedOrderId + 1);
-
-          _updateCollision(
-            draggedHashKey: draggedHashKey,
-            collisionMapEntry: collisionMapEntry,
-          );
-        }
+        _updateMultipleCollisions(
+          collisionOrderId: collisionOrderId,
+          draggedHashKey: draggedHashKey,
+          isBackwards: false,
+        );
       } else {
         _updateCollision(
           draggedHashKey: draggedHashKey,
           collisionMapEntry: collisionMapEntry,
         );
       }
+    }
+  }
+
+  void _updateMultipleCollisions({
+    required int draggedHashKey,
+    required int collisionOrderId,
+    required bool isBackwards,
+  }) {
+    while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
+      final summands = isBackwards ? -1 : 1;
+      final collisionMapEntry = childrenMap.entries.firstWhere((entry) =>
+          entry.value.updatedOrderId ==
+          draggedReorderableEntity!.updatedOrderId + summands);
+
+      _updateCollision(
+        draggedHashKey: draggedHashKey,
+        collisionMapEntry: collisionMapEntry,
+      );
     }
   }
 
