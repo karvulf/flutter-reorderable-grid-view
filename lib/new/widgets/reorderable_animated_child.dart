@@ -40,8 +40,8 @@ class ReorderableAnimatedChild extends StatelessWidget {
           duration: duration,
           left: -dx,
           right: dx,
-          top: dy,
-          bottom: -dy,
+          top: -dy,
+          bottom: dy,
           child: ReorderableDraggable(
             reorderableEntity: reorderableEntity,
             draggedReorderableEntity: draggedReorderableEntity,
@@ -62,5 +62,10 @@ class ReorderableAnimatedChild extends StatelessWidget {
     return originalOffset.dx - updatedOffset.dx;
   }
 
-  double get dy => 0.0;
+  double get dy {
+    final originalOffset = reorderableEntity.originalOffset;
+    final updatedOffset = reorderableEntity.updatedOffset;
+
+    return originalOffset.dy - updatedOffset.dy;
+  }
 }

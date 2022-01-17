@@ -129,83 +129,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     );
   }
 
-  void _checkForCollisions({
-    required DragUpdateDetails details,
-  }) {
-    final draggedReorderableEntity = this.draggedReorderableEntity!;
-    final draggedHashKey = draggedReorderableEntity.child.key.hashCode;
-
-    final collisionMapEntry = _getCollisionMapEntry(
-      draggedHashKey: draggedHashKey,
-      details: details,
-    );
-
-    if (collisionMapEntry != null) {
-      // update for collision entity
-      final updatedCollisionEntity = collisionMapEntry.value.copyWith(
-        updatedOffset: draggedReorderableEntity.updatedOffset,
-        updatedOrderId: draggedReorderableEntity.updatedOrderId,
-      );
-      childrenMap[collisionMapEntry.key] = updatedCollisionEntity;
-
-      // update for dragged entity
-      final updatedDraggedEntity = draggedReorderableEntity.copyWith(
-        updatedOffset: collisionMapEntry.value.updatedOffset,
-        updatedOrderId: collisionMapEntry.value.updatedOrderId,
-      );
-      childrenMap[draggedHashKey] = updatedDraggedEntity;
-
-      setState(() {
-        this.draggedReorderableEntity = updatedDraggedEntity;
-      });
-
-      ///
-      /// some prints for me
-      ///
-
-      final draggedOrderIdBefore = draggedReorderableEntity.updatedOrderId;
-      final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-      final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
-      final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-      print('');
-      print('---- Dragged child at position $draggedOrderIdBefore ----');
-      print(
-          'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
-      print(
-          'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
-      print('---- END ----');
-      print('');
-    }
-  }
-
-  MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
-    required int draggedHashKey,
-    required DragUpdateDetails details,
-  }) {
-    for (final entry in childrenMap.entries) {
-      final localPosition = entry.value.updatedOffset;
-      final size = entry.value.size;
-
-      if (entry.key == draggedHashKey) {
-        continue;
-      }
-
-      // checking collision with full item size and local position
-      if (details.localPosition.dx >= localPosition.dx &&
-          details.localPosition.dy >= localPosition.dy &&
-          details.localPosition.dx <= localPosition.dx + size.width &&
-          details.localPosition.dy <= localPosition.dy + size.height) {
-        return entry;
-      }
-    }
-  }
-
-  int getChildIndex(int hashKey) => widget.children.indexWhere(
-        (element) => element.key.hashCode == hashKey,
-      );
-
   /// Updates all children in map when dragging ends.
   ///
   /// Every updated child gets a new offset and orderId.
@@ -230,7 +153,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           break;
         }
       }
-      print('Update: Old index $oldIndex and new index $newIndex');
 
       final updatedChildrenMap = <int, ReorderableEntity>{};
 
@@ -258,4 +180,120 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       widget.onReorder(oldIndex, newIndex);
     }
   }
+
+  /// some more logical functions
+
+  void _checkForCollisions({
+    required DragUpdateDetails details,
+  }) {
+    final draggedHashKey = draggedReorderableEntity!.child.key.hashCode;
+
+    final collisionMapEntry = _getCollisionMapEntry(
+      draggedHashKey: draggedHashKey,
+      details: details,
+    );
+
+    if (collisionMapEntry != null) {
+      final draggedOrderId = draggedReorderableEntity!.updatedOrderId;
+      final collisionOrderId = collisionMapEntry.value.updatedOrderId;
+
+      final difference = draggedOrderId - collisionOrderId;
+      if (difference > 1) {
+        // handle multiple collisions backwards
+        while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
+          final collisionMapEntry = childrenMap.entries.firstWhere((entry) =>
+              entry.value.updatedOrderId ==
+              draggedReorderableEntity!.updatedOrderId - 1);
+
+          _updateCollision(
+            draggedHashKey: draggedHashKey,
+            collisionMapEntry: collisionMapEntry,
+          );
+        }
+      } else if (difference < -1) {
+        // handle multiple collisions forwards
+        while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
+          final collisionMapEntry = childrenMap.entries.firstWhere((entry) =>
+              entry.value.updatedOrderId ==
+              draggedReorderableEntity!.updatedOrderId + 1);
+
+          _updateCollision(
+            draggedHashKey: draggedHashKey,
+            collisionMapEntry: collisionMapEntry,
+          );
+        }
+      } else {
+        _updateCollision(
+          draggedHashKey: draggedHashKey,
+          collisionMapEntry: collisionMapEntry,
+        );
+      }
+    }
+  }
+
+  void _updateCollision({
+    required int draggedHashKey,
+    required MapEntry<int, ReorderableEntity> collisionMapEntry,
+  }) {
+    // update for collision entity
+    final updatedCollisionEntity = collisionMapEntry.value.copyWith(
+      updatedOffset: draggedReorderableEntity!.updatedOffset,
+      updatedOrderId: draggedReorderableEntity!.updatedOrderId,
+    );
+    childrenMap[collisionMapEntry.key] = updatedCollisionEntity;
+
+    // update for dragged entity
+    final updatedDraggedEntity = draggedReorderableEntity!.copyWith(
+      updatedOffset: collisionMapEntry.value.updatedOffset,
+      updatedOrderId: collisionMapEntry.value.updatedOrderId,
+    );
+    childrenMap[draggedHashKey] = updatedDraggedEntity;
+
+    setState(() {
+      draggedReorderableEntity = updatedDraggedEntity;
+    });
+  }
+
+  MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
+    required int draggedHashKey,
+    required DragUpdateDetails details,
+  }) {
+    for (final entry in childrenMap.entries) {
+      final localPosition = entry.value.updatedOffset;
+      final size = entry.value.size;
+
+      if (entry.key == draggedHashKey) {
+        continue;
+      }
+
+      // checking collision with full item size and local position
+      if (details.localPosition.dx >= localPosition.dx &&
+          details.localPosition.dy >= localPosition.dy &&
+          details.localPosition.dx <= localPosition.dx + size.width &&
+          details.localPosition.dy <= localPosition.dy + size.height) {
+        return entry;
+      }
+    }
+  }
 }
+
+/**
+    ///
+    /// some prints for me
+    ///
+
+    final draggedOrderIdBefore = draggedReorderableEntity.updatedOrderId;
+    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
+    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    print('');
+    print('---- Dragged child at position $draggedOrderIdBefore ----');
+    print(
+    'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+    print(
+    'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+    print('---- END ----');
+    print('');
+ */

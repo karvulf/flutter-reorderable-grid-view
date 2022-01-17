@@ -17,8 +17,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final lockedChildren = <int>[2, 4, 5];
 
-  int keyCounter = 4;
-  List<int> children = <int>[1, 2, 3];
+  int keyCounter = 7;
+  List<int> children = <int>[1, 2, 3, 4, 5, 6];
   ReorderableType reorderableType = ReorderableType.gridView;
 
   @override
