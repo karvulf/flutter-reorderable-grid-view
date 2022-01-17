@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 30;
+  static const _startCounter = 6;
   final lockedChildren = <int>[2, 4, 5];
 
   int keyCounter = _startCounter;

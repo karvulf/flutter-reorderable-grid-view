@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_animated_child.dart';
 
-typedef DraggableBuilder = Widget Function(List<Widget> draggableChildren);
+typedef DraggableBuilder = Widget Function(
+  List<Widget> draggableChildren,
+  ScrollController scrollController,
+);
 
 class ReorderableBuilder extends StatefulWidget {
   final List<Widget> children;
@@ -21,7 +24,10 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
+  final _scrollController = ScrollController();
+
   ReorderableEntity? draggedReorderableEntity;
+
   var childrenMap = <int, ReorderableEntity>{};
 
   var offsetMap = <int, Offset>{};
@@ -75,6 +81,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   Widget build(BuildContext context) {
     return widget.builder(
       _getDraggableChildren(),
+      _scrollController,
     );
   }
 
@@ -113,6 +120,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         originalOffset: offset,
         updatedOffset: offset,
       );
+      print('Added child $hashKey with offset $offset');
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
   }
@@ -124,9 +132,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _handleDragUpdate(int hashKey, DragUpdateDetails details) {
-    _checkForCollisions(
-      details: details,
-    );
+    _checkForCollisions(details: details);
   }
 
   /// Updates all children in map when dragging ends.
@@ -139,7 +145,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final originalOffset = draggedReorderableEntity!.originalOffset;
     final updatedOffset = draggedReorderableEntity!.updatedOffset;
 
+    // the dragged item has changed position
     if (originalOffset != updatedOffset) {
+      // looking for the old and new index
       for (final offsetMapEntry in offsetMap.entries) {
         final offset = offsetMapEntry.value;
 
@@ -156,6 +164,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
       final updatedChildrenMap = <int, ReorderableEntity>{};
 
+      // updating all entries in childrenMap
       for (final childrenMapEntry in childrenMap.entries) {
         final reorderableEntity = childrenMapEntry.value;
 
@@ -188,9 +197,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }) {
     final draggedHashKey = draggedReorderableEntity!.child.key.hashCode;
 
+    var draggedOffset = Offset(
+      details.localPosition.dx,
+      details.localPosition.dy + _scrollController.position.pixels,
+    );
+
     final collisionMapEntry = _getCollisionMapEntry(
       draggedHashKey: draggedHashKey,
-      details: details,
+      draggedOffset: draggedOffset,
     );
 
     if (collisionMapEntry != null) {
@@ -262,7 +276,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
     required int draggedHashKey,
-    required DragUpdateDetails details,
+    required Offset draggedOffset,
   }) {
     for (final entry in childrenMap.entries) {
       final localPosition = entry.value.updatedOffset;
@@ -273,10 +287,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       }
 
       // checking collision with full item size and local position
-      if (details.localPosition.dx >= localPosition.dx &&
-          details.localPosition.dy >= localPosition.dy &&
-          details.localPosition.dx <= localPosition.dx + size.width &&
-          details.localPosition.dy <= localPosition.dy + size.height) {
+      if (draggedOffset.dx >= localPosition.dx &&
+          draggedOffset.dy >= localPosition.dy &&
+          draggedOffset.dx <= localPosition.dx + size.width &&
+          draggedOffset.dy <= localPosition.dy + size.height) {
         return entry;
       }
     }

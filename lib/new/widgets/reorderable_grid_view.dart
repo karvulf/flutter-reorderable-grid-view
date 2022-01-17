@@ -21,10 +21,11 @@ class ReorderableGridView2 extends StatelessWidget {
     return ReorderableBuilder(
       children: children,
       onReorder: onReorder,
-      builder: (draggableChildren) {
+      builder: (draggableChildren, scrollController) {
         return GridView(
           // key: _reorderableKey,
           // shrinkWrap: true,
+          controller: scrollController,
           padding: padding,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,

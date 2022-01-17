@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_draggable.dart';
 
@@ -28,7 +29,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var duration = const Duration(milliseconds: 200);
+    var duration = const Duration(milliseconds: 300);
     if (draggedReorderableEntity == null) {
       duration = Duration.zero;
     }
@@ -38,6 +39,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
       children: [
         AnimatedPositioned(
           duration: duration,
+          curve: Curves.easeInOut,
           left: -dx,
           right: dx,
           top: -dy,
