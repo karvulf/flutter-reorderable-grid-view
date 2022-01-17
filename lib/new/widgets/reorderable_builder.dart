@@ -90,7 +90,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           reorderableEntity: reorderableEntity,
           onDragUpdate: _handleDragUpdate,
           onCreated: _handleCreated,
-          onAnimationEnd: _handleChildAnimationEnd,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
         ),
@@ -114,7 +113,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         originalOffset: offset,
         updatedOffset: offset,
       );
-      print('Added child $hashKey with position $offset');
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
   }
@@ -204,11 +202,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     }
   }
 
-  void _handleChildAnimationEnd(
-    int hashKey,
-    ReorderableEntity reorderableEntity,
-  ) {}
-
   int getChildIndex(int hashKey) => widget.children.indexWhere(
         (element) => element.key.hashCode == hashKey,
       );
@@ -217,13 +210,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   ///
   /// Every updated child gets a new offset and orderId.
   void _handleDragEnd(DraggableDetails details) {
+    int? oldIndex;
+    int? newIndex;
+
     final originalOffset = draggedReorderableEntity!.originalOffset;
     final updatedOffset = draggedReorderableEntity!.updatedOffset;
 
     if (originalOffset != updatedOffset) {
-      int oldIndex = -1;
-      int newIndex = -1;
-
       for (final offsetMapEntry in offsetMap.entries) {
         final offset = offsetMapEntry.value;
 
@@ -233,7 +226,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           newIndex = offsetMapEntry.key;
         }
 
-        if (oldIndex >= 0 && newIndex >= 0) {
+        if (oldIndex != 0 && newIndex != 0) {
           break;
         }
       }
@@ -260,5 +253,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     setState(() {
       draggedReorderableEntity = null;
     });
+
+    if (oldIndex != null && newIndex != null) {
+      widget.onReorder(oldIndex, newIndex);
+    }
   }
 }

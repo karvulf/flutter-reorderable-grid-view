@@ -10,7 +10,6 @@ typedef OnAnimationEndFunction = Function(
 class ReorderableAnimatedChild extends StatelessWidget {
   final ReorderableEntity reorderableEntity;
   final DragEndCallback onDragEnd;
-  final OnAnimationEndFunction onAnimationEnd;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
@@ -21,7 +20,6 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.reorderableEntity,
     required this.onCreated,
     required this.onDragUpdate,
-    required this.onAnimationEnd,
     required this.onDragStarted,
     required this.onDragEnd,
     this.draggedReorderableEntity,
@@ -44,10 +42,6 @@ class ReorderableAnimatedChild extends StatelessWidget {
           right: dx,
           top: dy,
           bottom: -dy,
-          onEnd: () {
-            final hashKey = reorderableEntity.child.key.hashCode;
-            onAnimationEnd(hashKey, reorderableEntity);
-          },
           child: ReorderableDraggable(
             reorderableEntity: reorderableEntity,
             draggedReorderableEntity: draggedReorderableEntity,
