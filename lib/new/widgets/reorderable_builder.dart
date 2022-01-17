@@ -32,6 +32,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   var offsetMap = <int, Offset>{};
 
+  double scrollPositionPixels = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -128,6 +130,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     setState(() {
       draggedReorderableEntity = reorderableEntity;
+      scrollPositionPixels = _scrollController.position.pixels;
     });
   }
 
@@ -199,7 +202,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
     var draggedOffset = Offset(
       details.localPosition.dx,
-      details.localPosition.dy + _scrollController.position.pixels,
+      details.localPosition.dy, // + _scrollController.position.pixels,
     );
 
     final collisionMapEntry = _getCollisionMapEntry(

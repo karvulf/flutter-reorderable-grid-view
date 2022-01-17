@@ -18,6 +18,8 @@ class ReorderableGridView2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final clipBehavior = this.clipBehavior ?? Clip.hardEdge;
+
     return ReorderableBuilder(
       children: children,
       onReorder: onReorder,
@@ -32,8 +34,20 @@ class ReorderableGridView2 extends StatelessWidget {
             mainAxisSpacing: 4,
             crossAxisSpacing: 8,
           ),
-          clipBehavior: clipBehavior ?? Clip.hardEdge,
+          clipBehavior: clipBehavior,
           children: draggableChildren,
+        );
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
+          itemBuilder: (context, index) => draggableChildren[index],
+          itemCount: draggableChildren.length,
+          controller: scrollController,
+          padding: padding,
+          clipBehavior: clipBehavior,
         );
       },
     );
