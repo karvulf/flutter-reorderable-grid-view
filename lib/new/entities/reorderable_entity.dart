@@ -3,35 +3,37 @@ import 'package:flutter_reorderable_grid_view/new/entities/reorderable_updated_e
 
 class ReorderableEntity {
   final Widget child;
-  final Offset originalOffset;
   final Size size;
-  final int orderId;
 
-  final ReorderableUpdatedEntity? reorderableUpdatedEntity;
+  final int originalOrderId;
+  final int updatedOrderId;
+
+  final Offset originalOffset;
+  final Offset updatedOffset;
 
   const ReorderableEntity({
     required this.child,
-    required this.orderId,
+    required this.originalOrderId,
+    required this.updatedOrderId,
     this.originalOffset = Offset.zero,
+    this.updatedOffset = Offset.zero,
     this.size = Size.zero,
-    this.reorderableUpdatedEntity,
   });
 
   ReorderableEntity copyWith({
-    required ReorderableUpdatedEntity? reorderableUpdatedEntity,
+    Offset? originalOffset,
+    Offset? updatedOffset,
     Widget? child,
     Size? size,
-    Offset? originalOffset,
-    int? orderId,
+    int? originalOrderId,
+    int? updatedOrderId,
   }) =>
       ReorderableEntity(
-        originalOffset: originalOffset ?? this.originalOffset,
         size: size ?? this.size,
-        reorderableUpdatedEntity: reorderableUpdatedEntity,
+        originalOffset: originalOffset ?? this.originalOffset,
+        updatedOffset: updatedOffset ?? this.updatedOffset,
         child: child ?? this.child,
-        orderId: orderId ?? this.orderId,
+        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
+        originalOrderId: originalOrderId ?? this.originalOrderId,
       );
-
-  Offset get currentOffset =>
-      reorderableUpdatedEntity?.offset ?? originalOffset;
 }

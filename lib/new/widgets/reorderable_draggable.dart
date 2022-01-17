@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = Function(
   int hashKey,
@@ -11,17 +12,17 @@ typedef OnDragUpdateFunction = Function(
 );
 
 class ReorderableDraggable extends StatefulWidget {
-  final Widget child;
+  final ReorderableEntity reorderableEntity;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
-  final Function(Widget child) onDragStarted;
+  final Function(ReorderableEntity reorderableEntity) onDragStarted;
   final DragEndCallback onDragEnd;
 
-  final Widget? draggedChild;
+  final ReorderableEntity? draggedReorderableEntity;
 
   const ReorderableDraggable({
-    required this.child,
-    required this.draggedChild,
+    required this.reorderableEntity,
+    required this.draggedReorderableEntity,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
@@ -44,7 +45,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      widget.onCreated(widget.child.key.hashCode, _globalKey);
+      final hashKey = widget.reorderableEntity.child.key.hashCode;
+      widget.onCreated(hashKey, _globalKey);
     });
 
     _controller = AnimationController(
@@ -55,22 +57,25 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   @override
   Widget build(BuildContext context) {
+    final reorderableEntityChild = widget.reorderableEntity.child;
     final child = Container(
       key: _globalKey,
-      child: widget.child,
+      child: reorderableEntityChild,
     );
 
     final feedback = Material(
       color: Colors.transparent,
-      child: widget.child,
+      child: reorderableEntityChild,
     );
 
-    final visible = widget.draggedChild == null;
+    final draggedHashKey = widget.draggedReorderableEntity?.child.key.hashCode;
+    final hashKey = reorderableEntityChild.key.hashCode;
+    final visible = hashKey != draggedHashKey;
 
     return LongPressDraggable(
       onDragUpdate: _handleDragUpdate,
       onDragStarted: () {
-        widget.onDragStarted(widget.child);
+        widget.onDragStarted(widget.reorderableEntity);
         _controller.forward();
       },
       onDragEnd: _handleDragEnd,
@@ -87,7 +92,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    widget.onDragUpdate(widget.child.key.hashCode, details);
+    final hashKey = widget.reorderableEntity.child.key.hashCode;
+    widget.onDragUpdate(hashKey, details);
   }
 
   void _handleDragEnd(DraggableDetails details) {

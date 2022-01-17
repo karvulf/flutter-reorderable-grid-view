@@ -13,9 +13,9 @@ class ReorderableAnimatedChild extends StatelessWidget {
   final OnAnimationEndFunction onAnimationEnd;
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
-  final Function(Widget child) onDragStarted;
+  final Function(ReorderableEntity reorderableEntity) onDragStarted;
 
-  final Widget? draggedChild;
+  final ReorderableEntity? draggedReorderableEntity;
 
   const ReorderableAnimatedChild({
     required this.reorderableEntity,
@@ -24,33 +24,33 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.onAnimationEnd,
     required this.onDragStarted,
     required this.onDragEnd,
-    this.draggedChild,
+    this.draggedReorderableEntity,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final child = reorderableEntity.child;
+    var duration = const Duration(milliseconds: 200);
+    if (draggedReorderableEntity == null) {
+      duration = Duration.zero;
+    }
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         AnimatedPositioned(
-          duration: reorderableEntity.reorderableUpdatedEntity != null
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
-          left: 0 - dx,
-          right: 0 + dx,
-          top: 0 + dy,
-          bottom: 0 - dy,
+          duration: duration,
+          left: -dx,
+          right: dx,
+          top: dy,
+          bottom: -dy,
           onEnd: () {
-            onAnimationEnd(child.key.hashCode, reorderableEntity);
+            final hashKey = reorderableEntity.child.key.hashCode;
+            onAnimationEnd(hashKey, reorderableEntity);
           },
           child: ReorderableDraggable(
-            child: child,
-            draggedChild: child.key.hashCode == draggedChild?.key.hashCode
-                ? draggedChild
-                : null,
+            reorderableEntity: reorderableEntity,
+            draggedReorderableEntity: draggedReorderableEntity,
             onCreated: onCreated,
             onDragUpdate: onDragUpdate,
             onDragStarted: onDragStarted,
@@ -63,12 +63,9 @@ class ReorderableAnimatedChild extends StatelessWidget {
 
   double get dx {
     final originalOffset = reorderableEntity.originalOffset;
-    final updatedOffset = reorderableEntity.reorderableUpdatedEntity?.offset;
+    final updatedOffset = reorderableEntity.updatedOffset;
 
-    if (updatedOffset != null) {
-      return originalOffset.dx - updatedOffset.dx;
-    }
-    return 0.0;
+    return originalOffset.dx - updatedOffset.dx;
   }
 
   double get dy => 0.0;
