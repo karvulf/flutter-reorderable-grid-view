@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
-import 'package:flutter_reorderable_grid_view/flutter_reorderable_grid_view.dart';
-import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
+
+enum ReorderableType { wrap, gridView, gridViewCount, gridViewExtent }
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 20;
-  final lockedChildren = <int>[2, 4, 5];
+  final lockedIndices = <int>[2, 4, 5];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> {
       (index) => Container(
         key: Key(children[index].toString()),
         decoration: BoxDecoration(
-          color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
+          color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
         ),
         height: 100.0,
         width: 100.0,
@@ -153,53 +153,28 @@ class _MyAppState extends State<MyApp> {
 
     switch (reorderableType) {
       case ReorderableType.wrap:
-        return ReorderableWrap(
-          key: const Key('wrap'),
-          enableLongPress: true,
-          lockedChildren: lockedChildren,
-          spacing: 12,
-          onReorder: _handleReorder,
-          physics: const AlwaysScrollableScrollPhysics(),
+        return ReorderableGridView(
           children: generatedChildren,
-          enableReorder: false,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
         );
       case ReorderableType.gridView:
-        return ReorderableGridView2(
-          children: generatedChildren,
-          onReorder: _handleReorder,
-          lockedIndices: lockedChildren,
-        );
         return ReorderableGridView(
-          key: const Key('gridView'),
-          lockedChildren: lockedChildren,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
-          onReorder: _handleReorder,
           children: generatedChildren,
-          padding: const EdgeInsets.all(20),
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
         );
       case ReorderableType.gridViewCount:
-        return ReorderableGridView.count(
-          key: const Key('gridViewCount'),
-          lockedChildren: lockedChildren,
-          onReorder: _handleReorder,
-          mainAxisSpacing: 12,
-          crossAxisCount: 12,
+        return ReorderableGridView(
           children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
         );
       case ReorderableType.gridViewExtent:
-        return ReorderableGridView.extent(
-          key: const Key('gridViewExtent'),
-          lockedChildren: lockedChildren,
-          onReorder: _handleReorder,
-          maxCrossAxisExtent: 150,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          physics: const AlwaysScrollableScrollPhysics(),
+        return ReorderableGridView(
           children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
         );
     }
   }

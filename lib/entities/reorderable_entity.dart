@@ -1,36 +1,38 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 
 class ReorderableEntity {
-  List<Widget> children;
-  Map<int, GridItemEntity> idMap;
+  final Widget child;
+  final Size size;
 
-  // don't use const to ensure that map and list is modifiable
-  ReorderableEntity({
-    required this.children,
-    required this.idMap,
+  final int originalOrderId;
+  final int updatedOrderId;
+
+  final Offset originalOffset;
+  final Offset updatedOffset;
+
+  const ReorderableEntity({
+    required this.child,
+    required this.originalOrderId,
+    required this.updatedOrderId,
+    this.originalOffset = Offset.zero,
+    this.updatedOffset = Offset.zero,
+    this.size = Size.zero,
   });
 
-  factory ReorderableEntity.create() => ReorderableEntity(
-        children: [],
-        idMap: {},
-      );
-
   ReorderableEntity copyWith({
-    List<Widget>? children,
-    Map<int, GridItemEntity>? idMap,
+    Offset? originalOffset,
+    Offset? updatedOffset,
+    Widget? child,
+    Size? size,
+    int? originalOrderId,
+    int? updatedOrderId,
   }) =>
       ReorderableEntity(
-        children: children ?? this.children,
-        idMap: idMap ?? this.idMap,
+        size: size ?? this.size,
+        originalOffset: originalOffset ?? this.originalOffset,
+        updatedOffset: updatedOffset ?? this.updatedOffset,
+        child: child ?? this.child,
+        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
+        originalOrderId: originalOrderId ?? this.originalOrderId,
       );
-
-  void clear() {
-    children.clear();
-    idMap.clear();
-  }
-
-  void addEntry(MapEntry<int, GridItemEntity> entry) {
-    idMap[entry.key] = entry.value;
-  }
 }

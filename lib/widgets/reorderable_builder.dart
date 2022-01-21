@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_animated_child.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> draggableChildren,
