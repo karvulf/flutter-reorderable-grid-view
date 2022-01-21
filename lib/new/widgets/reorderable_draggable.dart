@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/new/entities/reorderable_entity.dart';
 
-typedef OnCreatedFunction = Function(
+typedef OnCreatedFunction = ReorderableEntity? Function(
   int hashKey,
   GlobalKey key,
 );
@@ -37,6 +37,7 @@ class ReorderableDraggable extends StatefulWidget {
 class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
+  late ReorderableEntity _reorderableEntity;
 
   final _globalKey = GlobalKey();
 
@@ -45,19 +46,30 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final hashKey = widget.reorderableEntity.child.key.hashCode;
-      widget.onCreated(hashKey, _globalKey);
+      final hashKey = _reorderableEntity.child.key.hashCode;
+      _reorderableEntity = widget.onCreated(hashKey, _globalKey)!;
     });
 
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
+    _reorderableEntity = widget.reorderableEntity;
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableDraggable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.reorderableEntity != widget.reorderableEntity) {
+      setState(() {
+        _reorderableEntity = widget.reorderableEntity;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final reorderableEntityChild = widget.reorderableEntity.child;
+    final reorderableEntityChild = _reorderableEntity.child;
     final child = Container(
       key: _globalKey,
       child: reorderableEntityChild,
@@ -75,7 +87,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     return LongPressDraggable(
       onDragUpdate: _handleDragUpdate,
       onDragStarted: () {
-        widget.onDragStarted(widget.reorderableEntity);
+        widget.onDragStarted(_reorderableEntity);
         _controller.forward();
       },
       onDragEnd: _handleDragEnd,
@@ -92,7 +104,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final hashKey = widget.reorderableEntity.child.key.hashCode;
+    final hashKey = _reorderableEntity.child.key.hashCode;
     widget.onDragUpdate(hashKey, details);
   }
 

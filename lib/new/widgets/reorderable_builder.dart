@@ -108,7 +108,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return draggableChildren;
   }
 
-  void _handleCreated(int hashKey, GlobalKey key) {
+  ReorderableEntity? _handleCreated(int hashKey, GlobalKey key) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
@@ -121,18 +121,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         localOffset.dy + _scrollController.position.pixels,
       );
       final size = renderBox.size;
-      childrenMap[hashKey] = reorderableEntity.copyWith(
+      final updatedReorderableEntity = reorderableEntity.copyWith(
         size: size,
         originalOffset: offset,
         updatedOffset: offset,
       );
+      childrenMap[hashKey] = updatedReorderableEntity;
       print('Added child $hashKey with offset $offset');
       offsetMap[reorderableEntity.updatedOrderId] = offset;
+
+      return updatedReorderableEntity;
     }
   }
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
-    print('scrollPositionPixels ${_scrollController.position.pixels}');
     setState(() {
       draggedReorderableEntity = reorderableEntity;
       scrollPositionPixels = _scrollController.position.pixels;
@@ -277,36 +279,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     );
     childrenMap[draggedHashKey] = updatedDraggedEntity;
 
-    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
-    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
-    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
-    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
-
-    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
-    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
-    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
-    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
-
-    print('');
-    print('---- Dragged child at position $draggedOrderIdBefore ----');
-    print(
-        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
-    print('Dragged child original offset $draggedOriginalOffset');
-    print(
-        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
-    print('----');
-    print(
-        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
-    print('Collisioned child original offset $collisionOriginalOffset');
-    print(
-        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
-    print('---- END ----');
-    print('');
-
     setState(() {
       draggedReorderableEntity = updatedDraggedEntity;
     });
@@ -340,18 +312,34 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     /// some prints for me
     ///
 
-    final draggedOrderIdBefore = draggedReorderableEntity.updatedOrderId;
+    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
     final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
+    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
+    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
 
     final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
     final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
+    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
+    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
 
     print('');
     print('---- Dragged child at position $draggedOrderIdBefore ----');
     print(
     'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+    print('Dragged child original offset $draggedOriginalOffset');
+    print(
+    'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
+    print('----');
     print(
     'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+    print('Collisioned child original offset $collisionOriginalOffset');
+    print(
+    'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
     print('---- END ----');
     print('');
+
  */
