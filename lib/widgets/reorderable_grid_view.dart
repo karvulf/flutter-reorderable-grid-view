@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
+import 'package:flutter_reorderable_grid_view/entities/grid_view_type.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 /// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
 class ReorderableGridView extends StatelessWidget {
-  late final ReorderableType _reorderableType;
+  late final GridViewType _reorderableType;
 
   final List<Widget> children;
   final ReorderCallback onReorder;
@@ -48,7 +48,7 @@ class ReorderableGridView extends StatelessWidget {
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key) {
-    _reorderableType = ReorderableType.gridView;
+    _reorderableType = GridViewType.gridView;
   }
 
   ReorderableGridView.count({
@@ -68,7 +68,7 @@ class ReorderableGridView extends StatelessWidget {
     this.crossAxisSpacing = 0.0,
     Key? key,
   }) : super(key: key) {
-    _reorderableType = ReorderableType.gridViewCount;
+    _reorderableType = GridViewType.gridViewCount;
   }
 
   ReorderableGridView.extent({
@@ -89,7 +89,7 @@ class ReorderableGridView extends StatelessWidget {
     this.childAspectRatio = 1.0,
     Key? key,
   }) : super(key: key) {
-    _reorderableType = ReorderableType.gridViewExtent;
+    _reorderableType = GridViewType.gridViewExtent;
   }
 
   ReorderableGridView.builder({
@@ -107,7 +107,7 @@ class ReorderableGridView extends StatelessWidget {
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key) {
-    _reorderableType = ReorderableType.gridViewExtent;
+    _reorderableType = GridViewType.gridViewBuilder;
   }
 
   @override
@@ -123,7 +123,7 @@ class ReorderableGridView extends StatelessWidget {
       dragChildBoxDecoration: dragChildBoxDecoration,
       builder: (draggableChildren, scrollController) {
         switch (_reorderableType) {
-          case ReorderableType.gridView:
+          case GridViewType.gridView:
             return GridView(
               controller: scrollController,
               children: draggableChildren,
@@ -132,7 +132,7 @@ class ReorderableGridView extends StatelessWidget {
               gridDelegate: gridDelegate!,
               clipBehavior: clipBehavior,
             );
-          case ReorderableType.gridViewCount:
+          case GridViewType.gridViewCount:
             return GridView.count(
               controller: scrollController,
               physics: physics,
@@ -143,7 +143,7 @@ class ReorderableGridView extends StatelessWidget {
               clipBehavior: clipBehavior,
               padding: padding,
             );
-          case ReorderableType.gridViewExtent:
+          case GridViewType.gridViewExtent:
             return GridView.extent(
               controller: scrollController,
               children: draggableChildren,
@@ -155,7 +155,7 @@ class ReorderableGridView extends StatelessWidget {
               clipBehavior: clipBehavior,
               childAspectRatio: childAspectRatio!,
             );
-          case ReorderableType.gridViewBuilder:
+          case GridViewType.gridViewBuilder:
             return GridView.builder(
               controller: scrollController,
               physics: physics,
