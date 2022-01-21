@@ -6,27 +6,27 @@ class ReorderableGridView2 extends StatelessWidget {
   final List<Widget> children;
   final ReorderCallback onReorder;
   final List<int> lockedIndices;
-
-  final EdgeInsets? padding;
-  final Clip? clipBehavior;
+  final bool enableAnimation;
+  final EdgeInsets padding;
+  final Clip clipBehavior;
 
   const ReorderableGridView2({
     required this.children,
     required this.onReorder,
     this.lockedIndices = const [],
-    this.padding,
-    this.clipBehavior,
+    this.enableAnimation = true,
+    this.padding = EdgeInsets.zero,
+    this.clipBehavior = Clip.hardEdge,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final clipBehavior = this.clipBehavior ?? Clip.hardEdge;
-
     return ReorderableBuilder(
       children: children,
       onReorder: onReorder,
       lockedIndices: lockedIndices,
+      enableAnimation: enableAnimation,
       builder: (draggableChildren, scrollController) {
         /* return GridView(
           // shrinkWrap: true,

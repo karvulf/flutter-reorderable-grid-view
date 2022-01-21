@@ -12,12 +12,14 @@ class ReorderableBuilder extends StatefulWidget {
   final DraggableBuilder builder;
   final ReorderCallback onReorder;
   final List<int> lockedIndices;
+  final bool enableAnimation;
 
   const ReorderableBuilder({
     required this.children,
     required this.builder,
     required this.onReorder,
     required this.lockedIndices,
+    required this.enableAnimation,
     Key? key,
   }) : super(key: key);
 
@@ -100,10 +102,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final sortedChildren = _childrenMap.values.toList()
       ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
 
+    final enableAnimation =
+        draggedReorderableEntity != null && widget.enableAnimation;
+
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         ReorderableAnimatedChild(
           draggedReorderableEntity: draggedReorderableEntity,
+          enableAnimation: enableAnimation,
           reorderableEntity: reorderableEntity,
           onDragUpdate: _handleDragUpdate,
           onCreated: _handleCreated,
