@@ -7,6 +7,8 @@ class ReorderableGridView2 extends StatelessWidget {
   final ReorderCallback onReorder;
   final List<int> lockedIndices;
   final bool enableAnimation;
+  final bool enableLongPress;
+
   final EdgeInsets padding;
   final Clip clipBehavior;
 
@@ -15,6 +17,7 @@ class ReorderableGridView2 extends StatelessWidget {
     required this.onReorder,
     this.lockedIndices = const [],
     this.enableAnimation = true,
+    this.enableLongPress = true,
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
     Key? key,
@@ -27,6 +30,7 @@ class ReorderableGridView2 extends StatelessWidget {
       onReorder: onReorder,
       lockedIndices: lockedIndices,
       enableAnimation: enableAnimation,
+      enableLongPress: enableLongPress,
       builder: (draggableChildren, scrollController) {
         /* return GridView(
           // shrinkWrap: true,

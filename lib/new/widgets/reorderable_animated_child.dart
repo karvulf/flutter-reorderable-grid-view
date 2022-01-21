@@ -11,6 +11,7 @@ typedef OnAnimationEndFunction = Function(
 class ReorderableAnimatedChild extends StatelessWidget {
   final ReorderableEntity reorderableEntity;
   final bool enableAnimation;
+  final bool enableLongPress;
 
   final DragEndCallback onDragEnd;
   final OnCreatedFunction onCreated;
@@ -22,6 +23,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
   const ReorderableAnimatedChild({
     required this.reorderableEntity,
     required this.enableAnimation,
+    required this.enableLongPress,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
@@ -50,11 +52,12 @@ class ReorderableAnimatedChild extends StatelessWidget {
           bottom: dy,
           child: ReorderableDraggable(
             reorderableEntity: reorderableEntity,
-            draggedReorderableEntity: draggedReorderableEntity,
+            enableLongPress: enableLongPress,
             onCreated: onCreated,
             onDragUpdate: onDragUpdate,
             onDragStarted: onDragStarted,
             onDragEnd: onDragEnd,
+            draggedReorderableEntity: draggedReorderableEntity,
           ),
         ),
       ],

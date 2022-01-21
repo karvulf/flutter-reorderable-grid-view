@@ -13,6 +13,8 @@ typedef OnDragUpdateFunction = Function(
 
 class ReorderableDraggable extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
+  final bool enableLongPress;
+
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
@@ -22,11 +24,12 @@ class ReorderableDraggable extends StatefulWidget {
 
   const ReorderableDraggable({
     required this.reorderableEntity,
-    required this.draggedReorderableEntity,
+    required this.enableLongPress,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
     required this.onDragEnd,
+    required this.draggedReorderableEntity,
     Key? key,
   }) : super(key: key);
 
@@ -84,23 +87,35 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     final hashKey = reorderableEntityChild.key.hashCode;
     final visible = hashKey != draggedHashKey;
 
-    return LongPressDraggable(
-      onDragUpdate: _handleDragUpdate,
-      onDragStarted: () {
-        widget.onDragStarted(_reorderableEntity);
-        _controller.forward();
-      },
-      onDragEnd: _handleDragEnd,
-      feedback: feedback,
-      childWhenDragging: Visibility(
-        visible: visible,
-        child: child,
-      ),
-      child: Visibility(
-        visible: visible,
-        child: child,
-      ),
+    final childWhenDragging = Visibility(
+      visible: visible,
+      child: child,
     );
+
+    if (widget.enableLongPress) {
+      return LongPressDraggable(
+        onDragUpdate: _handleDragUpdate,
+        onDragStarted: _handleStarted,
+        onDragEnd: _handleDragEnd,
+        feedback: feedback,
+        childWhenDragging: childWhenDragging,
+        child: childWhenDragging,
+      );
+    } else {
+      return Draggable(
+        onDragUpdate: _handleDragUpdate,
+        onDragStarted: _handleStarted,
+        onDragEnd: _handleDragEnd,
+        feedback: feedback,
+        childWhenDragging: childWhenDragging,
+        child: childWhenDragging,
+      );
+    }
+  }
+
+  void _handleStarted() {
+    widget.onDragStarted(_reorderableEntity);
+    _controller.forward();
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {

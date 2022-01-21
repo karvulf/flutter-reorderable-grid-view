@@ -13,6 +13,7 @@ class ReorderableBuilder extends StatefulWidget {
   final ReorderCallback onReorder;
   final List<int> lockedIndices;
   final bool enableAnimation;
+  final bool enableLongPress;
 
   const ReorderableBuilder({
     required this.children,
@@ -20,6 +21,7 @@ class ReorderableBuilder extends StatefulWidget {
     required this.onReorder,
     required this.lockedIndices,
     required this.enableAnimation,
+    required this.enableLongPress,
     Key? key,
   }) : super(key: key);
 
@@ -110,11 +112,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         ReorderableAnimatedChild(
           draggedReorderableEntity: draggedReorderableEntity,
           enableAnimation: enableAnimation,
-          reorderableEntity: reorderableEntity,
+          enableLongPress: widget.enableLongPress,
           onDragUpdate: _handleDragUpdate,
           onCreated: _handleCreated,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
+          reorderableEntity: reorderableEntity,
         ),
       );
     }
