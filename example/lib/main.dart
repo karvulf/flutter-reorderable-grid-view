@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
 
-enum ReorderableType { wrap, gridView, gridViewCount, gridViewExtent }
+enum ReorderableType {
+  wrap,
+  gridView,
+  gridViewCount,
+  gridViewExtent,
+  gridViewBuilder,
+}
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -153,7 +160,7 @@ class _MyAppState extends State<MyApp> {
 
     switch (reorderableType) {
       case ReorderableType.wrap:
-        return ReorderableGridView(
+        return ReorderableWrap(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
@@ -163,18 +170,36 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
         );
       case ReorderableType.gridViewCount:
-        return ReorderableGridView(
+        return ReorderableGridView.count(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          crossAxisCount: 3,
         );
       case ReorderableType.gridViewExtent:
-        return ReorderableGridView(
+        return ReorderableGridView.extent(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          maxCrossAxisExtent: 2,
+        );
+      case ReorderableType.gridViewBuilder:
+        return ReorderableGridView.builder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
         );
     }
   }

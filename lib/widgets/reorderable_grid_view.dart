@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 /// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
 class ReorderableGridView extends StatelessWidget {
+  late final ReorderableType _reorderableType;
+
   final List<Widget> children;
   final ReorderCallback onReorder;
   final List<int> lockedIndices;
@@ -15,21 +18,97 @@ class ReorderableGridView extends StatelessWidget {
   final EdgeInsets padding;
   final Clip clipBehavior;
 
+  // GridView
+  late final SliverGridDelegate? gridDelegate;
+
+  // GridView.count
+  late final int? crossAxisCount;
+  late final double? mainAxisSpacing;
+  late final double? crossAxisSpacing;
+
+  // GridView.extent
+  late final double? maxCrossAxisExtent;
+  late final double? childAspectRatio;
+
+  final ScrollPhysics? physics;
   final BoxDecoration? dragChildBoxDecoration;
 
-  const ReorderableGridView({
+  ReorderableGridView({
     required this.children,
     required this.onReorder,
+    required this.gridDelegate,
     this.lockedIndices = const [],
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
+    this.physics,
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
     this.dragChildBoxDecoration,
     Key? key,
-  }) : super(key: key);
+  }) : super(key: key) {
+    _reorderableType = ReorderableType.gridView;
+  }
+
+  ReorderableGridView.count({
+    required this.children,
+    required this.onReorder,
+    required this.crossAxisCount,
+    this.lockedIndices = const [],
+    this.enableAnimation = true,
+    this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
+    this.physics,
+    this.padding = EdgeInsets.zero,
+    this.clipBehavior = Clip.hardEdge,
+    this.dragChildBoxDecoration,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    Key? key,
+  }) : super(key: key) {
+    _reorderableType = ReorderableType.gridViewCount;
+  }
+
+  ReorderableGridView.extent({
+    required this.children,
+    required this.onReorder,
+    required this.maxCrossAxisExtent,
+    this.lockedIndices = const [],
+    this.enableAnimation = true,
+    this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
+    this.physics,
+    this.padding = EdgeInsets.zero,
+    this.clipBehavior = Clip.hardEdge,
+    this.dragChildBoxDecoration,
+    this.mainAxisSpacing = 0.0,
+    this.crossAxisSpacing = 0.0,
+    this.childAspectRatio = 1.0,
+    Key? key,
+  }) : super(key: key) {
+    _reorderableType = ReorderableType.gridViewExtent;
+  }
+
+  ReorderableGridView.builder({
+    required this.children,
+    required this.onReorder,
+    required this.gridDelegate,
+    this.lockedIndices = const [],
+    this.enableAnimation = true,
+    this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
+    this.physics,
+    this.padding = EdgeInsets.zero,
+    this.clipBehavior = Clip.hardEdge,
+    this.dragChildBoxDecoration,
+    Key? key,
+  }) : super(key: key) {
+    _reorderableType = ReorderableType.gridViewExtent;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,30 +122,50 @@ class ReorderableGridView extends StatelessWidget {
       enableDraggable: enableDraggable,
       dragChildBoxDecoration: dragChildBoxDecoration,
       builder: (draggableChildren, scrollController) {
-        /* return GridView(
-          // shrinkWrap: true,
-          controller: scrollController,
-          padding: padding,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
-          clipBehavior: clipBehavior,
-          children: draggableChildren,
-        );*/
-        return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
-          itemBuilder: (context, index) => draggableChildren[index],
-          itemCount: draggableChildren.length,
-          controller: scrollController,
-          padding: padding,
-          clipBehavior: clipBehavior,
-        );
+        switch (_reorderableType) {
+          case ReorderableType.gridView:
+            return GridView(
+              controller: scrollController,
+              children: draggableChildren,
+              physics: physics,
+              padding: padding,
+              gridDelegate: gridDelegate!,
+              clipBehavior: clipBehavior,
+            );
+          case ReorderableType.gridViewCount:
+            return GridView.count(
+              controller: scrollController,
+              physics: physics,
+              children: draggableChildren,
+              crossAxisCount: crossAxisCount!,
+              mainAxisSpacing: mainAxisSpacing!,
+              crossAxisSpacing: crossAxisSpacing!,
+              clipBehavior: clipBehavior,
+              padding: padding,
+            );
+          case ReorderableType.gridViewExtent:
+            return GridView.extent(
+              controller: scrollController,
+              children: draggableChildren,
+              physics: physics,
+              maxCrossAxisExtent: maxCrossAxisExtent!,
+              mainAxisSpacing: mainAxisSpacing!,
+              crossAxisSpacing: crossAxisSpacing!,
+              padding: padding,
+              clipBehavior: clipBehavior,
+              childAspectRatio: childAspectRatio!,
+            );
+          case ReorderableType.gridViewBuilder:
+            return GridView.builder(
+              controller: scrollController,
+              physics: physics,
+              itemCount: draggableChildren.length,
+              itemBuilder: (context, index) => draggableChildren[index],
+              gridDelegate: gridDelegate!,
+              padding: padding,
+              clipBehavior: clipBehavior,
+            );
+        }
       },
     );
   }
