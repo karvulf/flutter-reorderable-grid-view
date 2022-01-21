@@ -168,9 +168,6 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedChildren,
-          enableAnimation: true,
-          enableLongPress: true,
-          longPressDelay: const Duration(milliseconds: 200),
         );
         return ReorderableGridView(
           key: const Key('gridView'),

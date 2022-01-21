@@ -15,6 +15,7 @@ class ReorderableBuilder extends StatefulWidget {
   final bool enableAnimation;
   final bool enableLongPress;
   final Duration longPressDelay;
+  final bool enableDraggable;
 
   const ReorderableBuilder({
     required this.children,
@@ -24,6 +25,7 @@ class ReorderableBuilder extends StatefulWidget {
     required this.enableAnimation,
     required this.enableLongPress,
     required this.longPressDelay,
+    required this.enableDraggable,
     Key? key,
   }) : super(key: key);
 
@@ -116,6 +118,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           enableAnimation: enableAnimation,
           enableLongPress: widget.enableLongPress,
           longPressDelay: widget.longPressDelay,
+          enableDraggable: widget.enableDraggable,
           onDragUpdate: _handleDragUpdate,
           onCreated: _handleCreated,
           onDragStarted: _handleDragStarted,

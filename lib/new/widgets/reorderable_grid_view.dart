@@ -10,6 +10,7 @@ class ReorderableGridView2 extends StatelessWidget {
   final bool enableAnimation;
   final bool enableLongPress;
   final Duration longPressDelay;
+  final bool enableDraggable;
 
   final EdgeInsets padding;
   final Clip clipBehavior;
@@ -21,6 +22,7 @@ class ReorderableGridView2 extends StatelessWidget {
     this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
     Key? key,
@@ -35,6 +37,7 @@ class ReorderableGridView2 extends StatelessWidget {
       enableAnimation: enableAnimation,
       enableLongPress: enableLongPress,
       longPressDelay: longPressDelay,
+      enableDraggable: enableDraggable,
       builder: (draggableChildren, scrollController) {
         /* return GridView(
           // shrinkWrap: true,

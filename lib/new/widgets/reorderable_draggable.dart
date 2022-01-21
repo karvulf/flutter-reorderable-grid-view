@@ -15,6 +15,7 @@ class ReorderableDraggable extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final bool enableLongPress;
   final Duration longPressDelay;
+  final bool enableDraggable;
 
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
@@ -27,6 +28,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.reorderableEntity,
     required this.enableLongPress,
     required this.longPressDelay,
+    required this.enableDraggable,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
@@ -94,7 +96,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       child: child,
     );
 
-    if (widget.enableLongPress) {
+    if (!widget.enableDraggable) {
+      return child;
+    } else if (widget.enableLongPress) {
       return LongPressDraggable(
         delay: widget.longPressDelay,
         onDragUpdate: _handleDragUpdate,
