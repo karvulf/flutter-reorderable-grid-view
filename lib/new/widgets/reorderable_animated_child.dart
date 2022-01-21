@@ -21,6 +21,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
 
   final ReorderableEntity? draggedReorderableEntity;
+  final BoxDecoration? dragChildBoxDecoration;
 
   const ReorderableAnimatedChild({
     required this.reorderableEntity,
@@ -33,6 +34,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.onDragStarted,
     required this.onDragEnd,
     this.draggedReorderableEntity,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -64,6 +66,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
             onDragStarted: onDragStarted,
             onDragEnd: onDragEnd,
             draggedReorderableEntity: draggedReorderableEntity,
+            dragChildBoxDecoration: dragChildBoxDecoration,
           ),
         ),
       ],

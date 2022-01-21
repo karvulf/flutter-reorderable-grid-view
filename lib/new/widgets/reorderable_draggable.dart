@@ -16,6 +16,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
+  final BoxDecoration? dragChildBoxDecoration;
 
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
@@ -34,6 +35,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onDragStarted,
     required this.onDragEnd,
     required this.draggedReorderableEntity,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -44,9 +46,21 @@ class ReorderableDraggable extends StatefulWidget {
 class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
+  late final DecorationTween _decorationTween;
+
   late ReorderableEntity _reorderableEntity;
 
   final _globalKey = GlobalKey();
+  final _defaultBoxDecoration = BoxDecoration(
+    boxShadow: <BoxShadow>[
+      BoxShadow(
+        color: Colors.black.withOpacity(0.2),
+        spreadRadius: 5,
+        blurRadius: 6,
+        offset: const Offset(0, 3), // changes position of shadow
+      ),
+    ],
+  );
 
   @override
   void initState() {
@@ -61,6 +75,16 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
+
+    final beginDragBoxDecoration = widget.dragChildBoxDecoration?.copyWith(
+      color: Colors.transparent,
+      boxShadow: [],
+    );
+    _decorationTween = DecorationTween(
+      begin: beginDragBoxDecoration ?? const BoxDecoration(),
+      end: widget.dragChildBoxDecoration ?? _defaultBoxDecoration,
+    );
+
     _reorderableEntity = widget.reorderableEntity;
   }
 
@@ -84,7 +108,11 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     final feedback = Material(
       color: Colors.transparent,
-      child: reorderableEntityChild,
+      child: DecoratedBoxTransition(
+        position: DecorationPosition.background,
+        decoration: _decorationTween.animate(_controller),
+        child: reorderableEntityChild,
+      ),
     );
 
     final draggedHashKey = widget.draggedReorderableEntity?.child.key.hashCode;

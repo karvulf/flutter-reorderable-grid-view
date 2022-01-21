@@ -15,6 +15,8 @@ class ReorderableGridView2 extends StatelessWidget {
   final EdgeInsets padding;
   final Clip clipBehavior;
 
+  final BoxDecoration? dragChildBoxDecoration;
+
   const ReorderableGridView2({
     required this.children,
     required this.onReorder,
@@ -25,6 +27,7 @@ class ReorderableGridView2 extends StatelessWidget {
     this.enableDraggable = true,
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
+    this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
 
@@ -38,6 +41,7 @@ class ReorderableGridView2 extends StatelessWidget {
       enableLongPress: enableLongPress,
       longPressDelay: longPressDelay,
       enableDraggable: enableDraggable,
+      dragChildBoxDecoration: dragChildBoxDecoration,
       builder: (draggableChildren, scrollController) {
         /* return GridView(
           // shrinkWrap: true,
