@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/new/entities/reorderable_updated_entity.dart';
 
 class ReorderableEntity {
   final Widget child;
