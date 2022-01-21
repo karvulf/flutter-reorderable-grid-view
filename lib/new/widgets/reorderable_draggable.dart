@@ -14,6 +14,7 @@ typedef OnDragUpdateFunction = Function(
 class ReorderableDraggable extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final bool enableLongPress;
+  final Duration longPressDelay;
 
   final OnCreatedFunction onCreated;
   final OnDragUpdateFunction onDragUpdate;
@@ -25,6 +26,7 @@ class ReorderableDraggable extends StatefulWidget {
   const ReorderableDraggable({
     required this.reorderableEntity,
     required this.enableLongPress,
+    required this.longPressDelay,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
@@ -94,6 +96,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     if (widget.enableLongPress) {
       return LongPressDraggable(
+        delay: widget.longPressDelay,
         onDragUpdate: _handleDragUpdate,
         onDragStarted: _handleStarted,
         onDragEnd: _handleDragEnd,

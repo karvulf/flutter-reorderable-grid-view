@@ -12,6 +12,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
   final ReorderableEntity reorderableEntity;
   final bool enableAnimation;
   final bool enableLongPress;
+  final Duration longPressDelay;
 
   final DragEndCallback onDragEnd;
   final OnCreatedFunction onCreated;
@@ -24,6 +25,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.reorderableEntity,
     required this.enableAnimation,
     required this.enableLongPress,
+    required this.longPressDelay,
     required this.onCreated,
     required this.onDragUpdate,
     required this.onDragStarted,
@@ -53,6 +55,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
           child: ReorderableDraggable(
             reorderableEntity: reorderableEntity,
             enableLongPress: enableLongPress,
+            longPressDelay: longPressDelay,
             onCreated: onCreated,
             onDragUpdate: onDragUpdate,
             onDragStarted: onDragStarted,
