@@ -167,6 +167,7 @@ class _MyAppState extends State<MyApp> {
         return ReorderableGridView2(
           children: generatedChildren,
           onReorder: _handleReorder,
+          lockedIndices: lockedChildren,
         );
         return ReorderableGridView(
           key: const Key('gridView'),

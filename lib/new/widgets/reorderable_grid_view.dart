@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_builder.dart';
 
+/// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
 class ReorderableGridView2 extends StatelessWidget {
   final List<Widget> children;
   final ReorderCallback onReorder;
@@ -25,6 +26,7 @@ class ReorderableGridView2 extends StatelessWidget {
     return ReorderableBuilder(
       children: children,
       onReorder: onReorder,
+      lockedIndices: lockedIndices,
       builder: (draggableChildren, scrollController) {
         /* return GridView(
           // shrinkWrap: true,

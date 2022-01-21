@@ -253,16 +253,21 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     required int collisionOrderId,
     required bool isBackwards,
   }) {
-    while (draggedReorderableEntity!.updatedOrderId != collisionOrderId) {
-      final summands = isBackwards ? -1 : 1;
-      final collisionMapEntry = _childrenMap.entries.firstWhere((entry) =>
-          entry.value.updatedOrderId ==
-          draggedReorderableEntity!.updatedOrderId + summands);
+    final summands = isBackwards ? -1 : 1;
+    var currentCollisionOrderId = draggedReorderableEntity!.updatedOrderId;
 
-      _updateCollision(
-        draggedHashKey: draggedHashKey,
-        collisionMapEntry: collisionMapEntry,
-      );
+    while (currentCollisionOrderId != collisionOrderId) {
+      currentCollisionOrderId += summands;
+
+      if (!widget.lockedIndices.contains(currentCollisionOrderId)) {
+        final collisionMapEntry = _childrenMap.entries.firstWhere(
+          (entry) => entry.value.updatedOrderId == currentCollisionOrderId,
+        );
+        _updateCollision(
+          draggedHashKey: draggedHashKey,
+          collisionMapEntry: collisionMapEntry,
+        );
+      }
     }
   }
 
@@ -270,6 +275,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     required int draggedHashKey,
     required MapEntry<int, ReorderableEntity> collisionMapEntry,
   }) {
+    final collisionOrderId = collisionMapEntry.value.updatedOrderId;
+    if (widget.lockedIndices.contains(collisionOrderId)) {
+      return;
+    }
+
     // update for collision entity
     final updatedCollisionEntity = collisionMapEntry.value.copyWith(
       updatedOffset: draggedReorderableEntity!.updatedOffset,
