@@ -115,7 +115,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       assert(false, 'RenderBox of child should not be null!');
     } else {
       final reorderableEntity = childrenMap[hashKey]!;
-      final offset = renderBox.localToGlobal(Offset.zero);
+      final localOffset = renderBox.localToGlobal(Offset.zero);
+      final offset = Offset(
+        localOffset.dx,
+        localOffset.dy + _scrollController.position.pixels,
+      );
       final size = renderBox.size;
       childrenMap[hashKey] = reorderableEntity.copyWith(
         size: size,
@@ -128,6 +132,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
+    print('scrollPositionPixels ${_scrollController.position.pixels}');
     setState(() {
       draggedReorderableEntity = reorderableEntity;
       scrollPositionPixels = _scrollController.position.pixels;
@@ -202,7 +207,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
     var draggedOffset = Offset(
       details.localPosition.dx,
-      details.localPosition.dy, // + _scrollController.position.pixels,
+      details.localPosition.dy + scrollPositionPixels,
     );
 
     final collisionMapEntry = _getCollisionMapEntry(
@@ -271,6 +276,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       updatedOrderId: collisionMapEntry.value.updatedOrderId,
     );
     childrenMap[draggedHashKey] = updatedDraggedEntity;
+
+    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
+    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
+    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
+    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
+
+    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
+    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
+    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
+    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
+
+    print('');
+    print('---- Dragged child at position $draggedOrderIdBefore ----');
+    print(
+        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+    print('Dragged child original offset $draggedOriginalOffset');
+    print(
+        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
+    print('----');
+    print(
+        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+    print('Collisioned child original offset $collisionOriginalOffset');
+    print(
+        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
+    print('---- END ----');
+    print('');
 
     setState(() {
       draggedReorderableEntity = updatedDraggedEntity;

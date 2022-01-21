@@ -25,7 +25,6 @@ class ReorderableGridView2 extends StatelessWidget {
       onReorder: onReorder,
       builder: (draggableChildren, scrollController) {
         return GridView(
-          // key: _reorderableKey,
           // shrinkWrap: true,
           controller: scrollController,
           padding: padding,
