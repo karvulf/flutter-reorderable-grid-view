@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/new/widgets/reorderable_builder.da
 class ReorderableGridView2 extends StatelessWidget {
   final List<Widget> children;
   final ReorderCallback onReorder;
+  final List<int> lockedIndices;
 
   final EdgeInsets? padding;
   final Clip? clipBehavior;
@@ -11,6 +12,7 @@ class ReorderableGridView2 extends StatelessWidget {
   const ReorderableGridView2({
     required this.children,
     required this.onReorder,
+    this.lockedIndices = const [],
     this.padding,
     this.clipBehavior,
     Key? key,

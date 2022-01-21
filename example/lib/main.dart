@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 1000;
+  static const _startCounter = 20;
   final lockedChildren = <int>[2, 4, 5];
 
   int keyCounter = _startCounter;
@@ -64,7 +64,8 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeLast();
+                              // children = children..removeLast();
+                              children.removeAt(2);
                             });
                           }
                         },
