@@ -17,6 +17,7 @@ class ReorderableGridView extends StatelessWidget {
 
   final EdgeInsets padding;
   final Clip clipBehavior;
+  final bool shrinkWrap;
 
   // GridView
   late final SliverGridDelegate? gridDelegate;
@@ -46,6 +47,7 @@ class ReorderableGridView extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
     this.dragChildBoxDecoration,
+    this.shrinkWrap = false,
     Key? key,
   }) : super(key: key) {
     _reorderableType = GridViewType.gridView;
@@ -66,6 +68,7 @@ class ReorderableGridView extends StatelessWidget {
     this.dragChildBoxDecoration,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
+    this.shrinkWrap = false,
     Key? key,
   }) : super(key: key) {
     _reorderableType = GridViewType.gridViewCount;
@@ -87,6 +90,7 @@ class ReorderableGridView extends StatelessWidget {
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
     this.childAspectRatio = 1.0,
+    this.shrinkWrap = false,
     Key? key,
   }) : super(key: key) {
     _reorderableType = GridViewType.gridViewExtent;
@@ -105,6 +109,7 @@ class ReorderableGridView extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.clipBehavior = Clip.hardEdge,
     this.dragChildBoxDecoration,
+    this.shrinkWrap = false,
     Key? key,
   }) : super(key: key) {
     _reorderableType = GridViewType.gridViewBuilder;
@@ -131,6 +136,7 @@ class ReorderableGridView extends StatelessWidget {
               padding: padding,
               gridDelegate: gridDelegate!,
               clipBehavior: clipBehavior,
+              shrinkWrap: shrinkWrap,
             );
           case GridViewType.gridViewCount:
             return GridView.count(
@@ -142,6 +148,7 @@ class ReorderableGridView extends StatelessWidget {
               crossAxisSpacing: crossAxisSpacing!,
               clipBehavior: clipBehavior,
               padding: padding,
+              shrinkWrap: shrinkWrap,
             );
           case GridViewType.gridViewExtent:
             return GridView.extent(
@@ -154,6 +161,7 @@ class ReorderableGridView extends StatelessWidget {
               padding: padding,
               clipBehavior: clipBehavior,
               childAspectRatio: childAspectRatio!,
+              shrinkWrap: shrinkWrap,
             );
           case GridViewType.gridViewBuilder:
             return GridView.builder(
@@ -164,6 +172,7 @@ class ReorderableGridView extends StatelessWidget {
               gridDelegate: gridDelegate!,
               padding: padding,
               clipBehavior: clipBehavior,
+              shrinkWrap: shrinkWrap,
             );
         }
       },

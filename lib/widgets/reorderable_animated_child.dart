@@ -46,30 +46,22 @@ class ReorderableAnimatedChild extends StatelessWidget {
       duration = Duration.zero;
     }
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        AnimatedPositioned(
-          duration: duration,
-          curve: Curves.easeInOut,
-          left: -dx,
-          right: dx,
-          top: -dy,
-          bottom: dy,
-          child: ReorderableDraggable(
-            reorderableEntity: reorderableEntity,
-            enableLongPress: enableLongPress,
-            longPressDelay: longPressDelay,
-            enableDraggable: enableDraggable,
-            onCreated: onCreated,
-            onDragUpdate: onDragUpdate,
-            onDragStarted: onDragStarted,
-            onDragEnd: onDragEnd,
-            draggedReorderableEntity: draggedReorderableEntity,
-            dragChildBoxDecoration: dragChildBoxDecoration,
-          ),
-        ),
-      ],
+    return AnimatedContainer(
+      duration: duration,
+      curve: Curves.easeInOut,
+      transform: Matrix4.translationValues(-dx, -dy, 0),
+      child: ReorderableDraggable(
+        reorderableEntity: reorderableEntity,
+        enableLongPress: enableLongPress,
+        longPressDelay: longPressDelay,
+        enableDraggable: enableDraggable,
+        onCreated: onCreated,
+        onDragUpdate: onDragUpdate,
+        onDragStarted: onDragStarted,
+        onDragEnd: onDragEnd,
+        draggedReorderableEntity: draggedReorderableEntity,
+        dragChildBoxDecoration: dragChildBoxDecoration,
+      ),
     );
   }
 

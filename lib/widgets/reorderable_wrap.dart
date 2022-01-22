@@ -49,11 +49,15 @@ class ReorderableWrap extends StatelessWidget {
       enableDraggable: enableDraggable,
       dragChildBoxDecoration: dragChildBoxDecoration,
       builder: (draggableChildren, scrollController) {
-        return Wrap(
-          children: children,
-          spacing: spacing,
-          runSpacing: runSpacing,
-          clipBehavior: clipBehavior,
+        return SingleChildScrollView(
+          controller: scrollController,
+          physics: physics,
+          child: Wrap(
+            children: draggableChildren,
+            spacing: spacing,
+            runSpacing: runSpacing,
+            clipBehavior: clipBehavior,
+          ),
         );
       },
     );

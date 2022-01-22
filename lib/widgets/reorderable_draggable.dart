@@ -121,6 +121,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     final childWhenDragging = Visibility(
       visible: visible,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainState: true,
       child: child,
     );
 

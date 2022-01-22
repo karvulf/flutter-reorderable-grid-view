@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 3;
+  static const _startCounter = 30;
   final lockedIndices = <int>[2, 4, 5];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.wrap;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -139,44 +139,36 @@ class _MyAppState extends State<MyApp> {
   Widget _getReorderableWidget() {
     final generatedChildren = List<Widget>.generate(
       children.length,
-      (index) => Stack(
-        children: [
-          Positioned(
-            child: Container(
-              key: Key(children[index].toString()),
-              decoration: BoxDecoration(
-                color:
-                    lockedIndices.contains(index) ? Colors.black : Colors.blue,
-              ),
-              height: 100.0,
-              width: 100.0,
-              child: Center(
-                child: Text(
-                  'test ${children[index]}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+      (index) => Container(
+        key: Key(children[index].toString()),
+        decoration: BoxDecoration(
+          color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
+        ),
+        height: 100.0,
+        width: 100.0,
+        child: Center(
+          child: Text(
+            'test ${children[index]}',
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
             ),
           ),
-        ],
+        ),
       ),
     );
 
     switch (reorderableType) {
       case ReorderableType.wrap:
-        return Wrap(
-          children: generatedChildren,
-        );
         return ReorderableWrap(
+          key: const Key('wrap'),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
         );
       case ReorderableType.gridView:
         return ReorderableGridView(
+          key: const Key('gridView'),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
@@ -188,6 +180,7 @@ class _MyAppState extends State<MyApp> {
         );
       case ReorderableType.gridViewCount:
         return ReorderableGridView.count(
+          key: const Key('count'),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
@@ -195,13 +188,15 @@ class _MyAppState extends State<MyApp> {
         );
       case ReorderableType.gridViewExtent:
         return ReorderableGridView.extent(
+          key: const Key('extent'),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          maxCrossAxisExtent: 2,
+          maxCrossAxisExtent: 200,
         );
       case ReorderableType.gridViewBuilder:
         return ReorderableGridView.builder(
+          key: const Key('builder'),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
