@@ -1,3 +1,14 @@
+## 2.0.0-dev.1
+
+* Complete rebuilt Reorderable GridViews and Wrap
+* Supporting all types of `GridView`
+* Better performance by displaying the original GridViews/Wrap
+* More options to add to GridViews/Wrap
+* Work in Progress:
+    * Animated children when removing/adding one or multiple children
+    * Tests still missing
+    * New docu
+
 ## 1.1.5
 
 * Fixed a bug when changing from `enableReorder` `false` to `true`
