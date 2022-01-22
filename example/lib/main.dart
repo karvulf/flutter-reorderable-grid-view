@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
-import 'package:flutter_reorderable_grid_view/flutter_reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
+
+enum ReorderableType {
+  wrap,
+  gridView,
+  gridViewCount,
+  gridViewExtent,
+  gridViewBuilder,
+}
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -14,11 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final lockedChildren = <int>[2, 4, 5];
+  static const _startCounter = 30;
+  final lockedIndices = <int>[2, 4, 5];
 
-  int keyCounter = 0;
-  List<int> children = <int>[];
-  ReorderableType reorderableType = ReorderableType.wrap;
+  int keyCounter = _startCounter;
+  List<int> children = List.generate(_startCounter, (index) => index);
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                       ContainerButton(
                         onTap: () {
                           setState(() {
-                            children = children..add(children.length);
+                            children = children..add(keyCounter++);
                           });
                         },
                         color: Colors.green,
@@ -62,7 +71,8 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           if (children.isNotEmpty) {
                             setState(() {
-                              children = children..removeLast();
+                              // children = children..removeLast();
+                              children.removeAt(2);
                             });
                           }
                         },
@@ -132,7 +142,7 @@ class _MyAppState extends State<MyApp> {
       (index) => Container(
         key: Key(children[index].toString()),
         decoration: BoxDecoration(
-          color: lockedChildren.contains(index) ? Colors.black : Colors.blue,
+          color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
         ),
         height: 100.0,
         width: 100.0,
@@ -152,46 +162,49 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.wrap:
         return ReorderableWrap(
           key: const Key('wrap'),
-          enableLongPress: true,
-          lockedChildren: lockedChildren,
-          spacing: 12,
-          onReorder: _handleReorder,
-          physics: const AlwaysScrollableScrollPhysics(),
           children: generatedChildren,
-          enableReorder: false,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
         );
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
-          lockedChildren: lockedChildren,
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 4,
             crossAxisSpacing: 8,
           ),
-          onReorder: _handleReorder,
-          children: generatedChildren,
-          padding: const EdgeInsets.all(20),
         );
       case ReorderableType.gridViewCount:
         return ReorderableGridView.count(
-          key: const Key('gridViewCount'),
-          lockedChildren: lockedChildren,
-          onReorder: _handleReorder,
-          mainAxisSpacing: 12,
-          crossAxisCount: 12,
+          key: const Key('count'),
           children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          crossAxisCount: 3,
         );
       case ReorderableType.gridViewExtent:
         return ReorderableGridView.extent(
-          key: const Key('gridViewExtent'),
-          lockedChildren: lockedChildren,
-          onReorder: _handleReorder,
-          maxCrossAxisExtent: 150,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          physics: const AlwaysScrollableScrollPhysics(),
+          key: const Key('extent'),
           children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          maxCrossAxisExtent: 200,
+        );
+      case ReorderableType.gridViewBuilder:
+        return ReorderableGridView.builder(
+          key: const Key('builder'),
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
         );
     }
   }

@@ -1,75 +1,65 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/entities/reoderable_parameters.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_type.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_wrap_parameters.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
-class ReorderableWrap extends StatelessWidget
-    implements ReorderableParameters, ReorderableWrapParameters {
-  @override
+/// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
+class ReorderableWrap extends StatelessWidget {
   final List<Widget> children;
-
-  @override
-  final List<int> lockedChildren;
-
-  @override
-  final bool enableAnimation;
-
-  @override
-  final bool enableLongPress;
-
-  @override
-  final bool enableReorder;
-
-  @override
-  final Duration longPressDelay;
-
-  @override
   final ReorderCallback onReorder;
+  final List<int> lockedIndices;
+  final bool enableAnimation;
+  final bool enableLongPress;
+  final Duration longPressDelay;
+  final bool enableDraggable;
 
-  @override
+  final EdgeInsets padding;
+  final Clip clipBehavior;
   final double spacing;
-
-  @override
   final double runSpacing;
 
-  @override
   final ScrollPhysics? physics;
-
-  @override
   final BoxDecoration? dragChildBoxDecoration;
 
   const ReorderableWrap({
     required this.children,
     required this.onReorder,
-    this.lockedChildren = const <int>[],
-    this.longPressDelay = kLongPressTimeout,
-    this.enableLongPress = true,
+    this.lockedIndices = const [],
     this.enableAnimation = true,
-    this.enableReorder = true,
-    this.spacing = 8,
-    this.runSpacing = 8,
-    this.dragChildBoxDecoration,
+    this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
     this.physics,
+    this.padding = EdgeInsets.zero,
+    this.clipBehavior = Clip.hardEdge,
+    this.dragChildBoxDecoration,
+    this.spacing = 0.0,
+    this.runSpacing = 0.0,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Reorderable(
-      reorderableType: ReorderableType.wrap,
+    return ReorderableBuilder(
       children: children,
-      spacing: spacing,
       onReorder: onReorder,
-      runSpacing: runSpacing,
+      lockedIndices: lockedIndices,
       enableAnimation: enableAnimation,
       enableLongPress: enableLongPress,
-      lockedChildren: lockedChildren,
       longPressDelay: longPressDelay,
-      physics: physics,
+      enableDraggable: enableDraggable,
       dragChildBoxDecoration: dragChildBoxDecoration,
-      enableReorder: enableReorder,
+      builder: (draggableChildren, scrollController) {
+        return SingleChildScrollView(
+          controller: scrollController,
+          physics: physics,
+          child: Wrap(
+            children: draggableChildren,
+            spacing: spacing,
+            runSpacing: runSpacing,
+            clipBehavior: clipBehavior,
+          ),
+        );
+      },
     );
   }
 }
