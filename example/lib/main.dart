@@ -22,7 +22,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
+  static const _startCounter = 3;
   final lockedIndices = <int>[2, 4, 5];
 
   int keyCounter = _startCounter;
@@ -139,27 +139,37 @@ class _MyAppState extends State<MyApp> {
   Widget _getReorderableWidget() {
     final generatedChildren = List<Widget>.generate(
       children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(
-              fontSize: 20,
-              color: Colors.white,
+      (index) => Stack(
+        children: [
+          Positioned(
+            child: Container(
+              key: Key(children[index].toString()),
+              decoration: BoxDecoration(
+                color:
+                    lockedIndices.contains(index) ? Colors.black : Colors.blue,
+              ),
+              height: 100.0,
+              width: 100.0,
+              child: Center(
+                child: Text(
+                  'test ${children[index]}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
 
     switch (reorderableType) {
       case ReorderableType.wrap:
+        return Wrap(
+          children: generatedChildren,
+        );
         return ReorderableWrap(
           children: generatedChildren,
           onReorder: _handleReorder,
