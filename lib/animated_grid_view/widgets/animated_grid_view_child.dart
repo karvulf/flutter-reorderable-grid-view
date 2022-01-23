@@ -45,6 +45,10 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
 
   @override
   Widget build(BuildContext context) {
+    final dx = _dx;
+    final dy = _dy;
+    final hasPositionUpdated = dx != 0.0 || dy != 0.0;
+
     return AnimatedOpacity(
       duration: widget.opacity == 0.0
           ? const Duration(milliseconds: 300)
@@ -52,7 +56,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
       opacity: widget.opacity,
       onEnd: () => widget.onEndAnimatedOpacity(widget.animatedGridViewEntity),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: hasPositionUpdated
+            ? const Duration(milliseconds: 200)
+            : Duration.zero,
         transform: Matrix4.translationValues(-dx, -dy, 0),
         key: _globalKey,
         child: widget.animatedGridViewEntity.child,
@@ -60,16 +66,18 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
     );
   }
 
-  double get dx {
-    final originalOffset = _animatedGridViewEntity.originalOffset;
-    final updatedOffset = _animatedGridViewEntity.updatedOffset;
+  double get _dx {
+    final animatedGridViewEntity = widget.animatedGridViewEntity;
+    final originalOffset = animatedGridViewEntity.originalOffset;
+    final updatedOffset = animatedGridViewEntity.updatedOffset;
 
     return originalOffset.dx - updatedOffset.dx;
   }
 
-  double get dy {
-    final originalOffset = _animatedGridViewEntity.originalOffset;
-    final updatedOffset = _animatedGridViewEntity.updatedOffset;
+  double get _dy {
+    final animatedGridViewEntity = widget.animatedGridViewEntity;
+    final originalOffset = animatedGridViewEntity.originalOffset;
+    final updatedOffset = animatedGridViewEntity.updatedOffset;
 
     return originalOffset.dy - updatedOffset.dy;
   }

@@ -62,7 +62,8 @@ class _MyAppState extends State<MyApp> {
                       ContainerButton(
                         onTap: () {
                           setState(() {
-                            children = children..add(keyCounter++);
+                            // children = children..add(keyCounter++);
+                            children.insert(3, keyCounter++);
                           });
                         },
                         color: Colors.green,
@@ -73,7 +74,7 @@ class _MyAppState extends State<MyApp> {
                           if (children.isNotEmpty) {
                             setState(() {
                               // children = children..removeLast();
-                              children.removeAt(2);
+                              children.removeAt(1);
                             });
                           }
                         },
