@@ -54,6 +54,26 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         _handleRemovedChild();
       } else if (oldWidget.children.length < widget.children.length) {
         _handleAddedChild();
+        /*
+        var counter = 0;
+
+        for (final child in widget.children) {
+          final value = _childrenMap[child.key.hashCode];
+          if (value == null) {
+            _childrenMap[child.key.hashCode] = AnimatedGridViewEntity(
+              child: child,
+              originalOrderId: counter,
+              updatedOrderId: counter,
+            );
+          } else {
+            _childrenMap[child.key.hashCode] = value.copyWith(
+              child: child,
+              originalOrderId: counter,
+              updatedOrderId: counter,
+            );
+          }
+          counter++;
+        }*/
       }
     }
   }
@@ -184,21 +204,50 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
     var orderId = 0;
 
+    var counter = 0;
+    bool lastChildWasNew = false;
+
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
 
       if (!_childrenMap.containsKey(keyHashCode)) {
-        final animatedGridViewEntity = AnimatedGridViewEntity(
+        _childrenMap[keyHashCode] = AnimatedGridViewEntity(
           child: child,
           originalOrderId: orderId,
           updatedOrderId: orderId,
         );
-        updatedAddedChildrenOrderIdMap[keyHashCode] = animatedGridViewEntity;
-        updatedAddedChildrenOrderIdList.add(animatedGridViewEntity);
+        counter++;
+        lastChildWasNew = true;
+      } else if (counter > 0) {
+        final childEntity = _childrenMap[keyHashCode]!;
+
+        late final Offset updatedOffset;
+
+        if (childEntity.originalOrderId > 0) {
+          final childBefore = _childrenMap.values.firstWhere(
+            (element) =>
+                element.originalOrderId ==
+                childEntity.originalOrderId - counter,
+          );
+
+          updatedOffset = childBefore.originalOffset;
+        } else {
+          updatedOffset = Offset(
+            -childEntity.size.width,
+            -childEntity.size.height,
+          );
+        }
+
+        _childrenMap[keyHashCode] = childEntity.copyWith(
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          updatedOffset: updatedOffset,
+        );
       }
       orderId++;
     }
 
+    return;
     var moveCounts = 1;
 
     for (int i = 0; i < updatedAddedChildrenOrderIdList.length; i++) {
@@ -211,31 +260,21 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       }
 
       for (int j = addedChild.originalOrderId + 1; j < nextOrderId; j++) {
-        final indexAfter = j + moveCounts;
+        final indexBefore = j - moveCounts;
 
         final animatedGridViewEntity = childrenOrderIdList[j];
         final keyHashCode = animatedGridViewEntity.child.key.hashCode;
 
-        if (indexAfter >= childrenOrderIdList.length) {
-          final size = animatedGridViewEntity.size;
-          _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: animatedGridViewEntity.originalOrderId + 1,
-            updatedOffset: Offset(
-              animatedGridViewEntity.originalOffset.dx + size.width,
-              animatedGridViewEntity.originalOffset.dy,
-            ),
-          );
-        } else {
-          final animatedGridViewEntityAfter = childrenOrderIdList[indexAfter];
+        final animatedGridViewEntityBefore = childrenOrderIdList[indexBefore];
 
-          _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: animatedGridViewEntityAfter.originalOrderId,
-            updatedOffset: animatedGridViewEntityAfter.originalOffset,
-          );
-        }
+        _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+          updatedOffset: animatedGridViewEntityBefore.originalOffset,
+        );
       }
       moveCounts++;
     }
+
+    _childrenMap.addAll(updatedAddedChildrenOrderIdMap);
 
     setState(() {});
   }
