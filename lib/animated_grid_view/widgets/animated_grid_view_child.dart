@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/animated_grid_view/entities/animated_grid_view_entity.dart';
 
-typedef OnCreatedFunction = void Function(
+typedef OnCreatedFunction = AnimatedGridViewEntity? Function(
   AnimatedGridViewEntity animatedGridViewEntity,
   GlobalKey key,
 );
@@ -25,12 +25,25 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     with SingleTickerProviderStateMixin {
   final _globalKey = GlobalKey();
 
+  Offset _delegateOffset = Offset.zero;
+
+  bool isCreated = false;
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      widget.onCreated(widget.animatedGridViewEntity, _globalKey);
+      final gridViewEntity = widget.onCreated(
+        widget.animatedGridViewEntity,
+        _globalKey,
+      );
+      if (gridViewEntity != null) {
+        setState(() {
+          _delegateOffset = _getDelegateOffset(gridViewEntity);
+          isCreated = true;
+        });
+      }
     });
   }
 
@@ -52,25 +65,27 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   Widget build(BuildContext context) {
     return Container(
       key: _globalKey,
+      transform: Matrix4.translationValues(
+        widget.animatedGridViewEntity.updatedOrderId == 1 ? 20 : 0,
+        0,
+        0,
+      ),
       child: CustomSingleChildLayout(
         delegate: AnimatedGridViewSingleChildLayoutDelegate(
-          offset: _getDelegateOffset(),
+          offset: _delegateOffset,
         ),
         child: widget.animatedGridViewEntity.child,
       ),
     );
   }
 
-  Offset _getDelegateOffset() {
-    final gridViewEntity = widget.animatedGridViewEntity;
-    final key = gridViewEntity.child.key;
-    final difference =
-        gridViewEntity.originalOffset - gridViewEntity.updatedOffset;
-    // print('**** key $key with diff $difference ****');
-    return Offset(
-      0,
-      0,
-    );
+  Offset _getDelegateOffset(AnimatedGridViewEntity animatedGridViewEntity) {
+    final key = animatedGridViewEntity.child.key;
+    final originalOffset = animatedGridViewEntity.originalOffset;
+    final updatedOffset = animatedGridViewEntity.updatedOffset;
+    final difference = originalOffset - updatedOffset;
+    print('**** key $key with diff $difference ****');
+    return difference;
   }
 }
 

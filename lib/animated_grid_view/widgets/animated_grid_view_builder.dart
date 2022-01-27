@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/animated_grid_view/widgets/animate
 typedef AnimatedGridViewBuilderFunction = Widget Function(
   List<Widget> draggableChildren,
   ScrollController scrollController,
+  GlobalKey contentGlobalKey,
 );
 
 class AnimatedGridViewBuilder extends StatefulWidget {
@@ -24,6 +25,7 @@ class AnimatedGridViewBuilder extends StatefulWidget {
 }
 
 class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
+  final _contentGlobalKey = GlobalKey();
   final _scrollController = ScrollController();
 
   final _childrenMap = <int, AnimatedGridViewEntity>{};
@@ -61,6 +63,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     return widget.builder(
       _getAnimatedGridViewChildren(),
       _scrollController,
+      _contentGlobalKey,
     );
   }
 
@@ -85,16 +88,19 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     AnimatedGridViewEntity animatedGridViewEntity,
     GlobalKey key,
   ) {
-    var gridViewEntity = animatedGridViewEntity;
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    final contentRenderBox =
+        _contentGlobalKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (renderBox == null) {
+    if (renderBox == null || contentRenderBox == null) {
       assert(false, 'RenderBox of child should not be null!');
     } else {
-      final localOffset = renderBox.localToGlobal(Offset.zero);
+      final contentOffset = contentRenderBox.localToGlobal(Offset.zero);
+      print('contentOffset $contentOffset');
+      final localOffset = renderBox.globalToLocal(contentOffset);
       final offset = Offset(
-        localOffset.dx,
-        localOffset.dy + _scrollController.position.pixels,
+        localOffset.dx.abs(),
+        localOffset.dy.abs() + _scrollController.position.pixels,
       );
       final size = renderBox.size;
 
@@ -103,22 +109,39 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       final originalOrderId = animatedGridViewEntity.originalOrderId;
 
       if (animatedGridViewEntity.updatedOrderId != originalOrderId) {
-        gridViewEntity = _childrenMap.values.firstWhere(
+        // searching for original
+        var newGridViewEntity = _childrenMap.values.firstWhere(
           (element) => element.updatedOrderId == originalOrderId,
         );
+
+        // updating added entity
+        newGridViewEntity = newGridViewEntity.copyWith(
+          size: size,
+          originalOffset: animatedGridViewEntity.originalOffset,
+          updatedOffset: animatedGridViewEntity.originalOffset,
+        );
+        final newKeyHashCode = animatedGridViewEntity.keyHashCode;
+        _childrenMap[newKeyHashCode] = newGridViewEntity;
+
+        // updating existing
+        final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+          updatedOffset: offset,
+        );
+        final updatedKeyHashCode = updatedGridViewEntity.keyHashCode;
+        _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
+
+        return updatedGridViewEntity;
+      } else {
+        final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+          size: size,
+          originalOffset: offset,
+          updatedOffset: offset,
+        );
+        final keyHashCode = animatedGridViewEntity.keyHashCode;
+        _childrenMap[keyHashCode] = updatedGridViewEntity;
+
+        return updatedGridViewEntity;
       }
-      updatedReorderableEntity = gridViewEntity.copyWith(
-        size: size,
-        originalOffset: offset,
-        updatedOffset: offset,
-      );
-
-      final keyHashCode = gridViewEntity.keyHashCode;
-      _childrenMap[keyHashCode] = updatedReorderableEntity;
-      print(
-          'created ${updatedReorderableEntity.child.key} with offset $offset, orderId ${updatedReorderableEntity.originalOrderId}');
-
-      return updatedReorderableEntity;
     }
   }
 
@@ -128,6 +151,22 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
+
+      if (_childrenMap.containsKey(keyHashCode)) {
+        final animatedGridViewEntity = _childrenMap[keyHashCode]!;
+        _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+          updatedOrderId: orderId,
+        );
+      } else {
+        _childrenMap[keyHashCode] = AnimatedGridViewEntity(
+          child: child,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+        );
+      }
+      orderId++;
+
+      continue;
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {

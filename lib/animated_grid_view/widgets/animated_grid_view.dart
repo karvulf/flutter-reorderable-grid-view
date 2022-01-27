@@ -92,10 +92,11 @@ class AnimatedGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedGridViewBuilder(
       children: children,
-      builder: (draggableChildren, scrollController) {
+      builder: (draggableChildren, scrollController, contentGlobalKey) {
         switch (_reorderableType) {
           case GridViewType.gridView:
             return GridView(
+              key: contentGlobalKey,
               controller: scrollController,
               children: draggableChildren,
               physics: physics,
@@ -106,6 +107,7 @@ class AnimatedGridView extends StatelessWidget {
             );
           case GridViewType.gridViewCount:
             return GridView.count(
+              key: contentGlobalKey,
               controller: scrollController,
               physics: physics,
               children: draggableChildren,
@@ -118,6 +120,7 @@ class AnimatedGridView extends StatelessWidget {
             );
           case GridViewType.gridViewExtent:
             return GridView.extent(
+              key: contentGlobalKey,
               controller: scrollController,
               children: draggableChildren,
               physics: physics,
@@ -131,6 +134,7 @@ class AnimatedGridView extends StatelessWidget {
             );
           case GridViewType.gridViewBuilder:
             return GridView.builder(
+              key: contentGlobalKey,
               controller: scrollController,
               physics: physics,
               itemCount: draggableChildren.length,
