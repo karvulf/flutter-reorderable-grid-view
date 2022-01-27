@@ -6,14 +6,20 @@ typedef OnCreatedFunction = AnimatedGridViewEntity? Function(
   GlobalKey key,
 );
 
+typedef OnMovingFinished = void Function(
+  AnimatedGridViewEntity animatedGridViewEntity,
+);
+
 class AnimatedGridViewChild extends StatefulWidget {
   final AnimatedGridViewEntity animatedGridViewEntity;
 
   final OnCreatedFunction onCreated;
+  final OnMovingFinished onMovingFinished;
 
   const AnimatedGridViewChild({
     required this.animatedGridViewEntity,
     required this.onCreated,
+    required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
 
@@ -29,9 +35,19 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
   bool isCreated = false;
 
+  late AnimationController animationController;
+  late Animation _animationDx;
+  late Animation _animationDy;
+
   @override
   void initState() {
     super.initState();
+
+    animationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+    _updateAnimationTranslation(startAnimation: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       final gridViewEntity = widget.onCreated(
@@ -39,8 +55,10 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
         _globalKey,
       );
       if (gridViewEntity != null) {
+        _delegateOffset = _getDelegateOffset(gridViewEntity);
+        _updateAnimationTranslation();
+
         setState(() {
-          _delegateOffset = _getDelegateOffset(gridViewEntity);
           isCreated = true;
         });
       }
@@ -66,8 +84,8 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     return Container(
       key: _globalKey,
       transform: Matrix4.translationValues(
-        widget.animatedGridViewEntity.updatedOrderId == 1 ? 20 : 0,
-        0,
+        _animationDx.value,
+        _animationDy.value,
         0,
       ),
       child: CustomSingleChildLayout(
@@ -86,6 +104,32 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     final difference = originalOffset - updatedOffset;
     print('**** key $key with diff $difference ****');
     return difference;
+  }
+
+  void _updateAnimationTranslation({
+    bool startAnimation = true,
+  }) {
+    _animationDx = _getAnimation(_delegateOffset.dx * -1);
+    _animationDy = _getAnimation(_delegateOffset.dy * -1);
+
+    if (startAnimation) {
+      animationController.forward();
+    }
+  }
+
+  Animation<double> _getAnimation(double value) {
+    return Tween<double>(
+      begin: 0,
+      end: value,
+    ).animate(animationController)
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          widget.onMovingFinished(widget.animatedGridViewEntity);
+        }
+      });
   }
 }
 

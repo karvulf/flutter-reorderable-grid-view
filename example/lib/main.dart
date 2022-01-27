@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 1;
+  static const _startCounter = 2;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           setState(() {
                             // children = children..add(keyCounter++);
-                            children.insert(0, keyCounter++);
+                            children.insert(1, keyCounter++);
                           });
                         },
                         color: Colors.green,

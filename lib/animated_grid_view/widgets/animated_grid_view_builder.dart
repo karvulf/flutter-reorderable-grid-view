@@ -77,6 +77,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         AnimatedGridViewChild(
           animatedGridViewEntity: animatedGridViewEntity,
           onCreated: _handleCreated,
+          onMovingFinished: _handleMovingFinished,
         ),
       );
     }
@@ -151,7 +152,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
-
+/*
       if (_childrenMap.containsKey(keyHashCode)) {
         final animatedGridViewEntity = _childrenMap[keyHashCode]!;
         _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
@@ -166,7 +167,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       }
       orderId++;
 
-      continue;
+      continue;*/
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
@@ -182,14 +183,8 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
               (element) => element.originalOrderId == childBeforeOrderId,
             );
           } else {
-            final currentOffset = animatedGridViewEntity.updatedOffset;
-            final size = animatedGridViewEntity.size;
             _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
               updatedOrderId: orderId,
-              updatedOffset: Offset(
-                currentOffset.dx + size.width,
-                currentOffset.dy + size.height,
-              ),
             );
           }
         } else {
@@ -222,5 +217,14 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     */
 
     setState(() {});
+  }
+
+  void _handleMovingFinished(AnimatedGridViewEntity animatedGridViewEntity) {
+    final keyHashCode = animatedGridViewEntity.keyHashCode;
+
+    _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+      originalOffset: animatedGridViewEntity.updatedOffset,
+      originalOrderId: animatedGridViewEntity.updatedOrderId,
+    );
   }
 }
