@@ -35,4 +35,6 @@ class AnimatedGridViewEntity {
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOrderId: originalOrderId ?? this.originalOrderId,
       );
+
+  int get keyHashCode => child.key.hashCode;
 }

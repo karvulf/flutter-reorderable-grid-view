@@ -27,7 +27,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   final _scrollController = ScrollController();
 
   final _childrenMap = <int, AnimatedGridViewEntity>{};
-  final _removedChildrenMap = <int, AnimatedGridViewEntity>{};
 
   @override
   void initState() {
@@ -51,29 +50,8 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
     if (oldWidget.children != widget.children) {
       if (oldWidget.children.length > widget.children.length) {
-        _handleRemovedChild();
       } else if (oldWidget.children.length < widget.children.length) {
-        _handleAddedChild();
-        /*
-        var counter = 0;
-
-        for (final child in widget.children) {
-          final value = _childrenMap[child.key.hashCode];
-          if (value == null) {
-            _childrenMap[child.key.hashCode] = AnimatedGridViewEntity(
-              child: child,
-              originalOrderId: counter,
-              updatedOrderId: counter,
-            );
-          } else {
-            _childrenMap[child.key.hashCode] = value.copyWith(
-              child: child,
-              originalOrderId: counter,
-              updatedOrderId: counter,
-            );
-          }
-          counter++;
-        }*/
+        _handleAddedChildren();
       }
     }
   }
@@ -89,16 +67,13 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   List<Widget> _getAnimatedGridViewChildren() {
     final children = <Widget>[];
     final sortedChildren = _childrenMap.values.toList()
-      ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
+      ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
 
     for (final animatedGridViewEntity in sortedChildren) {
-      final keyHashCode = animatedGridViewEntity.child.key.hashCode;
       children.add(
         AnimatedGridViewChild(
           animatedGridViewEntity: animatedGridViewEntity,
           onCreated: _handleCreated,
-          opacity: _removedChildrenMap.containsKey(keyHashCode) ? 0.0 : 1.0,
-          onEndAnimatedOpacity: _handleEndAnimatedOpacity,
         ),
       );
     }
@@ -106,175 +81,106 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     return children;
   }
 
-  AnimatedGridViewEntity? _handleCreated(int hashKey, GlobalKey key) {
+  AnimatedGridViewEntity? _handleCreated(
+    AnimatedGridViewEntity animatedGridViewEntity,
+    GlobalKey key,
+  ) {
+    var gridViewEntity = animatedGridViewEntity;
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
       assert(false, 'RenderBox of child should not be null!');
     } else {
-      final reorderableEntity = _childrenMap[hashKey]!;
       final localOffset = renderBox.localToGlobal(Offset.zero);
       final offset = Offset(
         localOffset.dx,
         localOffset.dy + _scrollController.position.pixels,
       );
       final size = renderBox.size;
-      final updatedReorderableEntity = reorderableEntity.copyWith(
+
+      late final AnimatedGridViewEntity updatedReorderableEntity;
+
+      final originalOrderId = animatedGridViewEntity.originalOrderId;
+
+      if (animatedGridViewEntity.updatedOrderId != originalOrderId) {
+        gridViewEntity = _childrenMap.values.firstWhere(
+          (element) => element.updatedOrderId == originalOrderId,
+        );
+      }
+      updatedReorderableEntity = gridViewEntity.copyWith(
         size: size,
         originalOffset: offset,
         updatedOffset: offset,
       );
-      _childrenMap[hashKey] = updatedReorderableEntity;
+
+      final keyHashCode = gridViewEntity.keyHashCode;
+      _childrenMap[keyHashCode] = updatedReorderableEntity;
+      print(
+          'created ${updatedReorderableEntity.child.key} with offset $offset, orderId ${updatedReorderableEntity.originalOrderId}');
 
       return updatedReorderableEntity;
     }
   }
 
-  void _handleEndAnimatedOpacity(
-    AnimatedGridViewEntity animatedGridViewEntity,
-  ) {
-    final keyHashCode = animatedGridViewEntity.child.key.hashCode;
-
-    if (_removedChildrenMap.containsKey(keyHashCode)) {
-      for (final childrenEntry in _childrenMap.entries) {
-        _childrenMap[childrenEntry.key] = childrenEntry.value.copyWith(
-          originalOffset: childrenEntry.value.updatedOffset,
-          originalOrderId: childrenEntry.value.updatedOrderId,
-        );
-      }
-      _removedChildrenMap.remove(keyHashCode);
-      _childrenMap.remove(keyHashCode);
-      setState(() {});
-    }
-  }
-
-  void _handleRemovedChild() {
-    final updatedChildrenKeyHashCodes = widget.children.map(
-      (e) => e.key.hashCode,
-    );
-
-    final childrenOrderIdList = _childrenMap.values.toList()
-      ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
-
-    final updatedRemovedChildrenOrderIdMap = <int, AnimatedGridViewEntity>{};
-    final updatedRemovedChildrenOrderIdList = <AnimatedGridViewEntity>[];
-
-    for (final animatedGridViewEntity in childrenOrderIdList) {
-      final keyHashCode = animatedGridViewEntity.child.key.hashCode;
-      if (!updatedChildrenKeyHashCodes.contains(keyHashCode) &&
-          !_removedChildrenMap.containsKey(keyHashCode)) {
-        updatedRemovedChildrenOrderIdList.add(animatedGridViewEntity);
-        updatedRemovedChildrenOrderIdMap[keyHashCode] = animatedGridViewEntity;
-      }
-    }
-
-    var moveCounts = 1;
-
-    for (int i = 0; i < updatedRemovedChildrenOrderIdList.length; i++) {
-      final removedChild = updatedRemovedChildrenOrderIdList[i];
-      var nextOrderId = _childrenMap.length - 1;
-
-      if (updatedRemovedChildrenOrderIdList.last != removedChild) {
-        nextOrderId = updatedRemovedChildrenOrderIdList[i + 1].originalOrderId;
-      }
-
-      for (int j = removedChild.originalOrderId + 1; j <= nextOrderId; j++) {
-        final animatedGridViewEntityBefore =
-            childrenOrderIdList[j - moveCounts];
-        final animatedGridViewEntity = childrenOrderIdList[j];
-
-        final keyHashCode = animatedGridViewEntity.child.key.hashCode;
-        _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-          updatedOrderId: animatedGridViewEntityBefore.originalOrderId,
-          updatedOffset: animatedGridViewEntityBefore.originalOffset,
-        );
-      }
-      moveCounts++;
-    }
-    _removedChildrenMap.addAll(updatedRemovedChildrenOrderIdMap);
-    setState(() {});
-  }
-
-  void _handleAddedChild() {
-    final updatedAddedChildrenOrderIdMap = <int, AnimatedGridViewEntity>{};
-    final updatedAddedChildrenOrderIdList = <AnimatedGridViewEntity>[];
-
-    final childrenOrderIdList = _childrenMap.values.toList()
-      ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
-
+  void _handleAddedChildren() {
     var orderId = 0;
-
-    var counter = 0;
-    bool lastChildWasNew = false;
+    var childBeforeCounter = 0;
 
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
 
-      if (!_childrenMap.containsKey(keyHashCode)) {
+      // check if child already exists
+      if (_childrenMap.containsKey(keyHashCode)) {
+        final animatedGridViewEntity = _childrenMap[keyHashCode]!;
+
+        // check if there were already children added before child
+        if (childBeforeCounter > 0) {
+          final childBeforeOrderId = orderId - childBeforeCounter;
+
+          // check if there existing children before child
+          if (childBeforeOrderId > 0) {
+            final childBefore = _childrenMap.values.firstWhere(
+              (element) => element.originalOrderId == childBeforeOrderId,
+            );
+          } else {
+            final currentOffset = animatedGridViewEntity.updatedOffset;
+            final size = animatedGridViewEntity.size;
+            _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+              updatedOrderId: orderId,
+              updatedOffset: Offset(
+                currentOffset.dx + size.width,
+                currentOffset.dy + size.height,
+              ),
+            );
+          }
+        } else {
+          _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+            updatedOrderId: orderId,
+            originalOrderId: orderId,
+          );
+        }
+      } else {
         _childrenMap[keyHashCode] = AnimatedGridViewEntity(
           child: child,
           originalOrderId: orderId,
           updatedOrderId: orderId,
         );
-        counter++;
-        lastChildWasNew = true;
-      } else if (counter > 0) {
-        final childEntity = _childrenMap[keyHashCode]!;
-
-        late final Offset updatedOffset;
-
-        if (childEntity.originalOrderId > 0) {
-          final childBefore = _childrenMap.values.firstWhere(
-            (element) =>
-                element.originalOrderId ==
-                childEntity.originalOrderId - counter,
-          );
-
-          updatedOffset = childBefore.originalOffset;
-        } else {
-          updatedOffset = Offset(
-            -childEntity.size.width,
-            -childEntity.size.height,
-          );
-        }
-
-        _childrenMap[keyHashCode] = childEntity.copyWith(
-          originalOrderId: orderId,
-          updatedOrderId: orderId,
-          updatedOffset: updatedOffset,
-        );
+        childBeforeCounter++;
       }
       orderId++;
     }
+    /*
+    final sortedChildren = _childrenMap.values.toList()
+      ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
+    print('----');
+    for (final child in sortedChildren) {
+      final updatedOrderId = child.updatedOrderId;
+      final key = child.child.key;
 
-    return;
-    var moveCounts = 1;
-
-    for (int i = 0; i < updatedAddedChildrenOrderIdList.length; i++) {
-      final addedChild = updatedAddedChildrenOrderIdList[i];
-
-      var nextOrderId = _childrenMap.length;
-
-      if (updatedAddedChildrenOrderIdList.last != addedChild) {
-        nextOrderId = updatedAddedChildrenOrderIdList[i + 1].originalOrderId;
-      }
-
-      for (int j = addedChild.originalOrderId + 1; j < nextOrderId; j++) {
-        final indexBefore = j - moveCounts;
-
-        final animatedGridViewEntity = childrenOrderIdList[j];
-        final keyHashCode = animatedGridViewEntity.child.key.hashCode;
-
-        final animatedGridViewEntityBefore = childrenOrderIdList[indexBefore];
-
-        _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-          updatedOffset: animatedGridViewEntityBefore.originalOffset,
-        );
-      }
-      moveCounts++;
+      print('Key $key with updatedOrderId $updatedOrderId');
     }
-
-    _childrenMap.addAll(updatedAddedChildrenOrderIdMap);
+    print('----');
+    */
 
     setState(() {});
   }

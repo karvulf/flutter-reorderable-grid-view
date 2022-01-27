@@ -142,7 +142,11 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
-        key: Key(children[index].toString()),
+        key: Key(
+          children[index] == 0
+              ? 'old-${children[index].toString()}'
+              : 'new-${children[index].toString()}',
+        ),
         decoration: BoxDecoration(
           color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
         ),
