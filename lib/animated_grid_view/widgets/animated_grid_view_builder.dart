@@ -143,43 +143,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     }
   }
 
-  void _handleAddedChildren() {
-    final childrenLengthBefore = _childrenMap.length;
-    var orderId = 0;
-    for (final child in widget.children) {
-      final keyHashCode = child.key.hashCode;
-
-      // check if child already exists
-      if (_childrenMap.containsKey(keyHashCode)) {
-        final animatedGridViewEntity = _childrenMap[keyHashCode]!;
-
-        // check if there is already a child with that orderId
-        if (orderId < childrenLengthBefore) {
-          final orderIdGridViewEntity = _childrenMap.values
-              .firstWhere((element) => element.originalOrderId == orderId);
-
-          _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: orderId,
-            updatedOffset: orderIdGridViewEntity.originalOffset,
-          );
-        } else {
-          _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: orderId,
-            isBuilding: true, // do I really need that?
-          );
-        }
-      } else {
-        _childrenMap[keyHashCode] = AnimatedGridViewEntity(
-          child: child,
-          originalOrderId: orderId,
-          updatedOrderId: orderId,
-        );
-      }
-      orderId++;
-    }
-    setState(() {});
-  }
-
   void _handleUpdatedChildren() {
     final childrenLengthBefore = _childrenMap.length;
     var orderId = 0;
@@ -192,11 +155,11 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       if (_childrenMap.containsKey(keyHashCode)) {
         final animatedGridViewEntity = _childrenMap[keyHashCode]!;
 
+        final orderIdGridViewEntity = _getAnimatedGridViewEntity(
+          orderId: orderId,
+        );
         // check if there is already a child with that orderId
-        if (orderId < childrenLengthBefore) {
-          final orderIdGridViewEntity = _childrenMap.values
-              .firstWhere((element) => element.originalOrderId == orderId);
-
+        if (orderIdGridViewEntity != null) {
           updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
             updatedOrderId: orderId,
             updatedOffset: orderIdGridViewEntity.originalOffset,
@@ -228,5 +191,13 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       originalOffset: animatedGridViewEntity.updatedOffset,
       originalOrderId: animatedGridViewEntity.updatedOrderId,
     );
+  }
+
+  AnimatedGridViewEntity? _getAnimatedGridViewEntity({required int orderId}) {
+    for (final gridViewEntity in _childrenMap.values) {
+      if (gridViewEntity.originalOrderId == orderId) {
+        return gridViewEntity;
+      }
+    }
   }
 }
