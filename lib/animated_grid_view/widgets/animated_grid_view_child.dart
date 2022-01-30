@@ -44,7 +44,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     super.initState();
 
     animationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     _updateAnimationTranslation(startAnimation: false);
@@ -81,18 +81,24 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      key: _globalKey,
-      transform: Matrix4.translationValues(
-        _animationDx.value,
-        _animationDy.value,
-        0,
-      ),
-      child: CustomSingleChildLayout(
-        delegate: AnimatedGridViewSingleChildLayoutDelegate(
-          offset: _delegateOffset,
+    return Visibility(
+      visible: !widget.animatedGridViewEntity.isBuilding,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainState: true,
+      child: Container(
+        key: _globalKey,
+        transform: Matrix4.translationValues(
+          _animationDx.value,
+          _animationDy.value,
+          0,
         ),
-        child: widget.animatedGridViewEntity.child,
+        child: CustomSingleChildLayout(
+          delegate: AnimatedGridViewSingleChildLayoutDelegate(
+            offset: _delegateOffset,
+          ),
+          child: widget.animatedGridViewEntity.child,
+        ),
       ),
     );
   }

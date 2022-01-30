@@ -10,6 +10,8 @@ class AnimatedGridViewEntity {
   final Offset originalOffset;
   final Offset updatedOffset;
 
+  final bool isBuilding;
+
   const AnimatedGridViewEntity({
     required this.child,
     required this.originalOrderId,
@@ -17,6 +19,7 @@ class AnimatedGridViewEntity {
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
     this.size = Size.zero,
+    this.isBuilding = false,
   });
 
   AnimatedGridViewEntity copyWith({
@@ -26,6 +29,7 @@ class AnimatedGridViewEntity {
     Size? size,
     int? originalOrderId,
     int? updatedOrderId,
+    bool? isBuilding,
   }) =>
       AnimatedGridViewEntity(
         size: size ?? this.size,
@@ -34,6 +38,7 @@ class AnimatedGridViewEntity {
         child: child ?? this.child,
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOrderId: originalOrderId ?? this.originalOrderId,
+        isBuilding: isBuilding ?? this.isBuilding,
       );
 
   int get keyHashCode => child.key.hashCode;

@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2;
+  static const _startCounter = 1;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                         onTap: () {
                           setState(() {
                             // children = children..add(keyCounter++);
-                            children.insert(1, keyCounter++);
+                            children.insert(0, keyCounter++);
                           });
                         },
                         color: Colors.green,
@@ -143,9 +143,9 @@ class _MyAppState extends State<MyApp> {
       children.length,
       (index) => Container(
         key: Key(
-          children[index] == 0
-              ? 'old-${children[index].toString()}'
-              : 'new-${children[index].toString()}',
+          children[index] == 1
+              ? 'new-${children[index].toString()}'
+              : 'old-${children[index].toString()}',
         ),
         decoration: BoxDecoration(
           color: lockedIndices.contains(index) ? Colors.black : Colors.blue,

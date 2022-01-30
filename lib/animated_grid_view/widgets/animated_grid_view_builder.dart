@@ -97,15 +97,12 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       assert(false, 'RenderBox of child should not be null!');
     } else {
       final contentOffset = contentRenderBox.localToGlobal(Offset.zero);
-      print('contentOffset $contentOffset');
       final localOffset = renderBox.globalToLocal(contentOffset);
       final offset = Offset(
         localOffset.dx.abs(),
         localOffset.dy.abs() + _scrollController.position.pixels,
       );
       final size = renderBox.size;
-
-      late final AnimatedGridViewEntity updatedReorderableEntity;
 
       final originalOrderId = animatedGridViewEntity.originalOrderId;
 
@@ -127,9 +124,12 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         // updating existing
         final updatedGridViewEntity = animatedGridViewEntity.copyWith(
           updatedOffset: offset,
+          isBuilding: false,
         );
         final updatedKeyHashCode = updatedGridViewEntity.keyHashCode;
         _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
+
+        setState(() {});
 
         return updatedGridViewEntity;
       } else {
@@ -182,9 +182,14 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
             final childBefore = _childrenMap.values.firstWhere(
               (element) => element.originalOrderId == childBeforeOrderId,
             );
+            _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+              updatedOrderId: orderId,
+              updatedOffset: childBefore.originalOffset,
+            );
           } else {
             _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
               updatedOrderId: orderId,
+              isBuilding: true,
             );
           }
         } else {
