@@ -33,8 +33,6 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
   Offset _delegateOffset = Offset.zero;
 
-  bool isCreated = false;
-
   late AnimationController animationController;
   late Animation _animationDx;
   late Animation _animationDy;
@@ -50,18 +48,10 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     _updateAnimationTranslation(startAnimation: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      final gridViewEntity = widget.onCreated(
+      widget.onCreated(
         widget.animatedGridViewEntity,
         _globalKey,
       );
-      if (gridViewEntity != null) {
-        _delegateOffset = _getDelegateOffset(gridViewEntity);
-        _updateAnimationTranslation();
-
-        setState(() {
-          isCreated = true;
-        });
-      }
     });
   }
 
@@ -69,47 +59,35 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   void didUpdateWidget(covariant AnimatedGridViewChild oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldUpdatedOrderId = oldWidget.animatedGridViewEntity.updatedOrderId;
-    final newUpdatedOrderId = widget.animatedGridViewEntity.updatedOrderId;
-    if (oldUpdatedOrderId != newUpdatedOrderId) {
-      final originalOffset = widget.animatedGridViewEntity.originalOffset;
-      final newUpdatedOffset = widget.animatedGridViewEntity.updatedOffset;
-      print(
-          'Original offset originalOffset $originalOffset, Update in offset $newUpdatedOffset for child ${widget.animatedGridViewEntity.child.key}');
+    if (oldWidget.animatedGridViewEntity != widget.animatedGridViewEntity) {
+      animationController.reset();
+      _delegateOffset = _getDelegateOffset(widget.animatedGridViewEntity);
+      _updateAnimationTranslation();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: !widget.animatedGridViewEntity.isBuilding,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainState: true,
-      child: Container(
-        key: _globalKey,
-        transform: Matrix4.translationValues(
-          _animationDx.value,
-          _animationDy.value,
-          0,
+    return Container(
+      key: _globalKey,
+      transform: Matrix4.translationValues(
+        _animationDx.value,
+        _animationDy.value,
+        0,
+      ),
+      child: CustomSingleChildLayout(
+        delegate: AnimatedGridViewSingleChildLayoutDelegate(
+          offset: _delegateOffset,
         ),
-        child: CustomSingleChildLayout(
-          delegate: AnimatedGridViewSingleChildLayoutDelegate(
-            offset: _delegateOffset,
-          ),
-          child: widget.animatedGridViewEntity.child,
-        ),
+        child: widget.animatedGridViewEntity.child,
       ),
     );
   }
 
   Offset _getDelegateOffset(AnimatedGridViewEntity animatedGridViewEntity) {
-    final key = animatedGridViewEntity.child.key;
     final originalOffset = animatedGridViewEntity.originalOffset;
     final updatedOffset = animatedGridViewEntity.updatedOffset;
-    final difference = originalOffset - updatedOffset;
-    print('**** key $key with diff $difference ****');
-    return difference;
+    return originalOffset - updatedOffset;
   }
 
   void _updateAnimationTranslation({
