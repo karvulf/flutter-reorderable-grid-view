@@ -65,6 +65,12 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   }
 
   @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       key: _globalKey,

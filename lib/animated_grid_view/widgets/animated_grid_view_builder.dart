@@ -29,6 +29,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   final _scrollController = ScrollController();
 
   var _childrenMap = <int, AnimatedGridViewEntity>{};
+  final _offsetMap = <int, Offset>{};
 
   @override
   void initState() {
@@ -78,7 +79,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         ),
       );
     }
-
     return children;
   }
 
@@ -95,10 +95,13 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     } else {
       final contentOffset = contentRenderBox.localToGlobal(Offset.zero);
       final localOffset = renderBox.globalToLocal(contentOffset);
+
+      print('Created(${animatedGridViewEntity.child.key}: Offset $localOffset');
       final offset = Offset(
         localOffset.dx.abs(),
         localOffset.dy.abs() + _scrollController.position.pixels,
       );
+      _offsetMap[animatedGridViewEntity.updatedOrderId] = offset;
       final size = renderBox.size;
 
       final originalOrderId = animatedGridViewEntity.originalOrderId;
@@ -150,21 +153,11 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       if (_childrenMap.containsKey(keyHashCode)) {
         final animatedGridViewEntity = _childrenMap[keyHashCode]!;
 
-        final orderIdGridViewEntity = _getAnimatedGridViewEntity(
-          orderId: orderId,
+        updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+          updatedOrderId: orderId,
+          updatedOffset: _offsetMap[orderId],
+          isBuilding: !_offsetMap.containsKey(orderId),
         );
-        // check if there is already a child with that orderId
-        if (orderIdGridViewEntity != null) {
-          updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: orderId,
-            updatedOffset: orderIdGridViewEntity.originalOffset,
-          );
-        } else {
-          updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-            updatedOrderId: orderId,
-            isBuilding: true, // do I really need that?
-          );
-        }
       } else {
         updatedChildrenMap[keyHashCode] = AnimatedGridViewEntity(
           child: child,
