@@ -72,6 +72,8 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
   @override
   Widget build(BuildContext context) {
+    // print(
+    //   '${widget.animatedGridViewEntity.child.key}: _animationDx $_animationDx');
     return Container(
       key: _globalKey,
       transform: Matrix4.translationValues(

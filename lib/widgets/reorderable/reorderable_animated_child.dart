@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_draggable.dart';
 
 typedef OnAnimationEndFunction = Function(
   int hashKey,

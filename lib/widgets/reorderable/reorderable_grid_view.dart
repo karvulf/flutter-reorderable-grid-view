@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_builder.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_view_type.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_builder.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_builder.dart';
 
 /// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
 class ReorderableGridView extends StatelessWidget {
@@ -34,6 +34,8 @@ class ReorderableGridView extends StatelessWidget {
 
   final ScrollPhysics? physics;
   final BoxDecoration? dragChildBoxDecoration;
+
+  final _scrollController = ScrollController();
 
   ReorderableGridView({
     required this.children,
@@ -120,7 +122,8 @@ class ReorderableGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedGridViewBuilder(
       children: children,
-      builder: (children, scrollController, contentGlobalKey) {
+      scrollController: _scrollController,
+      builder: (children, contentGlobalKey) {
         return ReorderableBuilder(
           children: children,
           onReorder: onReorder,
@@ -130,13 +133,14 @@ class ReorderableGridView extends StatelessWidget {
           longPressDelay: longPressDelay,
           enableDraggable: enableDraggable,
           dragChildBoxDecoration: dragChildBoxDecoration,
-          builder: (draggableChildren, scrollController) {
+          scrollController: _scrollController,
+          builder: (children) {
             switch (_reorderableType) {
               case GridViewType.gridView:
                 return GridView(
                   key: contentGlobalKey,
-                  controller: scrollController,
-                  children: draggableChildren,
+                  controller: _scrollController,
+                  children: children,
                   physics: physics,
                   padding: padding,
                   gridDelegate: gridDelegate!,
@@ -146,9 +150,9 @@ class ReorderableGridView extends StatelessWidget {
               case GridViewType.gridViewCount:
                 return GridView.count(
                   key: contentGlobalKey,
-                  controller: scrollController,
+                  controller: _scrollController,
                   physics: physics,
-                  children: draggableChildren,
+                  children: children,
                   crossAxisCount: crossAxisCount!,
                   mainAxisSpacing: mainAxisSpacing!,
                   crossAxisSpacing: crossAxisSpacing!,
@@ -159,8 +163,8 @@ class ReorderableGridView extends StatelessWidget {
               case GridViewType.gridViewExtent:
                 return GridView.extent(
                   key: contentGlobalKey,
-                  controller: scrollController,
-                  children: draggableChildren,
+                  controller: _scrollController,
+                  children: children,
                   physics: physics,
                   maxCrossAxisExtent: maxCrossAxisExtent!,
                   mainAxisSpacing: mainAxisSpacing!,
@@ -173,10 +177,10 @@ class ReorderableGridView extends StatelessWidget {
               case GridViewType.gridViewBuilder:
                 return GridView.builder(
                   key: contentGlobalKey,
-                  controller: scrollController,
+                  controller: _scrollController,
                   physics: physics,
-                  itemCount: draggableChildren.length,
-                  itemBuilder: (context, index) => draggableChildren[index],
+                  itemCount: children.length,
+                  itemBuilder: (context, index) => children[index],
                   gridDelegate: gridDelegate!,
                   padding: padding,
                   clipBehavior: clipBehavior,

@@ -4,17 +4,18 @@ import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_vie
 
 typedef AnimatedGridViewBuilderFunction = Widget Function(
   List<Widget> draggableChildren,
-  ScrollController scrollController,
   GlobalKey contentGlobalKey,
 );
 
 class AnimatedGridViewBuilder extends StatefulWidget {
   final List<Widget> children;
+  final ScrollController scrollController;
 
   final AnimatedGridViewBuilderFunction builder;
 
   const AnimatedGridViewBuilder({
     required this.children,
+    required this.scrollController,
     required this.builder,
     Key? key,
   }) : super(key: key);
@@ -26,7 +27,6 @@ class AnimatedGridViewBuilder extends StatefulWidget {
 
 class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   final _contentGlobalKey = GlobalKey();
-  final _scrollController = ScrollController();
 
   var _childrenMap = <int, AnimatedGridViewEntity>{};
   final _offsetMap = <int, Offset>{};
@@ -60,7 +60,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   Widget build(BuildContext context) {
     return widget.builder(
       _getAnimatedGridViewChildren(),
-      _scrollController,
       _contentGlobalKey,
     );
   }
@@ -73,6 +72,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     for (final animatedGridViewEntity in sortedChildren) {
       children.add(
         AnimatedGridViewChild(
+          key: Key(animatedGridViewEntity.child.key.hashCode.toString()),
           animatedGridViewEntity: animatedGridViewEntity,
           onCreated: _handleCreated,
           onMovingFinished: _handleMovingFinished,
@@ -96,10 +96,9 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       final contentOffset = contentRenderBox.localToGlobal(Offset.zero);
       final localOffset = renderBox.globalToLocal(contentOffset);
 
-      print('Created(${animatedGridViewEntity.child.key}: Offset $localOffset');
       final offset = Offset(
         localOffset.dx.abs(),
-        localOffset.dy.abs() + _scrollController.position.pixels,
+        localOffset.dy.abs() + widget.scrollController.position.pixels,
       );
       _offsetMap[animatedGridViewEntity.updatedOrderId] = offset;
       final size = renderBox.size;
@@ -179,13 +178,5 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       originalOffset: animatedGridViewEntity.updatedOffset,
       originalOrderId: animatedGridViewEntity.updatedOrderId,
     );
-  }
-
-  AnimatedGridViewEntity? _getAnimatedGridViewEntity({required int orderId}) {
-    for (final gridViewEntity in _childrenMap.values) {
-      if (gridViewEntity.originalOrderId == orderId) {
-        return gridViewEntity;
-      }
-    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
+import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 enum ReorderableType {
   wrap,
@@ -22,7 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 4;
+  static const _startCounter = 2;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
