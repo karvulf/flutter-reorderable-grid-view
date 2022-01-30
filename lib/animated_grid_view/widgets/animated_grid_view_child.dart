@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/animated_grid_view/entities/animated_grid_view_entity.dart';
 
-typedef OnCreatedFunction = AnimatedGridViewEntity? Function(
+typedef OnCreatedFunction = void Function(
   AnimatedGridViewEntity animatedGridViewEntity,
   GlobalKey key,
 );
@@ -31,11 +31,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     with SingleTickerProviderStateMixin {
   final _globalKey = GlobalKey();
 
-  Offset _delegateOffset = Offset.zero;
-
   late AnimationController animationController;
-  late Animation _animationDx;
-  late Animation _animationDy;
+  late Animation<double> _animationDx;
+  late Animation<double> _animationDy;
 
   @override
   void initState() {
@@ -45,7 +43,8 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _updateAnimationTranslation(startAnimation: false);
+    _animationDx = Tween<double>(begin: 0, end: 0).animate(animationController);
+    _animationDy = Tween<double>(begin: 0, end: 0).animate(animationController);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       widget.onCreated(
@@ -61,7 +60,6 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
     if (oldWidget.animatedGridViewEntity != widget.animatedGridViewEntity) {
       animationController.reset();
-      _delegateOffset = _getDelegateOffset(widget.animatedGridViewEntity);
       _updateAnimationTranslation();
     }
   }
@@ -75,36 +73,32 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
         _animationDy.value,
         0,
       ),
-      child: CustomSingleChildLayout(
-        delegate: AnimatedGridViewSingleChildLayoutDelegate(
-          offset: _delegateOffset,
-        ),
-        child: widget.animatedGridViewEntity.child,
-      ),
+      child: widget.animatedGridViewEntity.child,
     );
-  }
-
-  Offset _getDelegateOffset(AnimatedGridViewEntity animatedGridViewEntity) {
-    final originalOffset = animatedGridViewEntity.originalOffset;
-    final updatedOffset = animatedGridViewEntity.updatedOffset;
-    return originalOffset - updatedOffset;
   }
 
   void _updateAnimationTranslation({
     bool startAnimation = true,
   }) {
-    _animationDx = _getAnimation(_delegateOffset.dx * -1);
-    _animationDy = _getAnimation(_delegateOffset.dy * -1);
+    final offsetDiff = _getOffsetDiff(widget.animatedGridViewEntity);
+    _animationDx = _getAnimation(offsetDiff.dx * -1);
+    _animationDy = _getAnimation(offsetDiff.dy * -1);
 
     if (startAnimation) {
       animationController.forward();
     }
   }
 
+  Offset _getOffsetDiff(AnimatedGridViewEntity animatedGridViewEntity) {
+    final originalOffset = animatedGridViewEntity.originalOffset;
+    final updatedOffset = animatedGridViewEntity.updatedOffset;
+    return originalOffset - updatedOffset;
+  }
+
   Animation<double> _getAnimation(double value) {
     return Tween<double>(
-      begin: 0,
-      end: value,
+      begin: -value,
+      end: 0,
     ).animate(animationController)
       ..addListener(() {
         setState(() {});

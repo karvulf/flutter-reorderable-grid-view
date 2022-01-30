@@ -82,7 +82,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     return children;
   }
 
-  AnimatedGridViewEntity? _handleCreated(
+  void _handleCreated(
     AnimatedGridViewEntity animatedGridViewEntity,
     GlobalKey key,
   ) {
@@ -127,8 +127,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
 
         setState(() {});
-
-        return updatedGridViewEntity;
       } else {
         final updatedGridViewEntity = animatedGridViewEntity.copyWith(
           size: size,
@@ -137,14 +135,11 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         );
         final keyHashCode = animatedGridViewEntity.keyHashCode;
         _childrenMap[keyHashCode] = updatedGridViewEntity;
-
-        return updatedGridViewEntity;
       }
     }
   }
 
   void _handleUpdatedChildren() {
-    final childrenLengthBefore = _childrenMap.length;
     var orderId = 0;
     final updatedChildrenMap = <int, AnimatedGridViewEntity>{};
 
