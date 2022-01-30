@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/animated_grid_view/entities/animated_grid_view_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/animated_grid_view_entity.dart';
 
 typedef OnCreatedFunction = void Function(
   AnimatedGridViewEntity animatedGridViewEntity,
@@ -83,16 +83,12 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     );
   }
 
-  void _updateAnimationTranslation({
-    bool startAnimation = true,
-  }) {
+  void _updateAnimationTranslation() {
     final offsetDiff = _getOffsetDiff(widget.animatedGridViewEntity);
     _animationDx = _getAnimation(offsetDiff.dx * -1);
     _animationDy = _getAnimation(offsetDiff.dy * -1);
 
-    if (startAnimation) {
-      animationController.forward();
-    }
+    animationController.forward();
   }
 
   Offset _getOffsetDiff(AnimatedGridViewEntity animatedGridViewEntity) {

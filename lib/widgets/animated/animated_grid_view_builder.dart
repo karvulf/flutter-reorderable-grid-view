@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/animated_grid_view/entities/animated_grid_view_entity.dart';
-import 'package:flutter_reorderable_grid_view/animated_grid_view/widgets/animated_grid_view_child.dart';
+import 'package:flutter_reorderable_grid_view/entities/animated_grid_view_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_child.dart';
 
 typedef AnimatedGridViewBuilderFunction = Widget Function(
   List<Widget> draggableChildren,

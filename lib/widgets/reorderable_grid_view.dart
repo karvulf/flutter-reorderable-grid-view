@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_builder.dart';
 import 'package:flutter_reorderable_grid_view/entities/grid_view_type.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
@@ -117,64 +118,73 @@ class ReorderableGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ReorderableBuilder(
+    return AnimatedGridViewBuilder(
       children: children,
-      onReorder: onReorder,
-      lockedIndices: lockedIndices,
-      enableAnimation: enableAnimation,
-      enableLongPress: enableLongPress,
-      longPressDelay: longPressDelay,
-      enableDraggable: enableDraggable,
-      dragChildBoxDecoration: dragChildBoxDecoration,
-      builder: (draggableChildren, scrollController) {
-        switch (_reorderableType) {
-          case GridViewType.gridView:
-            return GridView(
-              controller: scrollController,
-              children: draggableChildren,
-              physics: physics,
-              padding: padding,
-              gridDelegate: gridDelegate!,
-              clipBehavior: clipBehavior,
-              shrinkWrap: shrinkWrap,
-            );
-          case GridViewType.gridViewCount:
-            return GridView.count(
-              controller: scrollController,
-              physics: physics,
-              children: draggableChildren,
-              crossAxisCount: crossAxisCount!,
-              mainAxisSpacing: mainAxisSpacing!,
-              crossAxisSpacing: crossAxisSpacing!,
-              clipBehavior: clipBehavior,
-              padding: padding,
-              shrinkWrap: shrinkWrap,
-            );
-          case GridViewType.gridViewExtent:
-            return GridView.extent(
-              controller: scrollController,
-              children: draggableChildren,
-              physics: physics,
-              maxCrossAxisExtent: maxCrossAxisExtent!,
-              mainAxisSpacing: mainAxisSpacing!,
-              crossAxisSpacing: crossAxisSpacing!,
-              padding: padding,
-              clipBehavior: clipBehavior,
-              childAspectRatio: childAspectRatio!,
-              shrinkWrap: shrinkWrap,
-            );
-          case GridViewType.gridViewBuilder:
-            return GridView.builder(
-              controller: scrollController,
-              physics: physics,
-              itemCount: draggableChildren.length,
-              itemBuilder: (context, index) => draggableChildren[index],
-              gridDelegate: gridDelegate!,
-              padding: padding,
-              clipBehavior: clipBehavior,
-              shrinkWrap: shrinkWrap,
-            );
-        }
+      builder: (children, scrollController, contentGlobalKey) {
+        return ReorderableBuilder(
+          children: children,
+          onReorder: onReorder,
+          lockedIndices: lockedIndices,
+          enableAnimation: enableAnimation,
+          enableLongPress: enableLongPress,
+          longPressDelay: longPressDelay,
+          enableDraggable: enableDraggable,
+          dragChildBoxDecoration: dragChildBoxDecoration,
+          builder: (draggableChildren, scrollController) {
+            switch (_reorderableType) {
+              case GridViewType.gridView:
+                return GridView(
+                  key: contentGlobalKey,
+                  controller: scrollController,
+                  children: draggableChildren,
+                  physics: physics,
+                  padding: padding,
+                  gridDelegate: gridDelegate!,
+                  clipBehavior: clipBehavior,
+                  shrinkWrap: shrinkWrap,
+                );
+              case GridViewType.gridViewCount:
+                return GridView.count(
+                  key: contentGlobalKey,
+                  controller: scrollController,
+                  physics: physics,
+                  children: draggableChildren,
+                  crossAxisCount: crossAxisCount!,
+                  mainAxisSpacing: mainAxisSpacing!,
+                  crossAxisSpacing: crossAxisSpacing!,
+                  clipBehavior: clipBehavior,
+                  padding: padding,
+                  shrinkWrap: shrinkWrap,
+                );
+              case GridViewType.gridViewExtent:
+                return GridView.extent(
+                  key: contentGlobalKey,
+                  controller: scrollController,
+                  children: draggableChildren,
+                  physics: physics,
+                  maxCrossAxisExtent: maxCrossAxisExtent!,
+                  mainAxisSpacing: mainAxisSpacing!,
+                  crossAxisSpacing: crossAxisSpacing!,
+                  padding: padding,
+                  clipBehavior: clipBehavior,
+                  childAspectRatio: childAspectRatio!,
+                  shrinkWrap: shrinkWrap,
+                );
+              case GridViewType.gridViewBuilder:
+                return GridView.builder(
+                  key: contentGlobalKey,
+                  controller: scrollController,
+                  physics: physics,
+                  itemCount: draggableChildren.length,
+                  itemBuilder: (context, index) => draggableChildren[index],
+                  gridDelegate: gridDelegate!,
+                  padding: padding,
+                  clipBehavior: clipBehavior,
+                  shrinkWrap: shrinkWrap,
+                );
+            }
+          },
+        );
       },
     );
   }

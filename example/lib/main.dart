@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/animated_grid_view/widgets/animated_grid_view.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
 
@@ -173,14 +172,6 @@ class _MyAppState extends State<MyApp> {
           lockedIndices: lockedIndices,
         );
       case ReorderableType.gridView:
-        return AnimatedGridView(
-          children: generatedChildren,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
-        );
         return ReorderableGridView(
           key: const Key('gridView'),
           children: generatedChildren,
