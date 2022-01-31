@@ -110,7 +110,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         draggedReorderableEntity != null && widget.enableAnimation;
 
     for (final reorderableEntity in sortedChildren) {
-      draggableChildren.add(reorderableEntity.child);
+      print('Reorderable Child ${reorderableEntity.child.key}');
+
+      draggableChildren.add(
+        reorderableEntity.child,
+      );
       /*draggableChildren.add(
         ReorderableAnimatedChild(
           draggedReorderableEntity: draggedReorderableEntity,

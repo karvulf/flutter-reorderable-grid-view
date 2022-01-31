@@ -70,9 +70,12 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
 
     for (final animatedGridViewEntity in sortedChildren) {
+      final keyHashCode = animatedGridViewEntity.keyHashCode;
+      print(
+          'Animated Child ${animatedGridViewEntity.child.key} with keyHashCode $keyHashCode');
       children.add(
         AnimatedGridViewChild(
-          key: Key(animatedGridViewEntity.child.key.hashCode.toString()),
+          key: Key(animatedGridViewEntity.keyHashCode.toString()),
           animatedGridViewEntity: animatedGridViewEntity,
           onCreated: _handleCreated,
           onBuilding: _handleBuilding,
