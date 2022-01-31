@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 
 class AnimatedGridViewEntity {
   final Widget child;
-  final Size size;
 
   final int originalOrderId;
   final int updatedOrderId;
@@ -18,7 +17,6 @@ class AnimatedGridViewEntity {
     required this.updatedOrderId,
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
-    this.size = Size.zero,
     this.isBuilding = false,
   });
 
@@ -32,7 +30,6 @@ class AnimatedGridViewEntity {
     bool? isBuilding,
   }) =>
       AnimatedGridViewEntity(
-        size: size ?? this.size,
         originalOffset: originalOffset ?? this.originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
         child: child ?? this.child,

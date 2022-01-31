@@ -14,11 +14,13 @@ class AnimatedGridViewChild extends StatefulWidget {
   final AnimatedGridViewEntity animatedGridViewEntity;
 
   final OnCreatedFunction onCreated;
+  final OnCreatedFunction onBuilding;
   final OnMovingFinished onMovingFinished;
 
   const AnimatedGridViewChild({
     required this.animatedGridViewEntity,
     required this.onCreated,
+    required this.onBuilding,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
@@ -46,7 +48,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     _animationDx = Tween<double>(begin: 0, end: 0).animate(animationController);
     _animationDy = Tween<double>(begin: 0, end: 0).animate(animationController);
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       widget.onCreated(
         widget.animatedGridViewEntity,
         _globalKey,
@@ -59,6 +61,14 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.animatedGridViewEntity != widget.animatedGridViewEntity) {
+      if (widget.animatedGridViewEntity.isBuilding) {
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          widget.onBuilding(
+            widget.animatedGridViewEntity,
+            _globalKey,
+          );
+        });
+      }
       animationController.reset();
       _updateAnimationTranslation();
     }
@@ -73,7 +83,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   @override
   Widget build(BuildContext context) {
     // print(
-    //   '${widget.animatedGridViewEntity.child.key}: _animationDx $_animationDx');
+    //    '${widget.animatedGridViewEntity.child.key}: _animationDx $_animationDx');
     return Container(
       key: _globalKey,
       transform: Matrix4.translationValues(
@@ -90,7 +100,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     _animationDx = _getAnimation(offsetDiff.dx * -1);
     _animationDy = _getAnimation(offsetDiff.dy * -1);
 
-    animationController.forward();
+    if (offsetDiff.dx != 0 || offsetDiff.dy != 0) {
+      animationController.forward();
+    }
   }
 
   Offset _getOffsetDiff(AnimatedGridViewEntity animatedGridViewEntity) {
@@ -112,23 +124,5 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
           widget.onMovingFinished(widget.animatedGridViewEntity);
         }
       });
-  }
-}
-
-class AnimatedGridViewSingleChildLayoutDelegate
-    extends SingleChildLayoutDelegate {
-  final Offset offset;
-
-  AnimatedGridViewSingleChildLayoutDelegate({required this.offset});
-
-  @override
-  bool shouldRelayout(
-      covariant AnimatedGridViewSingleChildLayoutDelegate oldDelegate) {
-    return true; // oldDelegate.offset != offset;
-  }
-
-  @override
-  Offset getPositionForChild(Size size, Size childSize) {
-    return offset;
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -110,13 +109,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final enableAnimation =
         draggedReorderableEntity != null && widget.enableAnimation;
 
-    print('----');
-    for (final child in widget.children) {
-      print('child key ${child.key}');
-    }
-    print('****');
     for (final reorderableEntity in sortedChildren) {
-      print('child key ${reorderableEntity.child.key}');
       draggableChildren.add(reorderableEntity.child);
       /*draggableChildren.add(
         ReorderableAnimatedChild(
@@ -134,7 +127,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         ),
       );*/
     }
-    print('----');
 
     return draggableChildren;
   }

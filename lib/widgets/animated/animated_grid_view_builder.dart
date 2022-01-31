@@ -75,6 +75,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
           key: Key(animatedGridViewEntity.child.key.hashCode.toString()),
           animatedGridViewEntity: animatedGridViewEntity,
           onCreated: _handleCreated,
+          onBuilding: _handleBuilding,
           onMovingFinished: _handleMovingFinished,
         ),
       );
@@ -82,10 +83,53 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     return children;
   }
 
+  /// Updates offset new child.
   void _handleCreated(
     AnimatedGridViewEntity animatedGridViewEntity,
     GlobalKey key,
   ) {
+    final offset = _updateOffset(
+      key: key,
+      orderId: animatedGridViewEntity.updatedOrderId,
+    );
+
+    if (offset != null) {
+      final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+        originalOffset: offset,
+        updatedOffset: offset,
+      );
+      final keyHashCode = animatedGridViewEntity.keyHashCode;
+      _childrenMap[keyHashCode] = updatedGridViewEntity;
+    }
+  }
+
+  /// Updates offset of existing but new positioned child.
+  void _handleBuilding(
+    AnimatedGridViewEntity animatedGridViewEntity,
+    GlobalKey key,
+  ) {
+    final offset = _updateOffset(
+      key: key,
+      orderId: animatedGridViewEntity.updatedOrderId,
+    );
+
+    if (offset != null) {
+      // updating existing
+      final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+        updatedOffset: offset,
+        isBuilding: false,
+      );
+      final updatedKeyHashCode = updatedGridViewEntity.keyHashCode;
+      _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
+
+      setState(() {});
+    }
+  }
+
+  Offset? _updateOffset({
+    required int orderId,
+    required GlobalKey key,
+  }) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
     final contentRenderBox =
         _contentGlobalKey.currentContext?.findRenderObject() as RenderBox?;
@@ -100,44 +144,9 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         localOffset.dx.abs(),
         localOffset.dy.abs() + widget.scrollController.position.pixels,
       );
-      _offsetMap[animatedGridViewEntity.updatedOrderId] = offset;
-      final size = renderBox.size;
+      _offsetMap[orderId] = offset;
 
-      final originalOrderId = animatedGridViewEntity.originalOrderId;
-
-      if (animatedGridViewEntity.updatedOrderId != originalOrderId) {
-        // searching for original
-        var newGridViewEntity = _childrenMap.values.firstWhere(
-          (element) => element.updatedOrderId == originalOrderId,
-        );
-
-        // updating added entity
-        newGridViewEntity = newGridViewEntity.copyWith(
-          size: size,
-          originalOffset: animatedGridViewEntity.originalOffset,
-          updatedOffset: animatedGridViewEntity.originalOffset,
-        );
-        final newKeyHashCode = animatedGridViewEntity.keyHashCode;
-        _childrenMap[newKeyHashCode] = newGridViewEntity;
-
-        // updating existing
-        final updatedGridViewEntity = animatedGridViewEntity.copyWith(
-          updatedOffset: offset,
-          isBuilding: false,
-        );
-        final updatedKeyHashCode = updatedGridViewEntity.keyHashCode;
-        _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
-
-        setState(() {});
-      } else {
-        final updatedGridViewEntity = animatedGridViewEntity.copyWith(
-          size: size,
-          originalOffset: offset,
-          updatedOffset: offset,
-        );
-        final keyHashCode = animatedGridViewEntity.keyHashCode;
-        _childrenMap[keyHashCode] = updatedGridViewEntity;
-      }
+      return offset;
     }
   }
 
