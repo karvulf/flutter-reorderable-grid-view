@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_builder.dart';
 
 /// Todo: Hier müssen GridViews/Wrap benutzt werden, die die children animieren, wenn eines dazu kommt oder verschwindet
 class ReorderableWrap extends StatelessWidget {
@@ -20,7 +20,9 @@ class ReorderableWrap extends StatelessWidget {
   final ScrollPhysics? physics;
   final BoxDecoration? dragChildBoxDecoration;
 
-  const ReorderableWrap({
+  final _scrollController = ScrollController();
+
+  ReorderableWrap({
     required this.children,
     required this.onReorder,
     this.lockedIndices = const [],
@@ -48,9 +50,10 @@ class ReorderableWrap extends StatelessWidget {
       longPressDelay: longPressDelay,
       enableDraggable: enableDraggable,
       dragChildBoxDecoration: dragChildBoxDecoration,
-      builder: (draggableChildren, scrollController) {
+      scrollController: _scrollController,
+      builder: (draggableChildren) {
         return SingleChildScrollView(
-          controller: scrollController,
+          controller: _scrollController,
           physics: physics,
           child: Wrap(
             children: draggableChildren,

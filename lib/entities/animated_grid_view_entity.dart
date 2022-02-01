@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-class ReorderableEntity {
+class AnimatedGridViewEntity {
   final Widget child;
-  final Size size;
 
   final int originalOrderId;
   final int updatedOrderId;
@@ -12,17 +11,16 @@ class ReorderableEntity {
 
   final bool isBuilding;
 
-  const ReorderableEntity({
+  const AnimatedGridViewEntity({
     required this.child,
     required this.originalOrderId,
     required this.updatedOrderId,
     required this.isBuilding,
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
-    this.size = Size.zero,
   });
 
-  ReorderableEntity copyWith({
+  AnimatedGridViewEntity copyWith({
     Offset? originalOffset,
     Offset? updatedOffset,
     Widget? child,
@@ -31,8 +29,7 @@ class ReorderableEntity {
     int? updatedOrderId,
     bool? isBuilding,
   }) =>
-      ReorderableEntity(
-        size: size ?? this.size,
+      AnimatedGridViewEntity(
         originalOffset: originalOffset ?? this.originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
         child: child ?? this.child,
@@ -40,4 +37,6 @@ class ReorderableEntity {
         originalOrderId: originalOrderId ?? this.originalOrderId,
         isBuilding: isBuilding ?? this.isBuilding,
       );
+
+  int get keyHashCode => child.key.hashCode;
 }

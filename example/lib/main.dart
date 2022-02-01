@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_grid_view.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_wrap.dart';
+import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 enum ReorderableType {
   wrap,
@@ -22,8 +21,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 30;
-  final lockedIndices = <int>[2, 4, 5];
+  static const _startCounter = 200;
+  final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -61,7 +60,8 @@ class _MyAppState extends State<MyApp> {
                       ContainerButton(
                         onTap: () {
                           setState(() {
-                            children = children..add(keyCounter++);
+                            // children = children..add(keyCounter++);
+                            children.insert(0, keyCounter++);
                           });
                         },
                         color: Colors.green,
@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
                           if (children.isNotEmpty) {
                             setState(() {
                               // children = children..removeLast();
-                              children.removeAt(2);
+                              children.removeAt(1);
                             });
                           }
                         },
@@ -140,7 +140,11 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
-        key: Key(children[index].toString()),
+        key: Key(
+          children[index] == 1
+              ? 'new-${children[index].toString()}'
+              : 'old-${children[index].toString()}',
+        ),
         decoration: BoxDecoration(
           color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
         ),

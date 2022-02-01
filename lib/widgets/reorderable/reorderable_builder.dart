@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(
-  List<Widget> draggableChildren,
-  ScrollController scrollController,
+  List<Widget> children,
 );
 
 class ReorderableBuilder extends StatefulWidget {
@@ -16,6 +15,7 @@ class ReorderableBuilder extends StatefulWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
+  final ScrollController scrollController;
 
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -28,6 +28,7 @@ class ReorderableBuilder extends StatefulWidget {
     required this.enableLongPress,
     required this.longPressDelay,
     required this.enableDraggable,
+    required this.scrollController,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -37,8 +38,6 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
-  final _scrollController = ScrollController();
-
   ReorderableEntity? draggedReorderableEntity;
 
   var _childrenMap = <int, ReorderableEntity>{};
@@ -64,7 +63,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _updateChildren() {
-    var counter = 0;
+    var orderId = 0;
 
     final checkDuplicatedKeyList = <int>[];
 
@@ -80,18 +79,29 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       }
 
       final reorderableEntity = _childrenMap[hashKey];
+      bool isBuilding = !_offsetMap.containsKey(orderId);
 
       if (reorderableEntity == null) {
         updatedChildrenMap[hashKey] = ReorderableEntity(
           child: child,
-          originalOrderId: counter,
-          updatedOrderId: counter,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          updatedOffset: _offsetMap[orderId] ?? Offset.zero,
+          originalOffset: _offsetMap[orderId] ?? Offset.zero,
+          isBuilding: isBuilding,
         );
       } else {
-        updatedChildrenMap[hashKey] = reorderableEntity;
+        updatedChildrenMap[hashKey] = reorderableEntity.copyWith(
+          child: child,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          updatedOffset: _offsetMap[orderId],
+          originalOffset: _offsetMap[orderId],
+          isBuilding: isBuilding,
+        );
       }
 
-      counter++;
+      orderId++;
     }
     setState(() {
       _childrenMap = updatedChildrenMap;
@@ -100,10 +110,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(
-      _getDraggableChildren(),
-      _scrollController,
-    );
+    return widget.builder(_getDraggableChildren());
   }
 
   List<Widget> _getDraggableChildren() {
@@ -117,6 +124,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         ReorderableAnimatedChild(
+          key: reorderableEntity.child.key,
           draggedReorderableEntity: draggedReorderableEntity,
           enableAnimation: enableAnimation,
           enableLongPress: widget.enableLongPress,
@@ -135,7 +143,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return draggableChildren;
   }
 
-  ReorderableEntity? _handleCreated(int hashKey, GlobalKey key) {
+  void _handleCreated(int hashKey, GlobalKey key) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
@@ -145,25 +153,24 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       final localOffset = renderBox.localToGlobal(Offset.zero);
       final offset = Offset(
         localOffset.dx,
-        localOffset.dy + _scrollController.position.pixels,
+        localOffset.dy + widget.scrollController.position.pixels,
       );
       final size = renderBox.size;
       final updatedReorderableEntity = reorderableEntity.copyWith(
         size: size,
         originalOffset: offset,
         updatedOffset: offset,
+        isBuilding: false,
       );
       _childrenMap[hashKey] = updatedReorderableEntity;
       _offsetMap[reorderableEntity.updatedOrderId] = offset;
-
-      return updatedReorderableEntity;
     }
   }
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     setState(() {
       draggedReorderableEntity = reorderableEntity;
-      scrollPositionPixels = _scrollController.position.pixels;
+      scrollPositionPixels = widget.scrollController.position.pixels;
     });
   }
 
@@ -377,3 +384,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     print('');
 
  */
+
+class Kaka {
+  final Widget child;
+  final int index;
+
+  const Kaka({
+    required this.child,
+    required this.index,
+  });
+}
