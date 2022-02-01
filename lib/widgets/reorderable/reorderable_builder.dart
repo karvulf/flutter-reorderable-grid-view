@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -109,10 +110,33 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final enableAnimation =
         draggedReorderableEntity != null && widget.enableAnimation;
 
-    for (final reorderableEntity in sortedChildren) {
+    var index = 0;
+    for (final child in widget.children) {
+      final reorderableEntity = sortedChildren.elementAt(index++);
+      print('1. Child: ${child.key}');
       draggableChildren.add(
-        reorderableEntity.child,
+        ReorderableAnimatedChild(
+          draggedReorderableEntity: draggedReorderableEntity,
+          enableAnimation: enableAnimation,
+          enableLongPress: widget.enableLongPress,
+          longPressDelay: widget.longPressDelay,
+          enableDraggable: widget.enableDraggable,
+          onDragUpdate: _handleDragUpdate,
+          onCreated: _handleCreated,
+          onDragStarted: _handleDragStarted,
+          onDragEnd: _handleDragEnd,
+          reorderableEntity: reorderableEntity,
+          dragChildBoxDecoration: widget.dragChildBoxDecoration,
+        ),
       );
+    }
+
+    for (final reorderableEntity in sortedChildren) {
+      print('2. Child: ${reorderableEntity.child.key}');
+      // draggableChildren.add(reorderableEntity.child);
+      /*draggableChildren.add(
+        reorderableEntity.child,
+      );*/
       /*draggableChildren.add(
         ReorderableAnimatedChild(
           draggedReorderableEntity: draggedReorderableEntity,

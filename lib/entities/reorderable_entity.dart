@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
-class ReorderableEntity {
+class ReorderableEntity extends Equatable {
   final Widget child;
   final Size size;
 
@@ -35,4 +36,14 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOrderId: originalOrderId ?? this.originalOrderId,
       );
+
+  @override
+  List<Object?> get props => [
+        size,
+        originalOffset,
+        updatedOffset,
+        child,
+        updatedOrderId,
+        originalOrderId,
+      ];
 }
