@@ -48,8 +48,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   late final AnimationController _controller;
   late final DecorationTween _decorationTween;
 
-  late ReorderableEntity _reorderableEntity;
-
   final _globalKey = GlobalKey();
   final _defaultBoxDecoration = BoxDecoration(
     boxShadow: <BoxShadow>[
@@ -67,8 +65,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final hashKey = _reorderableEntity.child.key.hashCode;
-      _reorderableEntity = widget.onCreated(hashKey, _globalKey)!;
+      final hashKey = widget.reorderableEntity.child.key.hashCode;
+      widget.onCreated(hashKey, _globalKey)!;
     });
 
     _controller = AnimationController(
@@ -84,23 +82,17 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       begin: beginDragBoxDecoration ?? const BoxDecoration(),
       end: widget.dragChildBoxDecoration ?? _defaultBoxDecoration,
     );
-
-    _reorderableEntity = widget.reorderableEntity;
   }
 
   @override
   void didUpdateWidget(covariant ReorderableDraggable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.reorderableEntity != widget.reorderableEntity) {
-      setState(() {
-        _reorderableEntity = widget.reorderableEntity;
-      });
-    }
+    if (oldWidget.reorderableEntity != widget.reorderableEntity) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    final reorderableEntityChild = _reorderableEntity.child;
+    final reorderableEntityChild = widget.reorderableEntity.child;
     final child = Container(
       key: _globalKey,
       child: reorderableEntityChild,
@@ -152,12 +144,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   void _handleStarted() {
-    widget.onDragStarted(_reorderableEntity);
+    widget.onDragStarted(widget.reorderableEntity);
     _controller.forward();
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final hashKey = _reorderableEntity.child.key.hashCode;
+    final hashKey = widget.reorderableEntity.child.key.hashCode;
     widget.onDragUpdate(hashKey, details);
   }
 
