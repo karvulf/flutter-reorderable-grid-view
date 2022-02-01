@@ -123,7 +123,7 @@ class ReorderableGridView extends StatelessWidget {
     return AnimatedGridViewBuilder(
       children: children,
       scrollController: _scrollController,
-      builder: (children2, contentGlobalKey) {
+      builder: (children, contentGlobalKey) {
         return ReorderableBuilder(
           children: children,
           onReorder: onReorder,

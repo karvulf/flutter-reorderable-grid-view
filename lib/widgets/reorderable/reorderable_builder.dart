@@ -63,7 +63,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _updateChildren() {
-    var counter = 0;
+    var orderId = 0;
 
     final checkDuplicatedKeyList = <int>[];
 
@@ -79,29 +79,29 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       }
 
       final reorderableEntity = _childrenMap[hashKey];
-      bool isBuilding = !_offsetMap.containsKey(counter);
+      bool isBuilding = !_offsetMap.containsKey(orderId);
 
       if (reorderableEntity == null) {
         updatedChildrenMap[hashKey] = ReorderableEntity(
           child: child,
-          originalOrderId: counter,
-          updatedOrderId: counter,
-          updatedOffset: _offsetMap[counter] ?? Offset.zero,
-          originalOffset: _offsetMap[counter] ?? Offset.zero,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          updatedOffset: _offsetMap[orderId] ?? Offset.zero,
+          originalOffset: _offsetMap[orderId] ?? Offset.zero,
           isBuilding: isBuilding,
         );
       } else {
         updatedChildrenMap[hashKey] = reorderableEntity.copyWith(
           child: child,
-          originalOrderId: counter,
-          updatedOrderId: counter,
-          updatedOffset: _offsetMap[counter],
-          originalOffset: _offsetMap[counter],
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          updatedOffset: _offsetMap[orderId],
+          originalOffset: _offsetMap[orderId],
           isBuilding: isBuilding,
         );
       }
 
-      counter++;
+      orderId++;
     }
     setState(() {
       _childrenMap = updatedChildrenMap;

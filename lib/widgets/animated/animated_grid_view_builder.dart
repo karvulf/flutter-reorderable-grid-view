@@ -52,8 +52,14 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   void didUpdateWidget(covariant AnimatedGridViewBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.children != widget.children) {
-      _handleUpdatedChildren();
+    final oldChildren = oldWidget.children;
+    final children = widget.children;
+
+    if (oldChildren != children) {
+      final changedChildrenLength = oldChildren.length != children.length;
+      _handleUpdatedChildren(
+        changedChildrenLength: changedChildrenLength,
+      );
     }
   }
 
@@ -152,7 +158,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     }
   }
 
-  void _handleUpdatedChildren() {
+  void _handleUpdatedChildren({required bool changedChildrenLength}) {
     var orderId = 0;
     final updatedChildrenMap = <int, AnimatedGridViewEntity>{};
 
@@ -164,7 +170,9 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         final animatedGridViewEntity = _childrenMap[keyHashCode]!;
 
         updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+          originalOrderId: !changedChildrenLength ? orderId : null,
           updatedOrderId: orderId,
+          originalOffset: !changedChildrenLength ? _offsetMap[orderId] : null,
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
         );
