@@ -87,7 +87,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           updatedOrderId: counter,
         );
       } else {
-        updatedChildrenMap[hashKey] = reorderableEntity;
+        updatedChildrenMap[hashKey] = reorderableEntity.copyWith(
+          child: child,
+        );
       }
 
       counter++;
@@ -110,12 +112,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final enableAnimation =
         draggedReorderableEntity != null && widget.enableAnimation;
 
-    var index = 0;
-    for (final child in widget.children) {
-      final reorderableEntity = sortedChildren.elementAt(index++);
-      print('1. Child: ${child.key}');
+    for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         ReorderableAnimatedChild(
+          key: reorderableEntity.child.key,
           draggedReorderableEntity: draggedReorderableEntity,
           enableAnimation: enableAnimation,
           enableLongPress: widget.enableLongPress,
@@ -129,29 +129,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           dragChildBoxDecoration: widget.dragChildBoxDecoration,
         ),
       );
-    }
-
-    for (final reorderableEntity in sortedChildren) {
-      print('2. Child: ${reorderableEntity.child.key}');
-      // draggableChildren.add(reorderableEntity.child);
-      /*draggableChildren.add(
-        reorderableEntity.child,
-      );*/
-      /*draggableChildren.add(
-        ReorderableAnimatedChild(
-          draggedReorderableEntity: draggedReorderableEntity,
-          enableAnimation: enableAnimation,
-          enableLongPress: widget.enableLongPress,
-          longPressDelay: widget.longPressDelay,
-          enableDraggable: widget.enableDraggable,
-          onDragUpdate: _handleDragUpdate,
-          onCreated: _handleCreated,
-          onDragStarted: _handleDragStarted,
-          onDragEnd: _handleDragEnd,
-          reorderableEntity: reorderableEntity,
-          dragChildBoxDecoration: widget.dragChildBoxDecoration,
-        ),
-      );*/
     }
 
     return draggableChildren;
@@ -399,3 +376,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     print('');
 
  */
+
+class Kaka {
+  final Widget child;
+  final int index;
+
+  const Kaka({
+    required this.child,
+    required this.index,
+  });
+}
