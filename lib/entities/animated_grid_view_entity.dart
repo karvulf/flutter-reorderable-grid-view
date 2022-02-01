@@ -15,9 +15,9 @@ class AnimatedGridViewEntity {
     required this.child,
     required this.originalOrderId,
     required this.updatedOrderId,
+    required this.isBuilding,
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
-    this.isBuilding = false,
   });
 
   AnimatedGridViewEntity copyWith({

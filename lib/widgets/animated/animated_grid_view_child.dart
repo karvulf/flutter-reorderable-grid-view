@@ -41,6 +41,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   void initState() {
     super.initState();
 
+    print(
+        'AnimatedGridView: Created ${widget.animatedGridViewEntity.child.key}');
+
     animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -61,6 +64,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.animatedGridViewEntity != widget.animatedGridViewEntity) {
+      print(
+          'AnimatedGridView: Updated ${widget.animatedGridViewEntity.child.key}');
+
       if (widget.animatedGridViewEntity.isBuilding) {
         WidgetsBinding.instance?.addPostFrameCallback((_) {
           widget.onBuilding(

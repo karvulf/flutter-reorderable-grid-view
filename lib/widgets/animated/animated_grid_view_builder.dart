@@ -42,6 +42,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         child: child,
         originalOrderId: counter,
         updatedOrderId: counter,
+        isBuilding: true,
       );
       counter++;
     }
@@ -70,9 +71,6 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
 
     for (final animatedGridViewEntity in sortedChildren) {
-      final keyHashCode = animatedGridViewEntity.keyHashCode;
-      print(
-          'Animated Child ${animatedGridViewEntity.child.key} with keyHashCode $keyHashCode');
       children.add(
         AnimatedGridViewChild(
           key: Key(animatedGridViewEntity.keyHashCode.toString()),
@@ -100,6 +98,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
       final updatedGridViewEntity = animatedGridViewEntity.copyWith(
         originalOffset: offset,
         updatedOffset: offset,
+        isBuilding: false,
       );
       final keyHashCode = animatedGridViewEntity.keyHashCode;
       _childrenMap[keyHashCode] = updatedGridViewEntity;
@@ -174,6 +173,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
           child: child,
           originalOrderId: orderId,
           updatedOrderId: orderId,
+          isBuilding: true,
         );
       }
       orderId++;
