@@ -79,16 +79,25 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       }
 
       final reorderableEntity = _childrenMap[hashKey];
+      bool isBuilding = !_offsetMap.containsKey(counter);
 
       if (reorderableEntity == null) {
         updatedChildrenMap[hashKey] = ReorderableEntity(
           child: child,
           originalOrderId: counter,
           updatedOrderId: counter,
+          updatedOffset: _offsetMap[counter] ?? Offset.zero,
+          originalOffset: _offsetMap[counter] ?? Offset.zero,
+          isBuilding: isBuilding,
         );
       } else {
         updatedChildrenMap[hashKey] = reorderableEntity.copyWith(
           child: child,
+          originalOrderId: counter,
+          updatedOrderId: counter,
+          updatedOffset: _offsetMap[counter],
+          originalOffset: _offsetMap[counter],
+          isBuilding: isBuilding,
         );
       }
 
@@ -134,7 +143,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return draggableChildren;
   }
 
-  ReorderableEntity? _handleCreated(int hashKey, GlobalKey key) {
+  void _handleCreated(int hashKey, GlobalKey key) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
@@ -151,11 +160,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         size: size,
         originalOffset: offset,
         updatedOffset: offset,
+        isBuilding: false,
       );
       _childrenMap[hashKey] = updatedReorderableEntity;
       _offsetMap[reorderableEntity.updatedOrderId] = offset;
-
-      return updatedReorderableEntity;
     }
   }
 

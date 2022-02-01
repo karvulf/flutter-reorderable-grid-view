@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnCreatedFunction = ReorderableEntity? Function(
+typedef OnCreatedFunction = Function(
   int hashKey,
   GlobalKey key,
 );
@@ -66,7 +66,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       final hashKey = widget.reorderableEntity.child.key.hashCode;
-      widget.onCreated(hashKey, _globalKey)!;
+      widget.onCreated(hashKey, _globalKey);
     });
 
     _controller = AnimationController(
@@ -87,7 +87,15 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   @override
   void didUpdateWidget(covariant ReorderableDraggable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.reorderableEntity != widget.reorderableEntity) {}
+
+    if (oldWidget.reorderableEntity != widget.reorderableEntity) {
+      if (widget.reorderableEntity.isBuilding) {
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          final hashKey = widget.reorderableEntity.child.key.hashCode;
+          widget.onCreated(hashKey, _globalKey);
+        });
+      }
+    }
   }
 
   @override

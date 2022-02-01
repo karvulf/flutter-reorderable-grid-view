@@ -11,10 +11,13 @@ class ReorderableEntity extends Equatable {
   final Offset originalOffset;
   final Offset updatedOffset;
 
+  final bool isBuilding;
+
   const ReorderableEntity({
     required this.child,
     required this.originalOrderId,
     required this.updatedOrderId,
+    required this.isBuilding,
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
     this.size = Size.zero,
@@ -27,6 +30,7 @@ class ReorderableEntity extends Equatable {
     Size? size,
     int? originalOrderId,
     int? updatedOrderId,
+    bool? isBuilding,
   }) =>
       ReorderableEntity(
         size: size ?? this.size,
@@ -35,6 +39,7 @@ class ReorderableEntity extends Equatable {
         child: child ?? this.child,
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOrderId: originalOrderId ?? this.originalOrderId,
+        isBuilding: isBuilding ?? this.isBuilding,
       );
 
   @override
@@ -45,5 +50,6 @@ class ReorderableEntity extends Equatable {
         child,
         updatedOrderId,
         originalOrderId,
+        isBuilding,
       ];
 }
