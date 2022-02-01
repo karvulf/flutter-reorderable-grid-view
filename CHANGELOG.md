@@ -1,3 +1,15 @@
+## 2.0.0-dev.2
+
+* Added animation when there are new children added or removed
+    * Working for all types of `GridView`
+    * Currently not supported for `ReorderableWrap`
+* Some bug fixes when adding/removing items
+* Work in Progress:
+    * More Configurations
+    * Separated widget only for animation when removing/adding children
+    * Fixing flickering when adding children in GridView
+    * Still some bugs when reordering children
+
 ## 2.0.0-dev.1
 
 * Complete rebuilt Reorderable GridViews and Wrap

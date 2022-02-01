@@ -1,7 +1,6 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
-class AnimatedGridViewEntity extends Equatable {
+class AnimatedGridViewEntity {
   final Widget child;
 
   final int originalOrderId;
@@ -40,14 +39,4 @@ class AnimatedGridViewEntity extends Equatable {
       );
 
   int get keyHashCode => child.key.hashCode;
-
-  @override
-  List<Object?> get props => [
-        originalOffset,
-        updatedOffset,
-        child,
-        updatedOrderId,
-        originalOrderId,
-        isBuilding,
-      ];
 }
