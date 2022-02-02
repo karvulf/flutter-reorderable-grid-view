@@ -143,7 +143,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return draggableChildren;
   }
 
-  void _handleCreated(int hashKey, GlobalKey key) {
+  ReorderableEntity? _handleCreated(int hashKey, GlobalKey key) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
@@ -166,7 +166,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       _childrenMap[hashKey] = updatedReorderableEntity;
       _offsetMap[reorderableEntity.updatedOrderId] = offset;
 
-      setState(() {});
+      return updatedReorderableEntity;
     }
   }
 

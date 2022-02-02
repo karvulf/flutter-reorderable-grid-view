@@ -9,6 +9,9 @@ enum ReorderableType {
   gridViewBuilder,
 }
 
+// Todo:
+// - Rotieren: alle Positionen neu berechnen
+// - mit ScrollView außerhalb des Widgets umgehen können
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -21,7 +24,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2000;
+  static const _startCounter = 5;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -35,92 +38,94 @@ class _MyAppState extends State<MyApp> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 20,
-                    children: [
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            children[0] = 999;
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Wrap(
+                      spacing: 20,
+                      runSpacing: 20,
+                      children: [
+                        ContainerButton(
+                          onTap: () {
+                            if (children.isNotEmpty) {
+                              children[0] = 999;
+                              setState(() {
+                                children = children;
+                              });
+                            }
+                          },
+                          color: Colors.deepOrangeAccent,
+                          icon: Icons.find_replace,
+                        ),
+                        ContainerButton(
+                          onTap: () {
                             setState(() {
-                              children = children;
+                              // children = children..add(keyCounter++);
+                              children.insert(0, keyCounter++);
                             });
-                          }
-                        },
-                        color: Colors.deepOrangeAccent,
-                        icon: Icons.find_replace,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          setState(() {
-                            // children = children..add(keyCounter++);
-                            children.insert(0, keyCounter++);
-                          });
-                        },
-                        color: Colors.green,
-                        icon: Icons.add,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            setState(() {
-                              // children = children..removeLast();
-                              children.removeAt(1);
-                            });
-                          }
-                        },
-                        color: Colors.red,
-                        icon: Icons.remove,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            setState(() {
-                              children = <int>[];
-                            });
-                          }
-                        },
-                        color: Colors.yellowAccent,
-                        icon: Icons.delete,
-                      ),
-                    ],
+                          },
+                          color: Colors.green,
+                          icon: Icons.add,
+                        ),
+                        ContainerButton(
+                          onTap: () {
+                            if (children.isNotEmpty) {
+                              setState(() {
+                                // children = children..removeLast();
+                                children.removeAt(1);
+                              });
+                            }
+                          },
+                          color: Colors.red,
+                          icon: Icons.remove,
+                        ),
+                        ContainerButton(
+                          onTap: () {
+                            if (children.isNotEmpty) {
+                              setState(() {
+                                children = <int>[];
+                              });
+                            }
+                          },
+                          color: Colors.yellowAccent,
+                          icon: Icons.delete,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              DropdownButton<ReorderableType>(
-                value: reorderableType,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                itemHeight: 60,
-                underline: Container(
-                  height: 2,
-                  color: Colors.white,
+                DropdownButton<ReorderableType>(
+                  value: reorderableType,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  itemHeight: 60,
+                  underline: Container(
+                    height: 2,
+                    color: Colors.white,
+                  ),
+                  onChanged: (ReorderableType? reorderableType) {
+                    setState(() {
+                      this.reorderableType = reorderableType!;
+                    });
+                  },
+                  items: ReorderableType.values.map((e) {
+                    return DropdownMenuItem<ReorderableType>(
+                      value: e,
+                      child: Text(e.toString()),
+                    );
+                  }).toList(),
                 ),
-                onChanged: (ReorderableType? reorderableType) {
-                  setState(() {
-                    this.reorderableType = reorderableType!;
-                  });
-                },
-                items: ReorderableType.values.map((e) {
-                  return DropdownMenuItem<ReorderableType>(
-                    value: e,
-                    child: Text(e.toString()),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: _getReorderableWidget(),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Expanded(
+                  child: _getReorderableWidget(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -129,10 +134,8 @@ class _MyAppState extends State<MyApp> {
 
   void _handleReorder(int oldIndex, int newIndex) {
     setState(() {
-      final draggedItem = children[oldIndex];
-      final collisionItem = children[newIndex];
-      children[newIndex] = draggedItem;
-      children[oldIndex] = collisionItem;
+      final child = children.removeAt(oldIndex);
+      children.insert(newIndex, child);
     });
   }
 
@@ -140,11 +143,7 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
-        key: Key(
-          children[index] == 1
-              ? 'new-${children[index].toString()}'
-              : 'old-${children[index].toString()}',
-        ),
+        key: Key(children[index].toString()),
         decoration: BoxDecoration(
           color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
         ),
@@ -173,6 +172,8 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
+          physics: NeverScrollableScrollPhysics(),
+          // shrinkWrap: true,
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,

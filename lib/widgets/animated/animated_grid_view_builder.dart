@@ -158,6 +158,12 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     }
   }
 
+  /// Updates all children for [_childrenMap].
+  ///
+  /// If the length of children was the same, the originalOrderId and
+  /// originalOffset will also be updated to prevent an animation.
+  /// This case can happen, e. g. after a drag and drop, when the children
+  /// change theirs position.
   void _handleUpdatedChildren({required bool changedChildrenLength}) {
     var orderId = 0;
     final updatedChildrenMap = <int, AnimatedGridViewEntity>{};
