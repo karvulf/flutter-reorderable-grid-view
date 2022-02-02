@@ -1,24 +1,24 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/entities/animated_grid_view_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = void Function(
-  AnimatedGridViewEntity animatedGridViewEntity,
+  ReorderableEntity reorderableEntity,
   GlobalKey key,
 );
 
 typedef OnMovingFinished = void Function(
-  AnimatedGridViewEntity animatedGridViewEntity,
+  ReorderableEntity reorderableEntity,
 );
 
 class AnimatedGridViewChild extends StatefulWidget {
-  final AnimatedGridViewEntity animatedGridViewEntity;
+  final ReorderableEntity reorderableEntity;
 
   final OnCreatedFunction onCreated;
   final OnCreatedFunction onBuilding;
   final OnMovingFinished onMovingFinished;
 
   const AnimatedGridViewChild({
-    required this.animatedGridViewEntity,
+    required this.reorderableEntity,
     required this.onCreated,
     required this.onBuilding,
     required this.onMovingFinished,
@@ -50,7 +50,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       widget.onCreated(
-        widget.animatedGridViewEntity,
+        widget.reorderableEntity,
         _globalKey,
       );
     });
@@ -60,11 +60,11 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
   void didUpdateWidget(covariant AnimatedGridViewChild oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.animatedGridViewEntity != widget.animatedGridViewEntity) {
-      if (widget.animatedGridViewEntity.isBuilding) {
+    if (oldWidget.reorderableEntity != widget.reorderableEntity) {
+      if (widget.reorderableEntity.isBuilding) {
         WidgetsBinding.instance?.addPostFrameCallback((_) {
           widget.onBuilding(
-            widget.animatedGridViewEntity,
+            widget.reorderableEntity,
             _globalKey,
           );
         });
@@ -89,12 +89,12 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
         _animationDy.value,
         0,
       ),
-      child: widget.animatedGridViewEntity.child,
+      child: widget.reorderableEntity.child,
     );
   }
 
   void _updateAnimationTranslation() {
-    final offsetDiff = _getOffsetDiff(widget.animatedGridViewEntity);
+    final offsetDiff = _getOffsetDiff(widget.reorderableEntity);
     _animationDx = _getAnimation(offsetDiff.dx * -1);
     _animationDy = _getAnimation(offsetDiff.dy * -1);
 
@@ -103,9 +103,9 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
     }
   }
 
-  Offset _getOffsetDiff(AnimatedGridViewEntity animatedGridViewEntity) {
-    final originalOffset = animatedGridViewEntity.originalOffset;
-    final updatedOffset = animatedGridViewEntity.updatedOffset;
+  Offset _getOffsetDiff(ReorderableEntity reorderableEntity) {
+    final originalOffset = reorderableEntity.originalOffset;
+    final updatedOffset = reorderableEntity.updatedOffset;
     return originalOffset - updatedOffset;
   }
 
@@ -119,7 +119,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          widget.onMovingFinished(widget.animatedGridViewEntity);
+          widget.onMovingFinished(widget.reorderableEntity);
         }
       });
   }

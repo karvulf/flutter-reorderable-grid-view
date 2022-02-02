@@ -13,6 +13,7 @@ enum ReorderableType {
 // - Rotieren: alle Positionen neu berechnen
 // - mit ScrollView außerhalb des Widgets umgehen können
 // - FadeIn oder Out wäre nice
+// - Flackern vom letzten neuen Item wegkriegen
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -25,7 +26,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 100;
+  static const _startCounter = 10;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -178,32 +179,23 @@ class _MyAppState extends State<MyApp> {
         return AnimatedGridViewBuilder(
           children: generatedChildren,
           builder: (children, contentGlobalKey, scrollController) {
-            return GridView(
-              key: contentGlobalKey,
-              controller: scrollController,
+            return ReorderableBuilder(
               children: children,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
-              ),
-            );
-          },
-        );
-        return ReorderableBuilder(
-          children: generatedChildren,
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
-            return GridView(
-              key: const Key('gridView'),
-              controller: scrollController,
-              children: children,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
-              ),
+              onReorder: _handleReorder,
+              lockedIndices: lockedIndices,
+              scrollController: scrollController,
+              builder: (children, scrollController) {
+                return GridView(
+                  key: contentGlobalKey,
+                  controller: scrollController,
+                  children: children,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 4,
+                    crossAxisSpacing: 8,
+                  ),
+                );
+              },
             );
           },
         );

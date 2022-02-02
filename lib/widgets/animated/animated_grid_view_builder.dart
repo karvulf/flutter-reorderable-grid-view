@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/entities/animated_grid_view_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_child.dart';
 
 typedef AnimatedGridViewBuilderFunction = Widget Function(
@@ -29,7 +29,7 @@ class AnimatedGridViewBuilder extends StatefulWidget {
 class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   final _contentGlobalKey = GlobalKey();
 
-  var _childrenMap = <int, AnimatedGridViewEntity>{};
+  var _childrenMap = <int, ReorderableEntity>{};
   final _offsetMap = <int, Offset>{};
 
   late final ScrollController _scrollController;
@@ -43,7 +43,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     var counter = 0;
 
     for (final child in widget.children) {
-      _childrenMap[child.key.hashCode] = AnimatedGridViewEntity(
+      _childrenMap[child.key.hashCode] = ReorderableEntity(
         child: child,
         originalOrderId: counter,
         updatedOrderId: counter,
@@ -82,11 +82,11 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     final sortedChildren = _childrenMap.values.toList()
       ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
 
-    for (final animatedGridViewEntity in sortedChildren) {
+    for (final reorderableEntity in sortedChildren) {
       children.add(
         AnimatedGridViewChild(
-          key: Key(animatedGridViewEntity.keyHashCode.toString()),
-          animatedGridViewEntity: animatedGridViewEntity,
+          key: Key(reorderableEntity.keyHashCode.toString()),
+          reorderableEntity: reorderableEntity,
           onCreated: _handleCreated,
           onBuilding: _handleBuilding,
           onMovingFinished: _handleMovingFinished,
@@ -98,43 +98,43 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
   /// Updates offset new child.
   void _handleCreated(
-    AnimatedGridViewEntity animatedGridViewEntity,
+    ReorderableEntity reorderableEntity,
     GlobalKey key,
   ) {
     final offset = _updateOffset(
       key: key,
-      orderId: animatedGridViewEntity.updatedOrderId,
+      orderId: reorderableEntity.updatedOrderId,
     );
 
     if (offset != null) {
-      final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+      final updatedReorderableEntity = reorderableEntity.copyWith(
         originalOffset: offset,
         updatedOffset: offset,
         isBuilding: false,
       );
-      final keyHashCode = animatedGridViewEntity.keyHashCode;
-      _childrenMap[keyHashCode] = updatedGridViewEntity;
+      final keyHashCode = reorderableEntity.keyHashCode;
+      _childrenMap[keyHashCode] = updatedReorderableEntity;
     }
   }
 
   /// Updates offset of existing but new positioned child.
   void _handleBuilding(
-    AnimatedGridViewEntity animatedGridViewEntity,
+    ReorderableEntity reorderableEntity,
     GlobalKey key,
   ) {
     final offset = _updateOffset(
       key: key,
-      orderId: animatedGridViewEntity.updatedOrderId,
+      orderId: reorderableEntity.updatedOrderId,
     );
 
     if (offset != null) {
       // updating existing
-      final updatedGridViewEntity = animatedGridViewEntity.copyWith(
+      final updatedReorderableEntity = reorderableEntity.copyWith(
         updatedOffset: offset,
         isBuilding: false,
       );
-      final updatedKeyHashCode = updatedGridViewEntity.keyHashCode;
-      _childrenMap[updatedKeyHashCode] = updatedGridViewEntity;
+      final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
+      _childrenMap[updatedKeyHashCode] = updatedReorderableEntity;
 
       setState(() {});
     }
@@ -172,16 +172,16 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   /// change theirs position.
   void _handleUpdatedChildren({required bool changedChildrenLength}) {
     var orderId = 0;
-    final updatedChildrenMap = <int, AnimatedGridViewEntity>{};
+    final updatedChildrenMap = <int, ReorderableEntity>{};
 
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
-        final animatedGridViewEntity = _childrenMap[keyHashCode]!;
+        final reorderableEntity = _childrenMap[keyHashCode]!;
 
-        updatedChildrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
+        updatedChildrenMap[keyHashCode] = reorderableEntity.copyWith(
           originalOrderId: !changedChildrenLength ? orderId : null,
           updatedOrderId: orderId,
           originalOffset: !changedChildrenLength ? _offsetMap[orderId] : null,
@@ -189,7 +189,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
           isBuilding: !_offsetMap.containsKey(orderId),
         );
       } else {
-        updatedChildrenMap[keyHashCode] = AnimatedGridViewEntity(
+        updatedChildrenMap[keyHashCode] = ReorderableEntity(
           child: child,
           originalOrderId: orderId,
           updatedOrderId: orderId,
@@ -203,12 +203,12 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     });
   }
 
-  void _handleMovingFinished(AnimatedGridViewEntity animatedGridViewEntity) {
-    final keyHashCode = animatedGridViewEntity.keyHashCode;
+  void _handleMovingFinished(ReorderableEntity reorderableEntity) {
+    final keyHashCode = reorderableEntity.keyHashCode;
 
-    _childrenMap[keyHashCode] = animatedGridViewEntity.copyWith(
-      originalOffset: animatedGridViewEntity.updatedOffset,
-      originalOrderId: animatedGridViewEntity.updatedOrderId,
+    _childrenMap[keyHashCode] = reorderableEntity.copyWith(
+      originalOffset: reorderableEntity.updatedOffset,
+      originalOrderId: reorderableEntity.updatedOrderId,
     );
   }
 }
