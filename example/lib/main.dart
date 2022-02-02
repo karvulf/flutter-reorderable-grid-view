@@ -26,7 +26,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 10;
+  static const _startCounter = 100;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -35,6 +35,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    /*return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            _getReorderableWidget(),
+          ],
+        ),
+      ),
+    );*/
     return Scaffold(
       backgroundColor: Colors.grey,
       body: SafeArea(
@@ -122,9 +132,7 @@ class _MyAppState extends State<MyApp> {
                 }).toList(),
               ),
               const SizedBox(height: 20),
-              Expanded(
-                child: _getReorderableWidget(),
-              ),
+              Expanded(child: _getReorderableWidget()),
             ],
           ),
         ),
@@ -218,7 +226,7 @@ class _MyAppState extends State<MyApp> {
             return GridView.extent(
               controller: scrollController,
               key: const Key('extent'),
-              children: generatedChildren,
+              children: children,
               maxCrossAxisExtent: 200,
             );
           },

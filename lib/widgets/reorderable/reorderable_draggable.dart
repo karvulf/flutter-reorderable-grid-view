@@ -68,14 +68,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
     _reorderableEntity = widget.reorderableEntity;
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final hashKey = widget.reorderableEntity.child.key.hashCode;
-      final updatedReorderableEntity = widget.onCreated(hashKey, _globalKey);
-
-      if (updatedReorderableEntity != null) {
-        _reorderableEntity = updatedReorderableEntity;
-      }
-    });
+    _buildWidget();
 
     _controller = AnimationController(
       vsync: this,
@@ -100,10 +93,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       _reorderableEntity = widget.reorderableEntity;
 
       if (_reorderableEntity.isBuilding) {
-        WidgetsBinding.instance?.addPostFrameCallback((_) {
-          final hashKey = _reorderableEntity.child.key.hashCode;
-          widget.onCreated(hashKey, _globalKey);
-        });
+        _buildWidget();
       }
     }
   }
@@ -163,6 +153,19 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         child: childWhenDragging,
       );
     }
+  }
+
+  void _buildWidget() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      final hashKey = _reorderableEntity.child.key.hashCode;
+      final updatedReorderableEntity = widget.onCreated(hashKey, _globalKey);
+
+      if (updatedReorderableEntity != null) {
+        setState(() {
+          _reorderableEntity = updatedReorderableEntity;
+        });
+      }
+    });
   }
 
   void _handleStarted() {

@@ -161,7 +161,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       final localOffset = renderBox.localToGlobal(Offset.zero);
       final offset = Offset(
         localOffset.dx,
-        localOffset.dy + _scrollController.position.pixels,
+        localOffset.dy + _scrollPixels,
       );
       final size = renderBox.size;
       final updatedReorderableEntity = reorderableEntity.copyWith(
@@ -180,7 +180,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     setState(() {
       draggedReorderableEntity = reorderableEntity;
-      scrollPositionPixels = _scrollController.position.pixels;
+      scrollPositionPixels = _scrollPixels;
     });
   }
 
@@ -354,6 +354,25 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
           draggedOffset.dy <= localPosition.dy + size.height) {
         return entry;
       }
+    }
+  }
+
+  /// Returning the current scroll position.
+  ///
+  /// There are two possibilities to get the scroll position.
+  ///
+  /// First one is, that the built child is scrollable.
+  /// In this case, it is important, the [_scrollController] is added
+  /// to the scrollable child.
+  ///
+  /// Another possibility is that one of the parents is scrollable.
+  /// In that case, the position of the scroll is accessible inside [context].
+  double get _scrollPixels {
+    var pixels = Scrollable.of(context)?.position.pixels;
+    if (pixels != null) {
+      return pixels;
+    } else {
+      return _scrollController.position.pixels;
     }
   }
 }
