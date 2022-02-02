@@ -12,6 +12,7 @@ enum ReorderableType {
 // Todo:
 // - Rotieren: alle Positionen neu berechnen
 // - mit ScrollView außerhalb des Widgets umgehen können
+// - FadeIn oder Out wäre nice
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -38,94 +39,92 @@ class _MyAppState extends State<MyApp> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Wrap(
-                      spacing: 20,
-                      runSpacing: 20,
-                      children: [
-                        ContainerButton(
-                          onTap: () {
-                            if (children.isNotEmpty) {
-                              children[0] = 999;
-                              setState(() {
-                                children = children;
-                              });
-                            }
-                          },
-                          color: Colors.deepOrangeAccent,
-                          icon: Icons.find_replace,
-                        ),
-                        ContainerButton(
-                          onTap: () {
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Wrap(
+                    spacing: 20,
+                    runSpacing: 20,
+                    children: [
+                      ContainerButton(
+                        onTap: () {
+                          if (children.isNotEmpty) {
+                            children[0] = 999;
                             setState(() {
-                              // children = children..add(keyCounter++);
-                              children.insert(0, keyCounter++);
+                              children = children;
                             });
-                          },
-                          color: Colors.green,
-                          icon: Icons.add,
-                        ),
-                        ContainerButton(
-                          onTap: () {
-                            if (children.isNotEmpty) {
-                              setState(() {
-                                // children = children..removeLast();
-                                children.removeAt(1);
-                              });
-                            }
-                          },
-                          color: Colors.red,
-                          icon: Icons.remove,
-                        ),
-                        ContainerButton(
-                          onTap: () {
-                            if (children.isNotEmpty) {
-                              setState(() {
-                                children = <int>[];
-                              });
-                            }
-                          },
-                          color: Colors.yellowAccent,
-                          icon: Icons.delete,
-                        ),
-                      ],
-                    ),
+                          }
+                        },
+                        color: Colors.deepOrangeAccent,
+                        icon: Icons.find_replace,
+                      ),
+                      ContainerButton(
+                        onTap: () {
+                          setState(() {
+                            // children = children..add(keyCounter++);
+                            children.insert(0, keyCounter++);
+                          });
+                        },
+                        color: Colors.green,
+                        icon: Icons.add,
+                      ),
+                      ContainerButton(
+                        onTap: () {
+                          if (children.isNotEmpty) {
+                            setState(() {
+                              // children = children..removeLast();
+                              children.removeAt(1);
+                            });
+                          }
+                        },
+                        color: Colors.red,
+                        icon: Icons.remove,
+                      ),
+                      ContainerButton(
+                        onTap: () {
+                          if (children.isNotEmpty) {
+                            setState(() {
+                              children = <int>[];
+                            });
+                          }
+                        },
+                        color: Colors.yellowAccent,
+                        icon: Icons.delete,
+                      ),
+                    ],
                   ),
                 ),
-                DropdownButton<ReorderableType>(
-                  value: reorderableType,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  itemHeight: 60,
-                  underline: Container(
-                    height: 2,
-                    color: Colors.white,
-                  ),
-                  onChanged: (ReorderableType? reorderableType) {
-                    setState(() {
-                      this.reorderableType = reorderableType!;
-                    });
-                  },
-                  items: ReorderableType.values.map((e) {
-                    return DropdownMenuItem<ReorderableType>(
-                      value: e,
-                      child: Text(e.toString()),
-                    );
-                  }).toList(),
+              ),
+              DropdownButton<ReorderableType>(
+                value: reorderableType,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                itemHeight: 60,
+                underline: Container(
+                  height: 2,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: _getReorderableWidget(),
-                ),
-              ],
-            ),
+                onChanged: (ReorderableType? reorderableType) {
+                  setState(() {
+                    this.reorderableType = reorderableType!;
+                  });
+                },
+                items: ReorderableType.values.map((e) {
+                  return DropdownMenuItem<ReorderableType>(
+                    value: e,
+                    child: Text(e.toString()),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _getReorderableWidget(),
+              ),
+            ],
           ),
         ),
       ),
@@ -172,8 +171,6 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridView:
         return ReorderableGridView(
           key: const Key('gridView'),
-          physics: NeverScrollableScrollPhysics(),
-          // shrinkWrap: true,
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
