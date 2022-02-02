@@ -155,7 +155,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
-      assert(false, 'RenderBox of child should not be null!');
+      // assert(false, 'RenderBox of child should not be null!');
     } else {
       final reorderableEntity = _childrenMap[hashKey]!;
       final localOffset = renderBox.localToGlobal(Offset.zero);

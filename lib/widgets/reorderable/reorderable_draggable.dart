@@ -118,10 +118,14 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     final feedback = Material(
       color: Colors.transparent,
-      child: DecoratedBoxTransition(
-        position: DecorationPosition.background,
-        decoration: _decorationTween.animate(_controller),
-        child: reorderableEntityChild,
+      child: SizedBox(
+        height: _reorderableEntity.size.height,
+        width: _reorderableEntity.size.width,
+        child: DecoratedBoxTransition(
+          position: DecorationPosition.background,
+          decoration: _decorationTween.animate(_controller),
+          child: reorderableEntityChild,
+        ),
       ),
     );
 

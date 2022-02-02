@@ -149,7 +149,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         _contentGlobalKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null || contentRenderBox == null) {
-      assert(false, 'RenderBox of child should not be null!');
+      // assert(false, 'RenderBox of child should not be null!');
     } else {
       final contentOffset = contentRenderBox.localToGlobal(Offset.zero);
       final localOffset = renderBox.globalToLocal(contentOffset);
@@ -182,6 +182,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         final reorderableEntity = _childrenMap[keyHashCode]!;
 
         updatedChildrenMap[keyHashCode] = reorderableEntity.copyWith(
+          child: child,
           originalOrderId: !changedChildrenLength ? orderId : null,
           updatedOrderId: orderId,
           originalOffset: !changedChildrenLength ? _offsetMap[orderId] : null,
