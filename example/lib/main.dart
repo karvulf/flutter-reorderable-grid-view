@@ -25,7 +25,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 5;
+  static const _startCounter = 100;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -162,51 +162,101 @@ class _MyAppState extends State<MyApp> {
 
     switch (reorderableType) {
       case ReorderableType.wrap:
-        return ReorderableWrap(
-          key: const Key('wrap'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          builder: (children, _) {
+            return Wrap(
+              key: const Key('wrap'),
+              children: children,
+            );
+          },
         );
+
       case ReorderableType.gridView:
-        return ReorderableGridView(
-          key: const Key('gridView'),
+        return AnimatedGridViewBuilder(
+          children: generatedChildren,
+          builder: (children, contentGlobalKey, scrollController) {
+            return GridView(
+              key: contentGlobalKey,
+              controller: scrollController,
+              children: children,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
+        );
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
+          builder: (children, scrollController) {
+            return GridView(
+              key: const Key('gridView'),
+              controller: scrollController,
+              children: children,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
         );
+
       case ReorderableType.gridViewCount:
-        return ReorderableGridView.count(
-          key: const Key('count'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          crossAxisCount: 3,
+          builder: (children, scrollController) {
+            return GridView.count(
+              controller: scrollController,
+              key: const Key('count'),
+              children: children,
+              crossAxisCount: 3,
+            );
+          },
         );
+
       case ReorderableType.gridViewExtent:
-        return ReorderableGridView.extent(
-          key: const Key('extent'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          maxCrossAxisExtent: 200,
+          builder: (children, scrollController) {
+            return GridView.extent(
+              controller: scrollController,
+              key: const Key('extent'),
+              children: generatedChildren,
+              maxCrossAxisExtent: 200,
+            );
+          },
         );
+
       case ReorderableType.gridViewBuilder:
-        return ReorderableGridView.builder(
-          key: const Key('builder'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
+          builder: (children, scrollController) {
+            return GridView.builder(
+              key: const Key('builder'),
+              controller: scrollController,
+              itemBuilder: (context, index) {
+                return children[index];
+              },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
         );
     }
   }

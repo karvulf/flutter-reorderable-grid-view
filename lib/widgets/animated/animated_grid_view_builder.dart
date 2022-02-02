@@ -5,18 +5,19 @@ import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_vie
 typedef AnimatedGridViewBuilderFunction = Widget Function(
   List<Widget> draggableChildren,
   GlobalKey contentGlobalKey,
+  ScrollController scrollController,
 );
 
 class AnimatedGridViewBuilder extends StatefulWidget {
   final List<Widget> children;
-  final ScrollController scrollController;
-
   final AnimatedGridViewBuilderFunction builder;
+
+  final ScrollController? scrollController;
 
   const AnimatedGridViewBuilder({
     required this.children,
-    required this.scrollController,
     required this.builder,
+    this.scrollController,
     Key? key,
   }) : super(key: key);
 
@@ -31,9 +32,13 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   var _childrenMap = <int, AnimatedGridViewEntity>{};
   final _offsetMap = <int, Offset>{};
 
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+
+    _scrollController = widget.scrollController ?? ScrollController();
 
     var counter = 0;
 
@@ -68,6 +73,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
     return widget.builder(
       _getAnimatedGridViewChildren(),
       _contentGlobalKey,
+      _scrollController,
     );
   }
 
@@ -150,7 +156,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
 
       final offset = Offset(
         localOffset.dx.abs(),
-        localOffset.dy.abs() + widget.scrollController.position.pixels,
+        localOffset.dy.abs() + _scrollController.position.pixels,
       );
       _offsetMap[orderId] = offset;
 
