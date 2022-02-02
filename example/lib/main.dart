@@ -176,26 +176,20 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridView:
-        return AnimatedGridViewBuilder(
+        return AnimatedReorderableBuilder(
           children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
           builder: (children, contentGlobalKey, scrollController) {
-            return ReorderableBuilder(
+            return GridView(
+              key: contentGlobalKey,
+              controller: scrollController,
               children: children,
-              onReorder: _handleReorder,
-              lockedIndices: lockedIndices,
-              scrollController: scrollController,
-              builder: (children, scrollController) {
-                return GridView(
-                  key: contentGlobalKey,
-                  controller: scrollController,
-                  children: children,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 4,
-                    crossAxisSpacing: 8,
-                  ),
-                );
-              },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
             );
           },
         );
