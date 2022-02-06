@@ -40,4 +40,6 @@ class ReorderableEntity {
         originalOrderId: originalOrderId ?? this.originalOrderId,
         isBuilding: isBuilding ?? this.isBuilding,
       );
+
+  int get keyHashCode => child.key.hashCode;
 }

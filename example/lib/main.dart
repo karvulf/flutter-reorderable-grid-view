@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
+import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
   wrap,
@@ -9,6 +10,12 @@ enum ReorderableType {
   gridViewBuilder,
 }
 
+// Todo:
+// - Rotieren: alle Positionen neu berechnen
+// - Drag: Item hat kurz eine falsche Farbe
+// - Flackern vom letzten neuen Item wegkriegen
+// - Tests schreiben
+// - mehr dokumentieren
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -21,78 +28,52 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 200;
+  static const _startCounter = 20;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+  ReorderableType reorderableType = ReorderableType.gridView;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.white70,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 20,
-                    children: [
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            children[0] = 999;
-                            setState(() {
-                              children = children;
-                            });
-                          }
-                        },
-                        color: Colors.deepOrangeAccent,
-                        icon: Icons.find_replace,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          setState(() {
-                            // children = children..add(keyCounter++);
-                            children.insert(0, keyCounter++);
-                          });
-                        },
-                        color: Colors.green,
-                        icon: Icons.add,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            setState(() {
-                              // children = children..removeLast();
-                              children.removeAt(1);
-                            });
-                          }
-                        },
-                        color: Colors.red,
-                        icon: Icons.remove,
-                      ),
-                      ContainerButton(
-                        onTap: () {
-                          if (children.isNotEmpty) {
-                            setState(() {
-                              children = <int>[];
-                            });
-                          }
-                        },
-                        color: Colors.yellowAccent,
-                        icon: Icons.delete,
-                      ),
-                    ],
-                  ),
-                ),
+              ChangeChildrenBar(
+                onTapAddChild: () {
+                  setState(() {
+                    // children = children..add(keyCounter++);
+                    children.insert(0, keyCounter++);
+                  });
+                },
+                onTapRemoveChild: () {
+                  if (children.isNotEmpty) {
+                    setState(() {
+                      // children = children..removeLast();
+                      children.removeAt(0);
+                    });
+                  }
+                },
+                onTapClear: () {
+                  if (children.isNotEmpty) {
+                    setState(() {
+                      children = <int>[];
+                    });
+                  }
+                },
+                onTapUpdateChild: () {
+                  if (children.isNotEmpty) {
+                    children[0] = 999;
+                    setState(() {
+                      children = children;
+                    });
+                  }
+                },
               ),
               DropdownButton<ReorderableType>(
                 value: reorderableType,
@@ -117,9 +98,7 @@ class _MyAppState extends State<MyApp> {
                 }).toList(),
               ),
               const SizedBox(height: 20),
-              Expanded(
-                child: _getReorderableWidget(),
-              ),
+              Expanded(child: _getReorderableWidget()),
             ],
           ),
         ),
@@ -129,10 +108,8 @@ class _MyAppState extends State<MyApp> {
 
   void _handleReorder(int oldIndex, int newIndex) {
     setState(() {
-      final draggedItem = children[oldIndex];
-      final collisionItem = children[newIndex];
-      children[newIndex] = draggedItem;
-      children[oldIndex] = collisionItem;
+      final child = children.removeAt(oldIndex);
+      children.insert(newIndex, child);
     });
   }
 
@@ -140,23 +117,16 @@ class _MyAppState extends State<MyApp> {
     final generatedChildren = List<Widget>.generate(
       children.length,
       (index) => Container(
-        key: Key(
-          children[index] == 1
-              ? 'new-${children[index].toString()}'
-              : 'old-${children[index].toString()}',
-        ),
+        key: Key(children[index].toString()),
         decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.blue,
+          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
         ),
         height: 100.0,
         width: 100.0,
         child: Center(
           child: Text(
             'test ${children[index]}',
-            style: const TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-            ),
+            style: const TextStyle(),
           ),
         ),
       ),
@@ -164,51 +134,87 @@ class _MyAppState extends State<MyApp> {
 
     switch (reorderableType) {
       case ReorderableType.wrap:
-        return ReorderableWrap(
-          key: const Key('wrap'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          builder: (children, _) {
+            return Wrap(
+              key: const Key('wrap'),
+              children: children,
+            );
+          },
         );
+
       case ReorderableType.gridView:
-        return ReorderableGridView(
-          key: const Key('gridView'),
+        return AnimatedReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
+          builder: (children, contentGlobalKey, scrollController) {
+            return GridView(
+              key: contentGlobalKey,
+              controller: scrollController,
+              children: children,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
         );
+
       case ReorderableType.gridViewCount:
-        return ReorderableGridView.count(
-          key: const Key('count'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          crossAxisCount: 3,
+          builder: (children, scrollController) {
+            return GridView.count(
+              controller: scrollController,
+              key: const Key('count'),
+              children: children,
+              crossAxisCount: 3,
+            );
+          },
         );
+
       case ReorderableType.gridViewExtent:
-        return ReorderableGridView.extent(
-          key: const Key('extent'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          maxCrossAxisExtent: 200,
+          builder: (children, scrollController) {
+            return GridView.extent(
+              controller: scrollController,
+              key: const Key('extent'),
+              children: children,
+              maxCrossAxisExtent: 200,
+            );
+          },
         );
+
       case ReorderableType.gridViewBuilder:
-        return ReorderableGridView.builder(
-          key: const Key('builder'),
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 8,
-          ),
+          builder: (children, scrollController) {
+            return GridView.builder(
+              key: const Key('builder'),
+              controller: scrollController,
+              itemCount: children.length,
+              itemBuilder: (context, index) {
+                return children[index];
+              },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
         );
     }
   }
