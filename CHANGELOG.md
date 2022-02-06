@@ -1,3 +1,11 @@
+## 2.0.0-dev.3
+* Removed `ReorderableWrap` and `ReorderableGridView`
+* New widgets for more flexibility:
+  * `ReorderableBuilder` for Drag and Drop with all `GridView` and `Wrap`
+  * `AnimatedGridViewBuilder` for animation when adding or removing children with all types of `GridView`
+  * `AnimatedReorderableBuilder` combines `ReorderableBuilder` and `AnimatedGridViewBuilder`
+* See more examples with the new widgets in the example folder
+
 ## 2.0.0-dev.2
 
 * Added animation when there are new children added or removed
