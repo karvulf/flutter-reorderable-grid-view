@@ -26,7 +26,8 @@ class AnimatedGridViewBuilder extends StatefulWidget {
       _AnimatedGridViewBuilderState();
 }
 
-class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
+class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder>
+    with WidgetsBindingObserver {
   final _contentGlobalKey = GlobalKey();
 
   var _childrenMap = <int, ReorderableEntity>{};
@@ -37,6 +38,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
 
     _scrollController = widget.scrollController ?? ScrollController();
 
@@ -66,6 +68,26 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder> {
         changedChildrenLength: changedChildrenLength,
       );
     }
+  }
+
+  @override
+  void didChangeMetrics() {
+    final orientationBefore = MediaQuery.of(context).orientation;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final orientationAfter = MediaQuery.of(context).orientation;
+      if (orientationBefore != orientationAfter) {
+        // rebuild all items
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
   }
 
   @override

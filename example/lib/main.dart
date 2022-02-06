@@ -11,8 +11,7 @@ enum ReorderableType {
 
 // Todo:
 // - Rotieren: alle Positionen neu berechnen
-// - mit ScrollView außerhalb des Widgets umgehen können
-// - FadeIn oder Out wäre nice
+// - Drag: Item hat kurz eine falsche Farbe
 // - Flackern vom letzten neuen Item wegkriegen
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -26,7 +25,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 100;
+  static const _startCounter = 0;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -87,7 +86,7 @@ class _MyAppState extends State<MyApp> {
                           if (children.isNotEmpty) {
                             setState(() {
                               // children = children..removeLast();
-                              children.removeAt(1);
+                              children.removeAt(0);
                             });
                           }
                         },

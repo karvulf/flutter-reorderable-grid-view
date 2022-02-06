@@ -39,7 +39,8 @@ class ReorderableBuilder extends StatefulWidget {
   _ReorderableBuilderState createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState extends State<ReorderableBuilder> {
+class _ReorderableBuilderState extends State<ReorderableBuilder>
+    with WidgetsBindingObserver {
   ReorderableEntity? draggedReorderableEntity;
 
   var _childrenMap = <int, ReorderableEntity>{};
@@ -53,9 +54,25 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+
     _scrollController = widget.scrollController ?? ScrollController();
 
     _updateChildren();
+  }
+
+  @override
+  void didChangeMetrics() {
+    final orientationBefore = MediaQuery.of(context).orientation;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final orientationAfter = MediaQuery.of(context).orientation;
+      if (orientationBefore != orientationAfter) {
+        // rebuild all items
+      }
+    });
   }
 
   @override
@@ -65,6 +82,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     if (oldWidget.children != widget.children) {
       _updateChildren();
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -175,6 +198,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
       return updatedReorderableEntity;
     }
+
+    return null;
   }
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
