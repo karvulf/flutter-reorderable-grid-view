@@ -16,6 +16,7 @@ enum ReorderableType {
 // - Flackern vom letzten neuen Item wegkriegen
 // - Tests schreiben
 // - mehr dokumentieren
+// - read me schöner machen und verständlicher
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
