@@ -30,20 +30,10 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   @override
   Widget build(BuildContext context) {
-    /*return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            _getReorderableWidget(),
-          ],
-        ),
-      ),
-    );*/
     return Scaffold(
       backgroundColor: Colors.grey,
       body: SafeArea(
