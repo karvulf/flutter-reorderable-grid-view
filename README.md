@@ -7,7 +7,7 @@ Package for having animated Drag and Drop functionality for every type of `GridV
 Also you have the option to have an animation, when adding or removing children inside your `GridView`.
 
 <p>
-  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/release/v2.0.0/doc/flutter_reordable_grid_view_preview_ios.gif?raw=true"
+  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/release/v2.0.0/doc/animated_grid_view_preview_ios.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 </p>
 
