@@ -11,6 +11,7 @@ class ReorderableEntity {
   final Offset updatedOffset;
 
   final bool isBuilding;
+  final bool isNew;
 
   const ReorderableEntity({
     required this.child,
@@ -20,6 +21,7 @@ class ReorderableEntity {
     this.originalOffset = Offset.zero,
     this.updatedOffset = Offset.zero,
     this.size = Size.zero,
+    this.isNew = false,
   });
 
   ReorderableEntity copyWith({
@@ -30,6 +32,7 @@ class ReorderableEntity {
     int? originalOrderId,
     int? updatedOrderId,
     bool? isBuilding,
+    bool? isNew,
   }) =>
       ReorderableEntity(
         size: size ?? this.size,
@@ -39,6 +42,7 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOrderId: originalOrderId ?? this.originalOrderId,
         isBuilding: isBuilding ?? this.isBuilding,
+        isNew: isNew ?? this.isNew,
       );
 
   int get keyHashCode => child.key.hashCode;

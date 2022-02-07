@@ -1,27 +1,26 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnMovingFinished = void Function(
+typedef OnMovingFinishedCallback = void Function(
   ReorderableEntity reorderableEntity,
 );
 
-class AnimatedTransformChild extends StatefulWidget {
+class AnimatedTransformItem extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
 
-  final OnMovingFinished onMovingFinished;
+  final OnMovingFinishedCallback onMovingFinished;
 
-  const AnimatedTransformChild({
+  const AnimatedTransformItem({
     required this.reorderableEntity,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<AnimatedTransformChild> createState() => _AnimatedTransformChildState();
+  State<AnimatedTransformItem> createState() => _AnimatedTransformItemState();
 }
 
-class _AnimatedTransformChildState extends State<AnimatedTransformChild>
+class _AnimatedTransformItemState extends State<AnimatedTransformItem>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
   late Animation<double> _animationDx;
@@ -40,7 +39,7 @@ class _AnimatedTransformChildState extends State<AnimatedTransformChild>
   }
 
   @override
-  void didUpdateWidget(covariant AnimatedTransformChild oldWidget) {
+  void didUpdateWidget(covariant AnimatedTransformItem oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     animationController.reset();
