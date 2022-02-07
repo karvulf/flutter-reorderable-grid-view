@@ -12,7 +12,6 @@ enum ReorderableType {
 
 // Todo:
 // - Rotieren: alle Positionen neu berechnen
-// - Drag: Item hat kurz eine falsche Farbe
 // - Flackern vom letzten neuen Item wegkriegen
 // - Tests schreiben
 // - mehr dokumentieren
