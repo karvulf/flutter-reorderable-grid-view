@@ -1,37 +1,36 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/animated_opacity_child.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/animated_transform_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_opacity_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_transform_item.dart';
 
 typedef OnCreatedFunction = void Function(
   ReorderableEntity reorderableEntity,
   GlobalKey key,
 );
 
-typedef OnMovingFinished = void Function(
-  ReorderableEntity reorderableEntity,
-);
-
-class AnimatedGridViewChild extends StatefulWidget {
+class AnimatedGridViewItem extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
 
   final OnCreatedFunction onCreated;
   final OnCreatedFunction onBuilding;
-  final OnMovingFinished onMovingFinished;
+  final OnMovingFinishedCallback onMovingFinished;
+  final OnOpacityFinishedCallback onOpacityFinished;
 
-  const AnimatedGridViewChild({
+  const AnimatedGridViewItem({
     required this.reorderableEntity,
     required this.onCreated,
     required this.onBuilding,
     required this.onMovingFinished,
+    required this.onOpacityFinished,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<AnimatedGridViewChild> createState() => _AnimatedGridViewChildState();
+  State<AnimatedGridViewItem> createState() => _AnimatedGridViewItemState();
 }
 
-class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
+class _AnimatedGridViewItemState extends State<AnimatedGridViewItem> {
   final _globalKey = GlobalKey();
 
   @override
@@ -46,7 +45,7 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
   }
 
   @override
-  void didUpdateWidget(covariant AnimatedGridViewChild oldWidget) {
+  void didUpdateWidget(covariant AnimatedGridViewItem oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.reorderableEntity != widget.reorderableEntity) {
@@ -63,9 +62,11 @@ class _AnimatedGridViewChildState extends State<AnimatedGridViewChild> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacityChild(
-      child: AnimatedTransformChild(
-        key: _globalKey,
+    return AnimatedOpacityItem(
+      key: _globalKey,
+      reorderableEntity: widget.reorderableEntity,
+      onOpacityFinished: widget.onOpacityFinished,
+      child: AnimatedTransformItem(
         onMovingFinished: widget.onMovingFinished,
         reorderableEntity: widget.reorderableEntity,
       ),
