@@ -38,21 +38,25 @@ class _AnimatedOpacityItemState extends State<AnimatedOpacityItem> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      opacity: opacity,
-      duration: _opacityDuration,
-      onEnd: () {
-        if (opacity == 1 && widget.reorderableEntity.isNew) {
-          widget.onOpacityFinished(widget.reorderableEntity);
-        }
-      },
-      child: widget.child,
-    );
+    if (widget.reorderableEntity.isNew) {
+      return AnimatedOpacity(
+        opacity: opacity,
+        duration: _opacityDuration,
+        onEnd: () {
+          if (opacity == 1) {
+            widget.onOpacityFinished(widget.reorderableEntity);
+          }
+        },
+        child: widget.child,
+      );
+    } else {
+      return widget.child;
+    }
   }
 
   Duration get _opacityDuration {
     return widget.reorderableEntity.isNew
-        ? kThemeAnimationDuration
+        ? const Duration(milliseconds: 400)
         : Duration.zero;
   }
 }
