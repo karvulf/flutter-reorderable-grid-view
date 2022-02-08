@@ -141,6 +141,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder>
       );
       final keyHashCode = reorderableEntity.keyHashCode;
       _childrenMap[keyHashCode] = updatedReorderableEntity;
+      setState(() {});
     }
   }
 
@@ -218,7 +219,7 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder>
       if (_childrenMap.containsKey(keyHashCode)) {
         final reorderableEntity = _childrenMap[keyHashCode]!;
 
-        updatedChildrenMap[keyHashCode] = reorderableEntity.copyWith(
+        final updatedReorderableEntity = reorderableEntity.copyWith(
           child: child,
           originalOrderId: !changedChildrenLength ? orderId : null,
           updatedOrderId: orderId,
@@ -226,12 +227,13 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder>
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
         );
+        updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
       } else {
         updatedChildrenMap[keyHashCode] = ReorderableEntity(
           child: child,
           originalOrderId: orderId,
           updatedOrderId: orderId,
-          isBuilding: true,
+          isBuilding: false,
           isNew: true,
         );
       }

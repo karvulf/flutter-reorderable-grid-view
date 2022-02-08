@@ -380,6 +380,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         return entry;
       }
     }
+    return null;
   }
 
   /// Returning the current scroll position.
@@ -396,8 +397,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var pixels = Scrollable.of(context)?.position.pixels;
     if (pixels != null) {
       return pixels;
-    } else {
+    } else if (_scrollController.hasClients) {
       return _scrollController.position.pixels;
+    } else {
+      return 0.0;
     }
   }
 }

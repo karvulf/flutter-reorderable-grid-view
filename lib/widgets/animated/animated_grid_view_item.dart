@@ -33,6 +33,8 @@ class AnimatedGridViewItem extends StatefulWidget {
 class _AnimatedGridViewItemState extends State<AnimatedGridViewItem> {
   final _globalKey = GlobalKey();
 
+  var visible = true;
+
   @override
   void initState() {
     super.initState();
@@ -50,11 +52,13 @@ class _AnimatedGridViewItemState extends State<AnimatedGridViewItem> {
 
     if (oldWidget.reorderableEntity != widget.reorderableEntity) {
       if (widget.reorderableEntity.isBuilding) {
+        visible = false;
         WidgetsBinding.instance?.addPostFrameCallback((_) {
           widget.onBuilding(
             widget.reorderableEntity,
             _globalKey,
           );
+          visible = true;
         });
       }
     }
@@ -62,13 +66,19 @@ class _AnimatedGridViewItemState extends State<AnimatedGridViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacityItem(
-      key: _globalKey,
-      reorderableEntity: widget.reorderableEntity,
-      onOpacityFinished: widget.onOpacityFinished,
-      child: AnimatedTransformItem(
-        onMovingFinished: widget.onMovingFinished,
+    return Visibility(
+      visible: visible,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainState: true,
+      child: AnimatedOpacityItem(
+        key: _globalKey,
         reorderableEntity: widget.reorderableEntity,
+        onOpacityFinished: widget.onOpacityFinished,
+        child: AnimatedTransformItem(
+          onMovingFinished: widget.onMovingFinished,
+          reorderableEntity: widget.reorderableEntity,
+        ),
       ),
     );
   }
