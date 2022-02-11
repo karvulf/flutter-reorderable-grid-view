@@ -58,7 +58,27 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     _scrollController = widget.scrollController ?? ScrollController();
 
-    _updateChildren();
+    var orderId = 0;
+    final checkDuplicatedKeyList = <int>[];
+
+    // adding all children for _childrenMap
+    for (final child in widget.children) {
+      final hashKey = child.key.hashCode;
+
+      if (!checkDuplicatedKeyList.contains(hashKey)) {
+        checkDuplicatedKeyList.add(hashKey);
+      } else {
+        throw Exception('Duplicated key $hashKey found in children');
+      }
+
+      _childrenMap[hashKey] = ReorderableEntity(
+        child: child,
+        originalOrderId: orderId,
+        updatedOrderId: orderId,
+        isBuilding: true,
+      );
+      orderId++;
+    }
   }
 
   @override
@@ -80,7 +100,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children != widget.children) {
-      _updateChildren();
+      _handleUpdatedChildren();
     }
   }
 
@@ -126,52 +146,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     return draggableChildren;
-  }
-
-  void _updateChildren() {
-    var orderId = 0;
-
-    final checkDuplicatedKeyList = <int>[];
-
-    final updatedChildrenMap = <int, ReorderableEntity>{};
-
-    for (final child in widget.children) {
-      final hashKey = child.key.hashCode;
-
-      if (!checkDuplicatedKeyList.contains(hashKey)) {
-        checkDuplicatedKeyList.add(hashKey);
-      } else {
-        throw Exception('Duplicated key $hashKey found in children');
-      }
-
-      final reorderableEntity = _childrenMap[hashKey];
-      bool isBuilding = !_offsetMap.containsKey(orderId);
-
-      if (reorderableEntity == null) {
-        updatedChildrenMap[hashKey] = ReorderableEntity(
-          child: child,
-          originalOrderId: orderId,
-          updatedOrderId: orderId,
-          updatedOffset: _offsetMap[orderId] ?? Offset.zero,
-          originalOffset: _offsetMap[orderId] ?? Offset.zero,
-          isBuilding: isBuilding,
-        );
-      } else {
-        updatedChildrenMap[hashKey] = reorderableEntity.copyWith(
-          child: child,
-          originalOrderId: orderId,
-          updatedOrderId: orderId,
-          updatedOffset: _offsetMap[orderId],
-          originalOffset: _offsetMap[orderId],
-          isBuilding: isBuilding,
-        );
-      }
-
-      orderId++;
-    }
-    setState(() {
-      _childrenMap = updatedChildrenMap;
-    });
   }
 
   ReorderableEntity? _handleCreated(
@@ -430,6 +404,48 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     return null;
+  }
+
+  /// Updates all children for [_childrenMap].
+  ///
+  /// If the length of children was the same, the originalOrderId and
+  /// originalOffset will also be updated to prevent a moving animation.
+  /// This case can happen, e. g. after a drag and drop, when the children
+  /// change theirs position.
+  void _handleUpdatedChildren() {
+    var orderId = 0;
+    final updatedChildrenMap = <int, ReorderableEntity>{};
+
+    for (final child in widget.children) {
+      final keyHashCode = child.key.hashCode;
+
+      // check if child already exists
+      if (_childrenMap.containsKey(keyHashCode)) {
+        final reorderableEntity = _childrenMap[keyHashCode]!;
+
+        final updatedReorderableEntity = reorderableEntity.copyWith(
+          child: child,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          originalOffset: _offsetMap[orderId],
+          updatedOffset: _offsetMap[orderId],
+          isBuilding: !_offsetMap.containsKey(orderId),
+        );
+        updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
+      } else {
+        updatedChildrenMap[keyHashCode] = ReorderableEntity(
+          child: child,
+          originalOrderId: orderId,
+          updatedOrderId: orderId,
+          isBuilding: false,
+          isNew: true,
+        );
+      }
+      orderId++;
+    }
+    setState(() {
+      _childrenMap = updatedChildrenMap;
+    });
   }
 }
 
