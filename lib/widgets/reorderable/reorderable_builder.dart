@@ -131,6 +131,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         AnimatedTransformItem(
+          key: Key(reorderableEntity.keyHashCode.toString()),
           reorderableEntity: reorderableEntity,
           onMovingFinished: _handleMovingFinished,
           child: ReorderableDraggable(
