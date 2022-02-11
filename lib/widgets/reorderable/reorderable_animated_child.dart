@@ -17,6 +17,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
 
   final DragEndCallback onDragEnd;
   final OnCreatedFunction onCreated;
+  final OnCreatedFunction onBuilding;
   final OnDragUpdateFunction onDragUpdate;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
 
@@ -30,6 +31,7 @@ class ReorderableAnimatedChild extends StatelessWidget {
     required this.longPressDelay,
     required this.enableDraggable,
     required this.onCreated,
+    required this.onBuilding,
     required this.onDragUpdate,
     required this.onDragStarted,
     required this.onDragEnd,
@@ -49,13 +51,14 @@ class ReorderableAnimatedChild extends StatelessWidget {
     return AnimatedContainer(
       duration: duration,
       curve: Curves.easeInOut,
-      transform: Matrix4.translationValues(-dx, -dy, 0),
+      // transform: Matrix4.translationValues(-dx, -dy, 0),
       child: ReorderableDraggable(
         reorderableEntity: reorderableEntity,
         enableLongPress: enableLongPress,
         longPressDelay: longPressDelay,
         enableDraggable: enableDraggable,
         onCreated: onCreated,
+        onBuilding: onBuilding,
         onDragUpdate: onDragUpdate,
         onDragStarted: onDragStarted,
         onDragEnd: onDragEnd,

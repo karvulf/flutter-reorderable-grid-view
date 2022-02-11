@@ -137,6 +137,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           enableDraggable: widget.enableDraggable,
           onDragUpdate: _handleDragUpdate,
           onCreated: _handleCreated,
+          onBuilding: _handleBuilding,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
           reorderableEntity: reorderableEntity,
@@ -446,6 +447,37 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       _childrenMap = updatedChildrenMap;
     });
+  }
+
+  /// Updates [reorderableEntity] for [_childrenMap] with new [Offset].
+  ///
+  /// Usually called when the child with [key] was rebuilt or got a new position.
+  ReorderableEntity? _handleBuilding(
+    ReorderableEntity reorderableEntity,
+    GlobalKey key,
+  ) {
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+
+    final offset = _getOffset(
+      renderBox: renderBox,
+      orderId: reorderableEntity.updatedOrderId,
+    );
+
+    if (offset != null) {
+      // updating existing
+      final updatedReorderableEntity = reorderableEntity.copyWith(
+        updatedOffset: offset,
+        isBuilding: false,
+      );
+      final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
+      _childrenMap[updatedKeyHashCode] = updatedReorderableEntity;
+
+      setState(() {});
+
+      return updatedReorderableEntity;
+    }
+
+    return null;
   }
 }
 

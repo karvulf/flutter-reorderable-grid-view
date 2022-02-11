@@ -113,8 +113,8 @@ class _AnimatedGridViewBuilderState extends State<AnimatedGridViewBuilder>
         AnimatedGridViewItem(
           key: Key(reorderableEntity.keyHashCode.toString()),
           reorderableEntity: reorderableEntity,
-          onCreated: _handleCreated,
-          onBuilding: _handleBuilding,
+          // onCreated: _handleCreated,
+          // onBuilding: _handleBuilding,
           onMovingFinished: _handleMovingFinished,
           onOpacityFinished: _handleOpacityFinished,
         ),
