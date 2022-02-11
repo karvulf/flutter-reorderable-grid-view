@@ -6,11 +6,13 @@ typedef OnMovingFinishedCallback = void Function(
 );
 
 class AnimatedTransformItem extends StatefulWidget {
+  final Widget child;
   final ReorderableEntity reorderableEntity;
 
   final OnMovingFinishedCallback onMovingFinished;
 
   const AnimatedTransformItem({
+    required this.child,
     required this.reorderableEntity,
     required this.onMovingFinished,
     Key? key,
@@ -60,7 +62,7 @@ class _AnimatedTransformItemState extends State<AnimatedTransformItem>
         _animationDy.value,
         0,
       ),
-      child: widget.reorderableEntity.child,
+      child: widget.child,
     );
   }
 

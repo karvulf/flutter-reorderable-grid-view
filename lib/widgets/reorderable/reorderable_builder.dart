@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/animated_transform_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_draggable.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -128,20 +130,24 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
-        ReorderableAnimatedChild(
-          key: reorderableEntity.child.key,
-          draggedReorderableEntity: draggedReorderableEntity,
-          enableAnimation: enableAnimation,
-          enableLongPress: widget.enableLongPress,
-          longPressDelay: widget.longPressDelay,
-          enableDraggable: widget.enableDraggable,
-          onDragUpdate: _handleDragUpdate,
-          onCreated: _handleCreated,
-          onBuilding: _handleBuilding,
-          onDragStarted: _handleDragStarted,
-          onDragEnd: _handleDragEnd,
+        AnimatedTransformItem(
           reorderableEntity: reorderableEntity,
-          dragChildBoxDecoration: widget.dragChildBoxDecoration,
+          onMovingFinished: _handleMovingFinished,
+          child: ReorderableDraggable(
+            key: reorderableEntity.child.key,
+            draggedReorderableEntity: draggedReorderableEntity,
+            // enableAnimation: enableAnimation,
+            enableLongPress: widget.enableLongPress,
+            longPressDelay: widget.longPressDelay,
+            enableDraggable: widget.enableDraggable,
+            onDragUpdate: _handleDragUpdate,
+            onCreated: _handleCreated,
+            onBuilding: _handleBuilding,
+            onDragStarted: _handleDragStarted,
+            onDragEnd: _handleDragEnd,
+            reorderableEntity: reorderableEntity,
+            dragChildBoxDecoration: widget.dragChildBoxDecoration,
+          ),
         ),
       );
     }
@@ -478,6 +484,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     return null;
+  }
+
+  /// After [reorderableEntity] moved to the new position, the offset and orderId get an update.
+  void _handleMovingFinished(ReorderableEntity reorderableEntity) {
+    final keyHashCode = reorderableEntity.keyHashCode;
+
+    _childrenMap[keyHashCode] = reorderableEntity.copyWith(
+      originalOffset: reorderableEntity.updatedOffset,
+      originalOrderId: reorderableEntity.updatedOrderId,
+    );
   }
 }
 
