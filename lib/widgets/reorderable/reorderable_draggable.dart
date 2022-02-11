@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = ReorderableEntity? Function(
-  int hashKey,
+  ReorderableEntity reorderableEntity,
   GlobalKey key,
 );
 
@@ -156,8 +156,10 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   void _buildWidget() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final hashKey = _reorderableEntity.child.key.hashCode;
-      final updatedReorderableEntity = widget.onCreated(hashKey, _globalKey);
+      final updatedReorderableEntity = widget.onCreated(
+        widget.reorderableEntity,
+        _globalKey,
+      );
 
       if (updatedReorderableEntity != null) {
         setState(() {

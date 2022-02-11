@@ -174,26 +174,24 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
-  ReorderableEntity? _handleCreated(int hashKey, GlobalKey key) {
+  ReorderableEntity? _handleCreated(
+    ReorderableEntity reorderableEntity,
+    GlobalKey key,
+  ) {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    final offset = _getOffset(
+      orderId: reorderableEntity.updatedOrderId,
+      renderBox: renderBox,
+    );
 
-    if (renderBox == null) {
-      // assert(false, 'RenderBox of child should not be null!');
-    } else {
-      final reorderableEntity = _childrenMap[hashKey]!;
-      final localOffset = renderBox.localToGlobal(Offset.zero);
-      final offset = Offset(
-        localOffset.dx,
-        localOffset.dy + _scrollPixels,
-      );
-      final size = renderBox.size;
+    if (offset != null) {
       final updatedReorderableEntity = reorderableEntity.copyWith(
-        size: size,
+        size: renderBox?.size,
         originalOffset: offset,
         updatedOffset: offset,
         isBuilding: false,
       );
-      _childrenMap[hashKey] = updatedReorderableEntity;
+      _childrenMap[reorderableEntity.keyHashCode] = updatedReorderableEntity;
       _offsetMap[reorderableEntity.updatedOrderId] = offset;
 
       return updatedReorderableEntity;
@@ -402,6 +400,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     } else {
       return 0.0;
     }
+  }
+
+  ///
+  /// NEW
+  ///
+
+  /// Returns optional calculated [Offset] related to [key].
+  ///
+  /// If the renderBox for [key] and [_contentGlobalKey] was found,
+  /// the offset for [key] inside the renderBox of [_contentGlobalKey]
+  /// is calculated.
+  Offset? _getOffset({
+    required int orderId,
+    required RenderBox? renderBox,
+  }) {
+    if (renderBox == null) {
+      // assert(false, 'RenderBox of child should not be null!');
+    } else {
+      final localOffset = renderBox.globalToLocal(Offset.zero);
+
+      final offset = Offset(
+        localOffset.dx.abs(),
+        localOffset.dy.abs() + _scrollPixels,
+      );
+      _offsetMap[orderId] = offset;
+
+      return offset;
+    }
+
+    return null;
   }
 }
 

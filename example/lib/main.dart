@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewCount;
 
   @override
   Widget build(BuildContext context) {
