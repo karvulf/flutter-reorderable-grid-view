@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 1;
+  static const _startCounter = 3;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -147,13 +147,12 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridView:
-        return AnimatedReorderableBuilder(
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, contentGlobalKey, scrollController) {
+          builder: (children, scrollController) {
             return GridView(
-              key: contentGlobalKey,
               controller: scrollController,
               children: children,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

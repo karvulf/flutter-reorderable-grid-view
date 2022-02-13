@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_transform_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_container.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -129,11 +129,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
-        ReorderableTransformContainer(
+        ReorderableAnimatedContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
           reorderableEntity: reorderableEntity,
           isDragging: draggedReorderableEntity != null,
           onMovingFinished: _handleMovingFinished,
+          onOpacityFinished: _handleOpacityFinished,
           child: ReorderableDraggable(
             key: reorderableEntity.child.key,
             draggedReorderableEntity: draggedReorderableEntity,
@@ -197,35 +198,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// Every updated child gets a new offset and orderId.
   void _handleDragEnd(DraggableDetails details) {
-    int? oldIndex;
-    int? newIndex;
-
-    final originalOffset = draggedReorderableEntity!.originalOffset;
-    final updatedOffset = draggedReorderableEntity!.updatedOffset;
+    final oldIndex = draggedReorderableEntity!.originalOrderId;
+    final newIndex = draggedReorderableEntity!.updatedOrderId;
 
     // the dragged item has changed position
-    if (originalOffset != updatedOffset) {
-      // looking for the old and new index
-      for (final offsetMapEntry in _offsetMap.entries) {
-        final offset = offsetMapEntry.value;
-
-        if (offset == draggedReorderableEntity!.originalOffset) {
-          oldIndex = offsetMapEntry.key;
-        } else if (offset == draggedReorderableEntity!.updatedOffset) {
-          newIndex = offsetMapEntry.key;
-        }
-
-        if (oldIndex != 0 && newIndex != 0) {
-          break;
-        }
-      }
-
+    if (oldIndex != newIndex) {
       final updatedChildrenMap = <int, ReorderableEntity>{};
 
       // updating all entries in childrenMap
       for (final childrenMapEntry in _childrenMap.entries) {
         final reorderableEntity = childrenMapEntry.value;
-
         final updatedEntryValue = childrenMapEntry.value.copyWith(
           originalOrderId: reorderableEntity.updatedOrderId,
           originalOffset: reorderableEntity.updatedOffset,
@@ -241,7 +223,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       draggedReorderableEntity = null;
     });
 
-    if (oldIndex != null && newIndex != null) {
+    if (oldIndex != newIndex) {
       widget.onReorder(oldIndex, newIndex);
     }
   }
@@ -433,9 +415,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
         final updatedReorderableEntity = reorderableEntity.copyWith(
           child: child,
-          originalOrderId: orderId,
           updatedOrderId: orderId,
-          originalOffset: _offsetMap[orderId],
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
         );
@@ -494,6 +474,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       originalOffset: reorderableEntity.updatedOffset,
       originalOrderId: reorderableEntity.updatedOrderId,
+    );
+  }
+
+  /// After [reorderableEntity] faded in, the parameter isNew is false.
+  void _handleOpacityFinished(ReorderableEntity reorderableEntity) {
+    final keyHashCode = reorderableEntity.keyHashCode;
+    _childrenMap[keyHashCode] = reorderableEntity.copyWith(
+      isNew: false,
     );
   }
 }

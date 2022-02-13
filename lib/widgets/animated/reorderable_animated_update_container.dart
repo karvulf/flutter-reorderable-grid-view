@@ -5,14 +5,14 @@ typedef OnMovingFinishedCallback = void Function(
   ReorderableEntity reorderableEntity,
 );
 
-class ReorderableAnimatedTransformContainer extends StatefulWidget {
+class ReorderableAnimatedUpdatedContainer extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
   final bool isDragging;
 
   final OnMovingFinishedCallback onMovingFinished;
 
-  const ReorderableAnimatedTransformContainer({
+  const ReorderableAnimatedUpdatedContainer({
     required this.child,
     required this.reorderableEntity,
     required this.isDragging,
@@ -21,14 +21,15 @@ class ReorderableAnimatedTransformContainer extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ReorderableAnimatedTransformContainer> createState() =>
-      _ReorderableAnimatedTransformContainerState();
+  State<ReorderableAnimatedUpdatedContainer> createState() =>
+      _ReorderableAnimatedUpdatedContainerState();
 }
 
-class _ReorderableAnimatedTransformContainerState
-    extends State<ReorderableAnimatedTransformContainer>
+class _ReorderableAnimatedUpdatedContainerState
+    extends State<ReorderableAnimatedUpdatedContainer>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
+
   late Animation<double> _animationDx;
   late Animation<double> _animationDy;
 
@@ -46,9 +47,8 @@ class _ReorderableAnimatedTransformContainerState
 
   @override
   void didUpdateWidget(
-      covariant ReorderableAnimatedTransformContainer oldWidget) {
+      covariant ReorderableAnimatedUpdatedContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     animationController.reset();
     _updateAnimationTranslation();
   }
