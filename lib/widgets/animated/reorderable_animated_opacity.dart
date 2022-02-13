@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnOpacityFinishedCallback = void Function(
-  ReorderableEntity reorderableEntity,
-);
+typedef OnOpacityFinishedCallback = void Function(int keyHashCode);
 
 class ReorderableAnimatedOpacity extends StatefulWidget {
   final Widget child;
@@ -75,7 +73,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          widget.onOpacityFinished(widget.reorderableEntity);
+          widget.onOpacityFinished(widget.reorderableEntity.keyHashCode);
         }
       });
     _animationController.forward();

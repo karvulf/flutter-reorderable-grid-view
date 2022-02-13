@@ -166,6 +166,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         _globalKey,
       );
 
+      // Todo: prüfen ob man den return wert wirklich braucht
       if (updatedReorderableEntity != null) {
         setState(() {
           _reorderableEntity = updatedReorderableEntity;

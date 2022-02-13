@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_container.dart';
 
 typedef DraggableBuilder = Widget Function(
@@ -406,18 +406,19 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var orderId = 0;
     final updatedChildrenMap = <int, ReorderableEntity>{};
 
+    // Todo dupliacted key überprüfung rein
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
         final reorderableEntity = _childrenMap[keyHashCode]!;
-
         final updatedReorderableEntity = reorderableEntity.copyWith(
           child: child,
           updatedOrderId: orderId,
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
+          isNew: false,
         );
         updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
       } else {
@@ -468,8 +469,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   /// After [reorderableEntity] moved to the new position, the offset and orderId get an update.
-  void _handleMovingFinished(ReorderableEntity reorderableEntity) {
-    final keyHashCode = reorderableEntity.keyHashCode;
+  void _handleMovingFinished(int keyHashCode) {
+    final reorderableEntity = _childrenMap[keyHashCode]!;
 
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       originalOffset: reorderableEntity.updatedOffset,
@@ -478,8 +479,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   /// After [reorderableEntity] faded in, the parameter isNew is false.
-  void _handleOpacityFinished(ReorderableEntity reorderableEntity) {
-    final keyHashCode = reorderableEntity.keyHashCode;
+  void _handleOpacityFinished(int keyHashCode) {
+    final reorderableEntity = _childrenMap[keyHashCode]!;
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       isNew: false,
     );

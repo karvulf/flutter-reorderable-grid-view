@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnMovingFinishedCallback = void Function(
-  ReorderableEntity reorderableEntity,
-);
+typedef OnMovingFinishedCallback = void Function(int keyHashCode);
 
 class ReorderableAnimatedUpdatedContainer extends StatefulWidget {
   final Widget child;
@@ -99,7 +97,7 @@ class _ReorderableAnimatedUpdatedContainerState
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed && !widget.isDragging) {
-          widget.onMovingFinished(widget.reorderableEntity);
+          widget.onMovingFinished(widget.reorderableEntity.keyHashCode);
         }
       });
   }
