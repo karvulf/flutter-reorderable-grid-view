@@ -338,36 +338,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       draggedReorderableEntity = updatedDraggedEntity;
     });
-
-    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
-    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
-    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
-    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
-
-    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
-    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
-    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
-    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
-
-    print('');
-    print('---- Dragged child at position $draggedOrderIdBefore ----');
-    print(
-        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
-    print('Dragged child original offset $draggedOriginalOffset');
-    print(
-        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
-    print('----');
-    print(
-        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
-    print('Collisioned child original offset $collisionOriginalOffset');
-    print(
-        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
-    print('---- END ----');
-    print('');
   }
 
   MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({

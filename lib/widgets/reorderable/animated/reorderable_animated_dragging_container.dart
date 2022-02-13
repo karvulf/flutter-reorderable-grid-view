@@ -22,7 +22,7 @@ class ReorderableAnimatedDraggingContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+      duration: isDragging ? const Duration(milliseconds: 300) : Duration.zero,
       curve: Curves.easeInOut,
       transform: isDragging
           ? Matrix4.translationValues(-dx, -dy, 0)

@@ -98,7 +98,7 @@ class _ReorderableAnimatedTransformContainerState
         setState(() {});
       })
       ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
+        if (status == AnimationStatus.completed && !widget.isDragging) {
           widget.onMovingFinished(widget.reorderableEntity);
         }
       });
