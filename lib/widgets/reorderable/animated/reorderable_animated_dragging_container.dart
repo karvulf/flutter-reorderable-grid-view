@@ -7,15 +7,13 @@ typedef OnAnimationEndFunction = Function(
   ReorderableEntity reorderableEntity,
 );
 
-class ReorderableAnimatedChild extends StatelessWidget {
+class ReorderableAnimatedDraggingContainer extends StatelessWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
-  final bool isDragging;
 
-  const ReorderableAnimatedChild({
+  const ReorderableAnimatedDraggingContainer({
     required this.child,
     required this.reorderableEntity,
-    required this.isDragging,
     Key? key,
   }) : super(key: key);
 
@@ -23,16 +21,12 @@ class ReorderableAnimatedChild extends StatelessWidget {
   Widget build(BuildContext context) {
     var duration = const Duration(milliseconds: 300);
 
-    if (isDragging) {
-      return AnimatedContainer(
-        duration: duration,
-        curve: Curves.easeInOut,
-        transform: Matrix4.translationValues(-dx, -dy, 0),
-        child: child,
-      );
-    } else {
-      return child;
-    }
+    return AnimatedContainer(
+      duration: duration,
+      curve: Curves.easeInOut,
+      transform: Matrix4.translationValues(-dx, -dy, 0),
+      child: child,
+    );
   }
 
   double get dx {

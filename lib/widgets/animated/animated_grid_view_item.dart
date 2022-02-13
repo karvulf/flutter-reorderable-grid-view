@@ -29,6 +29,7 @@ class AnimatedGridViewItem extends StatelessWidget {
       onOpacityFinished: onOpacityFinished,
       child: AnimatedTransformItem(
         child: reorderableEntity.child, // new
+        isDragging: false, // new
         onMovingFinished: onMovingFinished,
         reorderableEntity: reorderableEntity,
       ),

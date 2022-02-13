@@ -5,26 +5,26 @@ typedef OnMovingFinishedCallback = void Function(
   ReorderableEntity reorderableEntity,
 );
 
-class AnimatedTransformItem extends StatefulWidget {
+class ReorderableAnimatedTransformContainer extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
-  final bool isDragging;
 
   final OnMovingFinishedCallback onMovingFinished;
 
-  const AnimatedTransformItem({
+  const ReorderableAnimatedTransformContainer({
     required this.child,
     required this.reorderableEntity,
-    required this.isDragging,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
 
   @override
-  State<AnimatedTransformItem> createState() => _AnimatedTransformItemState();
+  State<ReorderableAnimatedTransformContainer> createState() =>
+      _ReorderableAnimatedTransformContainerState();
 }
 
-class _AnimatedTransformItemState extends State<AnimatedTransformItem>
+class _ReorderableAnimatedTransformContainerState
+    extends State<ReorderableAnimatedTransformContainer>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
   late Animation<double> _animationDx;
@@ -43,7 +43,8 @@ class _AnimatedTransformItemState extends State<AnimatedTransformItem>
   }
 
   @override
-  void didUpdateWidget(covariant AnimatedTransformItem oldWidget) {
+  void didUpdateWidget(
+      covariant ReorderableAnimatedTransformContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     animationController.reset();
@@ -58,18 +59,14 @@ class _AnimatedTransformItemState extends State<AnimatedTransformItem>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isDragging) {
-      return widget.child;
-    } else {
-      return Container(
-        transform: Matrix4.translationValues(
-          _animationDx.value,
-          _animationDy.value,
-          0,
-        ),
-        child: widget.child,
-      );
-    }
+    return Container(
+      transform: Matrix4.translationValues(
+        _animationDx.value,
+        _animationDy.value,
+        0,
+      ),
+      child: widget.child,
+    );
   }
 
   void _updateAnimationTranslation() {

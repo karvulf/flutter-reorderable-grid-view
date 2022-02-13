@@ -98,6 +98,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final reorderableEntityChild = _reorderableEntity.child;
     final child = Container(

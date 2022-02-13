@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/animated_transform_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_transform_container.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -130,9 +131,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
-        AnimatedTransformItem(
+        ReorderableTransformContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
           reorderableEntity: reorderableEntity,
+          isDragging: draggedReorderableEntity != null,
           onMovingFinished: _handleMovingFinished,
           child: ReorderableDraggable(
             key: reorderableEntity.child.key,
@@ -338,6 +340,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       draggedReorderableEntity = updatedDraggedEntity;
     });
+
+    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
+    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
+    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
+    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
+
+    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
+    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
+    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
+    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
+
+    print('');
+    print('---- Dragged child at position $draggedOrderIdBefore ----');
+    print(
+        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+    print('Dragged child original offset $draggedOriginalOffset');
+    print(
+        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
+    print('----');
+    print(
+        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+    print('Collisioned child original offset $collisionOriginalOffset');
+    print(
+        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
+    print('---- END ----');
+    print('');
   }
 
   MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
