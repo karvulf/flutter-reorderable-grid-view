@@ -8,12 +8,14 @@ typedef OnMovingFinishedCallback = void Function(
 class ReorderableAnimatedTransformContainer extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
+  final bool isDragging;
 
   final OnMovingFinishedCallback onMovingFinished;
 
   const ReorderableAnimatedTransformContainer({
     required this.child,
     required this.reorderableEntity,
+    required this.isDragging,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
@@ -60,11 +62,13 @@ class _ReorderableAnimatedTransformContainerState
   @override
   Widget build(BuildContext context) {
     return Container(
-      transform: Matrix4.translationValues(
-        _animationDx.value,
-        _animationDy.value,
-        0,
-      ),
+      transform: widget.isDragging
+          ? Matrix4.translationValues(0.0, 0.0, 0.0)
+          : Matrix4.translationValues(
+              _animationDx.value,
+              _animationDy.value,
+              0,
+            ),
       child: widget.child,
     );
   }

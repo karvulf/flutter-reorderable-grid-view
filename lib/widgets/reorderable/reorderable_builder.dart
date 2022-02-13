@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/animated_transform_item.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_animated_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_transform_container.dart';
 

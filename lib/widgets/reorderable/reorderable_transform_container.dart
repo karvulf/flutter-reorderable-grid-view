@@ -20,17 +20,15 @@ class ReorderableTransformContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDragging) {
-      return ReorderableAnimatedDraggingContainer(
-        reorderableEntity: reorderableEntity,
-        child: child,
-      );
-    } else {
-      return ReorderableAnimatedTransformContainer(
+    return ReorderableAnimatedDraggingContainer(
+      reorderableEntity: reorderableEntity,
+      isDragging: isDragging,
+      child: ReorderableAnimatedTransformContainer(
         reorderableEntity: reorderableEntity,
         onMovingFinished: onMovingFinished,
+        isDragging: isDragging,
         child: child,
-      );
-    }
+      ),
+    );
   }
 }
