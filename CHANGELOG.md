@@ -1,3 +1,16 @@
+## 2.0.0-dev.4
+* Removed `AnimatedGridViewBuilder` and `AnimatedReorderableBuilder` because there were some problems splitting the logic for animation while dragging and adding/removing items
+* `ReorderableBuilder` is making all the animation
+  * to disable drag and drop, just make `enableDraggable` to false
+* improved the performance
+* Todo:
+  * Refactoring of code
+  * more testing
+  * Widget tests + Unit Tests (?)
+  * updating examples
+  * updating read me
+ 
+
 ## 2.0.0-dev.3
 * Removed `ReorderableWrap` and `ReorderableGridView`
 * New widgets for more flexibility:
