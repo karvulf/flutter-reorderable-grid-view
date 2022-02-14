@@ -31,6 +31,8 @@ class _ReorderableAnimatedUpdatedContainerState
   late Animation<double> _animationDx;
   late Animation<double> _animationDy;
 
+  bool visible = true;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,14 @@ class _ReorderableAnimatedUpdatedContainerState
       covariant ReorderableAnimatedUpdatedContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
     animationController.reset();
+
+    // minimize the flicker when building
+    if (widget.reorderableEntity.isBuilding) {
+      visible = false;
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        visible = true;
+      });
+    }
     _updateAnimationTranslation();
   }
 
@@ -59,22 +69,28 @@ class _ReorderableAnimatedUpdatedContainerState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      transform: widget.isDragging
-          ? Matrix4.translationValues(0.0, 0.0, 0.0)
-          : Matrix4.translationValues(
-              _animationDx.value,
-              _animationDy.value,
-              0,
-            ),
-      child: widget.child,
+    return Visibility(
+      visible: visible,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainState: true,
+      child: Container(
+        transform: widget.isDragging
+            ? Matrix4.translationValues(0.0, 0.0, 0.0)
+            : Matrix4.translationValues(
+                _animationDx.value,
+                _animationDy.value,
+                0,
+              ),
+        child: widget.child,
+      ),
     );
   }
 
   void _updateAnimationTranslation() {
     final offsetDiff = _getOffsetDiff(widget.reorderableEntity);
-    _animationDx = _getAnimation(offsetDiff.dx * -1);
-    _animationDy = _getAnimation(offsetDiff.dy * -1);
+    _animationDx = _getAnimation(offsetDiff.dx);
+    _animationDy = _getAnimation(offsetDiff.dy);
 
     if (offsetDiff.dx != 0 || offsetDiff.dy != 0) {
       animationController.forward();
@@ -89,7 +105,7 @@ class _ReorderableAnimatedUpdatedContainerState
 
   Animation<double> _getAnimation(double value) {
     return Tween<double>(
-      begin: -value,
+      begin: value,
       end: 0,
     ).animate(animationController)
       ..addListener(() {
