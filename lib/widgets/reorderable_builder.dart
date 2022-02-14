@@ -101,7 +101,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children != widget.children) {
-      _handleUpdatedChildren();
+      _handleUpdatedChildren(
+        addedOrRemovedChild:
+            oldWidget.children.length != widget.children.length,
+      );
     }
   }
 
@@ -402,7 +405,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// originalOffset will also be updated to prevent a moving animation.
   /// This case can happen, e. g. after a drag and drop, when the children
   /// change theirs position.
-  void _handleUpdatedChildren() {
+  void _handleUpdatedChildren({required bool addedOrRemovedChild}) {
     var orderId = 0;
     final updatedChildrenMap = <int, ReorderableEntity>{};
 
@@ -413,12 +416,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
         final reorderableEntity = _childrenMap[keyHashCode]!;
+        bool hasUpdatedOrder = reorderableEntity.originalOrderId != orderId;
         final updatedReorderableEntity = reorderableEntity.copyWith(
           child: child,
           updatedOrderId: orderId,
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
           isNew: false,
+          hasSwappedOrder: hasUpdatedOrder && !addedOrRemovedChild,
         );
         updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
       } else {
@@ -476,6 +481,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       originalOffset: reorderableEntity.updatedOffset,
       originalOrderId: reorderableEntity.updatedOrderId,
     );
+    setState(() {});
   }
 
   /// After [reorderableEntity] faded in, the parameter isNew is false.
@@ -484,6 +490,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       isNew: false,
     );
+    setState(() {});
   }
 }
 

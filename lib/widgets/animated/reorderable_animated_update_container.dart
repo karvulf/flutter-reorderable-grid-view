@@ -28,8 +28,7 @@ class _ReorderableAnimatedUpdatedContainerState
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
 
-  late Animation<double> _animationDx;
-  late Animation<double> _animationDy;
+  late Animation<Offset> _animationOffset;
 
   bool visible = true;
 
@@ -41,8 +40,10 @@ class _ReorderableAnimatedUpdatedContainerState
       duration: kThemeAnimationDuration,
       vsync: this,
     );
-    _animationDx = Tween<double>(begin: 0, end: 0).animate(animationController);
-    _animationDy = Tween<double>(begin: 0, end: 0).animate(animationController);
+    _animationOffset = Tween<Offset>(
+      begin: Offset.zero,
+      end: Offset.zero,
+    ).animate(animationController);
   }
 
   @override
@@ -78,8 +79,8 @@ class _ReorderableAnimatedUpdatedContainerState
         transform: widget.isDragging
             ? Matrix4.translationValues(0.0, 0.0, 0.0)
             : Matrix4.translationValues(
-                _animationDx.value,
-                _animationDy.value,
+                _animationOffset.value.dx,
+                _animationOffset.value.dy,
                 0,
               ),
         child: widget.child,
@@ -89,8 +90,7 @@ class _ReorderableAnimatedUpdatedContainerState
 
   void _updateAnimationTranslation() {
     final offsetDiff = _getOffsetDiff(widget.reorderableEntity);
-    _animationDx = _getAnimation(offsetDiff.dx);
-    _animationDy = _getAnimation(offsetDiff.dy);
+    _animationOffset = _getAnimation(offsetDiff);
 
     if (offsetDiff.dx != 0 || offsetDiff.dy != 0) {
       animationController.forward();
@@ -103,11 +103,21 @@ class _ReorderableAnimatedUpdatedContainerState
     return originalOffset - updatedOffset;
   }
 
-  Animation<double> _getAnimation(double value) {
-    return Tween<double>(
-      begin: value,
-      end: 0,
-    ).animate(animationController)
+  Animation<Offset> _getAnimation(Offset offset) {
+    late final Tween<Offset> tween;
+
+    if (widget.reorderableEntity.hasSwappedOrder) {
+      tween = Tween<Offset>(
+        begin: Offset.zero,
+        end: -offset,
+      );
+    } else {
+      tween = Tween<Offset>(
+        begin: offset,
+        end: Offset.zero,
+      );
+    }
+    return tween.animate(animationController)
       ..addListener(() {
         setState(() {});
       })
