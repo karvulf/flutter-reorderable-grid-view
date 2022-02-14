@@ -28,22 +28,28 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
 
   late Animation<double> _opacity;
 
+  bool hasStartedAnimation = false;
+
   @override
   void initState() {
     super.initState();
+    print('created ${widget.reorderableEntity.child}');
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
+    _opacity = Tween<double>(begin: 1, end: 1).animate(_animationController);
     _updateOpacity();
   }
 
   @override
   void didUpdateWidget(covariant ReorderableAnimatedOpacity oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _animationController.reset();
-    _updateOpacity();
+
+    if (widget.reorderableEntity != oldWidget.reorderableEntity) {
+      _updateOpacity();
+    }
   }
 
   @override
@@ -61,9 +67,17 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   }
 
   void _updateOpacity() {
+    var isNew = widget.reorderableEntity.isNew;
+
+    if (hasStartedAnimation || (_opacity.value == 1.0 && !isNew)) {
+      return;
+    }
+    _animationController.reset();
+    hasStartedAnimation = true;
+
     var tween = Tween<double>(begin: 1, end: 1);
 
-    if (widget.reorderableEntity.isNew) {
+    if (isNew) {
       tween = Tween<double>(begin: 0, end: 1);
     }
 
@@ -73,6 +87,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
+          hasStartedAnimation = false;
           widget.onOpacityFinished(widget.reorderableEntity.keyHashCode);
         }
       });

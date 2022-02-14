@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 3;
+  static const _startCounter = 1;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -46,7 +46,8 @@ class _MyAppState extends State<MyApp> {
             children: [
               ChangeChildrenBar(
                 onTapSwap: () {
-                  _handleReorder(0, 2);
+                  children.add(keyCounter++);
+                  _handleReorder(0, 1);
                 },
                 onTapAddChild: () {
                   setState(() {

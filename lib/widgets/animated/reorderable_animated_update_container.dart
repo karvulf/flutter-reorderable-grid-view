@@ -52,7 +52,7 @@ class _ReorderableAnimatedUpdatedContainerState
     super.didUpdateWidget(oldWidget);
     animationController.reset();
 
-    // minimize the flicker when building
+    // minimize the flicker when building existing reorderableEntity
     if (widget.reorderableEntity.isBuilding) {
       visible = false;
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {

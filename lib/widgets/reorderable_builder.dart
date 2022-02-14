@@ -101,10 +101,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children != widget.children) {
-      _handleUpdatedChildren(
-        addedOrRemovedChild:
-            oldWidget.children.length != widget.children.length,
-      );
+      _handleUpdatedChildren();
     }
   }
 
@@ -405,13 +402,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// originalOffset will also be updated to prevent a moving animation.
   /// This case can happen, e. g. after a drag and drop, when the children
   /// change theirs position.
-  void _handleUpdatedChildren({required bool addedOrRemovedChild}) {
+  void _handleUpdatedChildren() {
     var orderId = 0;
     final updatedChildrenMap = <int, ReorderableEntity>{};
-
+    final addedOrRemovedOrderId = _getRemovedOrAddedOrderId();
     // Todo dupliacted key überprüfung rein
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
+      var sizeHasChanged = false;
+      if (addedOrRemovedOrderId != null) {
+        sizeHasChanged = orderId >= addedOrRemovedOrderId;
+      }
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
@@ -423,7 +424,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
           isNew: false,
-          hasSwappedOrder: hasUpdatedOrder && !addedOrRemovedChild,
+          hasSwappedOrder: hasUpdatedOrder && !sizeHasChanged,
         );
         updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
       } else {
@@ -440,6 +441,29 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       _childrenMap = updatedChildrenMap;
     });
+  }
+
+  int? _getRemovedOrAddedOrderId() {
+    if (_childrenMap.length < widget.children.length) {
+      var orderId = 0;
+      for (final child in widget.children) {
+        final keyHashCode = child.key.hashCode;
+        if (!_childrenMap.containsKey(keyHashCode)) {
+          return orderId;
+        }
+        orderId++;
+      }
+    } else if (_childrenMap.length > widget.children.length) {
+      var orderId = 0;
+      final childrenKeys = widget.children.map((e) => e.key.hashCode).toList();
+      for (final key in _childrenMap.keys) {
+        if (!childrenKeys.contains(key)) {
+          return orderId;
+        }
+        orderId++;
+      }
+    }
+    return null;
   }
 
   /// Updates [reorderableEntity] for [_childrenMap] with new [Offset].
@@ -490,7 +514,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       isNew: false,
     );
-    setState(() {});
   }
 }
 
