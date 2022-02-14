@@ -12,7 +12,6 @@ enum ReorderableType {
 
 // Todo:
 // - Rotieren: alle Positionen neu berechnen
-// - Flackern vom letzten neuen Item wegkriegen
 // - Tests schreiben
 // - mehr dokumentieren
 // - read me schöner machen und verständlicher
