@@ -1,15 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ContainerButton extends StatelessWidget {
   final GestureTapCallback onTap;
   final IconData icon;
-  final Color color;
 
   const ContainerButton({
     required this.onTap,
     required this.icon,
-    required this.color,
     Key? key,
   }) : super(key: key);
 

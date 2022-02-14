@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewCount;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +45,10 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               ChangeChildrenBar(
+                onTapSwap: () {
+                  children.add(keyCounter++);
+                  _handleReorder(0, 1);
+                },
                 onTapAddChild: () {
                   setState(() {
                     // children = children..add(keyCounter++);
@@ -147,13 +151,12 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridView:
-        return AnimatedReorderableBuilder(
+        return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, contentGlobalKey, scrollController) {
+          builder: (children, scrollController) {
             return GridView(
-              key: contentGlobalKey,
               controller: scrollController,
               children: children,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/animated_grid_view_builder.dart';
 
 void main() {
   runApp(const MaterialApp(home: ExampleAnimatedGridView()));
@@ -36,20 +35,13 @@ class _ExampleAnimatedGridViewState extends State<ExampleAnimatedGridView> {
       backgroundColor: Colors.white70,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: AnimatedGridViewBuilder(
+        child: GridView(
           children: children,
-          builder: (children, contentGlobalKey, scrollController) {
-            return GridView(
-              key: contentGlobalKey,
-              controller: scrollController,
-              children: children,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
-              ),
-            );
-          },
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

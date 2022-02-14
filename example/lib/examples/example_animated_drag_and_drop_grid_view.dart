@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated_reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 void main() {
   runApp(const MaterialApp(home: ExampleAnimatedDragAndDropGridView()));
@@ -24,11 +24,18 @@ class _ExampleAnimatedGridViewState
       fruits.length,
       (index) {
         final fruit = fruits.elementAt(index);
-        return Container(
+        return InkWell(
           key: Key(fruit),
-          alignment: Alignment.center,
-          color: Colors.white,
-          child: Text(fruit),
+          onTap: () => _handleReorder(
+            index,
+            index == fruits.length - 1 ? 0 : index + 1,
+          ),
+          child: Container(
+            key: Key(fruit),
+            alignment: Alignment.center,
+            color: Colors.white,
+            child: Text(fruit),
+          ),
         );
       },
     );
@@ -37,14 +44,13 @@ class _ExampleAnimatedGridViewState
       backgroundColor: Colors.white70,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: AnimatedReorderableBuilder(
+        child: ReorderableBuilder(
           children: children,
           onReorder: _handleReorder,
-          builder: (children, contentGlobalKey, scrollController) {
+          builder: (children, scrollController) {
             return GridView(
-              key: contentGlobalKey,
-              controller: scrollController,
               children: children,
+              controller: scrollController,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 mainAxisSpacing: 4,

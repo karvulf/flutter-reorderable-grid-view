@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
+// Todo: Muss das wirklich zurückgegeben werden?
 typedef OnCreatedFunction = ReorderableEntity? Function(
-  int hashKey,
+  ReorderableEntity reorderableEntity,
   GlobalKey key,
 );
 
@@ -19,6 +20,7 @@ class ReorderableDraggable extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   final OnCreatedFunction onCreated;
+  final OnCreatedFunction onBuilding;
   final OnDragUpdateFunction onDragUpdate;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
   final DragEndCallback onDragEnd;
@@ -31,6 +33,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.longPressDelay,
     required this.enableDraggable,
     required this.onCreated,
+    required this.onBuilding,
     required this.onDragUpdate,
     required this.onDragStarted,
     required this.onDragEnd,
@@ -68,7 +71,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.initState();
     _reorderableEntity = widget.reorderableEntity;
 
-    _buildWidget();
+    _handleCreated();
 
     _controller = AnimationController(
       vsync: this,
@@ -90,12 +93,14 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.reorderableEntity != widget.reorderableEntity) {
-      _reorderableEntity = widget.reorderableEntity;
-
-      if (_reorderableEntity.isBuilding) {
-        _buildWidget();
-      }
+      _handleUpdated();
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -154,17 +159,37 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     }
   }
 
-  void _buildWidget() {
+  void _handleCreated() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final hashKey = _reorderableEntity.child.key.hashCode;
-      final updatedReorderableEntity = widget.onCreated(hashKey, _globalKey);
+      final updatedReorderableEntity = widget.onCreated(
+        widget.reorderableEntity,
+        _globalKey,
+      );
 
+      // Todo: prüfen ob man den return wert wirklich braucht
       if (updatedReorderableEntity != null) {
         setState(() {
           _reorderableEntity = updatedReorderableEntity;
         });
       }
     });
+  }
+
+  void _handleUpdated() {
+    _reorderableEntity = widget.reorderableEntity;
+
+    if (_reorderableEntity.isBuilding) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        final updatedReorderableEntity = widget.onBuilding(
+          widget.reorderableEntity,
+          _globalKey,
+        );
+
+        if (updatedReorderableEntity != null) {
+          _reorderableEntity = updatedReorderableEntity;
+        }
+      });
+    }
   }
 
   void _handleStarted() {

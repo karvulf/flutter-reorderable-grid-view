@@ -6,12 +6,14 @@ class ChangeChildrenBar extends StatelessWidget {
   final VoidCallback onTapAddChild;
   final VoidCallback onTapRemoveChild;
   final VoidCallback onTapClear;
+  final VoidCallback onTapSwap;
 
   const ChangeChildrenBar({
     required this.onTapUpdateChild,
     required this.onTapAddChild,
     required this.onTapRemoveChild,
     required this.onTapClear,
+    required this.onTapSwap,
     Key? key,
   }) : super(key: key);
 
@@ -27,23 +29,23 @@ class ChangeChildrenBar extends StatelessWidget {
           children: [
             ContainerButton(
               onTap: onTapUpdateChild,
-              color: Colors.deepOrangeAccent,
               icon: Icons.find_replace,
             ),
             ContainerButton(
               onTap: onTapAddChild,
-              color: Colors.green,
               icon: Icons.add,
             ),
             ContainerButton(
               onTap: onTapRemoveChild,
-              color: Colors.red,
               icon: Icons.remove,
             ),
             ContainerButton(
               onTap: onTapClear,
-              color: Colors.yellowAccent,
               icon: Icons.delete,
+            ),
+            ContainerButton(
+              onTap: onTapSwap,
+              icon: Icons.swap_horiz,
             ),
           ],
         ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable/reorderable_builder.dart';
 
 void main() {
   runApp(const MaterialApp(home: ExampleDragAndDropGridView()));
@@ -36,20 +35,13 @@ class _ExampleDragAndDropGridViewState
       backgroundColor: Colors.white70,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: ReorderableBuilder(
+        child: GridView(
           children: children,
-          onReorder: _handleReorder,
-          builder: (children, scrollController) {
-            return GridView(
-              controller: scrollController,
-              children: children,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
-              ),
-            );
-          },
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
+          ),
         ),
       ),
     );
