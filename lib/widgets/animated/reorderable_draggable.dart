@@ -7,7 +7,6 @@ typedef OnCreatedFunction = ReorderableEntity? Function(
 );
 
 typedef OnDragUpdateFunction = Function(
-  int hashKey,
   DragUpdateDetails details,
 );
 
@@ -151,7 +150,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     } else if (widget.enableLongPress) {
       return LongPressDraggable(
         delay: widget.longPressDelay,
-        onDragUpdate: _handleDragUpdate,
+        onDragUpdate: widget.onDragUpdate,
         onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
@@ -160,7 +159,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       );
     } else {
       return Draggable(
-        onDragUpdate: _handleDragUpdate,
+        onDragUpdate: widget.onDragUpdate,
         onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
@@ -208,12 +207,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   void _handleDragStarted() {
     widget.onDragStarted(_reorderableEntity);
     _controller.forward();
-  }
-
-  /// Called every time the position of the dragged child updates.
-  void _handleDragUpdate(DragUpdateDetails details) {
-    final hashKey = _reorderableEntity.child.key.hashCode;
-    widget.onDragUpdate(hashKey, details);
   }
 
   /// Called after releasing dragged child.

@@ -222,7 +222,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
-  void _handleDragUpdate(int hashKey, DragUpdateDetails details) {
+  void _handleDragUpdate(DragUpdateDetails details) {
     _checkForCollisions(details: details);
   }
 
