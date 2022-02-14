@@ -3,6 +3,14 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 typedef OnMovingFinishedCallback = void Function(int keyHashCode);
 
+/// Handles the animation for the new position of [child] when [isDragging] is false.
+///
+/// When isBuilding of [reorderableEntity] is true, that means that
+/// the current offset is not known. Usually when adding an item to a
+/// new position.
+///
+/// In that case, the [child] is invisible for one frame to prevent a flicker
+/// on the new position while animating.
 class ReorderableAnimatedUpdatedContainer extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
@@ -30,6 +38,10 @@ class _ReorderableAnimatedUpdatedContainerState
 
   late Animation<Offset> _animationOffset;
 
+  /// Makes the [child] univisble.
+  ///
+  /// Used when the position [child] is not known to prevent flickering
+  /// on the new position while animating.
   bool visible = true;
 
   @override
@@ -88,6 +100,7 @@ class _ReorderableAnimatedUpdatedContainerState
     );
   }
 
+  /// Starting animation for the new position if dx or dy is not 0.
   void _updateAnimationTranslation() {
     final offsetDiff = _getOffsetDiff(widget.reorderableEntity);
     _animationOffset = _getAnimation(offsetDiff);
@@ -97,12 +110,24 @@ class _ReorderableAnimatedUpdatedContainerState
     }
   }
 
+  /// Calculates the difference of the original and updated offset of [reorderableEntity].
   Offset _getOffsetDiff(ReorderableEntity reorderableEntity) {
     final originalOffset = reorderableEntity.originalOffset;
     final updatedOffset = reorderableEntity.updatedOffset;
     return originalOffset - updatedOffset;
   }
 
+  /// Creating animation for [Offset] of [child].
+  ///
+  /// If hasSwappedOrder is true, that means, that the updated position
+  /// was changed with another position. In that case, the end animation has to be
+  /// the new position.
+  ///
+  /// Otherwise the new position would always be [Offset.zero]. But before
+  /// showing the [child] on that position, the animation has to go to that offset.
+  /// This is the reason for using [offset] as begin-value in the animation.
+  ///
+  /// Calling [onMovingFinished] when animation finished and [isDragging] is false.
   Animation<Offset> _getAnimation(Offset offset) {
     late final Tween<Offset> tween;
 
@@ -121,10 +146,12 @@ class _ReorderableAnimatedUpdatedContainerState
       ..addListener(() {
         setState(() {});
       })
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed && !widget.isDragging) {
-          widget.onMovingFinished(widget.reorderableEntity.keyHashCode);
-        }
-      });
+      ..addStatusListener(
+        (status) {
+          if (status == AnimationStatus.completed && !widget.isDragging) {
+            widget.onMovingFinished(widget.reorderableEntity.keyHashCode);
+          }
+        },
+      );
   }
 }

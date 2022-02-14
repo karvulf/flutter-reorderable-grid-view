@@ -2,39 +2,63 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_container.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
   ScrollController scrollController,
 );
 
+/// Enables animated drag and drop behaviour for built widgets in [builder].
 class ReorderableBuilder extends StatefulWidget {
+  /// Updating [children] with some widgets to enable animations.
   final List<Widget> children;
-  final DraggableBuilder builder;
-  final ReorderCallback onReorder;
+
+  /// Specify indices for [children] that should not change their position while dragging.
+  ///
+  /// Default value: <int>[]
   final List<int> lockedIndices;
-  final bool enableAnimation;
+
+  /// The drag of a child can be started with the long press.
+  ///
+  /// Default value: true
   final bool enableLongPress;
+
+  /// Specify the [Duration] for the pressed child before starting the dragging.
+  ///
+  /// Default value: kLongPressTimeout
   final Duration longPressDelay;
+
+  /// When disabling draggable, the drag and drop behavior is not working.
+  ///
+  /// When [enableDraggable] is true, [onReorder] must not be null.
+  ///
+  /// Default value: true
   final bool enableDraggable;
 
-  final ScrollController? scrollController;
+  /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
+
+  /// Callback to return updated [children].
+  final DraggableBuilder builder;
+
+  /// After releasing the dragged child, [onReorder] is called.
+  ///
+  /// [enableDraggable] has to be true to ensure this is called.
+  final ReorderCallback? onReorder;
 
   const ReorderableBuilder({
     required this.children,
-    required this.onReorder,
     required this.builder,
+    this.onReorder,
     this.lockedIndices = const [],
-    this.enableAnimation = true,
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
     this.dragChildBoxDecoration,
-    this.scrollController,
     Key? key,
-  }) : super(key: key);
+  })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+        super(key: key);
 
   @override
   _ReorderableBuilderState createState() => _ReorderableBuilderState();
@@ -42,22 +66,34 @@ class ReorderableBuilder extends StatefulWidget {
 
 class _ReorderableBuilderState extends State<ReorderableBuilder>
     with WidgetsBindingObserver {
-  ReorderableEntity? draggedReorderableEntity;
+  /// [ReorderableEntity] that is dragged around.
+  ReorderableEntity? _draggedReorderableEntity;
 
+  /// Describes all [widget.children] inside the map.
+  ///
+  /// The key is always the hashCode of the child key. This is a reason
+  /// why every child has to have a unique key to prevent misscalculations
+  /// for the animation.
   var _childrenMap = <int, ReorderableEntity>{};
 
+  /// For getting easier access, [_offsetMap] holds all known positions with the orderId as key.
   final _offsetMap = <int, Offset>{};
 
-  late final ScrollController _scrollController;
+  /// [_scrollController] to get the scroll position in vertical direction of the widget of [widget.builder].
+  ///
+  /// The controller has to be assigned if the returned widget of [widget.builder]
+  /// is scrollable to prevent a weird animation behavior or when dragging a child.
+  final ScrollController _scrollController = ScrollController();
 
-  double scrollPositionPixels = 0.0;
+  /// Holding this value here for better performance.
+  ///
+  /// After dragging a child, [_scrollPositionPixels] is always updated.
+  double _scrollPositionPixels = 0.0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
-
-    _scrollController = widget.scrollController ?? ScrollController();
 
     var orderId = 0;
     final checkDuplicatedKeyList = <int>[];
@@ -124,21 +160,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final sortedChildren = _childrenMap.values.toList()
       ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
 
-    final enableAnimation =
-        draggedReorderableEntity != null && widget.enableAnimation;
-
     for (final reorderableEntity in sortedChildren) {
       draggableChildren.add(
         ReorderableAnimatedContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
           reorderableEntity: reorderableEntity,
-          isDragging: draggedReorderableEntity != null,
+          isDragging: _draggedReorderableEntity != null,
           onMovingFinished: _handleMovingFinished,
           onOpacityFinished: _handleOpacityFinished,
           child: ReorderableDraggable(
             key: reorderableEntity.child.key,
-            draggedReorderableEntity: draggedReorderableEntity,
-            // enableAnimation: enableAnimation,
+            draggedReorderableEntity: _draggedReorderableEntity,
             enableLongPress: widget.enableLongPress,
             longPressDelay: widget.longPressDelay,
             enableDraggable: widget.enableDraggable,
@@ -185,8 +217,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     setState(() {
-      draggedReorderableEntity = reorderableEntity;
-      scrollPositionPixels = _scrollPixels;
+      _draggedReorderableEntity = reorderableEntity;
+      _scrollPositionPixels = _scrollPixels;
     });
   }
 
@@ -198,8 +230,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// Every updated child gets a new offset and orderId.
   void _handleDragEnd(DraggableDetails details) {
-    final oldIndex = draggedReorderableEntity!.originalOrderId;
-    final newIndex = draggedReorderableEntity!.updatedOrderId;
+    final oldIndex = _draggedReorderableEntity!.originalOrderId;
+    final newIndex = _draggedReorderableEntity!.updatedOrderId;
 
     // the dragged item has changed position
     if (oldIndex != newIndex) {
@@ -220,11 +252,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     setState(() {
-      draggedReorderableEntity = null;
+      _draggedReorderableEntity = null;
     });
 
-    if (oldIndex != newIndex) {
-      widget.onReorder(oldIndex, newIndex);
+    if (oldIndex != newIndex && widget.onReorder != null) {
+      widget.onReorder!(oldIndex, newIndex);
     }
   }
 
@@ -233,11 +265,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _checkForCollisions({
     required DragUpdateDetails details,
   }) {
-    final draggedHashKey = draggedReorderableEntity!.child.key.hashCode;
+    final draggedHashKey = _draggedReorderableEntity!.child.key.hashCode;
 
     var draggedOffset = Offset(
       details.localPosition.dx,
-      details.localPosition.dy + scrollPositionPixels,
+      details.localPosition.dy + _scrollPositionPixels,
     );
 
     final collisionMapEntry = _getCollisionMapEntry(
@@ -246,7 +278,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
 
     if (collisionMapEntry != null) {
-      final draggedOrderId = draggedReorderableEntity!.updatedOrderId;
+      final draggedOrderId = _draggedReorderableEntity!.updatedOrderId;
       final collisionOrderId = collisionMapEntry.value.updatedOrderId;
 
       final difference = draggedOrderId - collisionOrderId;
@@ -277,7 +309,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required bool isBackwards,
   }) {
     final summands = isBackwards ? -1 : 1;
-    var currentCollisionOrderId = draggedReorderableEntity!.updatedOrderId;
+    var currentCollisionOrderId = _draggedReorderableEntity!.updatedOrderId;
 
     while (currentCollisionOrderId != collisionOrderId) {
       currentCollisionOrderId += summands;
@@ -305,20 +337,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     // update for collision entity
     final updatedCollisionEntity = collisionMapEntry.value.copyWith(
-      updatedOffset: draggedReorderableEntity!.updatedOffset,
-      updatedOrderId: draggedReorderableEntity!.updatedOrderId,
+      updatedOffset: _draggedReorderableEntity!.updatedOffset,
+      updatedOrderId: _draggedReorderableEntity!.updatedOrderId,
     );
     _childrenMap[collisionMapEntry.key] = updatedCollisionEntity;
 
     // update for dragged entity
-    final updatedDraggedEntity = draggedReorderableEntity!.copyWith(
+    final updatedDraggedEntity = _draggedReorderableEntity!.copyWith(
       updatedOffset: collisionMapEntry.value.updatedOffset,
       updatedOrderId: collisionMapEntry.value.updatedOrderId,
     );
     _childrenMap[draggedHashKey] = updatedDraggedEntity;
 
     setState(() {
-      draggedReorderableEntity = updatedDraggedEntity;
+      _draggedReorderableEntity = updatedDraggedEntity;
     });
   }
 

@@ -45,10 +45,6 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               ChangeChildrenBar(
-                onTapSwap: () {
-                  children.add(keyCounter++);
-                  _handleReorder(0, 1);
-                },
                 onTapAddChild: () {
                   setState(() {
                     // children = children..add(keyCounter++);
@@ -77,6 +73,9 @@ class _MyAppState extends State<MyApp> {
                       children = children;
                     });
                   }
+                },
+                onTapSwap: () {
+                  _handleReorder(1, 2);
                 },
               ),
               DropdownButton<ReorderableType>(

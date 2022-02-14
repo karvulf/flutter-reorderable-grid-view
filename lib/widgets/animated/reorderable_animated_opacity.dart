@@ -4,6 +4,9 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 typedef OnOpacityFinishedCallback = void Function(int keyHashCode);
 
+/// Fading in [child] with an animated opacity.
+///
+/// The fade in is only made when isNew in [reorderableEntity] is true.
 class ReorderableAnimatedOpacity extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
@@ -33,7 +36,6 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   @override
   void initState() {
     super.initState();
-    print('created ${widget.reorderableEntity.child}');
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -66,20 +68,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
     );
   }
 
+  /// Building new animation for [_opacity].
+  ///
+  /// Animation only starts when [hasStartedAnimation] is false or
+  /// when [reorderableEntity] is new.
   void _updateOpacity() {
     var isNew = widget.reorderableEntity.isNew;
 
-    if (hasStartedAnimation || (_opacity.value == 1.0 && !isNew)) {
-      return;
-    }
+    if (hasStartedAnimation || !isNew) return;
+
     _animationController.reset();
     hasStartedAnimation = true;
 
-    var tween = Tween<double>(begin: 1, end: 1);
-
-    if (isNew) {
-      tween = Tween<double>(begin: 0, end: 1);
-    }
+    final tween = Tween<double>(begin: 0, end: 1);
 
     _opacity = tween.animate(_animationController)
       ..addListener(() {

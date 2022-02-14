@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-// Todo: Muss das wirklich zurückgegeben werden?
 typedef OnCreatedFunction = ReorderableEntity? Function(
   ReorderableEntity reorderableEntity,
   GlobalKey key,
@@ -12,6 +11,15 @@ typedef OnDragUpdateFunction = Function(
   DragUpdateDetails details,
 );
 
+/// Enables drag and drop behaviour for [child].
+///
+/// Important methods: [onCreated] and [onBuilding].
+///
+/// [onCreated] is called after widget was built to return [_globalKey]
+/// for calculating position and size.
+///
+/// [onBuilding] is always called if [isBuilding] of [reorderableEntity] is true.
+/// That means, that there was an update in the position, usually a new position.
 class ReorderableDraggable extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final bool enableLongPress;
@@ -21,8 +29,8 @@ class ReorderableDraggable extends StatefulWidget {
 
   final OnCreatedFunction onCreated;
   final OnCreatedFunction onBuilding;
-  final OnDragUpdateFunction onDragUpdate;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
+  final OnDragUpdateFunction onDragUpdate;
   final DragEndCallback onDragEnd;
 
   final ReorderableEntity? draggedReorderableEntity;
@@ -54,7 +62,10 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   /// Holding instance to get direct access of entity when created
   late ReorderableEntity _reorderableEntity;
 
+  /// [GlobalKey] assigned to this widget for getting size and position.
   final _globalKey = GlobalKey();
+
+  /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
     boxShadow: <BoxShadow>[
       BoxShadow(
@@ -141,7 +152,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       return LongPressDraggable(
         delay: widget.longPressDelay,
         onDragUpdate: _handleDragUpdate,
-        onDragStarted: _handleStarted,
+        onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
         childWhenDragging: childWhenDragging,
@@ -150,7 +161,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     } else {
       return Draggable(
         onDragUpdate: _handleDragUpdate,
-        onDragStarted: _handleStarted,
+        onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
         childWhenDragging: childWhenDragging,
@@ -159,6 +170,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     }
   }
 
+  /// Updates [_reorderableEntity] after calling [onCreated].
   void _handleCreated() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       final updatedReorderableEntity = widget.onCreated(
@@ -166,7 +178,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         _globalKey,
       );
 
-      // Todo: prüfen ob man den return wert wirklich braucht
       if (updatedReorderableEntity != null) {
         setState(() {
           _reorderableEntity = updatedReorderableEntity;
@@ -175,6 +186,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     });
   }
 
+  /// Updates [_reorderableEntity] after calling [onBuilding].
   void _handleUpdated() {
     _reorderableEntity = widget.reorderableEntity;
 
@@ -192,16 +204,19 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     }
   }
 
-  void _handleStarted() {
+  /// Called after dragging started.
+  void _handleDragStarted() {
     widget.onDragStarted(_reorderableEntity);
     _controller.forward();
   }
 
+  /// Called every time the position of the dragged child updates.
   void _handleDragUpdate(DragUpdateDetails details) {
     final hashKey = _reorderableEntity.child.key.hashCode;
     widget.onDragUpdate(hashKey, details);
   }
 
+  /// Called after releasing dragged child.
   void _handleDragEnd(DraggableDetails details) {
     _controller.reset();
 
