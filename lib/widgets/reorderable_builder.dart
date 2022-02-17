@@ -161,6 +161,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
 
     for (final reorderableEntity in sortedChildren) {
+      var enableDraggable = widget.enableDraggable;
+
+      if (widget.lockedIndices.contains(reorderableEntity.updatedOrderId)) {
+        enableDraggable = false;
+      }
+
       draggableChildren.add(
         ReorderableAnimatedContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
@@ -173,7 +179,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             draggedReorderableEntity: _draggedReorderableEntity,
             enableLongPress: widget.enableLongPress,
             longPressDelay: widget.longPressDelay,
-            enableDraggable: widget.enableDraggable,
+            enableDraggable: enableDraggable,
             onDragUpdate: _handleDragUpdate,
             onCreated: _handleCreated,
             onBuilding: _handleBuilding,
