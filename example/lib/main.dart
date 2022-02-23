@@ -27,8 +27,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 1;
-  final lockedIndices = <int>[0, 2, 4];
+  static const _startCounter = 20;
+  final lockedIndices = <int>[6, 7, 8];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -74,7 +74,9 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  _handleReorder(1, 2);
+                  _handleReorder([
+                    [1, 2]
+                  ]);
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -108,11 +110,13 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleReorder(int oldIndex, int newIndex) {
-    setState(() {
-      final child = children.removeAt(oldIndex);
-      children.insert(newIndex, child);
-    });
+  void _handleReorder(List<List<int>> onReorderList) {
+    print('onReorderList $onReorderList');
+    for (final reorder in onReorderList) {
+      final child = children.removeAt(reorder[0]);
+      children.insert(reorder[1], child);
+    }
+    setState(() {});
   }
 
   Widget _getReorderableWidget() {
@@ -218,36 +222,5 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
-  }
-}
-
-class ContainerButton extends StatelessWidget {
-  final GestureTapCallback onTap;
-  final IconData icon;
-  final Color color;
-
-  const ContainerButton({
-    required this.onTap,
-    required this.icon,
-    required this.color,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        color: color,
-        height: 50,
-        width: 50,
-        child: Center(
-          child: Icon(
-            icon,
-            size: 20,
-          ),
-        ),
-      ),
-    );
   }
 }

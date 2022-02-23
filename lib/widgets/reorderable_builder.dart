@@ -9,6 +9,8 @@ typedef DraggableBuilder = Widget Function(
   ScrollController scrollController,
 );
 
+typedef ReorderCallback = void Function(List<List<int>>);
+
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 class ReorderableBuilder extends StatefulWidget {
   /// Updating [children] with some widgets to enable animations.
@@ -262,7 +264,34 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
 
     if (oldIndex != newIndex && widget.onReorder != null) {
-      widget.onReorder!(oldIndex, newIndex);
+      final onReorderList = <List<int>>[
+        [oldIndex, newIndex]
+      ];
+
+      final summands = oldIndex > newIndex ? -1 : 1;
+      var currentDraggedOrderId = oldIndex;
+      var currentCollisionOrderId = oldIndex;
+      var hasFoundLockedIndex = false;
+      var notLockedIndicesCounter = 0;
+
+      while (currentCollisionOrderId != newIndex) {
+        currentCollisionOrderId += summands;
+
+        if (!widget.lockedIndices.contains(currentCollisionOrderId)) {
+          if (hasFoundLockedIndex) {
+            onReorderList.add([
+              currentCollisionOrderId - summands,
+              currentDraggedOrderId + notLockedIndicesCounter * summands,
+            ]);
+            currentDraggedOrderId = currentCollisionOrderId;
+            hasFoundLockedIndex = false;
+          }
+          notLockedIndicesCounter++;
+        } else {
+          hasFoundLockedIndex = true;
+        }
+      }
+      widget.onReorder!(onReorderList);
     }
   }
 
@@ -444,7 +473,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var orderId = 0;
     final updatedChildrenMap = <int, ReorderableEntity>{};
     final addedOrRemovedOrderId = _getRemovedOrAddedOrderId();
-    // Todo dupliacted key überprüfung rein
+    // Todo duplicated key überprüfung rein
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
       var sizeHasChanged = false;
