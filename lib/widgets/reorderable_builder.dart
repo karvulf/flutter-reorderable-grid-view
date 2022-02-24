@@ -302,6 +302,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required oldIndex,
     required newIndex,
   }) {
+    if (oldIndex == newIndex) return [];
+
     final orderUpdateEntities = <OrderUpdateEntity>[
       OrderUpdateEntity(oldIndex: oldIndex, newIndex: newIndex),
     ];
