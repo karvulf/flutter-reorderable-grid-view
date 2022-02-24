@@ -75,9 +75,9 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  /* _handleReorder([
-                    [1, 2]
-                  ]);*/
+                  _handleReorder([
+                    const OrderUpdateEntity(oldIndex: 0, newIndex: 2),
+                  ]);
                 },
               ),
               DropdownButton<ReorderableType>(

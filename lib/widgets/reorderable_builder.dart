@@ -532,33 +532,50 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// Updates all children for [_childrenMap].
   ///
-  /// If the length of children was the same, the originalOrderId and
-  /// originalOffset will also be updated to prevent a moving animation.
-  /// This case can happen, e. g. after a drag and drop, when the children
-  /// change theirs position.
+  /// When the child already exists in [_childrenMap], it is checked when the
+  /// size of children has changed.
+  /// If that's the case and the order of that child has changed, that means
+  /// that it has swapped the position with another child and should be animated.
+  ///
+  /// Also it is possible that the child already exists in [_childrenMap], but
+  /// it could has a new position, that is not known inside [_offsetMap].
+  /// In that case isBuilding is true and will notify with the size and offset later.
+  ///
+  /// If the child was totally new, it gets also a flag inside [ReorderableEntity].
+  ///
+  /// At the end [_childrenMap] gets an update containing all [widget.children]
+  /// and theirs new positions.
   void _handleUpdatedChildren() {
     var orderId = 0;
     final updatedChildrenMap = <int, ReorderableEntity>{};
     final addedOrRemovedOrderId = _getRemovedOrAddedOrderId();
+    final checkDuplicatedKeyList = <int>[];
     // Todo duplicated key überprüfung rein
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
-      var sizeHasChanged = false;
+
+      if (!checkDuplicatedKeyList.contains(keyHashCode)) {
+        checkDuplicatedKeyList.add(keyHashCode);
+      } else {
+        throw Exception('Duplicated key $keyHashCode found in children');
+      }
+
+      var childrenSizeHasChanged = false;
       if (addedOrRemovedOrderId != null) {
-        sizeHasChanged = orderId >= addedOrRemovedOrderId;
+        childrenSizeHasChanged = orderId >= addedOrRemovedOrderId;
       }
 
       // check if child already exists
       if (_childrenMap.containsKey(keyHashCode)) {
         final reorderableEntity = _childrenMap[keyHashCode]!;
-        bool hasUpdatedOrder = reorderableEntity.originalOrderId != orderId;
+        final hasUpdatedOrder = reorderableEntity.originalOrderId != orderId;
         final updatedReorderableEntity = reorderableEntity.copyWith(
           child: child,
           updatedOrderId: orderId,
           updatedOffset: _offsetMap[orderId],
           isBuilding: !_offsetMap.containsKey(orderId),
           isNew: false,
-          hasSwappedOrder: hasUpdatedOrder && !sizeHasChanged,
+          hasSwappedOrder: hasUpdatedOrder && !childrenSizeHasChanged,
         );
         updatedChildrenMap[keyHashCode] = updatedReorderableEntity;
       } else {
@@ -577,6 +594,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
+  /// Looking for a child that was added or removed.
+  ///
+  /// When [widget.children] is updated, it is possible that a child was removed
+  /// or added. In that case, this method looks for the removed or added child and
+  /// returns his orderId.
   int? _getRemovedOrAddedOrderId() {
     if (_childrenMap.length < widget.children.length) {
       var orderId = 0;
