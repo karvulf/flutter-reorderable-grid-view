@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
   ScrollController scrollController,
 );
 
-typedef ReorderCallback = void Function(List<List<int>>);
+typedef ReorderCallback = void Function(List<OrderUpdateEntity>);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 class ReorderableBuilder extends StatefulWidget {
@@ -130,6 +131,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
         // rebuild all items
+        // Todo: Logik noch hinzufügen
       }
     });
   }
@@ -157,6 +159,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
   }
 
+  /// Building a list of [widget.children] wrapped with [ReorderableAnimatedContainer].
   List<Widget> _getDraggableChildren() {
     final draggableChildren = <Widget>[];
     final sortedChildren = _childrenMap.values.toList()
@@ -197,6 +200,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return draggableChildren;
   }
 
+  /// Adding [Size] and [Offset] to [reorderableEntity] in [_childrenMap].
+  ///
+  /// When a new child was added to [widget.children], this will be called to
+  /// add necessary information about the size and position.
+  /// Also isBuilding will be set to false.
   ReorderableEntity? _handleCreated(
     ReorderableEntity reorderableEntity,
     GlobalKey key,
@@ -223,6 +231,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return null;
   }
 
+  /// Called immediately when the user starts to drag a child to update current dragged [ReorderableEntity] and scrollPosition.
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     setState(() {
       _draggedReorderableEntity = reorderableEntity;
@@ -230,13 +239,23 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
+  /// Always called when the user moves the dragged child around.
   void _handleDragUpdate(DragUpdateDetails details) {
     _checkForCollisions(details: details);
   }
 
-  /// Updates all children in map when dragging ends.
+  /// Updates orderId and offset of all children in [_childrenMap] and calls [widget.onReorder] at the end.
   ///
-  /// Every updated child gets a new offset and orderId.
+  /// When dragging ends, the original orderId and original offset will be
+  /// overwritten with the updated values to ensure that every child is positioned
+  /// correctly.
+  ///
+  /// After that, it is possible that the moved the child around a locked index
+  /// in [widget.lockedIndices]. To prevent an incorrect order in [widget.children]
+  /// when calling [widget.onReorder], a list is created with all necessary
+  /// position updates for [widget.children].
+  ///
+  /// When the list is created, [widget.onReorder] will be called.
   void _handleDragEnd(DraggableDetails details) {
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
@@ -263,40 +282,74 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       _draggedReorderableEntity = null;
     });
 
-    if (oldIndex != newIndex && widget.onReorder != null) {
-      final onReorderList = <List<int>>[
-        [oldIndex, newIndex]
-      ];
+    final orderUpdateEntities = _getOrderUpdateEntities(
+      oldIndex: oldIndex,
+      newIndex: newIndex,
+    );
+    widget.onReorder!(orderUpdateEntities);
+  }
 
-      final summands = oldIndex > newIndex ? -1 : 1;
-      var currentDraggedOrderId = oldIndex;
-      var currentCollisionOrderId = oldIndex;
-      var hasFoundLockedIndex = false;
-      var notLockedIndicesCounter = 0;
+  /// Returns a list of all updated positions containing old and new index.
+  ///
+  /// This method is a special case because of [widget.lockedIndices]. To ensure
+  /// that the user reorder [widget.children] correctly, it has to be checked
+  /// if there a locked indices between [oldIndex] and [newIndex].
+  /// If that's the case, then at least one more [OrderUpdateEntity] will be
+  /// added to that list.
+  ///
+  /// Todo: Berechnung muss erklärt werden
+  List<OrderUpdateEntity> _getOrderUpdateEntities({
+    required oldIndex,
+    required newIndex,
+  }) {
+    final orderUpdateEntities = <OrderUpdateEntity>[
+      OrderUpdateEntity(oldIndex: oldIndex, newIndex: newIndex),
+    ];
 
-      while (currentCollisionOrderId != newIndex) {
-        currentCollisionOrderId += summands;
+    // depends if ordering back or forwards
+    final summands = oldIndex > newIndex ? -1 : 1;
+    // when a locked index was found, this id will be updated to the index after the locked index
+    var currentDraggedOrderId = oldIndex;
+    // counting the id upwards or downwards until newIndex was reached
+    var currentCollisionOrderId = oldIndex;
 
-        if (!widget.lockedIndices.contains(currentCollisionOrderId)) {
-          if (hasFoundLockedIndex) {
-            onReorderList.add([
-              currentCollisionOrderId - summands,
-              currentDraggedOrderId + notLockedIndicesCounter * summands,
-            ]);
-            currentDraggedOrderId = currentCollisionOrderId;
-            hasFoundLockedIndex = false;
-          }
-          notLockedIndicesCounter++;
-        } else {
-          hasFoundLockedIndex = true;
+    var hasFoundLockedIndex = false;
+    // important counter to get a correct value for newIndex when there were multiple not locked indices before a locked index
+    var notLockedIndicesCounter = 0;
+
+    // counting currentCollisionOrderId = oldIndex until newIndex
+    while (currentCollisionOrderId != newIndex) {
+      currentCollisionOrderId += summands;
+
+      if (!widget.lockedIndices.contains(currentCollisionOrderId)) {
+        // if there was one or more locked indices, then a new OrderUpdateEntity has to be added
+        // this prevents wrong ordering values when calling onReorder
+        if (hasFoundLockedIndex) {
+          orderUpdateEntities.add(
+            OrderUpdateEntity(
+              oldIndex: currentCollisionOrderId - summands,
+              newIndex:
+                  currentDraggedOrderId + notLockedIndicesCounter * summands,
+            ),
+          );
+          currentDraggedOrderId = currentCollisionOrderId;
+          hasFoundLockedIndex = false;
         }
+        notLockedIndicesCounter++;
+      } else {
+        hasFoundLockedIndex = true;
       }
-      widget.onReorder!(onReorderList);
     }
+
+    return orderUpdateEntities;
   }
 
   /// some more logical functions
 
+  /// Looking for any children that collision with the information in [details].
+  ///
+  /// When a collision was detected, it is possible that one or more children
+  /// were between that collision and the dragged child.
   void _checkForCollisions({
     required DragUpdateDetails details,
   }) {
@@ -338,6 +391,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
   }
 
+  /// Updates all children that were between the collision and dragged child position.
   void _updateMultipleCollisions({
     required int draggedHashKey,
     required int collisionOrderId,
@@ -361,6 +415,15 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
   }
 
+  /// Swapping position and offset between dragged child and collision child.
+  ///
+  /// The collision is only valid when the orderId of the child is not found in
+  /// [widget.lockedIndices].
+  ///
+  /// When a collision was detected, then the collision child and dragged child
+  /// are swapping the position and orderId. At that moment, only the value
+  /// updatedOrderId and updatedOffset of [ReorderableEntity] will be updated
+  /// to ensure that an animation will be shown.
   void _updateCollision({
     required int draggedHashKey,
     required MapEntry<int, ReorderableEntity> collisionMapEntry,
@@ -389,6 +452,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
+  /// Checking if the dragged child collision with another child in [_childrenMap].
   MapEntry<int, ReorderableEntity>? _getCollisionMapEntry({
     required int draggedHashKey,
     required Offset draggedOffset,
@@ -416,12 +480,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// There are two possibilities to get the scroll position.
   ///
-  /// First one is, that the built child is scrollable.
-  /// In this case, it is important, the [_scrollController] is added
-  /// to the scrollable child.
+  /// First one is, the returned child of [widget.builder] has a scrollable widget.
+  /// In this case, it is important that the [_scrollController] is added
+  /// to the scrollable widget to get the current scroll position.
   ///
   /// Another possibility is that one of the parents is scrollable.
   /// In that case, the position of the scroll is accessible inside [context].
+  ///
+  /// Otherwise, 0.0 will be returned.
   double get _scrollPixels {
     var pixels = Scrollable.of(context)?.position.pixels;
     if (pixels != null) {
@@ -441,7 +507,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// If the renderBox for [key] and [_contentGlobalKey] was found,
   /// the offset for [key] inside the renderBox of [_contentGlobalKey]
-  /// is calculated.
+  /// is calculated. The current scroll position of dy of offset is always
+  /// added to return a relative position.
   Offset? _getOffset({
     required int orderId,
     required RenderBox? renderBox,

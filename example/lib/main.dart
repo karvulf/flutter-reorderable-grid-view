@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -28,7 +29,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 20;
-  final lockedIndices = <int>[6, 7, 8];
+  final lockedIndices = <int>[0];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -74,9 +75,9 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  _handleReorder([
+                  /* _handleReorder([
                     [1, 2]
-                  ]);
+                  ]);*/
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -110,11 +111,10 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleReorder(List<List<int>> onReorderList) {
-    print('onReorderList $onReorderList');
+  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
     for (final reorder in onReorderList) {
-      final child = children.removeAt(reorder[0]);
-      children.insert(reorder[1], child);
+      final child = children.removeAt(reorder.oldIndex);
+      children.insert(reorder.newIndex, child);
     }
     setState(() {});
   }
