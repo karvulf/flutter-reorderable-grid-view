@@ -1,3 +1,17 @@
+## 2.0.0-dev.5
+* last release candidate! (if there aren't some critical bugs)
+* this release includes a change for the function `onReorder`
+  * the function gives always a list of entities containing the old and new index for children
+  * this case had to be done to ensure correct animations when there are locked children (`lockedIndices`)
+  * see more on the example app in `main.dart`
+* multiple other bugs were solved when changing positions or adding/removing children
+* added more commentaries to classes
+* Before publishing the official `2.0.0`, the following things will be done:
+  * Unit and Widget tests
+  * some more refactoring, also in favor of making the testing easier
+  * Refactoring example app
+  * ReadMe gets a whole new update
+
 ## 2.0.0-dev.4
 * Removed `AnimatedGridViewBuilder` and `AnimatedReorderableBuilder` because there were some problems splitting the logic for animation while dragging and adding/removing items
 * `ReorderableBuilder` is making all the animation

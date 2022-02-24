@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -12,7 +13,6 @@ enum ReorderableType {
 
 // Todo:
 // - Rotieren: alle Positionen neu berechnen
-// - Flackern vom letzten neuen Item wegkriegen
 // - Tests schreiben
 // - mehr dokumentieren
 // - read me schöner machen und verständlicher
@@ -28,8 +28,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 1;
-  final lockedIndices = <int>[];
+  static const _startCounter = 20;
+  final lockedIndices = <int>[0];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -45,10 +45,6 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             children: [
               ChangeChildrenBar(
-                onTapSwap: () {
-                  children.add(keyCounter++);
-                  _handleReorder(0, 1);
-                },
                 onTapAddChild: () {
                   setState(() {
                     // children = children..add(keyCounter++);
@@ -77,6 +73,11 @@ class _MyAppState extends State<MyApp> {
                       children = children;
                     });
                   }
+                },
+                onTapSwap: () {
+                  _handleReorder([
+                    const OrderUpdateEntity(oldIndex: 0, newIndex: 2),
+                  ]);
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -110,11 +111,12 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleReorder(int oldIndex, int newIndex) {
-    setState(() {
-      final child = children.removeAt(oldIndex);
-      children.insert(newIndex, child);
-    });
+  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
+    for (final reorder in onReorderList) {
+      final child = children.removeAt(reorder.oldIndex);
+      children.insert(reorder.newIndex, child);
+    }
+    setState(() {});
   }
 
   Widget _getReorderableWidget() {
@@ -220,36 +222,5 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
-  }
-}
-
-class ContainerButton extends StatelessWidget {
-  final GestureTapCallback onTap;
-  final IconData icon;
-  final Color color;
-
-  const ContainerButton({
-    required this.onTap,
-    required this.icon,
-    required this.color,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        color: color,
-        height: 50,
-        width: 50,
-        child: Center(
-          child: Icon(
-            icon,
-            size: 20,
-          ),
-        ),
-      ),
-    );
   }
 }
