@@ -131,7 +131,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       final orientationAfter = MediaQuery.of(context).orientation;
       if (orientationBefore != orientationAfter) {
         // rebuild all items
-        // Todo: Logik noch hinzufügen
+        for (final entry in _childrenMap.entries) {
+          _childrenMap[entry.key] = entry.value.copyWith(isBuilding: true);
+        }
+        setState(() {});
       }
     });
   }
@@ -711,6 +714,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       // updating existing
       final updatedReorderableEntity = reorderableEntity.copyWith(
         updatedOffset: offset,
+        size: renderBox?.size,
         isBuilding: false,
       );
       final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
