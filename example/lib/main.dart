@@ -18,71 +18,190 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  final fruits = <String>[
-    "apple",
-    "banana",
-    "orange",
-    "strawberry",
-  ];
+  static const _startCounter = 2;
+  final lockedIndices = <int>[];
+
+  int keyCounter = _startCounter;
+  List<int> children = List.generate(_startCounter, (index) => index);
+  ReorderableType reorderableType = ReorderableType.gridViewCount;
 
   @override
   Widget build(BuildContext context) {
-    final generatedChildren = List.generate(
-      fruits.length,
-      (index) => Container(
-        height: 50,
-        width: 50,
-        alignment: Alignment.center,
-        key: Key(fruits.elementAt(index)),
-        color: Colors.lightBlue,
-        child: Text(
-          fruits.elementAt(index),
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-
     return Scaffold(
+      backgroundColor: Colors.white70,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
           child: Column(
             children: [
-              IconButton(
-                onPressed: () {
-                  fruits.removeAt(0);
-                  setState(() {});
+              ChangeChildrenBar(
+                onTapAddChild: () {
+                  setState(() {
+                    // children = children..add(keyCounter++);
+                    children.insert(0, keyCounter++);
+                  });
                 },
-                icon: Icon(Icons.remove),
+                onTapRemoveChild: () {
+                  if (children.isNotEmpty) {
+                    setState(() {
+                      // children = children..removeLast();
+                      children.removeAt(0);
+                    });
+                  }
+                },
+                onTapClear: () {
+                  if (children.isNotEmpty) {
+                    setState(() {
+                      children = <int>[];
+                    });
+                  }
+                },
+                onTapUpdateChild: () {
+                  if (children.isNotEmpty) {
+                    children[0] = 999;
+                    setState(() {
+                      children = children;
+                    });
+                  }
+                },
+                onTapSwap: () {
+                  _handleReorder([
+                    const OrderUpdateEntity(oldIndex: 0, newIndex: 2),
+                  ]);
+                },
               ),
-              Expanded(
-                child: ReorderableBuilder(
-                  children: generatedChildren,
-                  onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
-                    for (final orderUpdateEntity in orderUpdateEntities) {
-                      final fruit = fruits.removeAt(orderUpdateEntity.oldIndex);
-                      fruits.insert(orderUpdateEntity.newIndex, fruit);
-                    }
-                  },
-                  builder: (children, scrollController) {
-                    return GridView.extent(
-                      controller: scrollController,
-                      children: children,
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 4,
-                      maxCrossAxisExtent: 100,
-                    );
-                  },
+              DropdownButton<ReorderableType>(
+                value: reorderableType,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                itemHeight: 60,
+                underline: Container(
+                  height: 2,
+                  color: Colors.white,
                 ),
+                onChanged: (ReorderableType? reorderableType) {
+                  setState(() {
+                    this.reorderableType = reorderableType!;
+                  });
+                },
+                items: ReorderableType.values.map((e) {
+                  return DropdownMenuItem<ReorderableType>(
+                    value: e,
+                    child: Text(e.toString()),
+                  );
+                }).toList(),
               ),
+              const SizedBox(height: 20),
+              Expanded(child: _getReorderableWidget()),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
+    for (final reorder in onReorderList) {
+      final child = children.removeAt(reorder.oldIndex);
+      children.insert(reorder.newIndex, child);
+    }
+    setState(() {});
+  }
+
+  Widget _getReorderableWidget() {
+    final generatedChildren = List<Widget>.generate(
+      children.length,
+      (index) => Container(
+        key: Key(children[index].toString()),
+        decoration: BoxDecoration(
+          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+        ),
+        height: 100.0,
+        width: 100.0,
+        child: Center(
+          child: Text(
+            'test ${children[index]}',
+            style: const TextStyle(),
+          ),
+        ),
+      ),
+    );
+
+    switch (reorderableType) {
+      case ReorderableType.gridView:
+        return ReorderableBuilder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          builder: (children, scrollController) {
+            return GridView(
+              controller: scrollController,
+              children: children,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
+        );
+
+      case ReorderableType.gridViewCount:
+        return ReorderableBuilder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          builder: (children, scrollController) {
+            return GridView.count(
+              controller: scrollController,
+              key: const Key('count'),
+              children: children,
+              crossAxisCount: 3,
+            );
+          },
+        );
+
+      case ReorderableType.gridViewExtent:
+        return ReorderableBuilder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          builder: (children, scrollController) {
+            return GridView.extent(
+              controller: scrollController,
+              key: const Key('extent'),
+              children: children,
+              maxCrossAxisExtent: 200,
+            );
+          },
+        );
+
+      case ReorderableType.gridViewBuilder:
+        return ReorderableBuilder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          builder: (children, scrollController) {
+            return GridView.builder(
+              key: const Key('builder'),
+              controller: scrollController,
+              itemCount: children.length,
+              itemBuilder: (context, index) {
+                return children[index];
+              },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 8,
+              ),
+            );
+          },
+        );
+    }
   }
 }
