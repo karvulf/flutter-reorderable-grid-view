@@ -1,3 +1,11 @@
+## 2.0.0
+* Official Release of 2.0.0
+* There are breaking changes in this release:
+  * Currently I don't support the widget `Wrap`
+  * I removed all custom widgets for `GridView`
+    * instead you can use `ReorderableBuilder` as a Wrapper for all `GridView` of Flutter
+    * See more on Getting Started or the example app
+
 ## 2.0.0-dev.5
 * last release candidate! (if there aren't some critical bugs)
 * this release includes a change for the function `onReorder`
