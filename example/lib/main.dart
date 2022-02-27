@@ -12,9 +12,7 @@ enum ReorderableType {
 }
 
 // Todo:
-// - Rotieren: alle Positionen neu berechnen
 // - Tests schreiben
-// - mehr dokumentieren
 // - read me schöner machen und verständlicher
 void main() {
   runApp(const MaterialApp(home: MyApp()));

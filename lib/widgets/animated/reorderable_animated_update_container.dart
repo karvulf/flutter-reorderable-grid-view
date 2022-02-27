@@ -38,7 +38,7 @@ class _ReorderableAnimatedUpdatedContainerState
 
   late Animation<Offset> _animationOffset;
 
-  /// Makes the [child] univisble.
+  /// Makes the [child] unvisible.
   ///
   /// Used when the position [child] is not known to prevent flickering
   /// on the new position while animating.

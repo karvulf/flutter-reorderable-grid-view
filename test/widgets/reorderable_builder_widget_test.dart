@@ -79,6 +79,37 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN 2 children and [GridView] '
+        'WHEN changing orientation '
+        'THEN should still display all widgets', (WidgetTester tester) async {
+      // given
+      // rotate to portrait
+      tester.binding.window.physicalSizeTestValue = const Size(400, 1600);
+      tester.binding.window.devicePixelRatioTestValue = 1;
+
+      final givenChildren = _generateChildren(length: 2);
+      await pumpWidgetWithGridView(tester, children: givenChildren);
+
+      // when
+      // rotate to landscape
+      tester.binding.window.physicalSizeTestValue = const Size(1600, 400);
+      tester.binding.window.devicePixelRatioTestValue = 1;
+
+      await tester.pumpAndSettle();
+
+      // then
+      expect(find.byType(ReorderableAnimatedContainer),
+          findsNWidgets(givenChildren.length));
+      expect(_findReorderableAnimatedContainer(key: givenChildren[0].key),
+          findsOneWidget);
+      expect(_findReorderableAnimatedContainer(key: givenChildren[1].key),
+          findsOneWidget);
+
+      tester.binding.window.clearAllTestValues();
+      tester.binding.window.clearDevicePixelRatioTestValue();
+    });
+
+    testWidgets(
         'GIVEN 2 children with same keys and [GridView] '
         'WHEN pumping [ReorderableBuilder] '
         'THEN should throw assertion error', (WidgetTester tester) async {
