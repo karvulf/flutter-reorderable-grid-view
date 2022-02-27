@@ -624,7 +624,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final updatedChildrenMap = <int, ReorderableEntity>{};
     final addedOrRemovedOrderId = _getRemovedOrAddedOrderId();
     final checkDuplicatedKeyList = <int>[];
-    // Todo duplicated key überprüfung rein
+
     for (final child in widget.children) {
       final keyHashCode = child.key.hashCode;
 

@@ -4,16 +4,12 @@ import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
-  wrap,
   gridView,
   gridViewCount,
   gridViewExtent,
   gridViewBuilder,
 }
 
-// Todo:
-// - Tests schreiben
-// - read me schöner machen und verständlicher
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }
@@ -137,19 +133,6 @@ class _MyAppState extends State<MyApp> {
     );
 
     switch (reorderableType) {
-      case ReorderableType.wrap:
-        return ReorderableBuilder(
-          children: generatedChildren,
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          builder: (children, _) {
-            return Wrap(
-              key: const Key('wrap'),
-              children: children,
-            );
-          },
-        );
-
       case ReorderableType.gridView:
         return ReorderableBuilder(
           children: generatedChildren,

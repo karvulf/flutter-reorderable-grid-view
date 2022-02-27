@@ -2,17 +2,18 @@
 ![Codecov](https://img.shields.io/codecov/c/gh/karvulf/flutter-reorderable-grid-view?style=flat-square)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/karvulf/flutter-reorderable-grid-view/master?style=flat-square)
 
-Package for having animated Drag and Drop functionality for every type of `GridView` and `Wrap`.
-
-Also you have the option to have an animation, when adding or removing children inside your `GridView`.
+Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
 
 
 ## Features
 
 Use this package in your Flutter App to:
 
+- get the functionality for an animated drag and drop in all type of `GridView`
+- have animations when updating, adding or removing children
 
 ## Getting started
+
 
 
 ## Usage
