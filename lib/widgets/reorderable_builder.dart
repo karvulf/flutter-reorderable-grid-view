@@ -10,7 +10,7 @@ typedef DraggableBuilder = Widget Function(
   ScrollController scrollController,
 );
 
-typedef ReorderCallback = void Function(List<OrderUpdateEntity>);
+typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 class ReorderableBuilder extends StatefulWidget {
@@ -48,7 +48,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// After releasing the dragged child, [onReorder] is called.
   ///
   /// [enableDraggable] has to be true to ensure this is called.
-  final ReorderCallback? onReorder;
+  final ReorderListCallback? onReorder;
 
   const ReorderableBuilder({
     required this.children,
@@ -297,7 +297,76 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// If that's the case, then at least one more [OrderUpdateEntity] will be
   /// added to that list.
   ///
-  /// Todo: Berechnung muss erklärt werden
+  /// There are two ways when reordering. The order could have changed upwards or
+  /// downwards. So if the variable summands is positive, that means the order
+  /// changed upwards, e.g. the item was moved from order 0 (=oldIndex) to 4 (=newIndex).
+  ///
+  /// For every time in this ordering sequence, when a locked index was found,
+  /// a new [OrderUpdateEntity] will be added to the returned list. This is
+  /// important to reorder all items correctly afterwards.
+  ///
+  /// E.g. when the oldIndex was 0, the newIndex is 4 and index 2 is locked, then
+  /// at least there are two [OrderUpdateEntity] in the list.
+  ///
+  /// The first one contains always the old and new index. The second one is added
+  /// after the locked index.
+  ///
+  /// So if the oldIndex was 0 and the new index 4, and the locked index is 2,
+  /// then the draggedOrderId would be 0. It will be updated after the locked index.
+  /// The current collisionId is always the current orderId in the while loop.
+  /// After looping through the old index until index 3, then a new [OrderUpdateEntity]
+  /// is created. The old index would be the current collisionId with the summands.
+  /// Because the summands can be -1 or 1, this calculation works in both directions.
+  ///
+  /// That means that the oldIndex is 2.
+  ///
+  /// The newIndex is the current draggedOrderId (= 0) with a notLockedIndicesCounter
+  /// multiplied the summands.
+  ///
+  /// The notLockedIndicesCounter is the number of indices that were before the
+  /// locked index. In this case, there are two of them: the index 0 and 1.
+  /// So notLockedIndicesCounter would be 1 because the counting starts at index 1
+  /// and goes on until 4.
+  ///
+  /// That results with a new index value of 1.
+  ///
+  /// So the list with two entities will be returend. The first one with
+  /// (0, 4) and (2, 1).
+  ///
+  /// When the user has the following list items:
+  /// ```dart
+  /// final listItems = [0, 1, 2, 3, 4]
+  /// ```
+  /// with a locked index at 2.
+  /// When reordering, the user has to iterate through the two items, that would
+  /// results in the following code:
+  ///
+  /// ```dart
+  /// for(final orderUpdateEntity in orderUpdateEntities) {
+  ///   final item = listItems.removeAt(orderUpdateEntity.oldIndex);
+  ///   listItems.insertAt(4, orderUpdateEntity.newIndex);
+  /// }
+  /// ```
+  /// To explain what is happening in this loop:
+  ///
+  /// The first [OrderUpdateEntity] would order the list to the following list,
+  /// when removing at the old index 0 and inserting at new index 4:
+  ///
+  /// ```dart
+  /// [0, 1, 2, 3, 4] -> [1, 2, 3, 4, 0].
+  /// ```
+  ///
+  /// Because the item at index 2 is locked, the number 2 shouldn't change the
+  /// position. This is the reason, why there are more than one entity in the list
+  /// when having a lockedIndex.
+  ///
+  /// The second [OrderUpdateEntity] has the oldIndex 2 and newIndex 1:
+  ///
+  /// ```dart
+  /// [1, 2, 3, 4, 0] -> [1, 3, 2, 4, 0].
+  /// ```
+  ///
+  /// Now the ordering is correct. The number 2 is still at the locked index 2.
   List<OrderUpdateEntity> _getOrderUpdateEntities({
     required oldIndex,
     required newIndex,
@@ -336,8 +405,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           );
           currentDraggedOrderId = currentCollisionOrderId;
           hasFoundLockedIndex = false;
+          notLockedIndicesCounter = 0;
+        } else {
+          notLockedIndicesCounter++;
         }
-        notLockedIndicesCounter++;
       } else {
         hasFoundLockedIndex = true;
       }
@@ -345,8 +416,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     return orderUpdateEntities;
   }
-
-  /// some more logical functions
 
   /// Looking for any children that collision with the information in [details].
   ///

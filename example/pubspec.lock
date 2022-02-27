@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   fake_async:
     dependency: transitive
     description:
@@ -75,7 +82,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.0-dev.4"
+    version: "2.0.0-dev.5"
   flutter_test:
     dependency: "direct dev"
     description: flutter
