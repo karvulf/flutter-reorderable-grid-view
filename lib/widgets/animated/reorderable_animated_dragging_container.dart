@@ -41,8 +41,8 @@ class ReorderableAnimatedDraggingContainer extends StatelessWidget {
     final originalOffset = reorderableEntity.originalOffset;
     final updatedOffset = reorderableEntity.updatedOffset;
 
-    final diff = originalOffset - updatedOffset;
+    final diff = updatedOffset - originalOffset;
 
-    return Matrix4.translationValues(-diff.dx, -diff.dy, 0);
+    return Matrix4.translationValues(diff.dx, diff.dy, 0);
   }
 }

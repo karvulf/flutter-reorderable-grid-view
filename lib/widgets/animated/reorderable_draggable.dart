@@ -122,6 +122,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     );
 
     final feedback = Material(
+      color: Colors.transparent, // removes white corners when having shadow
       child: SizedBox(
         height: _reorderableEntity.size.height,
         width: _reorderableEntity.size.width,
