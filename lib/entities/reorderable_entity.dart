@@ -1,36 +1,85 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/entities/grid_item_entity.dart';
 
+/// Represents [child] with some extra information.
+///
+/// When animating all children in this package, this entity is important
+/// to have access to all needed values of [child].
+///
+/// With this entity, it is possible to know where the [child] is
+/// positioned and which order that [child] has inside all children.
+///
+/// Also the current state of [child] is added as information: [isBuilding],
+/// [isNew] and [hasSwappedOrder].
 class ReorderableEntity {
-  List<Widget> children;
-  Map<int, GridItemEntity> idMap;
+  /// Represents this entity
+  final Widget child;
 
-  // don't use const to ensure that map and list is modifiable
-  ReorderableEntity({
-    required this.children,
-    required this.idMap,
+  /// Describes [size] of [child].
+  final Size size;
+
+  /// Describes the original orderId before it was updated.
+  final int originalOrderId;
+
+  /// Describes the updated orderId when it was updated.
+  final int updatedOrderId;
+
+  /// Describes the original [Offset] before it was updated.
+  final Offset originalOffset;
+
+  /// Describes the updated [Offset] when it was updated.
+  final Offset updatedOffset;
+
+  /// Usually means that the [child] has a new position that is still unknown.
+  ///
+  /// If [isBuilding] is true, then it is possible, that the [Offset] and
+  /// orderId will be updated.
+  final bool isBuilding;
+
+  /// The [Offset] can already be known but this is still a flag to know, that [child] didn't exist before.
+  final bool isNew;
+
+  /// Is true, when this [child] only changed the position with another child.
+  ///
+  /// This is only true, when the changed position has nothing to do with
+  /// another added or removed child.
+  final bool hasSwappedOrder;
+
+  const ReorderableEntity({
+    required this.child,
+    required this.originalOrderId,
+    required this.updatedOrderId,
+    required this.isBuilding,
+    this.originalOffset = Offset.zero,
+    this.updatedOffset = Offset.zero,
+    this.size = Size.zero,
+    this.isNew = false,
+    this.hasSwappedOrder = false,
   });
 
-  factory ReorderableEntity.create() => ReorderableEntity(
-        children: [],
-        idMap: {},
-      );
-
+  /// Overrides all parameters of this entity and returns the updated [ReorderableEntity].
   ReorderableEntity copyWith({
-    List<Widget>? children,
-    Map<int, GridItemEntity>? idMap,
+    Offset? originalOffset,
+    Offset? updatedOffset,
+    Widget? child,
+    Size? size,
+    int? originalOrderId,
+    int? updatedOrderId,
+    bool? isBuilding,
+    bool? isNew,
+    bool? hasSwappedOrder,
   }) =>
       ReorderableEntity(
-        children: children ?? this.children,
-        idMap: idMap ?? this.idMap,
+        size: size ?? this.size,
+        originalOffset: originalOffset ?? this.originalOffset,
+        updatedOffset: updatedOffset ?? this.updatedOffset,
+        child: child ?? this.child,
+        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
+        originalOrderId: originalOrderId ?? this.originalOrderId,
+        isBuilding: isBuilding ?? this.isBuilding,
+        isNew: isNew ?? this.isNew,
+        hasSwappedOrder: hasSwappedOrder ?? this.hasSwappedOrder,
       );
 
-  void clear() {
-    children.clear();
-    idMap.clear();
-  }
-
-  void addEntry(MapEntry<int, GridItemEntity> entry) {
-    idMap[entry.key] = entry.value;
-  }
+  /// Getting faster access to the hashCode of the child's key.
+  int get keyHashCode => child.key.hashCode;
 }

@@ -2,127 +2,124 @@
 ![Codecov](https://img.shields.io/codecov/c/gh/karvulf/flutter-reorderable-grid-view?style=flat-square)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/karvulf/flutter-reorderable-grid-view/master?style=flat-square)
 
-A GridView and Wrap whose items the user can interactively reorder by dragging.
-
-Animated Reordering with different type of widgets: GridView and Wrap.
-
 <p>
-  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview_ios.gif?raw=true"
+  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_drag_and_drop.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview2_ios.gif?raw=true"
+<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_add.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview3_ios.gif?raw=true"
+<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_remove.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/flutter_reordable_grid_view_preview4_ios.gif?raw=true"
+<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_swap.gif?raw=true"
 alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 </p>
+
+Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
+
 
 ## Features
 
 Use this package in your Flutter App to:
 
-- Enable a reordering logic with different widgets
-- Simplified widget for Wrap and GridView
-- Works with all kind of widgets that are rendered inside
-- Animated when reordering items
-- Locking all items you don't want to move
-- Animation added for removed or added children
-- Tested workflows like updating children or changing orientation
+- get the functionality for an animated drag and drop in all type of `GridView`
+- have animations when updating, adding or removing children
 
 ## Getting started
 
-Simply add `ReordableWrap` or `ReorderableGridView` to your preferred Widget and specify a list of children.
-
-## Usage
-
 ```dart
-import 'package:flutter_reorderable_grid_view/reorderable_grid_view.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final fruits = <String>["apple", "banana", "strawberry"];
 
   @override
   Widget build(BuildContext context) {
-    final children = List.generate(
-      20,
-          (index) =>
-          Container(
-            key: Key(index.toString()),
-            color: Colors.blue,
-            height: 100,
-            width: 100,
-            child: Text(
-              'test $index',
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-          ),
-    );
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ReorderableWrap(
-            onReorder: (int oldIndex, int newIndex) {
-              // update your list of children when reordering!
-            },
-            children: children,
-          ),
+    final generatedChildren = List.generate(
+      fruits.length,
+      (index) => Container(
+        key: Key(fruits.elementAt(index)),
+        color: Colors.lightBlue,
+        child: Text(
+          fruits.elementAt(index),
         ),
+      ),
+    );
+
+    return Scaffold(
+      body: ReorderableBuilder(
+        children: generatedChildren,
+        onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
+          for (final orderUpdateEntity in orderUpdateEntities) {
+            final fruit = fruits.removeAt(orderUpdateEntity.oldIndex);
+            fruits.insert(orderUpdateEntity.newIndex, fruit);
+          }
+        },
+        builder: (children, scrollController) {
+          return GridView(
+            controller: scrollController,
+            children: children,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 8,
+            ),
+          );
+        },
       ),
     );
   }
 }
 ```
 
-To see more examples, just start the Example App and use the DropDown to test all type of widgets.
+## Usage
+`ReorderableBuilder` has two main functionalities: **Drag and Drop** and **Animations**.
+
+For using this widget, you have to wrap `ReorderableBuilder` to your `GridView` (see more on Getting Started).
+
+Every child has to have a unique key.
+
+Also be sure to make where you have the scrolling behavior. If your `GridView` has the functionality to scroll, you should add the `ScrollController` from `ReorderableBuilder` to your `GridView`.
+
+###Drag and Drop
+The functionality for drag and drop is enabled by default. You have to use `onReorder` to prevent a weird behavior after releasing the dragged child.
+
+###Animations
+There are different animations:
+- when drag and drop, all position changes are animated
+- when adding, removing or updating a child (e.g. you swap two positions), there is also an animation for that behavior
 
 ### Supported Widgets
 
-* `ReorderableWrap`
-* `ReorderableGridView`
-* `ReorderableGridView.count`
-* `ReorderableGridView.extent`
-
-## Additional information
-
-`ReorderableWrap` and `ReorderableGridView` are just an extension of the known widgets `Wrap` and `GridView`.
-
-The extension includes the functionality to reorder their items.
-
-Be careful that you don't forget to reorder your children when you reorder your items to prevent weird bugs. Also you
-have to add a unique key for every child in your list.
-
-In the following description you get information about the new parameters.
-
-More information about the parameters of `GridView` and `Wrap` are on the flutter documentation.
+* GridViews
+    * `GridView`
+    * `GridView.count`
+    * `GridView.extent`
+    * `GridView.builder`
 
 ### Parameters
 
 | **Parameter** | **Description** | **Default Value** |
 | :------------- | :------------- | :-------------: |
-| `children` | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child. | **-** |
-| `lockedChildren` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **<int>[]** |
-| `enableAnimation` | Enables the animation when changing the positions of childrens after drag and drop. | **true** |
+| `children` | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child. |**-** |
+| `lockedIndices` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **<int>[]** |
 | `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
-| `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. | **-** |
-| `onReorder` | After dragging an item to a new position, this function is called.<br/> The function contains always the old and new index. Be sure to update your children after that. See more on examples.| **-** |
-| `enableReorder` | Enables the functionality to reorder the children.| **true** |
+| `enableDraggable` | Enables the drag and drop functionality. | **true** |
+| `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. |**-** |
+| `onReorder` | Called after drag and drop was released. Contains a list of `OrderUpdateEntity` that has information about the old and new index. See more on the example `main.dart`|**-** |
+| `builder` | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.|**-** |
 
 ## Future Plans
 
-Currently, I didn't implement all types of GridView.
-
-Also there is an animation when removing or adding items but currently you cannot decide your preferred animation.
-
-And the code could be more readable and less complex, so in the future I might refactor the code a bit more.
+With the Update `2.0.0`, I totally changed the logic for having a drag and drop functionality. So it is possible, that there are still some problems, so let me know it if you find them.
 
 If you have feature **requests** or found some **issues**, feel free and open your issues in the GitHub project.
 
