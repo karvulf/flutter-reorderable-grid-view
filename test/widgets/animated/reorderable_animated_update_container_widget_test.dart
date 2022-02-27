@@ -95,7 +95,7 @@ void main() {
 
     // when
     await tester.tap(find.byType(TextButton));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // then
     expect(
