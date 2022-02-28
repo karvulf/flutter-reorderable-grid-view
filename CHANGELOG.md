@@ -1,3 +1,6 @@
+## 2.0.2
+* Downgraded Dart-version from `2.16.1` to `2.16.0`
+
 ## 2.0.2-dev.2
 * second try to solve dependency issue
 

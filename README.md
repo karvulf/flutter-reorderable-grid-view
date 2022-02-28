@@ -16,14 +16,14 @@ alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
 
 ## Index
-- [Overview](#Overview)
-- [Getting Started](#Getting started)
-- [Usage](#Usage)
-  - [Drag and Drop](#Drag and Drop)
-  - [Animations](#Animations)
-- [Supported Widgets](#Supported Widgets)
-- [Parameters](#Parameters)
-- [Future Plans](#Future Plans)
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+  - [Drag and Drop](#drag-and-drop)
+  - [Animations](#animations)
+- [Supported Widgets](#supported-widgets)
+- [Parameters](#parameters)
+- [Future Plans](#future-plans)
 
 
 ## Overview
