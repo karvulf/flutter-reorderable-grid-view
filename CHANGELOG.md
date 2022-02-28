@@ -1,3 +1,6 @@
+## 2.0.2-dev.1
+* trying to solve dependency problem
+
 ## 2.0.1
 * updated pubspec
 
