@@ -1,3 +1,12 @@
+## 2.0.2
+* Downgraded Dart-version from `2.16.1` to `2.16.0`
+
+## 2.0.2-dev.2
+* second try to solve dependency issue
+
+## 2.0.2-dev.1
+* trying to solve dependency problem
+
 ## 2.0.1
 * updated pubspec
 

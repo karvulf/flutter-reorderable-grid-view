@@ -15,8 +15,18 @@ alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 
 Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
 
+## Index
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+  - [Drag and Drop](#drag-and-drop)
+  - [Animations](#animations)
+- [Supported Widgets](#supported-widgets)
+- [Parameters](#parameters)
+- [Future Plans](#future-plans)
 
-## Features
+
+## Overview
 
 Use this package in your Flutter App to:
 
@@ -88,10 +98,10 @@ Every child has to have a unique key.
 
 Also be sure to make where you have the scrolling behavior. If your `GridView` has the functionality to scroll, you should add the `ScrollController` from `ReorderableBuilder` to your `GridView`.
 
-###Drag and Drop
+### Drag and Drop
 The functionality for drag and drop is enabled by default. You have to use `onReorder` to prevent a weird behavior after releasing the dragged child.
 
-###Animations
+### Animations
 There are different animations:
 - when drag and drop, all position changes are animated
 - when adding, removing or updating a child (e.g. you swap two positions), there is also an animation for that behavior
