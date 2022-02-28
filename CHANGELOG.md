@@ -1,3 +1,6 @@
+## 2.0.1
+* updated pubspec
+
 ## 2.0.0
 * Official Release of 2.0.0
 * There are breaking changes in this release:
