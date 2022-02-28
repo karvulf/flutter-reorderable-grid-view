@@ -297,6 +297,31 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN 2 children and [ReorderableBuilder] '
+        'WHEN adding child with duplicated key '
+        'THEN should throw exception', (WidgetTester tester) async {
+      // given
+      final givenChildren = _generateChildren(length: 2);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _UpdateChildrenReorderableBuilderTest(
+            children: givenChildren,
+            updateChildrenWithDuplicatedKey: true,
+          ),
+        ),
+      );
+
+      // when
+      await tester.tap(find.text('Add'));
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+
+      // then
+      FlutterError.onError = null; // weird
+      expect(tester.takeException(), isInstanceOf<Exception>());
+    });
+
+    testWidgets(
         'GIVEN 4 children and [ReorderableBuilder] '
         'WHEN removing child at index 2 '
         'THEN should update children without removed child',
@@ -603,9 +628,11 @@ List<Widget> _generateChildren({required int length}) => List.generate(
 
 class _UpdateChildrenReorderableBuilderTest extends StatefulWidget {
   final List<Widget> children;
+  final bool updateChildrenWithDuplicatedKey;
 
   const _UpdateChildrenReorderableBuilderTest({
     required this.children,
+    this.updateChildrenWithDuplicatedKey = false,
     Key? key,
   }) : super(key: key);
 
@@ -660,7 +687,9 @@ class _UpdateChildrenReorderableBuilderTestState
                   updatedChildren.insert(
                     0,
                     Container(
-                      key: const Key('new'),
+                      key: widget.updateChildrenWithDuplicatedKey
+                          ? children.first.key
+                          : const Key('new'),
                       child: const Text('new'),
                     ),
                   );
