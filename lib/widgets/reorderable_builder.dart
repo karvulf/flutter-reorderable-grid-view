@@ -729,14 +729,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   /// After [reorderableEntity] moved to the new position, the offset and orderId get an update.
-  void _handleMovingFinished(int keyHashCode) {
-    final reorderableEntity = _childrenMap[keyHashCode]!;
+  void _handleMovingFinished(
+    ReorderableEntity reorderableEntity,
+    GlobalKey globalKey,
+  ) {
+    final renderBox =
+        globalKey.currentContext?.findRenderObject() as RenderBox?;
 
-    _childrenMap[keyHashCode] = reorderableEntity.copyWith(
-      originalOffset: reorderableEntity.updatedOffset,
-      originalOrderId: reorderableEntity.updatedOrderId,
+    final offset = _getOffset(
+      renderBox: renderBox,
+      orderId: reorderableEntity.updatedOrderId,
     );
-    setState(() {});
+
+    if (offset != null) {
+      _childrenMap[reorderableEntity.keyHashCode] = reorderableEntity.copyWith(
+        originalOffset: offset,
+        updatedOffset: offset,
+        originalOrderId: reorderableEntity.updatedOrderId,
+      );
+      setState(() {});
+    }
   }
 
   /// After [reorderableEntity] faded in, the parameter isNew is false.

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnMovingFinishedCallback = void Function(int keyHashCode);
+typedef OnMovingFinishedCallback = void Function(
+  ReorderableEntity reorderableEntity,
+  GlobalKey globalKey,
+);
 
 /// Handles the animation for the new position of [child] when [isDragging] is false.
 ///
@@ -37,6 +40,8 @@ class _ReorderableAnimatedUpdatedContainerState
   late AnimationController animationController;
 
   late Animation<Offset> _animationOffset;
+
+  final _globalKey = GlobalKey();
 
   /// Makes the [child] unvisible.
   ///
@@ -88,6 +93,7 @@ class _ReorderableAnimatedUpdatedContainerState
       maintainSize: true,
       maintainState: true,
       child: Container(
+        key: _globalKey,
         transform: widget.isDragging
             ? Matrix4.translationValues(0.0, 0.0, 0.0)
             : Matrix4.translationValues(
@@ -149,7 +155,10 @@ class _ReorderableAnimatedUpdatedContainerState
       ..addStatusListener(
         (status) {
           if (status == AnimationStatus.completed && !widget.isDragging) {
-            widget.onMovingFinished(widget.reorderableEntity.keyHashCode);
+            widget.onMovingFinished(
+              widget.reorderableEntity,
+              _globalKey,
+            );
           }
         },
       );
