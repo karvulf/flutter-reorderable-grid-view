@@ -439,7 +439,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       draggedOffset: draggedOffset,
     );
 
-    if (collisionMapEntry != null) {
+    if (collisionMapEntry != null &&
+        !widget.lockedIndices
+            .contains(collisionMapEntry.value.updatedOrderId)) {
       final draggedOrderId = _draggedReorderableEntity!.updatedOrderId;
       final collisionOrderId = collisionMapEntry.value.updatedOrderId;
 
