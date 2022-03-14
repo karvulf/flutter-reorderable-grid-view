@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2;
-  final lockedIndices = <int>[];
+  static const _startCounter = 4;
+  final lockedIndices = <int>[0];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewCount;
+  ReorderableType reorderableType = ReorderableType.gridViewExtent;
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +177,10 @@ class _MyAppState extends State<MyApp> {
               key: const Key('extent'),
               children: children,
               maxCrossAxisExtent: 200,
+              padding: EdgeInsets.zero,
+              clipBehavior: Clip.none,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
             );
           },
         );

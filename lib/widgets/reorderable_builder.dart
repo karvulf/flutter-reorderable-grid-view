@@ -526,6 +526,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       _draggedReorderableEntity = updatedDraggedEntity;
     });
+
+    final draggedOrderIdBefore = _draggedReorderableEntity?.originalOrderId;
+    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
+    final draggedOffsetBefore = _draggedReorderableEntity?.originalOffset;
+    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
+
+    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
+    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
+    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
+    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
+
+    print('');
+    print('---- Dragged child at position $draggedOrderIdBefore ----');
+    print(
+        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+    print('Dragged child original offset $draggedOriginalOffset');
+    print(
+        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
+    print('----');
+    print(
+        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+    print('Collisioned child original offset $collisionOriginalOffset');
+    print(
+        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
+    print('---- END ----');
+    print('');
   }
 
   /// Checking if the dragged child collision with another child in [_childrenMap].
