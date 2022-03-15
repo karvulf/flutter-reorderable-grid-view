@@ -95,7 +95,7 @@ void main() {
       tester.binding.window.physicalSizeTestValue = const Size(1600, 400);
       tester.binding.window.devicePixelRatioTestValue = 1;
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // then
       expect(find.byType(ReorderableAnimatedContainer),
@@ -283,7 +283,7 @@ void main() {
 
       // when
       await tester.tap(find.text('Add'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // then
       expect(find.byType(ReorderableAnimatedContainer),
@@ -413,6 +413,41 @@ void main() {
       // then
       const expectedOrderUpdateEntities = [
         OrderUpdateEntity(oldIndex: 0, newIndex: 9),
+      ];
+      expect(actualOrderUpdateEntities, equals(expectedOrderUpdateEntities));
+    });
+
+    testWidgets(
+        'GIVEN two children and [ReorderableBuilder] '
+        'WHEN dragging the first to the second child and releasing '
+        'THEN should call onReorder', (WidgetTester tester) async {
+      // given
+      var actualOrderUpdateEntities = <OrderUpdateEntity>[];
+      final givenChildren = _generateChildren(length: 2);
+      await pumpWidgetWithGridView(
+        tester,
+        children: givenChildren,
+        onReorder: (orderUpdateEntities) {
+          actualOrderUpdateEntities = orderUpdateEntities;
+        },
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      final firstLocation = tester.getCenter(find.text('0'));
+      final gesture = await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(kLongPressTimeout);
+
+      final secondLocation = tester.getCenter(find.text('1'));
+      await gesture.moveTo(secondLocation);
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pump();
+
+      // then
+      const expectedOrderUpdateEntities = [
+        OrderUpdateEntity(oldIndex: 0, newIndex: 1),
       ];
       expect(actualOrderUpdateEntities, equals(expectedOrderUpdateEntities));
     });
