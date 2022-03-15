@@ -124,6 +124,7 @@ There are different animations:
 | `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
 | `enableDraggable` | Enables the drag and drop functionality. | **true** |
 | `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. |**-** |
+| `initDelay` | !**Not recommended**! - Adding a delay when creating children instead of a PostFrameCallback.|**-** |
 | `onReorder` | Called after drag and drop was released. Contains a list of `OrderUpdateEntity` that has information about the old and new index. See more on the example `main.dart`|**-** |
 | `builder` | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.|**-** |
 

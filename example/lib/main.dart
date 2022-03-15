@@ -23,11 +23,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 2;
-  final lockedIndices = <int>[];
+  final lockedIndices = <int>[3];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewCount;
+  ReorderableType reorderableType = ReorderableType.gridViewExtent;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 onTapSwap: () {
                   _handleReorder([
-                    const OrderUpdateEntity(oldIndex: 0, newIndex: 2),
+                    const OrderUpdateEntity(oldIndex: 0, newIndex: 1),
                   ]);
                 },
               ),
@@ -177,6 +177,9 @@ class _MyAppState extends State<MyApp> {
               key: const Key('extent'),
               children: children,
               maxCrossAxisExtent: 200,
+              padding: EdgeInsets.zero,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
             );
           },
         );
