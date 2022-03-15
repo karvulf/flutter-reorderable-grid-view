@@ -31,7 +31,8 @@ void main() {
       'THEN should show expected widgets and not call onMovingFinished',
       (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    ReorderableEntity? actualReorderableEntity;
+    GlobalKey? actualGlobalKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
@@ -43,8 +44,9 @@ void main() {
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onMovingFinished: (keyHashCode) {
-        actualKeyHashCode = keyHashCode;
+      onMovingFinished: (reorderableEntity, globalKey) {
+        actualReorderableEntity = reorderableEntity;
+        actualGlobalKey = globalKey;
       },
       isDragging: true,
     );
@@ -60,7 +62,8 @@ void main() {
             widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0)),
         findsOneWidget);
     expect(find.byWidget(givenChild), findsOneWidget);
-    expect(actualKeyHashCode, isNull);
+    expect(actualGlobalKey, isNull);
+    expect(actualReorderableEntity, isNull);
   });
 
   testWidgets(
@@ -69,24 +72,27 @@ void main() {
       'THEN should not show widget and should call onMovingFinished',
       (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    ReorderableEntity? actualReorderableEntity;
+    GlobalKey? actualGlobalKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
       updatedOrderId: 0,
       isBuilding: true,
     );
+    final givenUpdatedReorderableEntity = givenReorderableEntity.copyWith(
+      updatedOffset: const Offset(100, 100),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
         home: _UpdateReorderableEntityTest(
           isDragging: false,
-          onMovingFinished: (keyHashCode) {
-            actualKeyHashCode = keyHashCode;
+          onMovingFinished: (reorderableEntity, globalKey) {
+            actualReorderableEntity = reorderableEntity;
+            actualGlobalKey = globalKey;
           },
-          updatedReorderableEntity: givenReorderableEntity.copyWith(
-            updatedOffset: const Offset(100, 100),
-          ),
+          updatedReorderableEntity: givenUpdatedReorderableEntity,
           reorderableEntity: givenReorderableEntity,
         ),
       ),
@@ -102,7 +108,8 @@ void main() {
         find.byWidgetPredicate(
             (widget) => widget is Visibility && widget.visible),
         findsOneWidget);
-    expect(actualKeyHashCode, equals(givenChild.key.hashCode));
+    expect(actualGlobalKey, isNotNull);
+    expect(actualReorderableEntity, equals(givenUpdatedReorderableEntity));
   });
 
   testWidgets(
@@ -110,7 +117,8 @@ void main() {
       'WHEN updating reorderableEntity with different offsets '
       'THEN should call onMovingFinished', (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    ReorderableEntity? actualReorderableEntity;
+    GlobalKey? actualGlobalKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
@@ -118,17 +126,19 @@ void main() {
       isBuilding: false,
       hasSwappedOrder: true,
     );
+    final givenUpdatedReorderableEntity = givenReorderableEntity.copyWith(
+      updatedOffset: const Offset(100, 100),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
         home: _UpdateReorderableEntityTest(
           isDragging: false,
-          onMovingFinished: (keyHashCode) {
-            actualKeyHashCode = keyHashCode;
+          onMovingFinished: (reorderableEntity, globalKey) {
+            actualReorderableEntity = reorderableEntity;
+            actualGlobalKey = globalKey;
           },
-          updatedReorderableEntity: givenReorderableEntity.copyWith(
-            updatedOffset: const Offset(100, 100),
-          ),
+          updatedReorderableEntity: givenUpdatedReorderableEntity,
           reorderableEntity: givenReorderableEntity,
         ),
       ),
@@ -140,7 +150,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // then
-    expect(actualKeyHashCode, equals(givenChild.key.hashCode));
+    expect(actualGlobalKey, isNotNull);
+    expect(actualReorderableEntity, equals(givenUpdatedReorderableEntity));
   });
 }
 

@@ -23,7 +23,7 @@ void main() {
               onOpacityFinished: (_) {},
               reorderableEntity: givenReorderableEntity,
               isDragging: false,
-              onMovingFinished: (_) {},
+              onMovingFinished: (_, __) {},
             ),
           ),
         ),

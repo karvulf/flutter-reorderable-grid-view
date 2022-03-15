@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnMovingFinishedCallback = void Function(int keyHashCode);
+typedef OnMovingFinishedCallback = void Function(
+  ReorderableEntity reorderableEntity,
+  GlobalKey globalKey,
+);
 
 /// Handles the animation for the new position of [child] when [isDragging] is false.
 ///
@@ -38,6 +41,8 @@ class _ReorderableAnimatedUpdatedContainerState
 
   late Animation<Offset> _animationOffset;
 
+  final _globalKey = GlobalKey();
+
   /// Makes the [child] unvisible.
   ///
   /// Used when the position [child] is not known to prevent flickering
@@ -55,7 +60,21 @@ class _ReorderableAnimatedUpdatedContainerState
     _animationOffset = Tween<Offset>(
       begin: Offset.zero,
       end: Offset.zero,
-    ).animate(animationController);
+    ).animate(animationController)
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener(
+        (status) {
+          if (status == AnimationStatus.completed && !widget.isDragging) {
+            widget.onMovingFinished(
+              widget.reorderableEntity,
+              _globalKey,
+            );
+          }
+        },
+      );
+    ;
   }
 
   @override
@@ -88,6 +107,7 @@ class _ReorderableAnimatedUpdatedContainerState
       maintainSize: true,
       maintainState: true,
       child: Container(
+        key: _globalKey,
         transform: widget.isDragging
             ? Matrix4.translationValues(0.0, 0.0, 0.0)
             : Matrix4.translationValues(
@@ -142,16 +162,6 @@ class _ReorderableAnimatedUpdatedContainerState
         end: Offset.zero,
       );
     }
-    return tween.animate(animationController)
-      ..addListener(() {
-        setState(() {});
-      })
-      ..addStatusListener(
-        (status) {
-          if (status == AnimationStatus.completed && !widget.isDragging) {
-            widget.onMovingFinished(widget.reorderableEntity.keyHashCode);
-          }
-        },
-      );
+    return tween.animate(animationController);
   }
 }
