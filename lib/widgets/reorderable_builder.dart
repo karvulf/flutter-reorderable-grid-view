@@ -716,12 +716,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     ReorderableEntity reorderableEntity,
     GlobalKey globalKey,
   ) {
-    final updatedReorderableEntity = _updatedOffsetAndSize(
-      reorderableEntity: reorderableEntity,
-      globalKey: globalKey,
+    final renderBox =
+        globalKey.currentContext?.findRenderObject() as RenderBox?;
+
+    final offset = _getOffset(
+      renderBox: renderBox,
+      orderId: reorderableEntity.updatedOrderId,
     );
-    if (updatedReorderableEntity != null) {
+
+    if (offset != null) {
+      // updating existing
+      final updatedReorderableEntity = reorderableEntity.copyWith(
+        updatedOffset: offset,
+        size: renderBox?.size,
+        isBuilding: false,
+      );
+      final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
+      _childrenMap[updatedKeyHashCode] = updatedReorderableEntity;
+
       setState(() {});
+
       return updatedReorderableEntity;
     }
 
@@ -736,11 +750,21 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     ReorderableEntity reorderableEntity,
     GlobalKey globalKey,
   ) {
-    final updatedReorderableEntity = _updatedOffsetAndSize(
-      reorderableEntity: reorderableEntity,
-      globalKey: globalKey,
+    final renderBox =
+        globalKey.currentContext?.findRenderObject() as RenderBox?;
+
+    final offset = _getOffset(
+      renderBox: renderBox,
+      orderId: reorderableEntity.updatedOrderId,
     );
-    if (updatedReorderableEntity != null) {
+
+    if (offset != null) {
+      _childrenMap[reorderableEntity.keyHashCode] = reorderableEntity.copyWith(
+        originalOffset: offset,
+        updatedOffset: offset,
+        size: renderBox?.size,
+        originalOrderId: reorderableEntity.updatedOrderId,
+      );
       setState(() {});
     }
   }
@@ -751,39 +775,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _childrenMap[keyHashCode] = reorderableEntity.copyWith(
       isNew: false,
     );
-  }
-
-  /// Looking for a [RenderBox] to update [Offset] and [Size] of [reorderableEntity].
-  ///
-  /// If [RenderBox] was found, then the size and offset of [reorderableEntity]
-  /// will be updated, also in [_childrenMap] and returns the updated entity.
-  ///
-  /// Otherwise null will be returned.
-  ReorderableEntity? _updatedOffsetAndSize({
-    required GlobalKey globalKey,
-    required ReorderableEntity reorderableEntity,
-  }) {
-    final renderBox =
-        globalKey.currentContext?.findRenderObject() as RenderBox?;
-
-    final offset = _getOffset(
-      renderBox: renderBox,
-      orderId: reorderableEntity.updatedOrderId,
-    );
-
-    if (offset != null) {
-      final updatedReorderableEntity = reorderableEntity.copyWith(
-        originalOffset: offset,
-        updatedOffset: offset,
-        originalOrderId: reorderableEntity.updatedOrderId,
-      );
-      final keyHashCode = updatedReorderableEntity.keyHashCode;
-      _childrenMap[keyHashCode] = updatedReorderableEntity;
-
-      return updatedReorderableEntity;
-    }
-
-    return null;
   }
 }
 

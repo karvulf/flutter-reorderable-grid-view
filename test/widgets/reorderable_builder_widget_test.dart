@@ -95,7 +95,7 @@ void main() {
       tester.binding.window.physicalSizeTestValue = const Size(1600, 400);
       tester.binding.window.devicePixelRatioTestValue = 1;
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // then
       expect(find.byType(ReorderableAnimatedContainer),
@@ -283,7 +283,7 @@ void main() {
 
       // when
       await tester.tap(find.text('Add'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // then
       expect(find.byType(ReorderableAnimatedContainer),
