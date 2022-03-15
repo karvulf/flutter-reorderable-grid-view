@@ -33,7 +33,7 @@ class ReorderableDraggable extends StatefulWidget {
   final DragEndCallback onDragEnd;
 
   final ReorderableEntity? draggedReorderableEntity;
-  final Duration? initDuration;
+  final Duration? initDelay;
 
   const ReorderableDraggable({
     required this.reorderableEntity,
@@ -46,7 +46,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onDragStarted,
     required this.onDragEnd,
     required this.draggedReorderableEntity,
-    this.initDuration,
+    this.initDelay,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -174,7 +174,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   /// Updates [_reorderableEntity] after calling [onCreated].
   void _handleCreated() {
-    final initDuration = widget.initDuration;
+    final initDuration = widget.initDelay;
 
     if (initDuration != null) {
       Future.delayed(initDuration).then((_) {

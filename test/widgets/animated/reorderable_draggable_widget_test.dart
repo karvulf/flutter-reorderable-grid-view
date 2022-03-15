@@ -17,6 +17,7 @@ void main() {
     WidgetTester tester, {
     required bool enableDraggable,
     required bool enableLongPress,
+    Duration? initDelay,
     OnCreatedFunction? onCreated,
     OnCreatedFunction? onBuilding,
     Function(ReorderableEntity reorderableEntity)? onDragStarted,
@@ -32,6 +33,7 @@ void main() {
               enableLongPress: enableLongPress,
               longPressDelay: kLongPressTimeout,
               draggedReorderableEntity: null,
+              initDelay: initDelay,
               onCreated: onCreated ??
                   (_, __) {
                     return null;
@@ -116,32 +118,66 @@ void main() {
     expect(find.byType(LongPressDraggable), findsNothing);
   });
 
-  testWidgets(
-      'GIVEN [ReorderableDraggable] '
-      'WHEN built '
-      'THEN should call #onCreated', (WidgetTester tester) async {
-    // given
-    late final ReorderableEntity actualReorderableEntity;
-    late final GlobalKey actualKey;
+  group('#onCreated', () {
+    testWidgets(
+        'GIVEN [ReorderableDraggable] '
+        'WHEN built '
+        'THEN should call #onCreated', (WidgetTester tester) async {
+      // given
+      late final ReorderableEntity actualReorderableEntity;
+      late final GlobalKey actualKey;
 
-    // when
-    await pumpWidget(
-      tester,
-      enableDraggable: true,
-      enableLongPress: false,
-      onCreated: (
-        ReorderableEntity reorderableEntity,
-        GlobalKey key,
-      ) {
-        actualReorderableEntity = reorderableEntity;
-        actualKey = key;
-        return reorderableEntity;
-      },
-    );
+      // when
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: false,
+        onCreated: (
+          ReorderableEntity reorderableEntity,
+          GlobalKey key,
+        ) {
+          actualReorderableEntity = reorderableEntity;
+          actualKey = key;
+          return reorderableEntity;
+        },
+      );
 
-    // then
-    expect(actualReorderableEntity, equals(givenReorderableEntity));
-    expect(actualKey, isNotNull);
+      // then
+      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(actualKey, isNotNull);
+    });
+
+    testWidgets(
+        'GIVEN [ReorderableDraggable] and initDelay = 1000 ms '
+        'WHEN built '
+        'THEN should call #onCreated after 1000 ms',
+        (WidgetTester tester) async {
+      // given
+      late final ReorderableEntity actualReorderableEntity;
+      late final GlobalKey actualKey;
+      const givenInitDelay = Duration(milliseconds: 1000);
+
+      // when
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: false,
+        initDelay: givenInitDelay,
+        onCreated: (
+          ReorderableEntity reorderableEntity,
+          GlobalKey key,
+        ) {
+          actualReorderableEntity = reorderableEntity;
+          actualKey = key;
+          return reorderableEntity;
+        },
+      );
+      await tester.pumpAndSettle(givenInitDelay);
+
+      // then
+      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(actualKey, isNotNull);
+    });
   });
 
   testWidgets(

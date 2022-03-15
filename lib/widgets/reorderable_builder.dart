@@ -50,7 +50,14 @@ class ReorderableBuilder extends StatefulWidget {
   /// [enableDraggable] has to be true to ensure this is called.
   final ReorderListCallback? onReorder;
 
-  final Duration? initDuration;
+  /// Adding delay after initializing [children].
+  ///
+  /// Usually, the delay would be a postFrameCallBack. But sometimes, if the app
+  /// is a bit slow, or there are a lot of things happening at the same time, a
+  /// longer delay is necessary to ensure a correct behavior when using drag and drop.
+  ///
+  /// Not recommended to use.
+  final Duration? initDelay;
 
   const ReorderableBuilder({
     required this.children,
@@ -61,7 +68,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
     this.dragChildBoxDecoration,
-    this.initDuration,
+    this.initDelay,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         super(key: key);
@@ -198,7 +205,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             onDragEnd: _handleDragEnd,
             reorderableEntity: reorderableEntity,
             dragChildBoxDecoration: widget.dragChildBoxDecoration,
-            initDuration: widget.initDuration,
+            initDelay: widget.initDelay,
           ),
         ),
       );
@@ -530,36 +537,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {
       _draggedReorderableEntity = updatedDraggedEntity;
     });
-
-    final draggedOrderIdBefore = _draggedReorderableEntity?.originalOrderId;
-    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-    final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
-    final draggedOffsetBefore = _draggedReorderableEntity?.originalOffset;
-    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
-
-    final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
-    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-    final collisionOriginalOffset = collisionMapEntry.value.originalOffset;
-    final collisionOffsetBefore = collisionMapEntry.value.updatedOffset;
-    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
-
-    print('');
-    print('---- Dragged child at position $draggedOrderIdBefore ----');
-    print(
-        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
-    print('Dragged child original offset $draggedOriginalOffset');
-    print(
-        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
-    print('----');
-    print(
-        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
-    print('Collisioned child original offset $collisionOriginalOffset');
-    print(
-        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
-    print('---- END ----');
-    print('');
   }
 
   /// Checking if the dragged child collision with another child in [_childrenMap].
@@ -734,55 +711,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// Updates [reorderableEntity] for [_childrenMap] with new [Offset].
   ///
-  /// Usually called when the child with [key] was rebuilt or got a new position.
+  /// Usually called when the child with [globalKey] was rebuilt or got a new position.
   ReorderableEntity? _handleBuilding(
     ReorderableEntity reorderableEntity,
-    GlobalKey key,
+    GlobalKey globalKey,
   ) {
-    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
-
-    final offset = _getOffset(
-      renderBox: renderBox,
-      orderId: reorderableEntity.updatedOrderId,
+    final updatedReorderableEntity = _updatedOffsetAndSize(
+      reorderableEntity: reorderableEntity,
+      globalKey: globalKey,
     );
-
-    if (offset != null) {
-      // updating existing
-      final updatedReorderableEntity = reorderableEntity.copyWith(
-        updatedOffset: offset,
-        size: renderBox?.size,
-        isBuilding: false,
-      );
-      final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
-      _childrenMap[updatedKeyHashCode] = updatedReorderableEntity;
-
+    if (updatedReorderableEntity != null) {
       setState(() {});
-
       return updatedReorderableEntity;
     }
 
     return null;
   }
 
-  /// After [reorderableEntity] moved to the new position, the offset and orderId get an update.
+  /// Updating [reorderableEntity] when the child was moved to a new position.
+  ///
+  /// This update is necessary to prevent wrong positions after moving the child.
+  /// This can happen, when there are a lot of updates at the same time in [widget.children].
   void _handleMovingFinished(
     ReorderableEntity reorderableEntity,
     GlobalKey globalKey,
   ) {
-    final renderBox =
-        globalKey.currentContext?.findRenderObject() as RenderBox?;
-
-    final offset = _getOffset(
-      renderBox: renderBox,
-      orderId: reorderableEntity.updatedOrderId,
+    final updatedReorderableEntity = _updatedOffsetAndSize(
+      reorderableEntity: reorderableEntity,
+      globalKey: globalKey,
     );
-
-    if (offset != null) {
-      _childrenMap[reorderableEntity.keyHashCode] = reorderableEntity.copyWith(
-        originalOffset: offset,
-        updatedOffset: offset,
-        originalOrderId: reorderableEntity.updatedOrderId,
-      );
+    if (updatedReorderableEntity != null) {
       setState(() {});
     }
   }
@@ -794,6 +752,39 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       isNew: false,
     );
   }
+
+  /// Looking for a [RenderBox] to update [Offset] and [Size] of [reorderableEntity].
+  ///
+  /// If [RenderBox] was found, then the size and offset of [reorderableEntity]
+  /// will be updated, also in [_childrenMap] and returns the updated entity.
+  ///
+  /// Otherwise null will be returned.
+  ReorderableEntity? _updatedOffsetAndSize({
+    required GlobalKey globalKey,
+    required ReorderableEntity reorderableEntity,
+  }) {
+    final renderBox =
+        globalKey.currentContext?.findRenderObject() as RenderBox?;
+
+    final offset = _getOffset(
+      renderBox: renderBox,
+      orderId: reorderableEntity.updatedOrderId,
+    );
+
+    if (offset != null) {
+      final updatedReorderableEntity = reorderableEntity.copyWith(
+        originalOffset: offset,
+        updatedOffset: offset,
+        originalOrderId: reorderableEntity.updatedOrderId,
+      );
+      final keyHashCode = updatedReorderableEntity.keyHashCode;
+      _childrenMap[keyHashCode] = updatedReorderableEntity;
+
+      return updatedReorderableEntity;
+    }
+
+    return null;
+  }
 }
 
 /*
@@ -801,11 +792,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     /// some prints for me
     ///
 
-    final draggedOrderIdBefore = draggedReorderableEntity?.updatedOrderId;
+    final draggedOrderIdBefore = _draggedReorderableEntity?.originalOrderId;
     final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
 
     final draggedOriginalOffset = updatedDraggedEntity.originalOffset;
-    final draggedOffsetBefore = draggedReorderableEntity?.updatedOffset;
+    final draggedOffsetBefore = _draggedReorderableEntity?.originalOffset;
     final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
 
     final collisionOrderIdBefore = collisionMapEntry.value.updatedOrderId;
@@ -818,16 +809,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     print('');
     print('---- Dragged child at position $draggedOrderIdBefore ----');
     print(
-    'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
+        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
     print('Dragged child original offset $draggedOriginalOffset');
     print(
-    'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
+        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
     print('----');
     print(
-    'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
+        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
     print('Collisioned child original offset $collisionOriginalOffset');
     print(
-    'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
+        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
     print('---- END ----');
     print('');
 
