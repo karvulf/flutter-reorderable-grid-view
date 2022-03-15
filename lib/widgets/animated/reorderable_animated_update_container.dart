@@ -60,7 +60,21 @@ class _ReorderableAnimatedUpdatedContainerState
     _animationOffset = Tween<Offset>(
       begin: Offset.zero,
       end: Offset.zero,
-    ).animate(animationController);
+    ).animate(animationController)
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener(
+        (status) {
+          if (status == AnimationStatus.completed && !widget.isDragging) {
+            widget.onMovingFinished(
+              widget.reorderableEntity,
+              _globalKey,
+            );
+          }
+        },
+      );
+    ;
   }
 
   @override
@@ -148,19 +162,6 @@ class _ReorderableAnimatedUpdatedContainerState
         end: Offset.zero,
       );
     }
-    return tween.animate(animationController)
-      ..addListener(() {
-        setState(() {});
-      })
-      ..addStatusListener(
-        (status) {
-          if (status == AnimationStatus.completed && !widget.isDragging) {
-            widget.onMovingFinished(
-              widget.reorderableEntity,
-              _globalKey,
-            );
-          }
-        },
-      );
+    return tween.animate(animationController);
   }
 }

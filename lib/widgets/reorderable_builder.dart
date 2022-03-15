@@ -744,26 +744,37 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// Updating [reorderableEntity] when the child was moved to a new position.
   ///
+  /// There is a difference in the update when the child has swapped the position
+  /// with another child or has just moved to a new position.
+  ///
+  /// If there was no swap, then the current offset of [reorderableEntity] is checked.
   /// This update is necessary to prevent wrong positions after moving the child.
   /// This can happen, when there are a lot of updates at the same time in [widget.children].
   void _handleMovingFinished(
     ReorderableEntity reorderableEntity,
     GlobalKey globalKey,
   ) {
-    final renderBox =
-        globalKey.currentContext?.findRenderObject() as RenderBox?;
+    Size? size;
+    Offset? updatedOffset = reorderableEntity.updatedOffset;
 
-    final offset = _getOffset(
-      renderBox: renderBox,
-      orderId: reorderableEntity.updatedOrderId,
-    );
+    if (!reorderableEntity.hasSwappedOrder) {
+      final renderBox =
+          globalKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (offset != null) {
+      updatedOffset = _getOffset(
+        renderBox: renderBox,
+        orderId: reorderableEntity.updatedOrderId,
+      );
+      size = renderBox?.size;
+    }
+
+    if (updatedOffset != null) {
       _childrenMap[reorderableEntity.keyHashCode] = reorderableEntity.copyWith(
-        originalOffset: offset,
-        updatedOffset: offset,
-        size: renderBox?.size,
+        originalOffset: updatedOffset,
+        updatedOffset: updatedOffset,
+        size: size,
         originalOrderId: reorderableEntity.updatedOrderId,
+        hasSwappedOrder: false,
       );
       setState(() {});
     }

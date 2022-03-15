@@ -22,8 +22,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 4;
-  final lockedIndices = <int>[0];
+  static const _startCounter = 2;
+  final lockedIndices = <int>[3];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -70,7 +70,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 onTapSwap: () {
                   _handleReorder([
-                    const OrderUpdateEntity(oldIndex: 0, newIndex: 2),
+                    const OrderUpdateEntity(oldIndex: 0, newIndex: 1),
                   ]);
                 },
               ),
@@ -178,7 +178,6 @@ class _MyAppState extends State<MyApp> {
               children: children,
               maxCrossAxisExtent: 200,
               padding: EdgeInsets.zero,
-              clipBehavior: Clip.none,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
             );
