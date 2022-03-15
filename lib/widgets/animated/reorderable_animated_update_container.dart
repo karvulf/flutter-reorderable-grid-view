@@ -74,7 +74,6 @@ class _ReorderableAnimatedUpdatedContainerState
           }
         },
       );
-    ;
   }
 
   @override
