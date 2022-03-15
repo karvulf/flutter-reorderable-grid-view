@@ -1,9 +1,12 @@
 ## 2.0.3
 
-* Fixed weird drag and drop behavior after updating children
-* Performance improved by fixing the bug:
-    * For every update, there is a new listener added to every child
-
+* 🐛 Fixed Bugs:
+  * Wrong behavior after updating children (especially the key) and using drag and drop
+  * For every update of a child, a new listener was added
+    * this behavior is fixed
+    * now only one listener will be added
+* 🦙 Behavior changed:
+  * When using drag and drop to a locked child, no position will be changed
 ## 2.0.2
 
 * Downgraded Dart-version from `2.16.1` to `2.16.0`
