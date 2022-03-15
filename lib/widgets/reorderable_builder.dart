@@ -50,6 +50,8 @@ class ReorderableBuilder extends StatefulWidget {
   /// [enableDraggable] has to be true to ensure this is called.
   final ReorderListCallback? onReorder;
 
+  final Duration? initDuration;
+
   const ReorderableBuilder({
     required this.children,
     required this.builder,
@@ -59,6 +61,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
     this.dragChildBoxDecoration,
+    this.initDuration,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         super(key: key);
@@ -195,6 +198,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             onDragEnd: _handleDragEnd,
             reorderableEntity: reorderableEntity,
             dragChildBoxDecoration: widget.dragChildBoxDecoration,
+            initDuration: widget.initDuration,
           ),
         ),
       );

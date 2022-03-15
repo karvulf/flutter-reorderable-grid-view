@@ -33,6 +33,7 @@ class ReorderableDraggable extends StatefulWidget {
   final DragEndCallback onDragEnd;
 
   final ReorderableEntity? draggedReorderableEntity;
+  final Duration? initDuration;
 
   const ReorderableDraggable({
     required this.reorderableEntity,
@@ -45,6 +46,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onDragStarted,
     required this.onDragEnd,
     required this.draggedReorderableEntity,
+    this.initDuration,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -172,18 +174,30 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   /// Updates [_reorderableEntity] after calling [onCreated].
   void _handleCreated() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final updatedReorderableEntity = widget.onCreated(
-        widget.reorderableEntity,
-        _globalKey,
-      );
+    final initDuration = widget.initDuration;
 
-      if (updatedReorderableEntity != null) {
-        setState(() {
-          _reorderableEntity = updatedReorderableEntity;
-        });
-      }
-    });
+    if (initDuration != null) {
+      Future.delayed(initDuration).then((_) {
+        _callOnCreated();
+      });
+    } else {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _callOnCreated();
+      });
+    }
+  }
+
+  void _callOnCreated() {
+    final updatedReorderableEntity = widget.onCreated(
+      widget.reorderableEntity,
+      _globalKey,
+    );
+
+    if (updatedReorderableEntity != null) {
+      setState(() {
+        _reorderableEntity = updatedReorderableEntity;
+      });
+    }
   }
 
   /// Updates [_reorderableEntity] after calling [onBuilding].
