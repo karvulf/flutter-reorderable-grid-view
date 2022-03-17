@@ -22,12 +22,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2;
+  static const _startCounter = 20;
   final lockedIndices = <int>[3];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
   ReorderableType reorderableType = ReorderableType.gridViewExtent;
+
+  final _scrollController = ScrollController();
+  final _gridViewKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -138,9 +141,8 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          builder: (children) {
             return GridView(
-              controller: scrollController,
               children: children,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -156,9 +158,8 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          builder: (children) {
             return GridView.count(
-              controller: scrollController,
               key: const Key('count'),
               children: children,
               crossAxisCount: 3,
@@ -171,10 +172,12 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          scrollController: _scrollController,
+          childKey: _gridViewKey,
+          builder: (children) {
             return GridView.extent(
-              controller: scrollController,
-              key: const Key('extent'),
+              key: _gridViewKey,
+              controller: _scrollController,
               children: children,
               maxCrossAxisExtent: 200,
               padding: EdgeInsets.zero,
@@ -189,10 +192,9 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          builder: (children) {
             return GridView.builder(
               key: const Key('builder'),
-              controller: scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
                 return children[index];
