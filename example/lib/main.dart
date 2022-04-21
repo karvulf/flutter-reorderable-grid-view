@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewExtent;
+  ReorderableType reorderableType = ReorderableType.gridView;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +138,8 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          onDragStarted: _handleDragStarted,
+          onDragEnd: _handleDragEnd,
           builder: (children, scrollController) {
             return GridView(
               controller: scrollController,
@@ -189,6 +191,12 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          onDragStarted: () {
+            const snackBar = SnackBar(
+              content: Text('Dragging has started!'),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          },
           builder: (children, scrollController) {
             return GridView.builder(
               key: const Key('builder'),
@@ -206,5 +214,23 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
+  }
+
+  void _handleDragStarted() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    const snackBar = SnackBar(
+      content: Text('Dragging has started!'),
+      duration: Duration(milliseconds: 1000),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _handleDragEnd() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    const snackBar = SnackBar(
+      content: Text('Dragging was finished!'),
+      duration: Duration(milliseconds: 1000),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

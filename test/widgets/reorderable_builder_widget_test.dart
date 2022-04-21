@@ -12,6 +12,8 @@ void main() {
     required List<Widget> children,
     List<int> lockedIndices = const [],
     ReorderListCallback? onReorder,
+    VoidCallback? onDragStarted,
+    VoidCallback? onDragEnd,
   }) =>
       tester.pumpWidget(
         MaterialApp(
@@ -20,6 +22,8 @@ void main() {
               children: children,
               onReorder: onReorder ?? (_) {},
               lockedIndices: lockedIndices,
+              onDragEnd: onDragEnd,
+              onDragStarted: onDragStarted,
               builder: (children, scrollController) {
                 return GridView(
                   controller: scrollController,
@@ -453,17 +457,77 @@ void main() {
     });
   });
 
-  group('#Drag and Drop in negative direction', () {
+  group('#Drag and Drop with no position changes', () {
     testWidgets(
-        'GIVEN 10 children and [ReorderableBuilder] '
-        'WHEN dragging the last to the first child and releasing '
-        'THEN should call onReorder', (WidgetTester tester) async {
+        'GIVEN 10 children, onDragStart, onDragEnd and [ReorderableBuilder] '
+        'WHEN dragging the last child with a minimal position change '
+        'THEN should call onDragStarted and onDragEnd '
+        'but not onReorder because there were no position changes',
+        (WidgetTester tester) async {
       // given
-      var actualOrderUpdateEntities = <OrderUpdateEntity>[];
+      var dragStartedCallCounter = 0;
+      var dragEndCallCounter = 0;
+      var onReorderCallCounter = 0;
       final givenChildren = _generateChildren(length: 10);
+
       await pumpWidgetWithGridView(
         tester,
         children: givenChildren,
+        onDragStarted: () {
+          dragStartedCallCounter++;
+        },
+        onDragEnd: () {
+          dragEndCallCounter++;
+        },
+        onReorder: (orderUpdateEntities) {
+          onReorderCallCounter++;
+        },
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      final firstLocation = tester.getCenter(find.text('9'));
+      final gesture = await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(kLongPressTimeout);
+
+      final secondLocation = Offset(
+        firstLocation.dx + 10,
+        firstLocation.dy + 10,
+      );
+      await gesture.moveTo(secondLocation);
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pump();
+
+      // then
+      expect(onReorderCallCounter, equals(0));
+      expect(dragStartedCallCounter, equals(1));
+      expect(dragEndCallCounter, equals(1));
+    });
+  });
+
+  group('#Drag and Drop in negative direction', () {
+    testWidgets(
+        'GIVEN 10 children, onDragStart, onDragEnd and [ReorderableBuilder] '
+        'WHEN dragging the last to the first child and releasing '
+        'THEN should call onReorder, onDragStarted and onDragEnd',
+        (WidgetTester tester) async {
+      // given
+      var dragStartedCallCounter = 0;
+      var dragEndCallCounter = 0;
+      var actualOrderUpdateEntities = <OrderUpdateEntity>[];
+      final givenChildren = _generateChildren(length: 10);
+
+      await pumpWidgetWithGridView(
+        tester,
+        children: givenChildren,
+        onDragStarted: () {
+          dragStartedCallCounter++;
+        },
+        onDragEnd: () {
+          dragEndCallCounter++;
+        },
         onReorder: (orderUpdateEntities) {
           actualOrderUpdateEntities = orderUpdateEntities;
         },
@@ -487,6 +551,8 @@ void main() {
         OrderUpdateEntity(oldIndex: 9, newIndex: 0),
       ];
       expect(actualOrderUpdateEntities, equals(expectedOrderUpdateEntities));
+      expect(dragStartedCallCounter, equals(1));
+      expect(dragEndCallCounter, equals(1));
     });
   });
 
