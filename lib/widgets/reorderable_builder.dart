@@ -193,7 +193,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(_getDraggableChildren());
+    return Stack(
+      children: [
+        widget.builder(_getDraggableChildren()),
+      ],
+    );
   }
 
   /// Building a list of [widget.children] wrapped with [ReorderableAnimatedContainer].
@@ -209,6 +213,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         enableDraggable = false;
       }
 
+      if (reorderableEntity == _draggedReorderableEntity) {
+        print(
+            'ReorderableAnimatedContainer ${reorderableEntity.keyHashCode.toString()}');
+        print('ReorderableDraggable ${reorderableEntity.child.key}');
+      }
       draggableChildren.add(
         ReorderableAnimatedContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
@@ -311,17 +320,18 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       const allowedRange = 50;
       final minDy = offset.dy + allowedRange;
       final maxDy = offset.dy + size.height - allowedRange;
-      const variance = 20;
+      const variance = 5;
 
       if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
-        print('scroll to top if possible!!!');
         _scrollPositionPixels -= variance;
+        print(
+            'scroll to top if possible with scroll $_scrollPositionPixels!!!');
         _scrollTo(dy: _scrollPositionPixels);
       } else if (dragPosition.dy >= maxDy &&
           _scrollPositionPixels <
               widget.scrollController!.position.maxScrollExtent) {
-        print('scroll to bottom if possible!!!');
         _scrollPositionPixels += variance;
+        // print('scroll to bottom if possible with scroll $_scrollPositionPixels!!!');
         _scrollTo(dy: _scrollPositionPixels);
       }
     }
@@ -333,6 +343,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (scrollController != null && scrollController.hasClients) {
       // end _scrollController.position.maxScrollExtent
       scrollController.jumpTo(dy);
+      /*
+      scrollController.animateTo(
+        dy,
+        duration: const Duration(milliseconds: 50),
+        curve: Curves.ease,
+      );
+       */
     }
   }
 
@@ -348,7 +365,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// position updates for [widget.children].
   ///
   /// When the list is created, [widget.onReorder] will be called.
-  void _handleDragEnd(DraggableDetails details) {
+  void _handleDragEnd() {
     widget.onDragEnd?.call();
 
     final oldIndex = _draggedReorderableEntity!.originalOrderId;

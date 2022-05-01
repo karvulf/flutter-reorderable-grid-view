@@ -149,7 +149,7 @@ void main() {
                   home: ReorderableBuilder(
                     children: givenChildren,
                     enableDraggable: true,
-                    builder: (children, scrollController) => GridView(
+                    builder: (children) => GridView(
                       controller: scrollController,
                       children: children,
                       gridDelegate:

@@ -30,7 +30,7 @@ class ReorderableDraggable extends StatefulWidget {
   final OnCreatedFunction onBuilding;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
   final OnDragUpdateFunction onDragUpdate;
-  final DragEndCallback onDragEnd;
+  final VoidCallback onDragEnd;
 
   final ReorderableEntity? draggedReorderableEntity;
   final Duration? initDelay;
@@ -228,6 +228,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   void _handleDragEnd(DraggableDetails details) {
     _controller.reset();
 
-    widget.onDragEnd(details);
+    widget.onDragEnd();
   }
 }

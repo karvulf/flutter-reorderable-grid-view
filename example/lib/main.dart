@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
@@ -22,12 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
+  static const _startCounter = 80;
   final lockedIndices = <int>[3];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewExtent;
 
   final _scrollController = ScrollController();
   final _gridViewKey = GlobalKey();
@@ -168,8 +169,8 @@ class _MyAppState extends State<MyApp> {
             );
           },
         );
-
       case ReorderableType.gridViewExtent:
+        print('_gridViewKey $_gridViewKey');
         return ReorderableBuilder(
           children: generatedChildren,
           onReorder: _handleReorder,
