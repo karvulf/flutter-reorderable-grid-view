@@ -12,6 +12,9 @@ typedef DraggableBuilder = Widget Function(
 typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
+///
+/// Be sure not to replace, add or remove your children while you are dragging
+/// because this can lead to an unexpected behavior.
 class ReorderableBuilder extends StatefulWidget {
   /// Updating [children] with some widgets to enable animations.
   final List<Widget> children;
@@ -58,6 +61,15 @@ class ReorderableBuilder extends StatefulWidget {
   /// Not recommended to use.
   final Duration? initDelay;
 
+  /// Callback when dragging starts.
+  ///
+  /// Prevent updating your children while you are dragging because this can lead
+  /// to an unexpected behavior.
+  final VoidCallback? onDragStarted;
+
+  /// Callback when the dragged child was released.
+  final VoidCallback? onDragEnd;
+
   /// Controller to get the current scroll position.
   ///
   /// The controller has to be assigned if the returned widget of [widget.builder]
@@ -79,6 +91,8 @@ class ReorderableBuilder extends StatefulWidget {
     this.enableDraggable = true,
     this.dragChildBoxDecoration,
     this.initDelay,
+    this.onDragStarted,
+    this.onDragEnd,
     this.scrollController,
     this.childKey,
     Key? key,
@@ -269,6 +283,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// Called immediately when the user starts to drag a child to update current dragged [ReorderableEntity] and scrollPosition.
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
+    widget.onDragStarted?.call();
     setState(() {
       _draggedReorderableEntity = reorderableEntity;
       _scrollPositionPixels = _scrollPixels;
@@ -334,6 +349,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// When the list is created, [widget.onReorder] will be called.
   void _handleDragEnd(DraggableDetails details) {
+    widget.onDragEnd?.call();
+
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
 
@@ -353,17 +370,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       }
 
       _childrenMap = updatedChildrenMap;
+
+      final orderUpdateEntities = _getOrderUpdateEntities(
+        oldIndex: oldIndex,
+        newIndex: newIndex,
+      );
+      widget.onReorder!(orderUpdateEntities);
     }
 
     setState(() {
       _draggedReorderableEntity = null;
     });
-
-    final orderUpdateEntities = _getOrderUpdateEntities(
-      oldIndex: oldIndex,
-      newIndex: newIndex,
-    );
-    widget.onReorder!(orderUpdateEntities);
   }
 
   /// Returns a list of all updated positions containing old and new index.

@@ -1,12 +1,23 @@
+## 2.1.0
+⭐️ **New features**
+* added two new parameters for `ReorderableBuilder`:
+  * `onDragStarted`: Called when user starts dragging a child
+  * `onDragEnd`: Called when user releases dragged child
+
+🦙 **Behavior changed**
+* `onReorder` won't be called anymore when the dragged child didn't change his original position
+
 ## 2.0.3
 
-* 🐛 Fixed Bugs:
+🐛 **Fixed Bugs**
   * Wrong behavior after updating children (especially the key) and using drag and drop
   * For every update of a child, a new listener was added
     * this behavior is fixed
-    * now only one listener will be added
-* 🦙 Behavior changed:
+    * now only one listener will be added 
+    
+🦙 **Behavior changed**
   * When using drag and drop to a locked child, no position will be changed
+
 ## 2.0.2
 
 * Downgraded Dart-version from `2.16.1` to `2.16.0`
