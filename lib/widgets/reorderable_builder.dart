@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
@@ -127,6 +129,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   Offset? _childOffset;
 
+  Timer? _scrollCheckTimer;
+
   @override
   void initState() {
     super.initState();
@@ -193,10 +197,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        widget.builder(_getDraggableChildren()),
-      ],
+    return Listener(
+      onPointerMove: (details) {
+        if (_draggedReorderableEntity != null) {
+          _handleDragUpdate(DragUpdateDetails(
+            globalPosition: details.position,
+          ));
+        }
+      },
+      onPointerUp: (details) {
+        if (_draggedReorderableEntity != null) {
+          _handleDragEnd();
+        }
+      },
+      child: widget.builder(_getDraggableChildren()),
     );
   }
 
@@ -213,11 +227,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         enableDraggable = false;
       }
 
-      if (reorderableEntity == _draggedReorderableEntity) {
-        print(
-            'ReorderableAnimatedContainer ${reorderableEntity.keyHashCode.toString()}');
-        print('ReorderableDraggable ${reorderableEntity.child.key}');
-      }
       draggableChildren.add(
         ReorderableAnimatedContainer(
           key: Key(reorderableEntity.keyHashCode.toString()),
@@ -231,11 +240,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             enableLongPress: widget.enableLongPress,
             longPressDelay: widget.longPressDelay,
             enableDraggable: enableDraggable,
-            onDragUpdate: _handleDragUpdate,
+            onDragUpdate: (_) {},
             onCreated: _handleCreated,
             onBuilding: _handleBuilding,
             onDragStarted: _handleDragStarted,
-            onDragEnd: _handleDragEnd,
+            onDragEnd: () {},
             reorderableEntity: reorderableEntity,
             dragChildBoxDecoration: widget.dragChildBoxDecoration,
             initDelay: widget.initDelay,
@@ -302,6 +311,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Always called when the user moves the dragged child around.
   void _handleDragUpdate(DragUpdateDetails details) {
     if (widget.childKey != null && widget.scrollController != null) {
+      if (_scrollCheckTimer != null && _scrollCheckTimer!.isActive) {
+        _scrollCheckTimer!.cancel();
+      }
+      _scrollCheckTimer = Timer.periodic(
+        const Duration(milliseconds: 10),
+        (timer) {
+          _checkToScrollWhileDragging(
+            dragPosition: details.globalPosition,
+          );
+        },
+      );
       _checkToScrollWhileDragging(
         dragPosition: details.globalPosition,
       );
@@ -370,6 +390,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
+    print('oldindex $oldIndex newIndex $newIndex');
 
     // the dragged item has changed position
     if (oldIndex != newIndex) {
@@ -397,6 +418,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     setState(() {
       _draggedReorderableEntity = null;
+      _scrollCheckTimer = null;
     });
   }
 
