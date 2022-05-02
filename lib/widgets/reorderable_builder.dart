@@ -80,8 +80,6 @@ class ReorderableBuilder extends StatefulWidget {
   /// position will be detected inside the [context].
   final ScrollController? scrollController;
 
-  final GlobalKey? childKey;
-
   ///
   final double automaticScrollExtent;
 
@@ -99,7 +97,6 @@ class ReorderableBuilder extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnd,
     this.scrollController,
-    this.childKey,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         super(key: key);

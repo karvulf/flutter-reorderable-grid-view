@@ -169,7 +169,6 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           scrollController: _scrollController,
-          childKey: _gridViewKey,
           builder: (children) {
             return GridView.count(
               key: _gridViewKey,
