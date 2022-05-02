@@ -82,6 +82,9 @@ class ReorderableBuilder extends StatefulWidget {
 
   final GlobalKey? childKey;
 
+  ///
+  final double automaticScrollExtent;
+
   const ReorderableBuilder({
     required this.children,
     required this.builder,
@@ -90,6 +93,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
+    this.automaticScrollExtent = 80.0,
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -187,16 +191,18 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
+    final child = widget.builder(_getDraggableChildren());
     return ReorderableScrollingListener(
       isDragging: _draggedReorderableEntity != null,
-      childKey: widget.childKey,
+      scrollableContentKey: child.key as GlobalKey?,
       scrollController: widget.scrollController,
+      automaticScrollExtent: widget.automaticScrollExtent,
       onDragUpdate: _checkForCollisions,
       onDragEnd: _handleDragEnd,
       onScrollUpdate: (scrollPixels) {
         _scrollPositionPixels = scrollPixels;
       },
-      child: widget.builder(_getDraggableChildren()),
+      child: child,
     );
   }
 
@@ -226,11 +232,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             enableLongPress: widget.enableLongPress,
             longPressDelay: widget.longPressDelay,
             enableDraggable: enableDraggable,
-            onDragUpdate: (_) {},
             onCreated: _handleCreated,
             onBuilding: _handleBuilding,
             onDragStarted: _handleDragStarted,
-            onDragEnd: () {},
             reorderableEntity: reorderableEntity,
             dragChildBoxDecoration: widget.dragChildBoxDecoration,
             initDelay: widget.initDelay,

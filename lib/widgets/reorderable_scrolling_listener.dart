@@ -5,21 +5,23 @@ import 'package:flutter/cupertino.dart';
 class ReorderableScrollingListener extends StatefulWidget {
   final Widget child;
   final bool isDragging;
+  final double automaticScrollExtent;
 
   final PointerMoveEventListener onDragUpdate;
   final VoidCallback onDragEnd;
   final void Function(double scrollPixels) onScrollUpdate;
 
-  final GlobalKey? childKey;
+  final GlobalKey? scrollableContentKey;
   final ScrollController? scrollController;
 
   const ReorderableScrollingListener({
     required this.child,
     required this.isDragging,
+    required this.automaticScrollExtent,
     required this.onDragUpdate,
     required this.onDragEnd,
     required this.onScrollUpdate,
-    required this.childKey,
+    required this.scrollableContentKey,
     required this.scrollController,
     Key? key,
   }) : super(key: key);
@@ -67,7 +69,8 @@ class _ReorderableScrollingListenerState
 
   /// Always called when the user moves the dragged child around.
   void _handleDragUpdate(PointerMoveEvent details) {
-    if (widget.childKey != null && widget.scrollController != null) {
+    if (widget.scrollableContentKey != null &&
+        widget.scrollController != null) {
       final position = details.position;
       _scrollCheckTimer?.cancel();
       _scrollCheckTimer = Timer.periodic(
@@ -97,7 +100,7 @@ class _ReorderableScrollingListenerState
     final offset = _childOffset;
 
     if (size != null && offset != null) {
-      const allowedRange = 50;
+      final allowedRange = widget.automaticScrollExtent;
       final minDy = offset.dy + allowedRange;
       final maxDy = offset.dy + size.height - allowedRange;
       const variance = 5;
@@ -134,8 +137,8 @@ class _ReorderableScrollingListenerState
 
   void _updateChildSizeAndOffset() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final renderBox =
-          widget.childKey?.currentContext?.findRenderObject() as RenderBox?;
+      final renderBox = widget.scrollableContentKey?.currentContext
+          ?.findRenderObject() as RenderBox?;
 
       if (renderBox != null) {
         _childOffset = renderBox.localToGlobal(Offset.zero);
