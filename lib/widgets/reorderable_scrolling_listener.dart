@@ -147,18 +147,12 @@ class _ReorderableScrollingListenerState
     });
   }
 
-  /// Returning the current scroll position.
+  /// Returning the current scroll position depending on [widget.scrollController] and [context].
   ///
-  /// There are two possibilities to get the scroll position.
+  /// If the scroll position of [context] or [widget.scrollController] is accessible,
+  /// then the value of the current position is returned.
   ///
-  /// First one is, the returned child of [widget.builder] has a scrollable widget.
-  /// In this case, it is important that the [widget._scrollController] is added
-  /// to the scrollable widget to get the current scroll position.
-  ///
-  /// Another possibility is that one of the parents is scrollable.
-  /// In that case, the position of the scroll is accessible inside [context].
-  ///
-  /// Otherwise, 0.0 will be returned.
+  /// Otherwise 0.0.
   double get _scrollPixels {
     var pixels = Scrollable.of(context)?.position.pixels;
     final scrollController = widget.scrollController;

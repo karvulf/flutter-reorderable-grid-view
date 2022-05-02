@@ -24,9 +24,8 @@ void main() {
               lockedIndices: lockedIndices,
               onDragEnd: onDragEnd,
               onDragStarted: onDragStarted,
-              builder: (children, scrollController) {
+              builder: (children) {
                 return GridView(
-                  controller: scrollController,
                   children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
@@ -150,7 +149,6 @@ void main() {
                     children: givenChildren,
                     enableDraggable: true,
                     builder: (children) => GridView(
-                      controller: scrollController,
                       children: children,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
@@ -179,8 +177,7 @@ void main() {
           home: ReorderableBuilder(
             children: givenChildren,
             onReorder: (_) {},
-            builder: (children, scrollController) => GridView.count(
-              controller: scrollController,
+            builder: (children) => GridView.count(
               children: children,
               crossAxisCount: 3,
             ),
@@ -211,8 +208,7 @@ void main() {
           home: ReorderableBuilder(
             children: givenChildren,
             onReorder: (_) {},
-            builder: (children, scrollController) => GridView.extent(
-              controller: scrollController,
+            builder: (children) => GridView.extent(
               children: children,
               maxCrossAxisExtent: 200,
             ),
@@ -243,9 +239,7 @@ void main() {
           home: ReorderableBuilder(
             children: givenChildren,
             onReorder: (_) {},
-            builder: (children, scrollController) => GridView.builder(
-              key: const Key('builder'),
-              controller: scrollController,
+            builder: (children) => GridView.builder(
               itemCount: children.length,
               itemBuilder: (context, index) {
                 return children[index];
@@ -806,9 +800,8 @@ class _UpdateChildrenReorderableBuilderTestState
             child: ReorderableBuilder(
               children: children,
               onReorder: (_) {},
-              builder: (children, scrollController) {
+              builder: (children) {
                 return GridView(
-                  controller: scrollController,
                   children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,

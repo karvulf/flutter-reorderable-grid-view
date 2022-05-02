@@ -87,7 +87,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// [ScrollController] to get the current scroll position. Important for calculations!
   ///
   /// This controller has to be assigned if the returned widget of [builder] is
-  /// scrollable.Every [GridView] is scrollable by default.
+  /// scrollable. Every [GridView] is scrollable by default.
   ///
   /// So usually, you should assign the controller to the [ReorderableBuilder]
   /// and to your [GridView].
@@ -607,15 +607,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// There are two possibilities to get the scroll position.
   ///
-  /// First one is, the returned child of [widget.builder] has a scrollable widget.
-  /// In this case, it is important that the [widget._scrollController] is added
+  /// First one is, the returned child of [widget.builder] is a scrollable widget.
+  /// In this case, it is important that the [widget.scrollController] is added
   /// to the scrollable widget to get the current scroll position.
   ///
   /// Another possibility is that one of the parents is scrollable.
   /// In that case, the position of the scroll is accessible inside [context].
   ///
   /// Otherwise, 0.0 will be returned.
-  // todo: ist jetzt doppelt, geht vlt besser
   double get _scrollPixels {
     var pixels = Scrollable.of(context)?.position.pixels;
     final scrollController = widget.scrollController;
