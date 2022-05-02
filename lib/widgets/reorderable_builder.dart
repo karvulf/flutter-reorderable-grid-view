@@ -42,6 +42,19 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: true
   final bool enableDraggable;
 
+  /// Enables the functionality to scroll while dragging a child to the top or bottom.
+  ///
+  /// Combined with the value of [automaticScrollExtent], an automatic scroll starts,
+  /// when you drag the child and the widget of [builder] is scrollable.
+  ///
+  /// Defualt value: true
+  final bool enableScrollingWhileDragging;
+
+  /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
+  ///
+  /// Default value: 80.0
+  final double automaticScrollExtent;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -71,32 +84,30 @@ class ReorderableBuilder extends StatefulWidget {
   /// Callback when the dragged child was released.
   final VoidCallback? onDragEnd;
 
-  /// Controller to get the current scroll position.
+  /// [ScrollController] to get the current scroll position. Important for calculations!
   ///
-  /// The controller has to be assigned if the returned widget of [widget.builder]
-  /// is scrollable to prevent a weird animation behavior or when dragging a child.
+  /// This controller has to be assigned if the returned widget of [builder] is
+  /// scrollable.Every [GridView] is scrollable by default.
   ///
-  /// If the scrolling behavior is outside the widget, then the current scroll
-  /// position will be detected inside the [context].
+  /// So usually, you should assign the controller to the [ReorderableBuilder]
+  /// and to your [GridView].
   final ScrollController? scrollController;
-
-  ///
-  final double automaticScrollExtent;
 
   const ReorderableBuilder({
     required this.children,
     required this.builder,
+    this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
     this.automaticScrollExtent = 80.0,
+    this.enableScrollingWhileDragging = true,
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
-    this.scrollController,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         super(key: key);
@@ -189,18 +200,23 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   Widget build(BuildContext context) {
     final child = widget.builder(_getDraggableChildren());
-    return ReorderableScrollingListener(
-      isDragging: _draggedReorderableEntity != null,
-      scrollableContentKey: child.key as GlobalKey?,
-      scrollController: widget.scrollController,
-      automaticScrollExtent: widget.automaticScrollExtent,
-      onDragUpdate: _checkForCollisions,
-      onDragEnd: _handleDragEnd,
-      onScrollUpdate: (scrollPixels) {
-        _scrollPositionPixels = scrollPixels;
-      },
-      child: child,
-    );
+
+    if (widget.enableScrollingWhileDragging) {
+      return ReorderableScrollingListener(
+        isDragging: _draggedReorderableEntity != null,
+        scrollableContentKey: child.key as GlobalKey?,
+        scrollController: widget.scrollController,
+        automaticScrollExtent: widget.automaticScrollExtent,
+        onDragUpdate: _checkForCollisions,
+        onDragEnd: _handleDragEnd,
+        onScrollUpdate: (scrollPixels) {
+          _scrollPositionPixels = scrollPixels;
+        },
+        child: child,
+      );
+    } else {
+      return child;
+    }
   }
 
   /// Building a list of [widget.children] wrapped with [ReorderableAnimatedContainer].

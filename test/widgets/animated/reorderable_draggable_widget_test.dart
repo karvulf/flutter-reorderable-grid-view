@@ -21,8 +21,6 @@ void main() {
     OnCreatedFunction? onCreated,
     OnCreatedFunction? onBuilding,
     Function(ReorderableEntity reorderableEntity)? onDragStarted,
-    OnDragUpdateFunction? onDragUpdate,
-    DragEndCallback? onDragEnd,
   }) =>
       tester.pumpWidget(
         MaterialApp(
@@ -38,12 +36,10 @@ void main() {
                   (_, __) {
                     return null;
                   },
-              onDragUpdate: onDragUpdate ?? (_) {},
               onBuilding: onBuilding ??
                   (_, __) {
                     return null;
                   },
-              onDragEnd: onDragEnd ?? (_) {},
               onDragStarted: onDragStarted ?? (_) {},
               dragChildBoxDecoration: const BoxDecoration(
                 boxShadow: <BoxShadow>[
@@ -243,64 +239,6 @@ void main() {
     // then
     expect(actualReorderableEntity, equals(givenReorderableEntity));
   });
-
-  testWidgets(
-      'GIVEN [ReorderableDraggable] '
-      'WHEN moving while dragging '
-      'THEN should call #onDragUpdated', (WidgetTester tester) async {
-    // given
-    late final DragUpdateDetails actualDetails;
-
-    await pumpWidget(
-      tester,
-      enableDraggable: true,
-      enableLongPress: false,
-      onDragUpdate: (DragUpdateDetails details) {
-        actualDetails = details;
-      },
-    );
-
-    final firstLocation = tester.getCenter(find.byWidget(givenChild));
-    final gesture = await tester.startGesture(firstLocation, pointer: 7);
-    await tester.pump(kLongPressTimeout);
-
-    // when
-    await gesture.moveTo(const Offset(10, 10));
-    await tester.pump();
-
-    // then
-    expect(actualDetails, isNotNull);
-  });
-
-  testWidgets(
-      'GIVEN [ReorderableDraggable] '
-      'WHEN release dragging '
-      'THEN should call #onDragEnd', (WidgetTester tester) async {
-    // given
-    late final DraggableDetails actualDetails;
-
-    await pumpWidget(
-      tester,
-      enableDraggable: true,
-      enableLongPress: false,
-      onDragEnd: (DraggableDetails details) {
-        actualDetails = details;
-      },
-    );
-
-    final firstLocation = tester.getCenter(find.byWidget(givenChild));
-    final gesture = await tester.startGesture(firstLocation, pointer: 7);
-    await tester.pump(kLongPressTimeout);
-
-    await gesture.moveTo(const Offset(10, 10));
-    await tester.pump();
-
-    // when
-    await gesture.up();
-
-    // then
-    expect(actualDetails, isNotNull);
-  });
 }
 
 class _UpdateReorderableEntityTest extends StatefulWidget {
@@ -357,9 +295,7 @@ class _UpdateReorderableEntityTestState
             onCreated: (_, __) {
               return null;
             },
-            onDragUpdate: (_) {},
             onBuilding: widget.onBuilding,
-            onDragEnd: (_) {},
             onDragStarted: (_) {},
             dragChildBoxDecoration: null,
           ),

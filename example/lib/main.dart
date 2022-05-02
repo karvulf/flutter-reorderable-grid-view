@@ -147,7 +147,6 @@ class _MyAppState extends State<MyApp> {
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
-          childKey: _gridViewKey,
           builder: (children) {
             return GridView(
               key: _gridViewKey,
@@ -185,7 +184,6 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           scrollController: _scrollController,
-          childKey: _gridViewKey,
           builder: (children) {
             return GridView.extent(
               key: _gridViewKey,
@@ -211,7 +209,6 @@ class _MyAppState extends State<MyApp> {
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
           scrollController: _scrollController,
-          childKey: _gridViewKey,
           builder: (children) {
             return GridView.builder(
               key: _gridViewKey,

@@ -1,3 +1,9 @@
+## 3.0.0
+⚠️️ **Breaking Changes**
+
+⭐️ **New features**
+
+
 ## 2.1.0
 ⭐️ **New features**
 * added two new parameters for `ReorderableBuilder`:
