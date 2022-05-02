@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_container.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -125,12 +124,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// After dragging a child, [_scrollPositionPixels] is always updated.
   double _scrollPositionPixels = 0.0;
 
-  Size? _childSize;
-
-  Offset? _childOffset;
-
-  Timer? _scrollCheckTimer;
-
   @override
   void initState() {
     super.initState();
@@ -157,8 +150,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       );
       orderId++;
     }
-
-    _updateChildSizeAndOffset();
   }
 
   @override
@@ -185,7 +176,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     if (oldWidget.children != widget.children) {
       _handleUpdatedChildren();
-      _updateChildSizeAndOffset();
     }
   }
 
@@ -197,18 +187,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerMove: (details) {
-        if (_draggedReorderableEntity != null) {
-          _handleDragUpdate(DragUpdateDetails(
-            globalPosition: details.position,
-          ));
-        }
-      },
-      onPointerUp: (details) {
-        if (_draggedReorderableEntity != null) {
-          _handleDragEnd();
-        }
+    return ReorderableScrollingListener(
+      isDragging: _draggedReorderableEntity != null,
+      childKey: widget.childKey,
+      scrollController: widget.scrollController,
+      onDragUpdate: _checkForCollisions,
+      onDragEnd: _handleDragEnd,
+      onScrollUpdate: (scrollPixels) {
+        _scrollPositionPixels = scrollPixels;
       },
       child: widget.builder(_getDraggableChildren()),
     );
@@ -256,18 +242,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return draggableChildren;
   }
 
-  void _updateChildSizeAndOffset() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final renderBox =
-          widget.childKey?.currentContext?.findRenderObject() as RenderBox?;
-
-      if (renderBox != null) {
-        _childOffset = renderBox.localToGlobal(Offset.zero);
-        _childSize = renderBox.size;
-      }
-    });
-  }
-
   /// Adding [Size] and [Offset] to [reorderableEntity] in [_childrenMap].
   ///
   /// When a new child was added to [widget.children], this will be called to
@@ -291,7 +265,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         isBuilding: false,
       );
       _childrenMap[reorderableEntity.keyHashCode] = updatedReorderableEntity;
-      _offsetMap[reorderableEntity.updatedOrderId] = offset;
 
       return updatedReorderableEntity;
     }
@@ -306,71 +279,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       _draggedReorderableEntity = reorderableEntity;
       _scrollPositionPixels = _scrollPixels;
     });
-  }
-
-  /// Always called when the user moves the dragged child around.
-  void _handleDragUpdate(DragUpdateDetails details) {
-    if (widget.childKey != null && widget.scrollController != null) {
-      if (_scrollCheckTimer != null && _scrollCheckTimer!.isActive) {
-        _scrollCheckTimer!.cancel();
-      }
-      _scrollCheckTimer = Timer.periodic(
-        const Duration(milliseconds: 10),
-        (timer) {
-          _checkToScrollWhileDragging(
-            dragPosition: details.globalPosition,
-          );
-        },
-      );
-      _checkToScrollWhileDragging(
-        dragPosition: details.globalPosition,
-      );
-    }
-
-    _checkForCollisions(details: details);
-  }
-
-  void _checkToScrollWhileDragging({
-    required Offset dragPosition,
-  }) {
-    final size = _childSize;
-    final offset = _childOffset;
-
-    if (size != null && offset != null) {
-      const allowedRange = 50;
-      final minDy = offset.dy + allowedRange;
-      final maxDy = offset.dy + size.height - allowedRange;
-      const variance = 5;
-
-      if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
-        _scrollPositionPixels -= variance;
-        print(
-            'scroll to top if possible with scroll $_scrollPositionPixels!!!');
-        _scrollTo(dy: _scrollPositionPixels);
-      } else if (dragPosition.dy >= maxDy &&
-          _scrollPositionPixels <
-              widget.scrollController!.position.maxScrollExtent) {
-        _scrollPositionPixels += variance;
-        // print('scroll to bottom if possible with scroll $_scrollPositionPixels!!!');
-        _scrollTo(dy: _scrollPositionPixels);
-      }
-    }
-  }
-
-  void _scrollTo({required double dy}) {
-    final scrollController = widget.scrollController;
-
-    if (scrollController != null && scrollController.hasClients) {
-      // end _scrollController.position.maxScrollExtent
-      scrollController.jumpTo(dy);
-      /*
-      scrollController.animateTo(
-        dy,
-        duration: const Duration(milliseconds: 50),
-        curve: Curves.ease,
-      );
-       */
-    }
   }
 
   /// Updates orderId and offset of all children in [_childrenMap] and calls [widget.onReorder] at the end.
@@ -390,7 +298,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
-    print('oldindex $oldIndex newIndex $newIndex');
 
     // the dragged item has changed position
     if (oldIndex != newIndex) {
@@ -418,7 +325,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     setState(() {
       _draggedReorderableEntity = null;
-      _scrollCheckTimer = null;
     });
   }
 
@@ -554,14 +460,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// When a collision was detected, it is possible that one or more children
   /// were between that collision and the dragged child.
-  void _checkForCollisions({
-    required DragUpdateDetails details,
-  }) {
+  void _checkForCollisions(PointerMoveEvent details) {
     final draggedHashKey = _draggedReorderableEntity!.child.key.hashCode;
 
     var draggedOffset = Offset(
-      details.localPosition.dx,
-      details.localPosition.dy + _scrollPositionPixels,
+      details.position.dx,
+      details.position.dy + _scrollPositionPixels,
     );
 
     final collisionMapEntry = _getCollisionMapEntry(
@@ -694,6 +598,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// In that case, the position of the scroll is accessible inside [context].
   ///
   /// Otherwise, 0.0 will be returned.
+  // todo: ist jetzt doppelt, geht vlt besser
   double get _scrollPixels {
     var pixels = Scrollable.of(context)?.position.pixels;
     final scrollController = widget.scrollController;
@@ -717,7 +622,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required int orderId,
     required RenderBox? renderBox,
   }) {
-    if (renderBox == null) {
+    if (_offsetMap[orderId] != null) {
+      return _offsetMap[orderId];
+    } else if (renderBox == null) {
       // assert(false, 'RenderBox of child should not be null!');
     } else {
       final localOffset = renderBox.globalToLocal(Offset.zero);
@@ -726,6 +633,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         localOffset.dx.abs(),
         localOffset.dy.abs() + _scrollPixels,
       );
+
       _offsetMap[orderId] = offset;
 
       return offset;

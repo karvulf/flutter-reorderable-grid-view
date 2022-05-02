@@ -8,7 +8,7 @@ class ReorderableScrollingListener extends StatefulWidget {
 
   final PointerMoveEventListener onDragUpdate;
   final VoidCallback onDragEnd;
-  final double Function() onScrollUpdate;
+  final void Function(double scrollPixels) onScrollUpdate;
 
   final GlobalKey? childKey;
   final ScrollController? scrollController;
@@ -50,10 +50,6 @@ class _ReorderableScrollingListenerState
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isDragging) {
-      return widget.child;
-    }
-
     return Listener(
       onPointerMove: (details) {
         if (widget.isDragging) {
@@ -62,9 +58,6 @@ class _ReorderableScrollingListenerState
       },
       onPointerUp: (details) {
         if (widget.isDragging) {
-          setState(() {
-            _scrollCheckTimer = null;
-          });
           widget.onDragEnd();
         }
       },
@@ -76,18 +69,17 @@ class _ReorderableScrollingListenerState
   void _handleDragUpdate(PointerMoveEvent details) {
     if (widget.childKey != null && widget.scrollController != null) {
       final position = details.position;
-
-      if (_scrollCheckTimer != null && _scrollCheckTimer!.isActive) {
-        _scrollCheckTimer!.cancel();
-      }
+      _scrollCheckTimer?.cancel();
       _scrollCheckTimer = Timer.periodic(
         const Duration(milliseconds: 10),
         (timer) {
-          _checkToScrollWhileDragging(dragPosition: position);
+          if (widget.isDragging) {
+            _checkToScrollWhileDragging(dragPosition: position);
+          } else {
+            timer.cancel();
+          }
         },
       );
-      // Todo: maybe weg?
-      _checkToScrollWhileDragging(dragPosition: position);
     }
 
     widget.onDragUpdate(details);
@@ -96,6 +88,11 @@ class _ReorderableScrollingListenerState
   void _checkToScrollWhileDragging({
     required Offset dragPosition,
   }) {
+    // prevents dragging if timer is still active but isDragging is false
+    if (!widget.isDragging) {
+      _scrollCheckTimer?.cancel();
+    }
+
     final size = _childSize;
     final offset = _childOffset;
 
@@ -107,8 +104,6 @@ class _ReorderableScrollingListenerState
 
       if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
         _scrollPositionPixels -= variance;
-        print(
-            'scroll to top if possible with scroll $_scrollPositionPixels!!!');
         _scrollTo(dy: _scrollPositionPixels);
       } else if (dragPosition.dy >= maxDy &&
           _scrollPositionPixels <
@@ -133,6 +128,7 @@ class _ReorderableScrollingListenerState
         curve: Curves.ease,
       );
        */
+      widget.onScrollUpdate(dy);
     }
   }
 
