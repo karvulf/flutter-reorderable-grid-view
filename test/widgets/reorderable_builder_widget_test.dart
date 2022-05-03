@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart'
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_container.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -11,6 +12,9 @@ void main() {
     WidgetTester tester, {
     required List<Widget> children,
     List<int> lockedIndices = const [],
+    bool enableScrollingWhileDragging = true,
+    GlobalKey? childKey,
+    ScrollController? scrollController,
     ReorderListCallback? onReorder,
     VoidCallback? onDragStarted,
     VoidCallback? onDragEnd,
@@ -22,10 +26,14 @@ void main() {
               children: children,
               onReorder: onReorder ?? (_) {},
               lockedIndices: lockedIndices,
+              enableScrollingWhileDragging: enableScrollingWhileDragging,
               onDragEnd: onDragEnd,
               onDragStarted: onDragStarted,
+              scrollController: scrollController,
               builder: (children) {
                 return GridView(
+                  key: childKey,
+                  controller: scrollController,
                   children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
@@ -41,17 +49,41 @@ void main() {
 
   group('#Building [ReorderableBuilder]', () {
     testWidgets(
-        'GIVEN no children and [GridView] '
+        'GIVEN no children, [GridView] and only default values '
         'WHEN pumping [ReorderableBuilder] '
         'THEN should show expected widgets and values',
         (WidgetTester tester) async {
       // given
 
       // when
-      await pumpWidgetWithGridView(tester, children: const []);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ReorderableBuilder(
+            children: const [],
+            onReorder: (_) {},
+            builder: (children) {
+              return GridView(
+                children: children,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                ),
+              );
+            },
+          ),
+        ),
+      );
 
       // then
-      expect(find.byType(ReorderableBuilder), findsOneWidget);
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is ReorderableBuilder &&
+              widget.lockedIndices.isEmpty &&
+              widget.enableLongPress &&
+              widget.longPressDelay == kLongPressTimeout &&
+              widget.enableDraggable &&
+              widget.automaticScrollExtent == 80.0 &&
+              widget.enableScrollingWhileDragging),
+          findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
               widget is GridView &&
@@ -59,10 +91,11 @@ void main() {
                   .children
                   .isEmpty),
           findsOneWidget);
+      expect(find.byType(ReorderableScrollingListener), findsOneWidget);
     });
 
     testWidgets(
-        'GIVEN 2 children and [GridView] '
+        'GIVEN 2 children, enableScrollingWhileDragging = true and [GridView] '
         'WHEN pumping [ReorderableBuilder] '
         'THEN should show expected widgets and values',
         (WidgetTester tester) async {
@@ -70,7 +103,11 @@ void main() {
       final givenChildren = _generateChildren(length: 2);
 
       // when
-      await pumpWidgetWithGridView(tester, children: givenChildren);
+      await pumpWidgetWithGridView(
+        tester,
+        children: givenChildren,
+        enableScrollingWhileDragging: true,
+      );
 
       // then
       expect(find.byType(ReorderableAnimatedContainer),
@@ -79,6 +116,7 @@ void main() {
           findsOneWidget);
       expect(_findReorderableAnimatedContainer(key: givenChildren[1].key),
           findsOneWidget);
+      expect(find.byType(ReorderableScrollingListener), findsOneWidget);
     });
 
     testWidgets(
@@ -702,6 +740,49 @@ void main() {
         givenChildren[6],
       ];
       expect(actualChildren, equals(expectedChildren));
+    });
+  });
+  group('#Drag and Drop to trigger autoscroll', () {
+    testWidgets(
+        'GIVEN 10 children and [ReorderableBuilder] '
+        'WHEN dragging to the bottom '
+        'THEN should automatically scroll and not call onReorder',
+        (WidgetTester tester) async {
+      // given
+      var actualOrderUpdateEntities = <OrderUpdateEntity>[];
+      final givenChildren = _generateChildren(length: 200);
+      final givenChildKey = GlobalKey();
+      await pumpWidgetWithGridView(
+        tester,
+        children: givenChildren,
+        childKey: givenChildKey,
+        scrollController: ScrollController(),
+        onReorder: (orderUpdateEntities) {
+          actualOrderUpdateEntities = orderUpdateEntities;
+        },
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      // start dragging
+      final firstLocation = tester.getCenter(find.text('7'));
+      final gesture = await tester.startGesture(
+        firstLocation,
+        pointer: 7,
+      );
+      await tester.pump(kLongPressTimeout);
+
+      // move to bottom of GridView to autoscroll
+      final bottom = tester.getBottomRight(find.byKey(givenChildKey));
+      await gesture.moveBy(bottom);
+      await tester.pump();
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      expect(actualOrderUpdateEntities, isEmpty);
     });
   });
 }

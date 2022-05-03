@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 
+/// Uses [Listener] to indicate position updates while dragging a child and enables an autoscroll functionality.
 class ReorderableScrollingListener extends StatefulWidget {
   final Widget child;
   final bool isDragging;
@@ -9,9 +10,14 @@ class ReorderableScrollingListener extends StatefulWidget {
 
   final PointerMoveEventListener onDragUpdate;
   final VoidCallback onDragEnd;
+
+  /// Called when the current scrolling position changes.
   final void Function(double scrollPixels) onScrollUpdate;
 
+  /// Should be the key of the added [GridView].
   final GlobalKey? scrollableContentKey;
+
+  /// Should be the [ScrollController] of the [GridView].
   final ScrollController? scrollController;
 
   const ReorderableScrollingListener({
@@ -33,20 +39,28 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
+  /// Describes current scroll position in pixels.
   double _scrollPositionPixels = 0.0;
 
+  /// Repeating timer to ensure that autoscroll also works when the user doesn't the dragged child.
   Timer? _scrollCheckTimer;
+
+  /// [Size] of the child that was found in [widget.scrollableContentKey].
   Size? _childSize;
+
+  /// [Offset] of the child that was found in [widget.scrollableContentKey].
   Offset? _childOffset;
 
   @override
   void didUpdateWidget(covariant ReorderableScrollingListener oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isDragging != oldWidget.isDragging && widget.isDragging) {
-      _updateChildSizeAndOffset();
-      setState(() {
-        _scrollPositionPixels = _scrollPixels;
-      });
+    if (widget.isDragging != oldWidget.isDragging) {
+      if (widget.isDragging) {
+        _updateChildSizeAndOffset();
+        setState(() {
+          _scrollPositionPixels = _scrollPixels;
+        });
+      }
     }
   }
 
@@ -68,10 +82,20 @@ class _ReorderableScrollingListenerState
   }
 
   /// Always called when the user moves the dragged child around.
+  ///
+  /// If there is a [widget.scrollableContentKey] and [widget.scrollController],
+  /// then the autoscroll is starting by creating a repeating timer that calls
+  /// himself every 10 ms to check if widget of [widget.scrollableContentKey]
+  /// can be scrolled up or down.
+  ///
+  /// The timer cancels himself before recreating a new one and to ensure that
+  /// no timer is ongoing when the [widget.isDragging] stopped, it checks also himself
+  /// if it has to be canceled.
   void _handleDragUpdate(PointerMoveEvent details) {
     if (widget.scrollableContentKey != null &&
         widget.scrollController != null) {
       final position = details.position;
+
       _scrollCheckTimer?.cancel();
       _scrollCheckTimer = Timer.periodic(
         const Duration(milliseconds: 10),
@@ -88,14 +112,12 @@ class _ReorderableScrollingListenerState
     widget.onDragUpdate(details);
   }
 
-  void _checkToScrollWhileDragging({
-    required Offset dragPosition,
-  }) {
-    // prevents dragging if timer is still active but isDragging is false
-    if (!widget.isDragging) {
-      _scrollCheckTimer?.cancel();
-    }
-
+  /// Checks if [widget.scrollController] can scrolling up or down depending on [widget.automaticScrollExtent].
+  ///
+  /// This only works if [widget.scrollableContentKey] is not null. By defining
+  /// a range ([widget.automaticScrollExtent]) that should trigger the autoscroll,
+  /// it is checked whether to scroll down or up depending on the current [dragPosition].
+  void _checkToScrollWhileDragging({required Offset dragPosition}) {
     final size = _childSize;
     final offset = _childOffset;
 
@@ -112,29 +134,22 @@ class _ReorderableScrollingListenerState
           _scrollPositionPixels <
               widget.scrollController!.position.maxScrollExtent) {
         _scrollPositionPixels += variance;
-        // print('scroll to bottom if possible with scroll $_scrollPositionPixels!!!');
         _scrollTo(dy: _scrollPositionPixels);
       }
     }
   }
 
+  /// Scrolling to the specified [dy] using [widget.scrollController].
   void _scrollTo({required double dy}) {
     final scrollController = widget.scrollController;
 
     if (scrollController != null && scrollController.hasClients) {
-      // end _scrollController.position.maxScrollExtent
       scrollController.jumpTo(dy);
-      /*
-      scrollController.animateTo(
-        dy,
-        duration: const Duration(milliseconds: 50),
-        curve: Curves.ease,
-      );
-       */
       widget.onScrollUpdate(dy);
     }
   }
 
+  /// Updates [_childOffset] and [_childSize] using the values defined in [widget.scrollableContentKey].
   void _updateChildSizeAndOffset() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       final renderBox = widget.scrollableContentKey?.currentContext
