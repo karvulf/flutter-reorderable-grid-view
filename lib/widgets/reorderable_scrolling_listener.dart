@@ -7,6 +7,7 @@ class ReorderableScrollingListener extends StatefulWidget {
   final Widget child;
   final bool isDragging;
   final double automaticScrollExtent;
+  final bool enableScrollingWhileDragging;
 
   final PointerMoveEventListener onDragUpdate;
   final VoidCallback onDragEnd;
@@ -23,6 +24,7 @@ class ReorderableScrollingListener extends StatefulWidget {
   const ReorderableScrollingListener({
     required this.child,
     required this.isDragging,
+    required this.enableScrollingWhileDragging,
     required this.automaticScrollExtent,
     required this.onDragUpdate,
     required this.onDragEnd,
@@ -92,7 +94,8 @@ class _ReorderableScrollingListenerState
   /// no timer is ongoing when the [widget.isDragging] stopped, it checks also himself
   /// if it has to be canceled.
   void _handleDragUpdate(PointerMoveEvent details) {
-    if (widget.scrollableContentKey != null &&
+    if (widget.enableScrollingWhileDragging &&
+        widget.scrollableContentKey != null &&
         widget.scrollController != null) {
       final position = details.position;
 

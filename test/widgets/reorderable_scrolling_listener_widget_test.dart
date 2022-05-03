@@ -9,6 +9,7 @@ void main() {
     WidgetTester tester, {
     required bool isDragging,
     required GlobalKey scrollableContentKey,
+    bool enableScrollingWhileDragging = true,
     double automaticScrollExtent = 50.0,
     VoidCallback? onDragEnd,
     ScrollController? scrollController,
@@ -19,6 +20,7 @@ void main() {
         MaterialApp(
           home: ReorderableScrollingListener(
             onDragEnd: onDragEnd ?? () {},
+            enableScrollingWhileDragging: enableScrollingWhileDragging,
             scrollController: scrollController,
             isDragging: isDragging,
             onDragUpdate: onDragUpdate ?? (_) {},
@@ -93,6 +95,49 @@ void main() {
     // then
     expect(actualDragUpdateCallCounter, equals(1));
     expect(actualDragEndCallCounter, equals(1));
+  });
+
+  testWidgets(
+      'GIVEN [ReorderableScrollingListener], isDragging = true, scrollController, '
+      'onScrollUpdate and enableScrollingWhileDragging = false '
+      'WHEN moving to bottom and changing isDragging to false '
+      'THEN should not scroll automatic to bottom and not call onScrollUpdate',
+      (WidgetTester tester) async {
+    // given
+    final scrollController = ScrollController();
+    double? actualScrollValue;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _UpdateReorderableScrollingListener(
+          isDragging: false,
+          enableScrollingWhileDragging: false,
+          // will be true in when part trigger calculations of size and offset
+          scrollController: scrollController,
+          scrollableContentKey: givenScrollableContentKey,
+          onScrollUpdate: (value) {
+            actualScrollValue = value;
+          },
+        ),
+      ),
+    );
+
+    // when
+    // isDragging to true to trigger calculation of size and offset
+    await tester.tap(find.byType(TextButton));
+    await tester.pumpAndSettle();
+
+    const moved = Offset(20, 295);
+    final center = tester.getCenter(find.byKey(givenScrollableContentKey));
+    final TestGesture gesture = await tester.startGesture(center);
+    await gesture.moveBy(moved);
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(TextButton));
+    await tester.pumpAndSettle();
+
+    // then
+    expect(actualScrollValue, isNull);
   });
 
   testWidgets(
@@ -194,12 +239,14 @@ void main() {
 
 class _UpdateReorderableScrollingListener extends StatefulWidget {
   final bool isDragging;
+  final bool enableScrollingWhileDragging;
   final ScrollController? scrollController;
   final Function(double scrollValue)? onScrollUpdate;
   final GlobalKey? scrollableContentKey;
 
   const _UpdateReorderableScrollingListener({
     required this.isDragging,
+    this.enableScrollingWhileDragging = true,
     this.scrollController,
     this.onScrollUpdate,
     this.scrollableContentKey,
@@ -240,6 +287,7 @@ class _UpdateReorderableScrollingListenerState
       ),
       body: ReorderableScrollingListener(
         onDragEnd: () {},
+        enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
         scrollController: widget.scrollController,
         isDragging: isDragging,
         onDragUpdate: (_) {},

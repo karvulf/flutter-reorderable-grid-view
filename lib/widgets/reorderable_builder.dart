@@ -206,22 +206,19 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             (widget.enableScrollingWhileDragging && child.key is GlobalKey),
         'If the parameter enableScrollingWhileDragging is true, then you have to add a GlobalKey to your GridView!');
 
-    if (widget.enableScrollingWhileDragging) {
-      return ReorderableScrollingListener(
-        isDragging: _draggedReorderableEntity != null,
-        scrollableContentKey: child.key as GlobalKey?,
-        scrollController: widget.scrollController,
-        automaticScrollExtent: widget.automaticScrollExtent,
-        onDragUpdate: _checkForCollisions,
-        onDragEnd: _handleDragEnd,
-        onScrollUpdate: (scrollPixels) {
-          _scrollPositionPixels = scrollPixels;
-        },
-        child: child,
-      );
-    } else {
-      return child;
-    }
+    return ReorderableScrollingListener(
+      isDragging: _draggedReorderableEntity != null,
+      scrollableContentKey: child.key as GlobalKey?,
+      scrollController: widget.scrollController,
+      automaticScrollExtent: widget.automaticScrollExtent,
+      enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+      onDragUpdate: _checkForCollisions,
+      onDragEnd: _handleDragEnd,
+      onScrollUpdate: (scrollPixels) {
+        _scrollPositionPixels = scrollPixels;
+      },
+      child: child,
+    );
   }
 
   /// Building a list of [widget.children] wrapped with [ReorderableAnimatedContainer].

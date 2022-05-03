@@ -12,7 +12,7 @@ void main() {
     WidgetTester tester, {
     required List<Widget> children,
     List<int> lockedIndices = const [],
-    bool enableScrollingWhileDragging = true,
+    bool enableScrollingWhileDragging = false,
     GlobalKey? childKey,
     ScrollController? scrollController,
     ReorderListCallback? onReorder,
@@ -63,6 +63,7 @@ void main() {
             onReorder: (_) {},
             builder: (children) {
               return GridView(
+                key: GlobalKey(),
                 children: children,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
@@ -107,6 +108,7 @@ void main() {
         tester,
         children: givenChildren,
         enableScrollingWhileDragging: true,
+        childKey: GlobalKey(),
       );
 
       // then
@@ -187,12 +189,43 @@ void main() {
                     children: givenChildren,
                     enableDraggable: true,
                     builder: (children) => GridView(
+                      key: GlobalKey(),
                       children: children,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         mainAxisSpacing: 4,
                         crossAxisSpacing: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          throwsAssertionError);
+    });
+
+    testWidgets(
+        'GIVEN 2 children, enableScrollingWhileDragging = true and [GridView] with missing globalKey '
+        'WHEN pumping [ReorderableBuilder] '
+        'THEN should throw assertion error', (WidgetTester tester) async {
+      // given
+      final givenChildren = _generateChildren(length: 2);
+
+      // when
+
+      // then
+      expect(
+          () => tester.pumpWidget(
+                MaterialApp(
+                  home: ReorderableBuilder(
+                    children: givenChildren,
+                    enableDraggable: true,
+                    enableScrollingWhileDragging: true,
+                    builder: (children) => GridView(
+                      children: children,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
                       ),
                     ),
                   ),
@@ -216,6 +249,7 @@ void main() {
             children: givenChildren,
             onReorder: (_) {},
             builder: (children) => GridView.count(
+              key: GlobalKey(),
               children: children,
               crossAxisCount: 3,
             ),
@@ -247,6 +281,7 @@ void main() {
             children: givenChildren,
             onReorder: (_) {},
             builder: (children) => GridView.extent(
+              key: GlobalKey(),
               children: children,
               maxCrossAxisExtent: 200,
             ),
@@ -278,6 +313,7 @@ void main() {
             children: givenChildren,
             onReorder: (_) {},
             builder: (children) => GridView.builder(
+              key: GlobalKey(),
               itemCount: children.length,
               itemBuilder: (context, index) {
                 return children[index];
@@ -756,6 +792,7 @@ void main() {
         tester,
         children: givenChildren,
         childKey: givenChildKey,
+        enableScrollingWhileDragging: true,
         scrollController: ScrollController(),
         onReorder: (orderUpdateEntities) {
           actualOrderUpdateEntities = orderUpdateEntities;
@@ -883,6 +920,7 @@ class _UpdateChildrenReorderableBuilderTestState
               onReorder: (_) {},
               builder: (children) {
                 return GridView(
+                  key: GlobalKey(),
                   children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
