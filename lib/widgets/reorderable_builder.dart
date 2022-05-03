@@ -204,7 +204,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     assert(
         !widget.enableScrollingWhileDragging ||
             (widget.enableScrollingWhileDragging && child.key is GlobalKey),
-        'If the parameter enableScrollingWhileDragging is true, then you have to add a GlobalKey to your GridView!');
+        'If the parameter enableScrollingWhileDragging is true, then you have to add a GlobalKey to your GridView!\nMake sure that your GlobalKey is declared as static variable for your widget or inside a stateful widget as final variable.');
 
     return ReorderableScrollingListener(
       isDragging: _draggedReorderableEntity != null,
