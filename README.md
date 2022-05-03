@@ -20,6 +20,7 @@ Package for having animated Drag and Drop functionality for every type of `GridV
 - [Getting Started](#getting-started)
 - [Usage](#usage)
   - [Drag and Drop](#drag-and-drop)
+  - [Scroll while dragging](#scroll-while-dragging)
   - [Animations](#animations)
 - [Supported Widgets](#supported-widgets)
 - [Parameters](#parameters)
@@ -48,17 +49,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final fruits = <String>["apple", "banana", "strawberry"];
+  final _scrollController = ScrollController();
+  final _gridViewKey = GlobalKey();
+  final _fruits = <String>["apple", "banana", "strawberry"];
 
   @override
   Widget build(BuildContext context) {
     final generatedChildren = List.generate(
-      fruits.length,
-      (index) => Container(
-        key: Key(fruits.elementAt(index)),
+      _fruits.length,
+              (index) => Container(
+        key: Key(_fruits.elementAt(index)),
         color: Colors.lightBlue,
         child: Text(
-          fruits.elementAt(index),
+          _fruits.elementAt(index),
         ),
       ),
     );
@@ -66,15 +69,17 @@ class _MyAppState extends State<MyApp> {
     return Scaffold(
       body: ReorderableBuilder(
         children: generatedChildren,
+        scrollController: _scrollController,
         onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
           for (final orderUpdateEntity in orderUpdateEntities) {
-            final fruit = fruits.removeAt(orderUpdateEntity.oldIndex);
-            fruits.insert(orderUpdateEntity.newIndex, fruit);
+            final fruit = _fruits.removeAt(orderUpdateEntity.oldIndex);
+            _fruits.insert(orderUpdateEntity.newIndex, fruit);
           }
         },
-        builder: (children, scrollController) {
+        builder: (children) {
           return GridView(
-            controller: scrollController,
+            key: _gridViewKey,
+            controller: _scrollController,
             children: children,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
@@ -101,6 +106,9 @@ Also be sure to make where you have the scrolling behavior. If your `GridView` h
 ### Drag and Drop
 The functionality for drag and drop is enabled by default. You have to use `onReorder` to prevent a weird behavior after releasing the dragged child.
 
+### Scroll while dragging
+While dragging a child, it can be moved to top or bottom of your `GridView` to start an automatic scrolling. 
+
 ### Animations
 There are different animations:
 - when drag and drop, all position changes are animated
@@ -125,6 +133,9 @@ There are different animations:
 | `enableDraggable` | Enables the drag and drop functionality. | **true** |
 | `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. |**-** |
 | `initDelay` | !**Not recommended**! - Adding a delay when creating children instead of a PostFrameCallback.|**-** |
+| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.|**true** |
+| `automaticScrollExtent` | Defines the height of the top or bottom before the dragged child indicates a scrolling. |**80.0** |
+| `scrollController` | `ScrollController` to get the current scroll position. Important for calculations!|**-** |
 | `onReorder` | Called after drag and drop was released. Contains a list of `OrderUpdateEntity` that has information about the old and new index. See more on the example `main.dart`|**-** |
 | `onDragStarted` | Callback when user starts dragging a child. |**-** |
 | `onDragEnd` | Callback when user releases dragged child. |**-** |

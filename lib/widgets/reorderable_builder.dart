@@ -177,6 +177,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         for (final entry in _childrenMap.entries) {
           _childrenMap[entry.key] = entry.value.copyWith(isBuilding: true);
         }
+        _offsetMap.clear();
         setState(() {});
       }
     });
