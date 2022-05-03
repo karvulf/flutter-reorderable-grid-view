@@ -201,6 +201,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   Widget build(BuildContext context) {
     final child = widget.builder(_getDraggableChildren());
+    assert(
+        !widget.enableScrollingWhileDragging ||
+            (widget.enableScrollingWhileDragging && child.key is GlobalKey),
+        'If the parameter enableScrollingWhileDragging is true, then you have to add a GlobalKey to your GridView!');
 
     if (widget.enableScrollingWhileDragging) {
       return ReorderableScrollingListener(
