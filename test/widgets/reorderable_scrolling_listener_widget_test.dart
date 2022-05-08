@@ -26,7 +26,7 @@ void main() {
             onDragUpdate: onDragUpdate ?? (_) {},
             automaticScrollExtent: automaticScrollExtent,
             onScrollUpdate: onScrollUpdate ?? (_) {},
-            scrollableContentKey: scrollableContentKey,
+            reorderableChildKey: scrollableContentKey,
             child: SizedBox(
               key: givenScrollableContentKey,
               height: 300,
@@ -293,7 +293,7 @@ class _UpdateReorderableScrollingListenerState
         onDragUpdate: (_) {},
         automaticScrollExtent: 80.0,
         onScrollUpdate: widget.onScrollUpdate ?? (_) {},
-        scrollableContentKey: widget.scrollableContentKey ?? GlobalKey(),
+        reorderableChildKey: widget.scrollableContentKey ?? GlobalKey(),
         child: SizedBox(
           key: widget.scrollableContentKey ?? GlobalKey(),
           height: 300,

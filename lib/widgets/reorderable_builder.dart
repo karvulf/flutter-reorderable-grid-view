@@ -208,7 +208,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     return ReorderableScrollingListener(
       isDragging: _draggedReorderableEntity != null,
-      scrollableContentKey: child.key as GlobalKey?,
+      reorderableChildKey: child.key as GlobalKey?,
       scrollController: widget.scrollController,
       automaticScrollExtent: widget.automaticScrollExtent,
       enableScrollingWhileDragging: widget.enableScrollingWhileDragging,

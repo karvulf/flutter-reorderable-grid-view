@@ -16,7 +16,7 @@ class ReorderableScrollingListener extends StatefulWidget {
   final void Function(double scrollPixels) onScrollUpdate;
 
   /// Should be the key of the added [GridView].
-  final GlobalKey? scrollableContentKey;
+  final GlobalKey? reorderableChildKey;
 
   /// Should be the [ScrollController] of the [GridView].
   final ScrollController? scrollController;
@@ -29,7 +29,7 @@ class ReorderableScrollingListener extends StatefulWidget {
     required this.onDragUpdate,
     required this.onDragEnd,
     required this.onScrollUpdate,
-    required this.scrollableContentKey,
+    required this.reorderableChildKey,
     required this.scrollController,
     Key? key,
   }) : super(key: key);
@@ -47,10 +47,10 @@ class _ReorderableScrollingListenerState
   /// Repeating timer to ensure that autoscroll also works when the user doesn't the dragged child.
   Timer? _scrollCheckTimer;
 
-  /// [Size] of the child that was found in [widget.scrollableContentKey].
+  /// [Size] of the child that was found in [widget.reorderableChildKey].
   Size? _childSize;
 
-  /// [Offset] of the child that was found in [widget.scrollableContentKey].
+  /// [Offset] of the child that was found in [widget.reorderableChildKey].
   Offset? _childOffset;
 
   @override
@@ -85,9 +85,9 @@ class _ReorderableScrollingListenerState
 
   /// Always called when the user moves the dragged child around.
   ///
-  /// If there is a [widget.scrollableContentKey] and [widget.scrollController],
+  /// If there is a [widget.reorderableChildKey] and [widget.scrollController],
   /// then the autoscroll is starting by creating a repeating timer that calls
-  /// himself every 10 ms to check if widget of [widget.scrollableContentKey]
+  /// himself every 10 ms to check if widget of [widget.reorderableChildKey]
   /// can be scrolled up or down.
   ///
   /// The timer cancels himself before recreating a new one and to ensure that
@@ -95,7 +95,7 @@ class _ReorderableScrollingListenerState
   /// if it has to be canceled.
   void _handleDragUpdate(PointerMoveEvent details) {
     if (widget.enableScrollingWhileDragging &&
-        widget.scrollableContentKey != null &&
+        widget.reorderableChildKey != null &&
         widget.scrollController != null) {
       final position = details.position;
 
@@ -117,7 +117,7 @@ class _ReorderableScrollingListenerState
 
   /// Checks if [widget.scrollController] can scrolling up or down depending on [widget.automaticScrollExtent].
   ///
-  /// This only works if [widget.scrollableContentKey] is not null. By defining
+  /// This only works if [widget.reorderableChildKey] is not null. By defining
   /// a range ([widget.automaticScrollExtent]) that should trigger the autoscroll,
   /// it is checked whether to scroll down or up depending on the current [dragPosition].
   void _checkToScrollWhileDragging({required Offset dragPosition}) {
@@ -148,19 +148,35 @@ class _ReorderableScrollingListenerState
 
     if (scrollController != null && scrollController.hasClients) {
       scrollController.jumpTo(dy);
+
       widget.onScrollUpdate(dy);
     }
   }
 
-  /// Updates [_childOffset] and [_childSize] using the values defined in [widget.scrollableContentKey].
+  /// Updates [_childOffset] and [_childSize] using the values defined in [widget.reorderableChildKey].
+  ///
+  /// There are two ways when scrolling. It is possible that the [GridView] is scrollable
+  /// or a parent widget.
+  /// To ensure that the parent widget is the scrollable part, the [GridView] has
+  /// to have more height than the screen size. This is an indicator that the [GridView]
+  /// is not scrollable.
+  /// If that is the case, then the size of the [GridView] is calculated with the
+  /// height of the screen and the current offset.dy of the [GridView].
   void _updateChildSizeAndOffset() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final renderBox = widget.scrollableContentKey?.currentContext
+      final renderBox = widget.reorderableChildKey?.currentContext
           ?.findRenderObject() as RenderBox?;
+      final screenSize = MediaQuery.of(context).size;
 
       if (renderBox != null) {
-        _childOffset = renderBox.localToGlobal(Offset.zero);
-        _childSize = renderBox.size;
+        final renderBoxOffset = renderBox.localToGlobal(Offset.zero);
+
+        if (renderBox.size.height > screenSize.height) {
+          _childSize = Size(0, screenSize.height - renderBoxOffset.dy);
+        } else {
+          _childSize = renderBox.size;
+        }
+        _childOffset = renderBoxOffset;
       }
     });
   }
