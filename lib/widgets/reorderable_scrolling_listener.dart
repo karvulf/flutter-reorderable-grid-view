@@ -164,19 +164,24 @@ class _ReorderableScrollingListenerState
   /// height of the screen and the current offset.dy of the [GridView].
   void _updateChildSizeAndOffset() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final renderBox = widget.reorderableChildKey?.currentContext
-          ?.findRenderObject() as RenderBox?;
+      final reorderableChildRenderBox =
+          widget.reorderableChildKey?.currentContext?.findRenderObject()
+              as RenderBox?;
       final screenSize = MediaQuery.of(context).size;
 
-      if (renderBox != null) {
-        final renderBoxOffset = renderBox.localToGlobal(Offset.zero);
+      if (reorderableChildRenderBox != null) {
+        final reorderableChildOffset =
+            reorderableChildRenderBox.localToGlobal(Offset.zero);
+        final reorderableChildDy = reorderableChildOffset.dy;
+        final reorderableChildSize = reorderableChildRenderBox.size;
 
-        if (renderBox.size.height > screenSize.height) {
-          _childSize = Size(0, screenSize.height - renderBoxOffset.dy);
+        if (reorderableChildDy + reorderableChildSize.height >
+            screenSize.height) {
+          _childSize = Size(0, screenSize.height - reorderableChildDy);
         } else {
-          _childSize = renderBox.size;
+          _childSize = reorderableChildSize;
         }
-        _childOffset = renderBoxOffset;
+        _childOffset = reorderableChildOffset;
       }
     });
   }
