@@ -29,8 +29,6 @@ class ReorderableDraggable extends StatefulWidget {
   final OnCreatedFunction onCreated;
   final OnCreatedFunction onBuilding;
   final Function(ReorderableEntity reorderableEntity) onDragStarted;
-  final OnDragUpdateFunction onDragUpdate;
-  final DragEndCallback onDragEnd;
 
   final ReorderableEntity? draggedReorderableEntity;
   final Duration? initDelay;
@@ -42,9 +40,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.enableDraggable,
     required this.onCreated,
     required this.onBuilding,
-    required this.onDragUpdate,
     required this.onDragStarted,
-    required this.onDragEnd,
     required this.draggedReorderableEntity,
     this.initDelay,
     this.dragChildBoxDecoration,
@@ -153,7 +149,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     } else if (widget.enableLongPress) {
       return LongPressDraggable(
         delay: widget.longPressDelay,
-        onDragUpdate: widget.onDragUpdate,
         onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
@@ -162,7 +157,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       );
     } else {
       return Draggable(
-        onDragUpdate: widget.onDragUpdate,
         onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,
         feedback: feedback,
@@ -227,7 +221,5 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   /// Called after releasing dragged child.
   void _handleDragEnd(DraggableDetails details) {
     _controller.reset();
-
-    widget.onDragEnd(details);
   }
 }

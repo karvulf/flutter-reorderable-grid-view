@@ -4,10 +4,10 @@ import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart'
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_container.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
-  ScrollController scrollController,
 );
 
 typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
@@ -42,6 +42,19 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: true
   final bool enableDraggable;
 
+  /// Enables the functionality to scroll while dragging a child to the top or bottom.
+  ///
+  /// Combined with the value of [automaticScrollExtent], an automatic scroll starts,
+  /// when you drag the child and the widget of [builder] is scrollable.
+  ///
+  /// Defualt value: true
+  final bool enableScrollingWhileDragging;
+
+  /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
+  ///
+  /// Default value: 80.0
+  final double automaticScrollExtent;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -71,14 +84,26 @@ class ReorderableBuilder extends StatefulWidget {
   /// Callback when the dragged child was released.
   final VoidCallback? onDragEnd;
 
+  /// [ScrollController] to get the current scroll position. Important for calculations!
+  ///
+  /// This controller has to be assigned if the returned widget of [builder] is
+  /// scrollable. Every [GridView] is scrollable by default.
+  ///
+  /// So usually, you should assign the controller to the [ReorderableBuilder]
+  /// and to your [GridView].
+  final ScrollController? scrollController;
+
   const ReorderableBuilder({
     required this.children,
     required this.builder,
+    this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
+    this.automaticScrollExtent = 80.0,
+    this.enableScrollingWhileDragging = true,
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -105,12 +130,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// For getting easier access, [_offsetMap] holds all known positions with the orderId as key.
   final _offsetMap = <int, Offset>{};
-
-  /// [_scrollController] to get the scroll position in vertical direction of the widget of [widget.builder].
-  ///
-  /// The controller has to be assigned if the returned widget of [widget.builder]
-  /// is scrollable to prevent a weird animation behavior or when dragging a child.
-  final ScrollController _scrollController = ScrollController();
 
   /// Holding this value here for better performance.
   ///
@@ -158,6 +177,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         for (final entry in _childrenMap.entries) {
           _childrenMap[entry.key] = entry.value.copyWith(isBuilding: true);
         }
+        _offsetMap.clear();
         setState(() {});
       }
     });
@@ -180,9 +200,24 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(
-      _getDraggableChildren(),
-      _scrollController,
+    final child = widget.builder(_getDraggableChildren());
+    assert(
+        !widget.enableScrollingWhileDragging ||
+            (widget.enableScrollingWhileDragging && child.key is GlobalKey),
+        'If the parameter enableScrollingWhileDragging is true, then you have to add a GlobalKey to your GridView!\nMake sure that your GlobalKey is declared as static variable for your widget or inside a stateful widget as final variable.');
+
+    return ReorderableScrollingListener(
+      isDragging: _draggedReorderableEntity != null,
+      reorderableChildKey: child.key as GlobalKey?,
+      scrollController: widget.scrollController,
+      automaticScrollExtent: widget.automaticScrollExtent,
+      enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+      onDragUpdate: _checkForCollisions,
+      onDragEnd: _handleDragEnd,
+      onScrollUpdate: (scrollPixels) {
+        _scrollPositionPixels = scrollPixels;
+      },
+      child: child,
     );
   }
 
@@ -212,11 +247,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             enableLongPress: widget.enableLongPress,
             longPressDelay: widget.longPressDelay,
             enableDraggable: enableDraggable,
-            onDragUpdate: _handleDragUpdate,
             onCreated: _handleCreated,
             onBuilding: _handleBuilding,
             onDragStarted: _handleDragStarted,
-            onDragEnd: _handleDragEnd,
             reorderableEntity: reorderableEntity,
             dragChildBoxDecoration: widget.dragChildBoxDecoration,
             initDelay: widget.initDelay,
@@ -251,7 +284,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         isBuilding: false,
       );
       _childrenMap[reorderableEntity.keyHashCode] = updatedReorderableEntity;
-      _offsetMap[reorderableEntity.updatedOrderId] = offset;
 
       return updatedReorderableEntity;
     }
@@ -268,11 +300,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     });
   }
 
-  /// Always called when the user moves the dragged child around.
-  void _handleDragUpdate(DragUpdateDetails details) {
-    _checkForCollisions(details: details);
-  }
-
   /// Updates orderId and offset of all children in [_childrenMap] and calls [widget.onReorder] at the end.
   ///
   /// When dragging ends, the original orderId and original offset will be
@@ -285,7 +312,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// position updates for [widget.children].
   ///
   /// When the list is created, [widget.onReorder] will be called.
-  void _handleDragEnd(DraggableDetails details) {
+  void _handleDragEnd() {
     widget.onDragEnd?.call();
 
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
@@ -452,14 +479,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// When a collision was detected, it is possible that one or more children
   /// were between that collision and the dragged child.
-  void _checkForCollisions({
-    required DragUpdateDetails details,
-  }) {
+  void _checkForCollisions(PointerMoveEvent details) {
     final draggedHashKey = _draggedReorderableEntity!.child.key.hashCode;
 
     var draggedOffset = Offset(
-      details.localPosition.dx,
-      details.localPosition.dy + _scrollPositionPixels,
+      details.position.dx,
+      details.position.dy + _scrollPositionPixels,
     );
 
     final collisionMapEntry = _getCollisionMapEntry(
@@ -584,8 +609,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// There are two possibilities to get the scroll position.
   ///
-  /// First one is, the returned child of [widget.builder] has a scrollable widget.
-  /// In this case, it is important that the [_scrollController] is added
+  /// First one is, the returned child of [widget.builder] is a scrollable widget.
+  /// In this case, it is important that the [widget.scrollController] is added
   /// to the scrollable widget to get the current scroll position.
   ///
   /// Another possibility is that one of the parents is scrollable.
@@ -594,18 +619,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Otherwise, 0.0 will be returned.
   double get _scrollPixels {
     var pixels = Scrollable.of(context)?.position.pixels;
+    final scrollController = widget.scrollController;
+
     if (pixels != null) {
       return pixels;
-    } else if (_scrollController.hasClients) {
-      return _scrollController.position.pixels;
+    } else if (scrollController != null && scrollController.hasClients) {
+      return scrollController.position.pixels;
     } else {
       return 0.0;
     }
   }
-
-  ///
-  /// NEW
-  ///
 
   /// Returns optional calculated [Offset] related to [key].
   ///
@@ -617,7 +640,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required int orderId,
     required RenderBox? renderBox,
   }) {
-    if (renderBox == null) {
+    if (_offsetMap[orderId] != null) {
+      return _offsetMap[orderId];
+    } else if (renderBox == null) {
       // assert(false, 'RenderBox of child should not be null!');
     } else {
       final localOffset = renderBox.globalToLocal(Offset.zero);
@@ -626,6 +651,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         localOffset.dx.abs(),
         localOffset.dy.abs() + _scrollPixels,
       );
+
       _offsetMap[orderId] = offset;
 
       return offset;

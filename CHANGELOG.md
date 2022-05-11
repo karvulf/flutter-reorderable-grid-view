@@ -1,22 +1,47 @@
-## 2.1.0
+## 3.0.0
+
+⚠️️ **Breaking Changes**
+
+* you have to add the `ScrollController` to `ReorderableBuilder` and your `GridView` to make sure that the drag and drop
+  still works
+* an exception would be if your content is scrollable outside your `GridView`
+
 ⭐️ **New features**
+
+* `enableScrollingWhileDragging`
+    * **IMPORTANT**: You have to add a `GlobalKey` to your `GridView` before autoscroll can work
+    * enables autoscrolling while dragging
+    * you can automatically scroll while dragging a child to the bottom or top of your `GridView`
+* `automaticScrollExtent`
+    * define the height of the area before the autoscroll is starting when moving to top or bottom
+
+
+* for more information, check out the example
+
+## 2.1.0
+
+⭐️ **New features**
+
 * added two new parameters for `ReorderableBuilder`:
-  * `onDragStarted`: Called when user starts dragging a child
-  * `onDragEnd`: Called when user releases dragged child
+    * `onDragStarted`: Called when user starts dragging a child
+    * `onDragEnd`: Called when user releases dragged child
 
 🦙 **Behavior changed**
+
 * `onReorder` won't be called anymore when the dragged child didn't change his original position
 
 ## 2.0.3
 
 🐛 **Fixed Bugs**
-  * Wrong behavior after updating children (especially the key) and using drag and drop
-  * For every update of a child, a new listener was added
+
+* Wrong behavior after updating children (especially the key) and using drag and drop
+* For every update of a child, a new listener was added
     * this behavior is fixed
-    * now only one listener will be added 
-    
+    * now only one listener will be added
+
 🦙 **Behavior changed**
-  * When using drag and drop to a locked child, no position will be changed
+
+* When using drag and drop to a locked child, no position will be changed
 
 ## 2.0.2
 

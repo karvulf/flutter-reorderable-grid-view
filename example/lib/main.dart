@@ -22,12 +22,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2;
-  final lockedIndices = <int>[3];
+  static const _startCounter = 200;
+  final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewCount;
+
+  var _scrollController = ScrollController();
+  var _gridViewKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +89,8 @@ class _MyAppState extends State<MyApp> {
                 ),
                 onChanged: (ReorderableType? reorderableType) {
                   setState(() {
+                    _scrollController = ScrollController();
+                    _gridViewKey = GlobalKey();
                     this.reorderableType = reorderableType!;
                   });
                 },
@@ -135,14 +140,17 @@ class _MyAppState extends State<MyApp> {
     switch (reorderableType) {
       case ReorderableType.gridView:
         return ReorderableBuilder(
+          key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
-          builder: (children, scrollController) {
+          scrollController: _scrollController,
+          builder: (children) {
             return GridView(
-              controller: scrollController,
+              key: _gridViewKey,
+              controller: _scrollController,
               children: children,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -155,28 +163,31 @@ class _MyAppState extends State<MyApp> {
 
       case ReorderableType.gridViewCount:
         return ReorderableBuilder(
+          key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          scrollController: _scrollController,
+          builder: (children) {
             return GridView.count(
-              controller: scrollController,
-              key: const Key('count'),
+              key: _gridViewKey,
+              controller: _scrollController,
               children: children,
               crossAxisCount: 3,
             );
           },
         );
-
       case ReorderableType.gridViewExtent:
         return ReorderableBuilder(
+          key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          builder: (children, scrollController) {
+          scrollController: _scrollController,
+          builder: (children) {
             return GridView.extent(
-              controller: scrollController,
-              key: const Key('extent'),
+              key: _gridViewKey,
+              controller: _scrollController,
               children: children,
               maxCrossAxisExtent: 200,
               padding: EdgeInsets.zero,
@@ -197,10 +208,11 @@ class _MyAppState extends State<MyApp> {
             );
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
-          builder: (children, scrollController) {
+          scrollController: _scrollController,
+          builder: (children) {
             return GridView.builder(
-              key: const Key('builder'),
-              controller: scrollController,
+              key: _gridViewKey,
+              controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
                 return children[index];
