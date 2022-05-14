@@ -85,7 +85,7 @@ class _ReorderableAnimatedUpdatedContainerState
     // minimize the flicker when building existing reorderableEntity
     if (widget.reorderableEntity.isBuilding) {
       visible = false;
-      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         visible = true;
       });
     }

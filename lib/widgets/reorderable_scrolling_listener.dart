@@ -163,7 +163,7 @@ class _ReorderableScrollingListenerState
   /// If that is the case, then the size of the [GridView] is calculated with the
   /// height of the screen and the current offset.dy of the [GridView].
   void _updateChildSizeAndOffset() {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final reorderableChildRenderBox =
           widget.reorderableChildKey?.currentContext?.findRenderObject()
               as RenderBox?;
