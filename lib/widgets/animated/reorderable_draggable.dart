@@ -175,7 +175,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         _callOnCreated();
       });
     } else {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _callOnCreated();
       });
     }
@@ -199,7 +199,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _reorderableEntity = widget.reorderableEntity;
 
     if (_reorderableEntity.isBuilding) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         final updatedReorderableEntity = widget.onBuilding(
           widget.reorderableEntity,
           _globalKey,

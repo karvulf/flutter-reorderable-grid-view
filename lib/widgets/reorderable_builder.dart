@@ -139,7 +139,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     var orderId = 0;
     final checkDuplicatedKeyList = <int>[];
@@ -167,7 +167,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
@@ -194,7 +194,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

@@ -1,3 +1,7 @@
+## 3.0.1
+🐛 **Fixed Bugs**
+* fixed warnings due to flutter update version `3.0.0`
+
 ## 3.0.0
 
 ⚠️️ **Breaking Changes**
