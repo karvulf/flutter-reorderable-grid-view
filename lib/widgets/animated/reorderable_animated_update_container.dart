@@ -85,7 +85,7 @@ class _ReorderableAnimatedUpdatedContainerState
     // minimize the flicker when building existing reorderableEntity
     if (widget.reorderableEntity.isBuilding) {
       visible = false;
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
         visible = true;
       });
     }
@@ -164,3 +164,11 @@ class _ReorderableAnimatedUpdatedContainerState
     return tween.animate(animationController);
   }
 }
+
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;

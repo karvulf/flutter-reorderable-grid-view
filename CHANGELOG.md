@@ -1,3 +1,8 @@
+## 3.1.0
+🐛 **Fixed Bugs**
+* Because of the update of flutter version `3.0.0`, this package couldn't support earlier versions because of the last update
+  * with this version, the package should also work for versions before `3.0.0`
+
 ## 3.0.1
 🐛 **Fixed Bugs**
 * fixed warnings due to flutter update version `3.0.0`
