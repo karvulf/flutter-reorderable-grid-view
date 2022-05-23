@@ -143,8 +143,6 @@ There are different animations:
 
 ## Future Plans
 
-With the Update `2.0.0`, I totally changed the logic for having a drag and drop functionality. So it is possible, that there are still some problems, so let me know it if you find them.
-
 If you have feature **requests** or found some **issues**, feel free and open your issues in the GitHub project.
 
 Thank you for using this package.
