@@ -139,7 +139,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _ambiguate(WidgetsBinding.instance)!.addObserver(this);
 
     var orderId = 0;
     final checkDuplicatedKeyList = <int>[];
@@ -167,7 +167,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
@@ -194,7 +194,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _ambiguate(WidgetsBinding.instance)!.removeObserver(this);
     super.dispose();
   }
 
@@ -868,3 +868,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     print('');
 
  */
+
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;

@@ -175,7 +175,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         _callOnCreated();
       });
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         _callOnCreated();
       });
     }
@@ -199,7 +199,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _reorderableEntity = widget.reorderableEntity;
 
     if (_reorderableEntity.isBuilding) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         final updatedReorderableEntity = widget.onBuilding(
           widget.reorderableEntity,
           _globalKey,
@@ -223,3 +223,11 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _controller.reset();
   }
 }
+
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;

@@ -163,7 +163,7 @@ class _ReorderableScrollingListenerState
   /// If that is the case, then the size of the [GridView] is calculated with the
   /// height of the screen and the current offset.dy of the [GridView].
   void _updateChildSizeAndOffset() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
       final reorderableChildRenderBox =
           widget.reorderableChildKey?.currentContext?.findRenderObject()
               as RenderBox?;
@@ -205,3 +205,11 @@ class _ReorderableScrollingListenerState
     }
   }
 }
+
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;
