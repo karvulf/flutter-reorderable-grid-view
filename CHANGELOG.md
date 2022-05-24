@@ -1,3 +1,9 @@
+## 3.1.1
+🐛 **Fixed Bugs**
+* There was a problem when having the scrollable widget outside the `ReorderableBuilder`
+  * The scrolling to top didn't work when it was scrolled to bottom
+  * also `automaticScrollExtent` didn't calculate the correct area when scrolling to top
+
 ## 3.1.0
 🐛 **Fixed Bugs**
 * Because of the update of flutter version `3.0.0`, this package couldn't support earlier versions because of the last update

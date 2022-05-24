@@ -320,7 +320,7 @@ void main() {
 
       // when
       final TestGesture gestureTop = await tester.startGesture(topLeft);
-      await gestureTop.moveBy(Offset.zero);
+      await gestureTop.moveBy(const Offset(0.0, -100.0));
       await tester.pump();
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();

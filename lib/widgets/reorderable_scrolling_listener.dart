@@ -41,6 +41,9 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
+  /// If true, ta widget outside of [ReorderableBuilder] is scrollable and not the widget inside ([GridView])
+  bool _isScrollableOutside = false;
+
   /// Describes current scroll position in pixels.
   double _scrollPositionPixels = 0.0;
 
@@ -121,15 +124,30 @@ class _ReorderableScrollingListenerState
   /// a range ([widget.automaticScrollExtent]) that should trigger the autoscroll,
   /// it is checked whether to scroll down or up depending on the current [dragPosition].
   void _checkToScrollWhileDragging({required Offset dragPosition}) {
-    final size = _childSize;
-    final offset = _childOffset;
+    final childSize = _childSize;
+    final childOffset = _childOffset;
 
-    if (size != null && offset != null) {
+    if (childSize != null && childOffset != null) {
       final allowedRange = widget.automaticScrollExtent;
-      final minDy = offset.dy + allowedRange;
-      final maxDy = offset.dy + size.height - allowedRange;
-      const variance = 5;
+      late double minDy;
+      final maxDy = childOffset.dy + childSize.height - allowedRange;
 
+      // minDy can be different when having the scrollable outside ReorderableBuilder
+      // at the beginning the childOffset dy would be the correct minDy
+      // but while scrolling this would lead to 0 and is important to trigger the automatic scroll at the right moment
+      if (_isScrollableOutside) {
+        minDy = childOffset.dy - _scrollPositionPixels;
+        if (minDy < 0) {
+          minDy = 0;
+        }
+        minDy += allowedRange;
+      } else {
+        minDy = childOffset.dy + allowedRange;
+      }
+
+      const variance = 5.0;
+
+      // scroll to top
       if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
         _scrollPositionPixels -= variance;
         _scrollTo(dy: _scrollPositionPixels);
@@ -170,8 +188,19 @@ class _ReorderableScrollingListenerState
       final screenSize = MediaQuery.of(context).size;
 
       if (reorderableChildRenderBox != null) {
-        final reorderableChildOffset =
+        var reorderableChildOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
+
+        // a scrollable widget is outside when there was found one, probably not the best solution to detect that
+        _isScrollableOutside = Scrollable.of(context)?.position.pixels != null;
+
+        if (_isScrollableOutside) {
+          reorderableChildOffset = Offset(
+            reorderableChildOffset.dx,
+            reorderableChildOffset.dy + _scrollPositionPixels,
+          );
+        }
+
         final reorderableChildDy = reorderableChildOffset.dy;
         final reorderableChildSize = reorderableChildRenderBox.size;
 
