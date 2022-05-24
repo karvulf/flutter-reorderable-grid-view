@@ -176,6 +176,7 @@ class _ReorderableScrollingListenerState
       if (reorderableChildRenderBox != null) {
         var reorderableChildOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
+
         if (Scrollable.of(context) != null) {
           reorderableChildOffset = Offset(
             reorderableChildOffset.dx,
