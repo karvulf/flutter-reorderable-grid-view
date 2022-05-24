@@ -41,7 +41,7 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
-  /// If true, the reorderableChild is not scrollable but an outside widget
+  /// If true, ta widget outside of [ReorderableBuilder] is scrollable and not the widget inside ([GridView])
   bool _isScrollableOutside = false;
 
   /// Describes current scroll position in pixels.
@@ -132,6 +132,9 @@ class _ReorderableScrollingListenerState
       late double minDy;
       final maxDy = childOffset.dy + childSize.height - allowedRange;
 
+      // minDy can be different when having the scrollable outside ReorderableBuilder
+      // at the beginning the childOffset dy would be the correct minDy
+      // but while scrolling this would lead to 0 and is important to trigger the automatic scroll at the right moment
       if (_isScrollableOutside) {
         minDy = childOffset.dy - _scrollPositionPixels;
         if (minDy < 0) {
@@ -188,7 +191,9 @@ class _ReorderableScrollingListenerState
         var reorderableChildOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
 
-        _isScrollableOutside = Scrollable.of(context) != null;
+        // a scrollable widget is outside when there was found one, probably not the best solution to detect that
+        _isScrollableOutside = Scrollable.of(context)?.position.pixels != null;
+
         if (_isScrollableOutside) {
           reorderableChildOffset = Offset(
             reorderableChildOffset.dx,
