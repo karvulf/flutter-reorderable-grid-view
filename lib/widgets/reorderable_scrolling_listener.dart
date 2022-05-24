@@ -121,15 +121,19 @@ class _ReorderableScrollingListenerState
   /// a range ([widget.automaticScrollExtent]) that should trigger the autoscroll,
   /// it is checked whether to scroll down or up depending on the current [dragPosition].
   void _checkToScrollWhileDragging({required Offset dragPosition}) {
-    final size = _childSize;
-    final offset = _childOffset;
+    final childSize = _childSize;
+    final childOffset = _childOffset;
 
-    if (size != null && offset != null) {
+    if (childSize != null && childOffset != null) {
       final allowedRange = widget.automaticScrollExtent;
-      final minDy = offset.dy + allowedRange;
-      final maxDy = offset.dy + size.height - allowedRange;
+      final minDy = childOffset.dy + allowedRange;
+      final maxDy = childOffset.dy + childSize.height - allowedRange;
       const variance = 5;
 
+      print(
+          'minDy $minDy, dragPositionY ${dragPosition.dy} _scrollPositionPixels $_scrollPositionPixels');
+
+      // scroll to top
       if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
         _scrollPositionPixels -= variance;
         _scrollTo(dy: _scrollPositionPixels);
@@ -170,8 +174,12 @@ class _ReorderableScrollingListenerState
       final screenSize = MediaQuery.of(context).size;
 
       if (reorderableChildRenderBox != null) {
-        final reorderableChildOffset =
+        final reorderableChildLocalOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
+        final reorderableChildOffset = Offset(
+          reorderableChildLocalOffset.dx,
+          reorderableChildLocalOffset.dy + _scrollPositionPixels,
+        );
         final reorderableChildDy = reorderableChildOffset.dy;
         final reorderableChildSize = reorderableChildRenderBox.size;
 
