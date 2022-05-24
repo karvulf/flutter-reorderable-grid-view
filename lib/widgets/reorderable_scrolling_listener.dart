@@ -41,6 +41,9 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
+  /// If true, the reorderableChild is not scrollable but an outside widget
+  bool _isScrollableOutside = false;
+
   /// Describes current scroll position in pixels.
   double _scrollPositionPixels = 0.0;
 
@@ -126,12 +129,20 @@ class _ReorderableScrollingListenerState
 
     if (childSize != null && childOffset != null) {
       final allowedRange = widget.automaticScrollExtent;
-      final minDy = childOffset.dy + allowedRange;
+      late double minDy;
       final maxDy = childOffset.dy + childSize.height - allowedRange;
-      const variance = 5;
 
-      print(
-          'minDy $minDy, dragPositionY ${dragPosition.dy} _scrollPositionPixels $_scrollPositionPixels');
+      if (_isScrollableOutside) {
+        minDy = childOffset.dy - _scrollPositionPixels;
+        if (minDy < 0) {
+          minDy = 0;
+        }
+        minDy += allowedRange;
+      } else {
+        minDy = childOffset.dy + allowedRange;
+      }
+
+      const variance = 5.0;
 
       // scroll to top
       if (dragPosition.dy <= minDy && _scrollPositionPixels > 0) {
@@ -177,7 +188,8 @@ class _ReorderableScrollingListenerState
         var reorderableChildOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
 
-        if (Scrollable.of(context) != null) {
+        _isScrollableOutside = Scrollable.of(context) != null;
+        if (_isScrollableOutside) {
           reorderableChildOffset = Offset(
             reorderableChildOffset.dx,
             reorderableChildOffset.dy + _scrollPositionPixels,
