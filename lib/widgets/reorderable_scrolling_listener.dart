@@ -174,12 +174,15 @@ class _ReorderableScrollingListenerState
       final screenSize = MediaQuery.of(context).size;
 
       if (reorderableChildRenderBox != null) {
-        final reorderableChildLocalOffset =
+        var reorderableChildOffset =
             reorderableChildRenderBox.localToGlobal(Offset.zero);
-        final reorderableChildOffset = Offset(
-          reorderableChildLocalOffset.dx,
-          reorderableChildLocalOffset.dy + _scrollPositionPixels,
-        );
+        if (Scrollable.of(context) != null) {
+          reorderableChildOffset = Offset(
+            reorderableChildOffset.dx,
+            reorderableChildOffset.dy + _scrollPositionPixels,
+          );
+        }
+
         final reorderableChildDy = reorderableChildOffset.dy;
         final reorderableChildSize = reorderableChildRenderBox.size;
 
