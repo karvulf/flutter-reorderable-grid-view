@@ -8,6 +8,7 @@ enum ReorderableType {
   gridViewCount,
   gridViewExtent,
   gridViewBuilder,
+  wrap,
 }
 
 void main() {
@@ -22,12 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 200;
+  static const _startCounter = 2;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewCount;
+  ReorderableType reorderableType = ReorderableType.wrap;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -126,7 +127,7 @@ class _MyAppState extends State<MyApp> {
         decoration: BoxDecoration(
           color: lockedIndices.contains(index) ? Colors.black : Colors.white,
         ),
-        height: 100.0,
+        height: 100.0 + (index * 10),
         width: 100.0,
         child: Center(
           child: Text(
@@ -221,6 +222,22 @@ class _MyAppState extends State<MyApp> {
                 crossAxisCount: 4,
                 mainAxisSpacing: 4,
                 crossAxisSpacing: 8,
+              ),
+            );
+          },
+        );
+      case ReorderableType.wrap:
+        return ReorderableBuilder(
+          children: generatedChildren,
+          onReorder: _handleReorder,
+          lockedIndices: lockedIndices,
+          scrollController: _scrollController,
+          builder: (children) {
+            return SingleChildScrollView(
+              key: _gridViewKey,
+              controller: _scrollController,
+              child: Wrap(
+                children: children,
               ),
             );
           },
