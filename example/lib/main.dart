@@ -227,21 +227,7 @@ class _MyAppState extends State<MyApp> {
           },
         );
       case ReorderableType.wrap:
-        return ReorderableBuilder(
-          children: generatedChildren,
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          scrollController: _scrollController,
-          builder: (children) {
-            return SingleChildScrollView(
-              key: _gridViewKey,
-              controller: _scrollController,
-              child: Wrap(
-                children: children,
-              ),
-            );
-          },
-        );
+        return const ReorderableWrapChipPage();
     }
   }
 
@@ -261,5 +247,87 @@ class _MyAppState extends State<MyApp> {
       duration: Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+
+class ReorderableWrapChipPage extends StatefulWidget {
+  const ReorderableWrapChipPage({Key? key}) : super(key: key);
+
+  @override
+  State<ReorderableWrapChipPage> createState() =>
+      _ReorderableWrapChipPageState();
+}
+
+class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
+  final _wrapKey = GlobalKey();
+  final _textEditingController = TextEditingController();
+  final focusNode = FocusNode();
+
+  final _names = <String>['1', '2', '3', '4'];
+
+  @override
+  Widget build(BuildContext context) {
+    /*return Scaffold(
+      body: Container(
+        color: Colors.green,
+        child: Wrap(
+          key: _wrapKey,
+          spacing: 8.0,
+          runSpacing: 8.0,
+          children: _getChildren(),
+        ),
+      ),
+    );*/
+    return Scaffold(
+      body: ReorderableBuilder(
+        children: _getChildren(),
+        onReorder: (_) {},
+        builder: (children) {
+          return Container(
+            key: _wrapKey,
+            color: Colors.blue,
+            child: Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: children,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> _getChildren() {
+    final children = <Widget>[];
+    children.addAll(_names.map((e) => Chip(
+          key: Key(e),
+          label: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(e),
+          ),
+        )));
+    children.add(
+      Chip(
+        key: const Key('chip-text-field'),
+        label: SizedBox(
+          width: 100.0,
+          child: TextField(
+            controller: _textEditingController,
+            focusNode: focusNode,
+            onSubmitted: (value) {
+              if (value.isNotEmpty && !_names.contains(value)) {
+                setState(() {
+                  _names.add(value);
+                });
+              }
+              _textEditingController.clear();
+              FocusScope.of(context).requestFocus(focusNode);
+            },
+          ),
+        ),
+      ),
+    );
+
+    return children;
   }
 }
