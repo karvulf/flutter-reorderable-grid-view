@@ -314,7 +314,7 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
       Chip(
         key: const Key('chip-text-field'),
         label: SizedBox(
-          width: 30.0,
+          width: 100.0,
           child: TextField(
             controller: _textEditingController,
             focusNode: focusNode,
