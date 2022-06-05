@@ -267,20 +267,24 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
 
   @override
   Widget build(BuildContext context) {
-    /*return Scaffold(
-      body: Container(
-        color: Colors.green,
-        child: Wrap(
+    const normal = false;
+    final unmodifiedChildren = _getChildren();
+    if (normal) {
+      return Scaffold(
+        body: Container(
           key: _wrapKey,
-          spacing: 8.0,
-          runSpacing: 8.0,
-          children: _getChildren(),
+          color: Colors.green,
+          child: Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: unmodifiedChildren,
+          ),
         ),
-      ),
-    );*/
+      );
+    }
     return Scaffold(
       body: ReorderableBuilder(
-        children: _getChildren(),
+        children: unmodifiedChildren,
         onReorder: (_) {},
         builder: (children) {
           return Container(
@@ -310,7 +314,7 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
       Chip(
         key: const Key('chip-text-field'),
         label: SizedBox(
-          width: 100.0,
+          width: 30.0,
           child: TextField(
             controller: _textEditingController,
             focusNode: focusNode,
