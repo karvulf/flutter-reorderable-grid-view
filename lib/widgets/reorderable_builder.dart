@@ -768,11 +768,18 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
 
     if (offset != null) {
+      var originalOrderId = reorderableEntity.originalOrderId;
+
+      if(offset == reorderableEntity.originalOffset) {
+        originalOrderId = reorderableEntity.updatedOrderId;
+      }
+
       // updating existing
       final updatedReorderableEntity = reorderableEntity.copyWith(
         updatedOffset: offset,
         size: renderBox?.size,
         isBuilding: false,
+        originalOrderId: originalOrderId,
       );
       final updatedKeyHashCode = updatedReorderableEntity.keyHashCode;
       _childrenMap[updatedKeyHashCode] = updatedReorderableEntity;
