@@ -263,7 +263,17 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
   final _textEditingController = TextEditingController();
   final focusNode = FocusNode();
 
-  final _names = <String>['1', '2', '3', '4'];
+  final _names = <String>[
+    'abc',
+    'abcd',
+    'aa',
+    'fdsaf',
+    'sdfaf',
+    'dfd',
+    'dfsafafda',
+    'ddsaw',
+    '_textfield_'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +295,8 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
     return Scaffold(
       body: ReorderableBuilder(
         children: unmodifiedChildren,
-        onReorder: (_) {},
+        lockedIndices: [unmodifiedChildren.length - 1],
+        onReorder: _handleReorder,
         builder: (children) {
           return Container(
             key: _wrapKey,
@@ -333,5 +344,13 @@ class _ReorderableWrapChipPageState extends State<ReorderableWrapChipPage> {
     );
 
     return children;
+  }
+
+  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
+    for (final reorder in onReorderList) {
+      final child = _names.removeAt(reorder.oldIndex);
+      _names.insert(reorder.newIndex, child);
+    }
+    setState(() {});
   }
 }

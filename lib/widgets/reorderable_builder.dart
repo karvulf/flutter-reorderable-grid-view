@@ -716,6 +716,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           isBuilding: false,
           isNew: true,
         );
+
+        _offsetMap.removeWhere((key, value) => key >= orderId);
       }
       orderId++;
     }
@@ -770,7 +772,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (offset != null) {
       var originalOrderId = reorderableEntity.originalOrderId;
 
-      if(offset == reorderableEntity.originalOffset) {
+      if (offset == reorderableEntity.originalOffset) {
         originalOrderId = reorderableEntity.updatedOrderId;
       }
 
