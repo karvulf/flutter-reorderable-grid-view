@@ -19,11 +19,11 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableAnimatedContainer(
-              child: givenChild,
               onOpacityFinished: (_) {},
               reorderableEntity: givenReorderableEntity,
               isDragging: false,
               onMovingFinished: (_, __) {},
+              child: givenChild,
             ),
           ),
         ),

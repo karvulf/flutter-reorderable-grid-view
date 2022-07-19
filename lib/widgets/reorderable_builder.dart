@@ -113,7 +113,7 @@ class ReorderableBuilder extends StatefulWidget {
         super(key: key);
 
   @override
-  _ReorderableBuilderState createState() => _ReorderableBuilderState();
+  State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder>
@@ -480,7 +480,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// When a collision was detected, it is possible that one or more children
   /// were between that collision and the dragged child.
   void _checkForCollisions(PointerMoveEvent details) {
-    final draggedHashKey = _draggedReorderableEntity!.child.key.hashCode;
+    final draggedHashKey = _draggedReorderableEntity?.child.key.hashCode;
+
+    if (draggedHashKey == null) return;
 
     var draggedOffset = Offset(
       details.position.dx,

@@ -1,3 +1,10 @@
+## 3.1.2
+🐛 **Fixed small bug**
+* Fixed exception `Null check operator used on a null value` (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41)) 
+ 
+🧑‍💻**Code Refactoring**
+* Updated `flutter_lints` to `2.0.1`
+
 ## 3.1.1
 🐛 **Fixed Bugs**
 * There was a problem when having the scrollable widget outside the `ReorderableBuilder`
