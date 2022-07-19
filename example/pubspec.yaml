@@ -17,7 +17,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   flutter_reorderable_grid_view:
     # When depending on this package from a real application you should use:
     #   flutter_reorderable_grid_view: ^x.y.z
