@@ -17,9 +17,9 @@ void main() {
           home: Scaffold(
             body: ReorderableAnimatedUpdatedContainer(
               reorderableEntity: reorderableEntity,
-              child: givenChild,
               isDragging: isDragging,
               onMovingFinished: onMovingFinished,
+              child: givenChild,
             ),
           ),
         ),
@@ -200,9 +200,9 @@ class _UpdateReorderableEntityTestState
           ),
           ReorderableAnimatedUpdatedContainer(
             reorderableEntity: reorderableEntity,
-            child: reorderableEntity.child,
             isDragging: widget.isDragging,
             onMovingFinished: widget.onMovingFinished,
+            child: reorderableEntity.child,
           ),
         ],
       ),

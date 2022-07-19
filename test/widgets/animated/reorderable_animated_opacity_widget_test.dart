@@ -16,8 +16,8 @@ void main() {
           home: Scaffold(
             body: ReorderableAnimatedOpacity(
               reorderableEntity: reorderableEntity,
-              child: givenChild,
               onOpacityFinished: onOpacityFinished,
+              child: givenChild,
             ),
           ),
         ),
@@ -174,8 +174,8 @@ class _UpdateReorderableEntityTestState
           ),
           ReorderableAnimatedOpacity(
             reorderableEntity: reorderableEntity,
-            child: const Text('hello'),
             onOpacityFinished: widget.onOpacityFinished,
+            child: const Text('hello'),
           ),
         ],
       ),

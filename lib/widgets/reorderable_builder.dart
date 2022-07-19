@@ -113,7 +113,7 @@ class ReorderableBuilder extends StatefulWidget {
         super(key: key);
 
   @override
-  _ReorderableBuilderState createState() => _ReorderableBuilderState();
+  State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder>

@@ -23,23 +23,23 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableBuilder(
-              children: children,
               onReorder: onReorder ?? (_) {},
               lockedIndices: lockedIndices,
               enableScrollingWhileDragging: enableScrollingWhileDragging,
               onDragEnd: onDragEnd,
               onDragStarted: onDragStarted,
               scrollController: scrollController,
+              children: children,
               builder: (children) {
                 return GridView(
                   key: childKey,
                   controller: scrollController,
-                  children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
                     mainAxisSpacing: 4,
                     crossAxisSpacing: 8,
                   ),
+                  children: children,
                 );
               },
             ),
@@ -64,10 +64,10 @@ void main() {
             builder: (children) {
               return GridView(
                 key: GlobalKey(),
-                children: children,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                 ),
+                children: children,
               );
             },
           ),
@@ -186,17 +186,17 @@ void main() {
           () => tester.pumpWidget(
                 MaterialApp(
                   home: ReorderableBuilder(
-                    children: givenChildren,
                     enableDraggable: true,
+                    children: givenChildren,
                     builder: (children) => GridView(
                       key: GlobalKey(),
-                      children: children,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         mainAxisSpacing: 4,
                         crossAxisSpacing: 8,
                       ),
+                      children: children,
                     ),
                   ),
                 ),
@@ -218,15 +218,15 @@ void main() {
           () => tester.pumpWidget(
                 MaterialApp(
                   home: ReorderableBuilder(
-                    children: givenChildren,
                     enableDraggable: true,
                     enableScrollingWhileDragging: true,
+                    children: givenChildren,
                     builder: (children) => GridView(
-                      children: children,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                       ),
+                      children: children,
                     ),
                   ),
                 ),
@@ -250,8 +250,8 @@ void main() {
             onReorder: (_) {},
             builder: (children) => GridView.count(
               key: GlobalKey(),
-              children: children,
               crossAxisCount: 3,
+              children: children,
             ),
           ),
         ),
@@ -282,8 +282,8 @@ void main() {
             onReorder: (_) {},
             builder: (children) => GridView.extent(
               key: GlobalKey(),
-              children: children,
               maxCrossAxisExtent: 200,
+              children: children,
             ),
           ),
         ),
@@ -377,8 +377,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: _UpdateChildrenReorderableBuilderTest(
-            children: givenChildren,
             updateChildrenWithDuplicatedKey: true,
+            children: givenChildren,
           ),
         ),
       );
@@ -921,12 +921,12 @@ class _UpdateChildrenReorderableBuilderTestState
               builder: (children) {
                 return GridView(
                   key: GlobalKey(),
-                  children: children,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
                     mainAxisSpacing: 4,
                     crossAxisSpacing: 8,
                   ),
+                  children: children,
                 );
               },
             ),
