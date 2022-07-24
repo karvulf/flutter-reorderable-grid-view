@@ -22,7 +22,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 200;
+  static const _startCounter = 20000;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
@@ -119,24 +119,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _getReorderableWidget() {
-    final generatedChildren = List<Widget>.generate(
-      children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(),
-          ),
-        ),
-      ),
-    );
-
     switch (reorderableType) {
       case ReorderableType.gridView:
         return ReorderableBuilder(
@@ -199,7 +181,6 @@ class _MyAppState extends State<MyApp> {
 
       case ReorderableType.gridViewBuilder:
         return ReorderableBuilder(
-          children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: () {
@@ -209,13 +190,14 @@ class _MyAppState extends State<MyApp> {
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
           scrollController: _scrollController,
-          builder: (children) {
+          itemBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
-                return children[index];
+                final child = getChild(index: index);
+                return itemBuilder(child, index);
               },
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -226,6 +208,32 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
+  }
+
+  List<Widget> get generatedChildren {
+    return List<Widget>.generate(
+      children.length,
+      (index) => getChild(
+        index: index,
+      ),
+    );
+  }
+
+  Widget getChild({required int index}) {
+    return Container(
+      key: Key(children[index].toString()),
+      decoration: BoxDecoration(
+        color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+      ),
+      height: 100.0,
+      width: 100.0,
+      child: Center(
+        child: Text(
+          'test ${children[index]}',
+          style: const TextStyle(),
+        ),
+      ),
+    );
   }
 
   void _handleDragStarted() {

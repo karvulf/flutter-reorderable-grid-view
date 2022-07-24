@@ -18,7 +18,7 @@ typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
 /// because this can lead to an unexpected behavior.
 class ReorderableBuilder extends StatefulWidget {
   /// Updating [children] with some widgets to enable animations.
-  final List<Widget> children;
+  final List<Widget>? children;
 
   /// Specify indices for [children] that should not change their position while dragging.
   ///
@@ -59,7 +59,9 @@ class ReorderableBuilder extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   /// Callback to return updated [children].
-  final DraggableBuilder builder;
+  final DraggableBuilder? builder;
+
+  final Widget Function(Widget Function(Widget child, int index))? itemBuilder;
 
   /// After releasing the dragged child, [onReorder] is called.
   ///
@@ -94,8 +96,9 @@ class ReorderableBuilder extends StatefulWidget {
   final ScrollController? scrollController;
 
   const ReorderableBuilder({
-    required this.children,
-    required this.builder,
+    this.children,
+    this.builder,
+    this.itemBuilder,
     this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
@@ -110,6 +113,10 @@ class ReorderableBuilder extends StatefulWidget {
     this.onDragEnd,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+        assert((builder != null && itemBuilder == null) ||
+            (itemBuilder != null && builder == null)),
+        assert((builder == null && children == null) ||
+            (builder != null && children != null)),
         super(key: key);
 
   @override
@@ -136,6 +143,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// After dragging a child, [_scrollPositionPixels] is always updated.
   double _scrollPositionPixels = 0.0;
 
+  final itemBuilderChildren = <Widget>[];
+
   @override
   void initState() {
     super.initState();
@@ -144,8 +153,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var orderId = 0;
     final checkDuplicatedKeyList = <Key>[];
 
+    final children = widget.children;
+    if (children == null) return;
     // adding all children for _childrenMap
-    for (final child in widget.children) {
+    for (final child in children) {
       final key = child.key;
 
       if (key != null && !checkDuplicatedKeyList.contains(key)) {
@@ -187,7 +198,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.children != widget.children) {
-      _handleUpdatedChildren();
+      final children = widget.children;
+      if (children != null) {
+        _handleUpdatedChildren(children: children);
+      }
     }
   }
 
@@ -199,7 +213,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
-    final child = widget.builder(_getDraggableChildren());
+    final builder = widget.builder;
+    late final Widget child;
+    if (builder != null) {
+      child = builder(_getDraggableChildren());
+    } else {
+      child = widget.itemBuilder!(_handleItemBuilder);
+    }
     assert(
         !widget.enableScrollingWhileDragging ||
             (widget.enableScrollingWhileDragging && child.key is GlobalKey),
@@ -258,6 +278,55 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     return draggableChildren;
+  }
+
+  Widget _handleItemBuilder(Widget child, int index) {
+    final key = child.key;
+    if (key == null) {
+      assert(false, 'Key $key of child should not be null!');
+    }
+
+    late final ReorderableEntity reorderableEntity;
+
+    if (_childrenMap.containsKey(child.key)) {
+      reorderableEntity = _childrenMap[key!]!;
+    } else {
+      reorderableEntity = ReorderableEntity(
+        child: child,
+        originalOrderId: index,
+        updatedOrderId: index,
+        isBuilding: true,
+      );
+      _childrenMap[key!] = reorderableEntity;
+    }
+
+    // add new child to children
+    var enableDraggable = widget.enableDraggable;
+
+    if (widget.lockedIndices.contains(reorderableEntity.updatedOrderId)) {
+      enableDraggable = false;
+    }
+
+    return ReorderableAnimatedContainer(
+      key: Key(reorderableEntity.key.toString()),
+      reorderableEntity: reorderableEntity,
+      isDragging: _draggedReorderableEntity != null,
+      onMovingFinished: _handleMovingFinished,
+      onOpacityFinished: _handleOpacityFinished,
+      child: ReorderableDraggable(
+        key: reorderableEntity.child.key,
+        draggedReorderableEntity: _draggedReorderableEntity,
+        enableLongPress: widget.enableLongPress,
+        longPressDelay: widget.longPressDelay,
+        enableDraggable: enableDraggable,
+        onCreated: _handleCreated,
+        onBuilding: _handleBuilding,
+        onDragStarted: _handleDragStarted,
+        reorderableEntity: reorderableEntity,
+        dragChildBoxDecoration: widget.dragChildBoxDecoration,
+        initDelay: widget.initDelay,
+      ),
+    );
   }
 
   /// Adding [Size] and [Offset] to [reorderableEntity] in [_childrenMap].
@@ -676,13 +745,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// At the end [_childrenMap] gets an update containing all [widget.children]
   /// and theirs new positions.
-  void _handleUpdatedChildren() {
+  void _handleUpdatedChildren({required List<Widget> children}) {
     var orderId = 0;
     final updatedChildrenMap = <Key, ReorderableEntity>{};
-    final addedOrRemovedOrderId = _getRemovedOrAddedOrderId();
+    final addedOrRemovedOrderId = _getRemovedOrAddedOrderId(children: children);
     final checkDuplicatedKeyList = <Key>[];
 
-    for (final child in widget.children) {
+    for (final child in children) {
       final key = child.key;
 
       if (key != null && !checkDuplicatedKeyList.contains(key)) {
@@ -730,19 +799,19 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// When [widget.children] is updated, it is possible that a child was removed
   /// or added. In that case, this method looks for the removed or added child and
   /// returns his orderId.
-  int? _getRemovedOrAddedOrderId() {
-    if (_childrenMap.length < widget.children.length) {
+  int? _getRemovedOrAddedOrderId({required List<Widget> children}) {
+    if (_childrenMap.length < children.length) {
       var orderId = 0;
-      for (final child in widget.children) {
+      for (final child in children) {
         final key = child.key;
         if (!_childrenMap.containsKey(key)) {
           return orderId;
         }
         orderId++;
       }
-    } else if (_childrenMap.length > widget.children.length) {
+    } else if (_childrenMap.length > children.length) {
       var orderId = 0;
-      final childrenKeys = widget.children.map((e) => e.key).toList();
+      final childrenKeys = children.map((e) => e.key).toList();
       for (final key in _childrenMap.keys) {
         if (!childrenKeys.contains(key)) {
           return orderId;
