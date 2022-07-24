@@ -132,9 +132,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       ),
     );
 
-    final draggedHashKey = widget.draggedReorderableEntity?.child.key.hashCode;
-    final hashKey = reorderableEntityChild.key.hashCode;
-    final visible = hashKey != draggedHashKey;
+    final draggedKey = widget.draggedReorderableEntity?.child.key;
+    final key = reorderableEntityChild.key;
+    final visible = key != draggedKey;
 
     final childWhenDragging = Visibility(
       visible: visible,

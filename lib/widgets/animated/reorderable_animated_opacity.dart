@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-typedef OnOpacityFinishedCallback = void Function(int keyHashCode);
+typedef OnOpacityFinishedCallback = void Function(Key key);
 
 /// Fading in [child] with an animated opacity.
 ///
@@ -89,7 +89,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           hasStartedAnimation = false;
-          widget.onOpacityFinished(widget.reorderableEntity.keyHashCode);
+          widget.onOpacityFinished(widget.reorderableEntity.key);
         }
       });
     _animationController.forward();

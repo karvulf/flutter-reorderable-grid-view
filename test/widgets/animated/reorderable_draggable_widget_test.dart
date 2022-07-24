@@ -5,7 +5,7 @@ import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_dragg
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const givenChild = Text('hallo');
+  const givenChild = Text('hallo', key: Key('key'));
   const givenReorderableEntity = ReorderableEntity(
     child: givenChild,
     originalOrderId: 0,
