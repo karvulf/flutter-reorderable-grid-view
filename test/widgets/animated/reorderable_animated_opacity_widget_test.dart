@@ -4,7 +4,7 @@ import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_anima
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const givenChild = Text('hallo');
+  const givenChild = Text('hallo', key: Key('key'));
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -29,7 +29,7 @@ void main() {
       'THEN should show expected widget with expected values and '
       'should not call onOpacityFinished', (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    Key? actualKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
@@ -42,8 +42,8 @@ void main() {
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: (keyHashCode) {
-        actualKeyHashCode = keyHashCode;
+      onOpacityFinished: (key) {
+        actualKey = key;
       },
     );
     await tester.pumpAndSettle();
@@ -53,7 +53,7 @@ void main() {
         find.byWidgetPredicate(
             (widget) => widget is Opacity && widget.opacity == 1.0),
         findsOneWidget);
-    expect(actualKeyHashCode, isNull);
+    expect(actualKey, isNull);
   });
 
   testWidgets(
@@ -62,7 +62,7 @@ void main() {
       'THEN should show expected widget with expected values and call onOpacityFinished',
       (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    Key? actualKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
@@ -75,8 +75,8 @@ void main() {
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: (keyHashCode) {
-        actualKeyHashCode = keyHashCode;
+      onOpacityFinished: (key) {
+        actualKey = key;
       },
     );
     await tester.pumpAndSettle();
@@ -86,7 +86,7 @@ void main() {
         find.byWidgetPredicate(
             (widget) => widget is Opacity && widget.opacity == 1.0),
         findsOneWidget);
-    expect(actualKeyHashCode, equals(givenChild.key.hashCode));
+    expect(actualKey, equals(givenChild.key));
   });
 
   testWidgets(
@@ -94,7 +94,7 @@ void main() {
       'WHEN updating given reorderableEntity isNew from false to true '
       'THEN should call onOpacityFinished', (WidgetTester tester) async {
     // given
-    int? actualKeyHashCode;
+    Key? actualKey;
     const givenReorderableEntity = ReorderableEntity(
       child: givenChild,
       originalOrderId: 0,
@@ -107,8 +107,8 @@ void main() {
       MaterialApp(
         home: _UpdateReorderableEntityTest(
           reorderableEntity: givenReorderableEntity,
-          onOpacityFinished: (keyHashCode) {
-            actualKeyHashCode = keyHashCode;
+          onOpacityFinished: (key) {
+            actualKey = key;
           },
           updatedReorderableEntity: givenReorderableEntity.copyWith(
             isNew: true,
@@ -127,7 +127,7 @@ void main() {
         find.byWidgetPredicate(
             (widget) => widget is Opacity && widget.opacity == 1.0),
         findsOneWidget);
-    expect(actualKeyHashCode, equals(givenChild.key.hashCode));
+    expect(actualKey, equals(givenChild.key));
   });
 }
 

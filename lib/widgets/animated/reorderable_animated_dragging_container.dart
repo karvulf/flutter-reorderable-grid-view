@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_animated_update_container.dart';
 
-typedef OnAnimationEndFunction = Function(
-  int hashKey,
-  ReorderableEntity reorderableEntity,
-);
-
 /// Handles the animation for the current position of [child] while dragging.
 ///
 /// When dragging the [child], there is another logic for updating the current

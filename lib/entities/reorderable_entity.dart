@@ -80,6 +80,5 @@ class ReorderableEntity {
         hasSwappedOrder: hasSwappedOrder ?? this.hasSwappedOrder,
       );
 
-  /// Getting faster access to the hashCode of the child's key.
-  int get keyHashCode => child.key.hashCode;
+  Key get key => child.key!;
 }

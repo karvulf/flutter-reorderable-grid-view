@@ -169,7 +169,7 @@ void main() {
       await pumpWidgetWithGridView(tester, children: givenChildren);
 
       // then
-      expect(tester.takeException(), isInstanceOf<Exception>());
+      expect(tester.takeException(), isInstanceOf<AssertionError>());
     });
 
     testWidgets(
@@ -390,7 +390,7 @@ void main() {
 
       // then
       FlutterError.onError = null; // weird
-      expect(tester.takeException(), isInstanceOf<Exception>());
+      expect(tester.takeException(), isInstanceOf<AssertionError>());
     });
 
     testWidgets(
@@ -827,7 +827,7 @@ void main() {
 Finder _findReorderableAnimatedContainer({required Key? key}) {
   return find.byWidgetPredicate((widget) =>
       widget is ReorderableAnimatedContainer &&
-      widget.key == Key(key.hashCode.toString()) &&
+      widget.key == Key(key.toString()) &&
       (widget.child as ReorderableDraggable).key == key);
 }
 
