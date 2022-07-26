@@ -314,6 +314,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _handleDragEnd() {
     widget.onDragEnd?.call();
 
+    if (_draggedReorderableEntity == null) return;
+
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
 
