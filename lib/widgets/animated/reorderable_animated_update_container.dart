@@ -74,6 +74,8 @@ class _ReorderableAnimatedUpdatedContainerState
           }
         },
       );
+
+    _handleIsBuilding();
   }
 
   @override
@@ -82,13 +84,7 @@ class _ReorderableAnimatedUpdatedContainerState
     super.didUpdateWidget(oldWidget);
     animationController.reset();
 
-    // minimize the flicker when building existing reorderableEntity
-    if (widget.reorderableEntity.isBuilding) {
-      visible = false;
-      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
-        visible = true;
-      });
-    }
+    _handleIsBuilding();
     _updateAnimationTranslation();
   }
 
@@ -117,6 +113,16 @@ class _ReorderableAnimatedUpdatedContainerState
         child: widget.child,
       ),
     );
+  }
+
+  /// Minimize the flicker when building existing reorderableEntity
+  void _handleIsBuilding() {
+    if (widget.reorderableEntity.isBuilding) {
+      visible = false;
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
+        visible = true;
+      });
+    }
   }
 
   /// Starting animation for the new position if dx or dy is not 0.

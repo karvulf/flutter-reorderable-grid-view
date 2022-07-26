@@ -281,31 +281,51 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   Widget _handleItemBuilder(Widget child, int index) {
-    final key = child.key;
-    if (key == null) {
-      assert(false, 'Key $key of child should not be null!');
+    if (child.key == null) {
+      assert(false, 'Key ${child.key} of child should not be null!');
     }
+    final key = child.key!;
 
-    late final ReorderableEntity reorderableEntity;
+    final orderId = index;
 
-    if (_childrenMap.containsKey(child.key)) {
-      reorderableEntity = _childrenMap[key!]!;
-    } else {
-      reorderableEntity = ReorderableEntity(
+    /*
+    final addedOrRemovedOrderId = _getRemovedOrAddedOrderId(children: children);
+    var childrenSizeHasChanged = false;
+    if (addedOrRemovedOrderId != null) {
+      childrenSizeHasChanged = orderId >= addedOrRemovedOrderId;
+    }*/
+
+    if (_childrenMap.containsKey(key)) {
+      final reorderableEntity = _childrenMap[key]!;
+      final hasUpdatedOrder = reorderableEntity.originalOrderId != orderId;
+      final updatedReorderableEntity = reorderableEntity.copyWith(
         child: child,
-        originalOrderId: index,
-        updatedOrderId: index,
-        isBuilding: true,
+        updatedOrderId: orderId,
+        updatedOffset: _offsetMap[orderId],
+        isBuilding: !_offsetMap.containsKey(orderId),
+        isNew: false,
+        // hasSwappedOrder: hasUpdatedOrder && !childrenSizeHasChanged,
       );
-      _childrenMap[key!] = reorderableEntity;
+      _childrenMap[key] = updatedReorderableEntity;
+    } else {
+      _childrenMap[key] = ReorderableEntity(
+        child: child,
+        originalOrderId: orderId,
+        updatedOrderId: orderId,
+        isBuilding: false,
+        isNew: true,
+      );
     }
 
     // add new child to children
     var enableDraggable = widget.enableDraggable;
 
+    final reorderableEntity = _childrenMap[key]!;
     if (widget.lockedIndices.contains(reorderableEntity.updatedOrderId)) {
       enableDraggable = false;
     }
+
+    print('key ${Key(reorderableEntity.key.toString())}');
 
     return ReorderableAnimatedContainer(
       key: Key(reorderableEntity.key.toString()),
@@ -345,15 +365,19 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
 
     if (offset != null) {
-      final updatedReorderableEntity = reorderableEntity.copyWith(
-        size: renderBox?.size,
-        originalOffset: offset,
-        updatedOffset: offset,
-        isBuilding: false,
-      );
-      _childrenMap[reorderableEntity.key] = updatedReorderableEntity;
+      if (reorderableEntity.isBuilding) {
+        _handleBuilding(reorderableEntity, key);
+      } else {
+        final updatedReorderableEntity = reorderableEntity.copyWith(
+          size: renderBox?.size,
+          originalOffset: offset,
+          updatedOffset: offset,
+          isBuilding: false,
+        );
+        _childrenMap[reorderableEntity.key] = updatedReorderableEntity;
+      }
 
-      return updatedReorderableEntity;
+      return _childrenMap[reorderableEntity.key];
     }
 
     return null;
