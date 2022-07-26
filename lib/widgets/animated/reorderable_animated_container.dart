@@ -7,9 +7,9 @@ import 'package:flutter_reorderable_grid_view/widgets/animated/reorderable_anima
 /// Building widgets for three different animations.
 ///
 /// Building animation for
-///   - opacity when [child] is new
-///   - position of [reorderableEntity] if updated and not dragged
-///   - position of [reorderableEntity] if updated and dragged
+///   - opacity when [child] is new ([ReorderableAnimatedOpacity])
+///   - position of [reorderableEntity] if updated and not dragged ([ReorderableAnimatedUpdatedContainer])
+///   - position of [reorderableEntity] if updated and dragged ([ReorderableAnimatedDraggingContainer])
 class ReorderableAnimatedContainer extends StatelessWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
