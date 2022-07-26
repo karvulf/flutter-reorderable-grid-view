@@ -24,6 +24,7 @@ Package for having animated Drag and Drop functionality for every type of `GridV
   - [Animations](#animations)
 - [Supported Widgets](#supported-widgets)
 - [Parameters](#parameters)
+- [Road Map](#road-map)
 - [Future Plans](#future-plans)
 
 
@@ -140,6 +141,24 @@ There are different animations:
 | `onDragStarted` | Callback when user starts dragging a child. |**-** |
 | `onDragEnd` | Callback when user releases dragged child. |**-** |
 | `builder` | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.|**-** |
+
+
+## Road map for release of version `4.0.0`
+* Code Refactoring for easier understanding!
+
+* Support for `Wrap` 
+  * with animation when adding or removing items
+  * drag and drop
+  * Github Issue [#28](https://github.com/karvulf/flutter-reorderable-grid-view/issues/28)
+
+* Support for `GridView.builder` with function `itemBuilder`
+  * much better performance when rendering a lot of children
+  * with animation when adding or removing items (optional because I am not sure if it's possible to implement it with my current knowledge)
+  * drag and drop
+  * Github Issue [#43](https://github.com/karvulf/flutter-reorderable-grid-view/issues/43)
+
+* Adding animation when releasing the item
+  * Issue [#12](https://github.com/karvulf/flutter-reorderable-grid-view/issues/12)
 
 ## Future Plans
 
