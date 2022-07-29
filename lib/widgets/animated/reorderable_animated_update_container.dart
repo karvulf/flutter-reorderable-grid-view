@@ -75,8 +75,10 @@ class _ReorderableAnimatedUpdatedContainerState
         },
       );
 
-    _handleIsBuilding();
-    _updateAnimationTranslation();
+    _handleIsBuilding(calledOnCreated: true);
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
+      _updateAnimationTranslation(calledOnCreated: true);
+    });
   }
 
   @override
@@ -92,8 +94,8 @@ class _ReorderableAnimatedUpdatedContainerState
         visible = true;
       });
     }
-    _handleIsBuilding();
-    _updateAnimationTranslation();
+    _handleIsBuilding(calledOnCreated: false);
+    _updateAnimationTranslation(calledOnCreated: false);
   }
 
   @override
@@ -124,18 +126,23 @@ class _ReorderableAnimatedUpdatedContainerState
   }
 
   /// Minimize the flicker when building existing reorderableEntity
-  void _handleIsBuilding() {
-    if (widget.reorderableEntity.isBuilding) {
+  void _handleIsBuilding({required bool calledOnCreated}) {
+    if (calledOnCreated && widget.reorderableEntity.isBuilding) {
       visible = false;
-      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         visible = true;
       });
     }
   }
 
   /// Starting animation for the new position if dx or dy is not 0.
-  void _updateAnimationTranslation() {
-    final offsetDiff = _getOffsetDiff(widget.reorderableEntity);
+  void _updateAnimationTranslation({
+    required bool calledOnCreated,
+  }) {
+    final offsetDiff = _getOffsetDiff(
+      widget.reorderableEntity,
+      calledOnCreated: calledOnCreated,
+    );
     _animationOffset = _getAnimation(offsetDiff);
 
     if (offsetDiff.dx != 0 || offsetDiff.dy != 0) {
@@ -144,8 +151,18 @@ class _ReorderableAnimatedUpdatedContainerState
   }
 
   /// Calculates the difference of the original and updated offset of [reorderableEntity].
-  Offset _getOffsetDiff(ReorderableEntity reorderableEntity) {
+  Offset _getOffsetDiff(
+    ReorderableEntity reorderableEntity, {
+    required bool calledOnCreated,
+  }) {
     final originalOffset = reorderableEntity.originalOffset;
+
+    if (calledOnCreated) {
+      final renderBox =
+          _globalKey.currentContext?.findRenderObject() as RenderBox?;
+      final localOffset = renderBox?.globalToLocal(Offset.zero);
+      if (localOffset != null) return originalOffset + localOffset;
+    }
     final updatedOffset = reorderableEntity.updatedOffset;
     return originalOffset - updatedOffset;
   }
