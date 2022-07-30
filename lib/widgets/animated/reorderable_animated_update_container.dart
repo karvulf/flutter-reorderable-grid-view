@@ -75,10 +75,13 @@ class _ReorderableAnimatedUpdatedContainerState
         },
       );
 
-    _handleIsBuilding(calledOnCreated: true);
-    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
-      _updateAnimationTranslation(calledOnCreated: true);
-    });
+    final reorderableEntity = widget.reorderableEntity;
+    if (!reorderableEntity.isNew) {
+      _handleIsBuilding();
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
+        _updateAnimationTranslation(calledOnCreated: true);
+      });
+    }
   }
 
   @override
@@ -94,7 +97,7 @@ class _ReorderableAnimatedUpdatedContainerState
         visible = true;
       });
     }
-    _handleIsBuilding(calledOnCreated: false);
+    _handleIsBuilding();
     _updateAnimationTranslation(calledOnCreated: false);
   }
 
@@ -126,8 +129,8 @@ class _ReorderableAnimatedUpdatedContainerState
   }
 
   /// Minimize the flicker when building existing reorderableEntity
-  void _handleIsBuilding({required bool calledOnCreated}) {
-    if (calledOnCreated && widget.reorderableEntity.isBuilding) {
+  void _handleIsBuilding() {
+    if (widget.reorderableEntity.isBuilding) {
       visible = false;
       _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         visible = true;

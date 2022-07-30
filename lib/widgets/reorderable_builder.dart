@@ -155,6 +155,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           originalOrderId: orderId,
           updatedOrderId: orderId,
           isBuilding: true,
+          isNew: true,
         );
         orderId++;
       } else {
