@@ -1,3 +1,13 @@
+## 3.1.3
+🐛 **Fixed some bugs**
+* fixed two null check errors (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41) and Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))
+* fixed animated behavior when using `GridView.builder` (Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))
+  * before there was no animation when adding or removing an item, this should work now
+  * this should also fix the callback `onReorder` where an index of an item is returned that should not exist
+
+ℹ️ **Information**
+* added Roadmap for release `4.0.0`
+
 ## 3.1.2
 🐛 **Fixed small bug**
 * Fixed exception `Null check operator used on a null value` (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41)) 
