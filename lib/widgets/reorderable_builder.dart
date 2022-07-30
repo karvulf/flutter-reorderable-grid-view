@@ -155,6 +155,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           originalOrderId: orderId,
           updatedOrderId: orderId,
           isBuilding: true,
+          isNew: true,
         );
         orderId++;
       } else {
@@ -313,6 +314,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// When the list is created, [widget.onReorder] will be called.
   void _handleDragEnd() {
     widget.onDragEnd?.call();
+
+    if (_draggedReorderableEntity == null) return;
 
     final oldIndex = _draggedReorderableEntity!.originalOrderId;
     final newIndex = _draggedReorderableEntity!.updatedOrderId;
