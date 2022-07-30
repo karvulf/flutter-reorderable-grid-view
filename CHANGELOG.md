@@ -5,6 +5,8 @@
   * before there was no animation when adding or removing an item, this should work now
   * this should also fix the callback `onReorder` where an index of an item is returned that should not exist
 
+ℹ️ **Information**
+* added Roadmap for release `4.0.0`
 
 ## 3.1.2
 🐛 **Fixed small bug**
