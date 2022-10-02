@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = void Function(
-  GlobalKey key,
+  GlobalKey? key,
   ReorderableEntity reorderableEntity,
 );
 
@@ -54,6 +54,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   }
 
   bool get visible {
-    return widget.reorderableEntity.visible;
+    final reorderableEntity = widget.reorderableEntity;
+    return !reorderableEntity.isNew;
   }
 }

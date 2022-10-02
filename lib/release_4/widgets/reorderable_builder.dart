@@ -115,7 +115,7 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
-  final _childrenMap = <int, ReorderableEntity>{};
+  final _childrenOrderMap = <int, ReorderableEntity>{};
   final _childrenKeyMap = <dynamic, ReorderableEntity>{};
 
   @override
@@ -125,12 +125,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     var index = 0;
     for (final child in widget.children) {
       _checkChildState(child: child);
-      assert(!_childrenMap.containsKey(child.key), "Key is duplicated!");
+      assert(!_childrenOrderMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
       final reorderableEntity = ReorderableEntity(
         key: key,
         originalOrderId: index,
-        visible: false,
+        isNew: true,
+        isBuilding: false,
       );
       _updateMaps(reorderableEntity: reorderableEntity);
       index++;
@@ -146,16 +147,25 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       _checkChildState(child: child);
       final key = child.key as ValueKey;
       final childInKeyMap = _childrenKeyMap[key.value];
+      final isOrderKnown = _childrenOrderMap.containsKey(index);
 
       if (childInKeyMap == null) {
         final reorderableEntity = ReorderableEntity(
           key: child.key as ValueKey,
           originalOrderId: index,
-          visible: false,
+          isNew: true,
+          isBuilding: isOrderKnown,
         );
         _updateMaps(reorderableEntity: reorderableEntity);
       } else {
-        // child has updated or didn't change
+        if (childInKeyMap.originalOrderId != index) {
+          final updatedReorderableEntity = childInKeyMap.copyWith(
+            originalOrderId: index,
+            isBuilding: isOrderKnown,
+            isNew: !isOrderKnown,
+          );
+          _updateMaps(reorderableEntity: updatedReorderableEntity);
+        }
       }
       index++;
     }
@@ -164,7 +174,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _updateMaps({required ReorderableEntity reorderableEntity}) {
-    _childrenMap[reorderableEntity.originalOrderId] = reorderableEntity;
+    _childrenOrderMap[reorderableEntity.originalOrderId] = reorderableEntity;
     _childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
   }
 
@@ -181,9 +191,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       updatedChildren.add(
         ReorderableAnimatedOpacity(
           reorderableEntity: reorderableEntity,
+          onCreated: _handleCreatedChild,
           child: ReorderableInitChild(
-            onCreated: _handleCreatedChild,
             reorderableEntity: reorderableEntity,
+            onCreated: _handleCreatedChild,
             child: child,
           ),
         ),
@@ -193,11 +204,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _handleCreatedChild(
-    GlobalKey key,
+    GlobalKey? key,
     ReorderableEntity reorderableEntity,
   ) {
     final updatedReorderableEntity = reorderableEntity.copyWith(
-      visible: true,
+      isNew: false,
     );
     _updateMaps(reorderableEntity: updatedReorderableEntity);
     setState(() {});

@@ -12,21 +12,26 @@ import 'package:flutter/cupertino.dart';
 /// [isNew] and [hasSwappedOrder].
 class ReorderableEntity {
   final ValueKey key;
-  final bool visible;
+  final bool isNew;
+  final bool isBuilding;
   final int originalOrderId;
 
   const ReorderableEntity({
     required this.key,
     required this.originalOrderId,
-    required this.visible,
+    required this.isNew,
+    required this.isBuilding,
   });
 
   ReorderableEntity copyWith({
-    bool? visible,
+    bool? isNew,
+    bool? isBuilding,
+    int? originalOrderId,
   }) =>
       ReorderableEntity(
         key: key,
-        originalOrderId: originalOrderId,
-        visible: visible ?? this.visible,
+        originalOrderId: originalOrderId ?? this.originalOrderId,
+        isNew: isNew ?? this.isNew,
+        isBuilding: isBuilding ?? this.isBuilding,
       );
 }
