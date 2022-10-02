@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
@@ -119,23 +120,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _getReorderableWidget() {
-    final generatedChildren = List<Widget>.generate(
-      children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(),
-          ),
-        ),
-      ),
-    );
+    final generatedChildren = _getGeneratedChildren();
 
     switch (reorderableType) {
       case ReorderableType.gridView:
@@ -199,6 +184,7 @@ class _MyAppState extends State<MyApp> {
 
       case ReorderableType.gridViewBuilder:
         return ReorderableBuilder(
+          key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
@@ -226,6 +212,26 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
+  }
+
+  List<Widget> _getGeneratedChildren() {
+    return List<Widget>.generate(
+      children.length,
+      (index) => Container(
+        key: Key(children[index].toString()),
+        decoration: BoxDecoration(
+          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+        ),
+        height: 100.0,
+        width: 100.0,
+        child: Center(
+          child: Text(
+            'test ${children[index]}',
+            style: const TextStyle(),
+          ),
+        ),
+      ),
+    );
   }
 
   void _handleDragStarted() {

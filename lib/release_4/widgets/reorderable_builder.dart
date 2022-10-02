@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opacity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -15,7 +16,6 @@ typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
 class ReorderableBuilder extends StatefulWidget {
-  /// Updating [children] with some widgets to enable animations.
   final List<Widget> children;
 
   /// Specify indices for [children] that should not change their position while dragging.
@@ -115,7 +115,8 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
-  final _childrenMap = <Key, ReorderableEntity>{};
+  final _childrenMap = <int, ReorderableEntity>{};
+  final _childrenKeyMap = <dynamic, ReorderableEntity>{};
 
   @override
   void initState() {
@@ -123,48 +124,93 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
     var index = 0;
     for (final child in widget.children) {
-      assert(child.key != null, 'Unique Key has to be added!');
-      assert(!_childrenMap.containsKey(child.key), 'Duplicated key found!');
-
-      _childrenMap[child.key!] = ReorderableEntity(
-        child: child,
+      _checkChildState(child: child);
+      assert(!_childrenMap.containsKey(child.key), "Key is duplicated!");
+      final key = child.key! as ValueKey;
+      final reorderableEntity = ReorderableEntity(
+        key: key,
         originalOrderId: index,
-        updatedOrderId: index,
-        isBuilding: true,
-        isNew: true,
+        visible: false,
       );
+      _updateMaps(reorderableEntity: reorderableEntity);
       index++;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.builder(_getUpdatedChildren());
+  void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    var index = 0;
+    for (final child in widget.children) {
+      _checkChildState(child: child);
+      final key = child.key as ValueKey;
+      final childInKeyMap = _childrenKeyMap[key.value];
+
+      if (childInKeyMap == null) {
+        final reorderableEntity = ReorderableEntity(
+          key: child.key as ValueKey,
+          originalOrderId: index,
+          visible: false,
+        );
+        _updateMaps(reorderableEntity: reorderableEntity);
+      } else {
+        // child has updated or didn't change
+      }
+      index++;
+    }
+    // Todo: shouldn't rerender for every update, only if there was a change in children
+    setState(() {});
   }
 
-  List<Widget> _getUpdatedChildren() {
+  void _updateMaps({required ReorderableEntity reorderableEntity}) {
+    _childrenMap[reorderableEntity.originalOrderId] = reorderableEntity;
+    _childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(_wrapChildren());
+  }
+
+  List<Widget> _wrapChildren() {
     final updatedChildren = <Widget>[];
 
-    for (final entry in _childrenMap.entries) {
-      final reorderableEntity = entry.value;
+    for (final child in widget.children) {
+      final reorderableEntity = _childrenKeyMap[(child.key as ValueKey).value]!;
       updatedChildren.add(
         ReorderableAnimatedOpacity(
           reorderableEntity: reorderableEntity,
+          child: ReorderableInitChild(
+            onCreated: _handleCreatedChild,
+            reorderableEntity: reorderableEntity,
+            child: child,
+          ),
         ),
       );
     }
-
     return updatedChildren;
   }
 
   void _handleCreatedChild(
+    GlobalKey key,
     ReorderableEntity reorderableEntity,
-    GlobalKey<State<StatefulWidget>> key,
   ) {
-    //
+    final updatedReorderableEntity = reorderableEntity.copyWith(
+      visible: true,
+    );
+    _updateMaps(reorderableEntity: updatedReorderableEntity);
+    setState(() {});
   }
 
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     //
+  }
+
+  void _checkChildState({
+    required Widget child,
+  }) {
+    assert(child.key != null, "Key can't be null!");
+    assert(child.key is ValueKey, 'Key has to type of [ValueKey]!');
   }
 }

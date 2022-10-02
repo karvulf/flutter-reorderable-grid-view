@@ -8,9 +8,11 @@ typedef OnOpacityFinishedCallback = void Function(Key key);
 ///
 /// The fade in is only made when isNew in [reorderableEntity] is true.
 class ReorderableAnimatedOpacity extends StatefulWidget {
+  final Widget child;
   final ReorderableEntity reorderableEntity;
 
   const ReorderableAnimatedOpacity({
+    required this.child,
     required this.reorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -33,7 +35,21 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _startOpacityAnimation();
+    final tween = Tween<double>(begin: 0, end: 1);
+    _opacity = tween.animate(_animationController)
+      ..addListener(() {
+        setState(() {}); // muss das setState drinnen bleiben?
+      });
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableAnimatedOpacity oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final visible = widget.reorderableEntity.visible;
+    if (oldWidget.reorderableEntity.visible != visible && visible) {
+      _animationController.forward();
+    }
   }
 
   @override
@@ -46,20 +62,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   Widget build(BuildContext context) {
     return Opacity(
       opacity: _opacity.value,
-      child: widget.reorderableEntity.child,
+      child: widget.child,
     );
-  }
-
-  /// Building new animation for [_opacity].
-  ///
-  /// Animation only starts when [hasStartedAnimation] is false or
-  /// when [reorderableEntity] is new.
-  void _startOpacityAnimation() {
-    final tween = Tween<double>(begin: 0, end: 1);
-    _opacity = tween.animate(_animationController)
-      ..addListener(() {
-        setState(() {}); // muss das setState drinnen bleiben?
-      });
-    _animationController.forward();
   }
 }
