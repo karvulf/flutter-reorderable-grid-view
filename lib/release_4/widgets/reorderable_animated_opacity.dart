@@ -82,17 +82,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
         await _animationController.forward();
         widget.onOpacityFinished(widget.reorderableEntity);
       } else {
-        _animationController.stop();
-        opacity = 0.0;
-        _opacityAnimation = null;
+        _updateOpacity(opacity: 0.0);
       }
     } else {
       if (!reorderableEntity.isBuildingOffset) {
-        _animationController.stop();
-        opacity = 1.0;
-        _opacityAnimation = null;
+        _updateOpacity(opacity: 1.0);
       }
     }
+  }
+
+  void _updateOpacity({required double opacity}) {
+    _animationController.stop();
+    this.opacity = opacity;
+    _opacityAnimation = null;
   }
 
   void _updateOpacityAnimation({

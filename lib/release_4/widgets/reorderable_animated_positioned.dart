@@ -42,11 +42,26 @@ class _ReorderableAnimatedPositionedState
     final oldEntity = oldWidget.reorderableEntity;
     final newEntity = widget.reorderableEntity;
     if (oldEntity.updatedOffset != newEntity.updatedOffset ||
-        oldEntity.isBuildingOffset != newEntity.isBuildingOffset) {
+        oldEntity.isBuildingOffset != newEntity.isBuildingOffset ||
+        oldEntity.key != newEntity.key) {
       if (!newEntity.isBuildingOffset) {
-        _updateOffsetAnimation();
+        if (newEntity.hasSwappedOrder) {
+          // important to prevent flickering for calculating new offsets
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            _animationController.reset();
+            _updateOffsetAnimation();
+          });
+        } else {
+          _updateOffsetAnimation();
+        }
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override

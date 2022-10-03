@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 0;
+  static const _startCounter = 2;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;

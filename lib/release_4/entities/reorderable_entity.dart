@@ -22,6 +22,7 @@ class ReorderableEntity {
   final Offset updatedOffset;
 
   final bool isBuildingOffset;
+  final bool hasSwappedOrder;
 
   const ReorderableEntity({
     required this.key,
@@ -30,6 +31,7 @@ class ReorderableEntity {
     required this.originalOffset,
     required this.updatedOffset,
     required this.isBuildingOffset,
+    required this.hasSwappedOrder,
   });
 
   factory ReorderableEntity.create({
@@ -44,6 +46,7 @@ class ReorderableEntity {
         originalOffset: offset ?? Offset.zero,
         updatedOffset: offset ?? Offset.zero,
         isBuildingOffset: offset == null,
+        hasSwappedOrder: false,
       );
 
   @override
@@ -54,7 +57,8 @@ class ReorderableEntity {
             other.originalOrderId == originalOrderId &&
             other.updatedOrderId == updatedOrderId &&
             other.updatedOffset == updatedOffset &&
-            other.isBuildingOffset == isBuildingOffset);
+            other.isBuildingOffset == isBuildingOffset &&
+            other.hasSwappedOrder == hasSwappedOrder);
   }
 
   @override
@@ -66,6 +70,7 @@ class ReorderableEntity {
     Offset? originalOffset,
     Offset? updatedOffset,
     bool? isBuildingOffset,
+    bool? hasSwappedOrder,
   }) =>
       ReorderableEntity(
         key: key,
@@ -74,6 +79,7 @@ class ReorderableEntity {
         originalOffset: originalOffset ?? this.originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
         isBuildingOffset: isBuildingOffset ?? this.isBuildingOffset,
+        hasSwappedOrder: hasSwappedOrder ?? this.hasSwappedOrder,
       );
 
   ReorderableEntity fadedIn() => ReorderableEntity(
@@ -83,6 +89,7 @@ class ReorderableEntity {
         originalOffset: updatedOffset,
         updatedOffset: updatedOffset,
         isBuildingOffset: false,
+        hasSwappedOrder: false,
       );
 
   ReorderableEntity creationFinished({
@@ -95,6 +102,7 @@ class ReorderableEntity {
         originalOffset: originalOffset,
         updatedOffset: offset ?? updatedOffset,
         isBuildingOffset: false,
+        hasSwappedOrder: false,
       );
 
   ReorderableEntity updated({
@@ -108,6 +116,8 @@ class ReorderableEntity {
         originalOffset: originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
         isBuildingOffset: updatedOffset == null,
+        hasSwappedOrder:
+            updatedOrderId != originalOrderId && updatedOffset != null,
       );
 
   ReorderableEntity positionUpdated() => ReorderableEntity(
@@ -117,5 +127,6 @@ class ReorderableEntity {
         originalOffset: updatedOffset,
         updatedOffset: updatedOffset,
         isBuildingOffset: false,
+        hasSwappedOrder: false,
       );
 }

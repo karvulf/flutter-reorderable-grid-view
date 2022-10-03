@@ -116,10 +116,9 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 class _ReorderableBuilderState extends State<ReorderableBuilder> {
-  final _childrenOrderMap = <int, ReorderableEntity>{};
-  final _childrenKeyMap = <dynamic, ReorderableEntity>{};
-
-  // final _offsetMap = <int, Offset>{};
+  var _childrenOrderMap = <int, ReorderableEntity>{};
+  var _childrenKeyMap = <dynamic, ReorderableEntity>{};
+  final _offsetMap = <int, Offset>{};
 
   @override
   void initState() {
@@ -128,7 +127,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     var index = 0;
     for (final child in widget.children) {
       _checkChildState(child: child);
-      assert(!_childrenOrderMap.containsKey(child.key), "Key is duplicated!");
+      assert(!_childrenKeyMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
       final reorderableEntity = ReorderableEntity.create(
         key: key,
@@ -142,34 +141,42 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   @override
   void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.children == widget.children) return;
+
+    var updatedChildrenKeyMap = <dynamic, ReorderableEntity>{};
+    var updatedChildrenOrderMap = <int, ReorderableEntity>{};
 
     var index = 0;
     for (final child in widget.children) {
       _checkChildState(child: child);
       final key = child.key as ValueKey;
       final childInKeyMap = _childrenKeyMap[key.value];
-      final offset = _childrenOrderMap[index]?.originalOffset;
+      final offset = _offsetMap[index];
+      late final ReorderableEntity reorderableEntity;
 
       if (childInKeyMap == null) {
-        final reorderableEntity = ReorderableEntity.create(
-          key: child.key as ValueKey,
+        reorderableEntity = ReorderableEntity.create(
+          key: key,
           updatedOrderId: index,
           offset: offset,
         );
-        _updateMaps(reorderableEntity: reorderableEntity);
       } else {
-        final updatedReorderableEntity = childInKeyMap.updated(
+        reorderableEntity = childInKeyMap.updated(
           updatedOrderId: index,
           updatedOffset: offset,
         );
-        _updateMaps(reorderableEntity: updatedReorderableEntity);
       }
+
+      final originalOrderId = reorderableEntity.originalOrderId;
+      updatedChildrenOrderMap[originalOrderId] = reorderableEntity;
+      updatedChildrenKeyMap[key.value] = reorderableEntity;
+
       index++;
     }
-    // Todo: shouldn't rerender for every update, only if there was a change in children
-    setState(() {});
+    setState(() {
+      _childrenOrderMap = updatedChildrenOrderMap;
+      _childrenKeyMap = updatedChildrenKeyMap;
+    });
   }
 
   void _updateMaps({required ReorderableEntity reorderableEntity}) {
@@ -230,6 +237,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     if (renderObject != null) {
       final renderBox = renderObject as RenderBox;
       offset = renderBox.localToGlobal(Offset.zero);
+      _offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
 
     _updateMaps(
@@ -238,10 +246,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       ),
     );
     setState(() {});
-  }
-
-  void _handleDragStarted(ReorderableEntity reorderableEntity) {
-    //
   }
 
   void _checkChildState({
