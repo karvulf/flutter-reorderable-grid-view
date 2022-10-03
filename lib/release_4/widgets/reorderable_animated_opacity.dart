@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 
 typedef OnOpacityFinishedCallback = void Function(Key key);
+typedef OnOpacityResetCallback = void Function(
+  ReorderableEntity reorderableEntity,
+);
 
 /// Fading in [child] with an animated opacity.
 ///
@@ -12,12 +14,12 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
 
-  final OnCreatedFunction onCreated;
+  final OnOpacityResetCallback onOpacityFinished;
 
   const ReorderableAnimatedOpacity({
     required this.child,
     required this.reorderableEntity,
-    required this.onCreated,
+    required this.onOpacityFinished,
     Key? key,
   }) : super(key: key);
 
@@ -39,30 +41,25 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    final tween = Tween<double>(begin: 0, end: 1);
+
+    late final Tween<double> tween;
+    if (widget.reorderableEntity.originalOrderId ==
+        ReorderableEntity.isNewChildId) {
+      tween = Tween<double>(begin: 0, end: 1);
+    } else {
+      tween = Tween<double>(begin: 1, end: 1);
+    }
     _opacity = tween.animate(_animationController)
       ..addListener(() {
         setState(() {}); // muss das setState drinnen bleiben?
       });
+    _updateOpacity();
   }
 
   @override
   void didUpdateWidget(covariant ReorderableAnimatedOpacity oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    final reorderableEntity = widget.reorderableEntity;
-    final isNew = reorderableEntity.isNew;
-    // new widget that got his global key
-    if (oldWidget.reorderableEntity.isNew != isNew && !isNew) {
-      _animationController.forward();
-    }
-    // new widget with existing global key
-    else if (isNew && reorderableEntity.isBuilding) {
-      _animationController.reset();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onCreated(null, reorderableEntity);
-      });
-    }
+    _updateOpacity();
   }
 
   @override
@@ -77,5 +74,15 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       opacity: _opacity.value,
       child: widget.child,
     );
+  }
+
+  Future<void> _updateOpacity() async {
+    if (widget.reorderableEntity.originalOrderId ==
+            ReorderableEntity.isNewChildId &&
+        !_animationController.isAnimating) {
+      _animationController.reset();
+      await _animationController.forward();
+      widget.onOpacityFinished(widget.reorderableEntity);
+    }
   }
 }

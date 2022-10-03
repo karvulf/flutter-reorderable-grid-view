@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opacity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 
 typedef DraggableBuilder = Widget Function(
@@ -118,6 +119,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   final _childrenOrderMap = <int, ReorderableEntity>{};
   final _childrenKeyMap = <dynamic, ReorderableEntity>{};
 
+  // final _offsetMap = <int, Offset>{};
+
   @override
   void initState() {
     super.initState();
@@ -127,11 +130,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       _checkChildState(child: child);
       assert(!_childrenOrderMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
-      final reorderableEntity = ReorderableEntity(
+      final reorderableEntity = ReorderableEntity.create(
         key: key,
-        originalOrderId: index,
-        isNew: true,
-        isBuilding: false,
+        updatedOrderId: index,
       );
       _updateMaps(reorderableEntity: reorderableEntity);
       index++;
@@ -147,25 +148,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       _checkChildState(child: child);
       final key = child.key as ValueKey;
       final childInKeyMap = _childrenKeyMap[key.value];
-      final isOrderKnown = _childrenOrderMap.containsKey(index);
+      final offset = _childrenOrderMap[index]?.originalOffset;
 
       if (childInKeyMap == null) {
-        final reorderableEntity = ReorderableEntity(
+        final reorderableEntity = ReorderableEntity.create(
           key: child.key as ValueKey,
-          originalOrderId: index,
-          isNew: true,
-          isBuilding: isOrderKnown,
+          updatedOrderId: index,
         );
         _updateMaps(reorderableEntity: reorderableEntity);
       } else {
-        if (childInKeyMap.originalOrderId != index) {
-          final updatedReorderableEntity = childInKeyMap.copyWith(
-            originalOrderId: index,
-            isBuilding: isOrderKnown,
-            isNew: !isOrderKnown,
-          );
-          _updateMaps(reorderableEntity: updatedReorderableEntity);
-        }
+        final updatedReorderableEntity = childInKeyMap.updated(
+          updatedOrderId: index,
+          updatedOffset: offset,
+        );
+        _updateMaps(reorderableEntity: updatedReorderableEntity);
       }
       index++;
     }
@@ -191,11 +187,15 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       updatedChildren.add(
         ReorderableAnimatedOpacity(
           reorderableEntity: reorderableEntity,
-          onCreated: _handleCreatedChild,
-          child: ReorderableInitChild(
+          onOpacityFinished: _handleOpacityFinished,
+          child: ReorderableAnimatedPositioned(
             reorderableEntity: reorderableEntity,
-            onCreated: _handleCreatedChild,
-            child: child,
+            onMovingFinished: _handleMovingFinished,
+            child: ReorderableInitChild(
+              reorderableEntity: reorderableEntity,
+              onCreated: _handleCreatedChild,
+              child: child,
+            ),
           ),
         ),
       );
@@ -203,12 +203,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return updatedChildren;
   }
 
+  void _handleMovingFinished(ReorderableEntity reorderableEntity) {
+    final updatedReorderableEntity = reorderableEntity.copyWith(
+      originalOffset: reorderableEntity.updatedOffset,
+      originalOrderId: reorderableEntity.updatedOrderId,
+    );
+    _updateMaps(reorderableEntity: updatedReorderableEntity);
+    setState(() {});
+  }
+
+  void _handleOpacityFinished(ReorderableEntity reorderableEntity) {
+    _updateMaps(
+      reorderableEntity: reorderableEntity.creationFinished(),
+    );
+    setState(() {});
+  }
+
   void _handleCreatedChild(
-    GlobalKey? key,
+    GlobalKey key,
     ReorderableEntity reorderableEntity,
   ) {
+    Offset? offset;
+
+    final renderObject = key.currentContext?.findRenderObject();
+    if (renderObject != null) {
+      final renderBox = renderObject as RenderBox;
+      offset = renderBox.localToGlobal(Offset.zero);
+    }
+
     final updatedReorderableEntity = reorderableEntity.copyWith(
-      isNew: false,
+      updatedOffset: offset,
     );
     _updateMaps(reorderableEntity: updatedReorderableEntity);
     setState(() {});

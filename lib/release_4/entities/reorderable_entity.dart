@@ -11,27 +11,80 @@ import 'package:flutter/cupertino.dart';
 /// Also the current state of [child] is added as information: [isBuilding],
 /// [isNew] and [hasSwappedOrder].
 class ReorderableEntity {
+  static const isNewChildId = -1;
+
   final ValueKey key;
-  final bool isNew;
-  final bool isBuilding;
+
   final int originalOrderId;
+  final int updatedOrderId;
+
+  final Offset originalOffset;
+  final Offset updatedOffset;
 
   const ReorderableEntity({
     required this.key,
     required this.originalOrderId,
-    required this.isNew,
-    required this.isBuilding,
+    required this.updatedOrderId,
+    required this.originalOffset,
+    required this.updatedOffset,
   });
 
+  factory ReorderableEntity.create({
+    required ValueKey key,
+    required int updatedOrderId,
+  }) =>
+      ReorderableEntity(
+        key: key,
+        originalOrderId: isNewChildId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: Offset.zero,
+        updatedOffset: Offset.zero,
+      );
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReorderableEntity &&
+        (other.key == key &&
+            other.originalOffset == originalOffset &&
+            other.originalOrderId == originalOrderId &&
+            other.updatedOrderId == updatedOrderId &&
+            other.updatedOffset == updatedOffset);
+  }
+
+  @override
+  int get hashCode => originalOrderId;
+
   ReorderableEntity copyWith({
-    bool? isNew,
-    bool? isBuilding,
     int? originalOrderId,
+    int? updatedOrderId,
+    Offset? originalOffset,
+    Offset? updatedOffset,
   }) =>
       ReorderableEntity(
         key: key,
         originalOrderId: originalOrderId ?? this.originalOrderId,
-        isNew: isNew ?? this.isNew,
-        isBuilding: isBuilding ?? this.isBuilding,
+        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
+        originalOffset: originalOffset ?? this.originalOffset,
+        updatedOffset: updatedOffset ?? this.updatedOffset,
+      );
+
+  ReorderableEntity creationFinished() => ReorderableEntity(
+        key: key,
+        originalOrderId: updatedOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: updatedOffset,
+        updatedOffset: updatedOffset,
+      );
+
+  ReorderableEntity updated({
+    required int updatedOrderId,
+    required Offset? updatedOffset,
+  }) =>
+      ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: updatedOffset ?? this.updatedOffset,
       );
 }
