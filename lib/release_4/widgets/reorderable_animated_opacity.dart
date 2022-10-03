@@ -31,7 +31,8 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
 class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _opacity;
+  Animation<double>? _opacityAnimation;
+  double opacity = 0.0;
 
   @override
   void initState() {
@@ -41,25 +42,20 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-
-    late final Tween<double> tween;
-    if (widget.reorderableEntity.originalOrderId ==
-        ReorderableEntity.isNewChildId) {
-      tween = Tween<double>(begin: 0, end: 1);
-    } else {
-      tween = Tween<double>(begin: 1, end: 1);
-    }
-    _opacity = tween.animate(_animationController)
-      ..addListener(() {
-        setState(() {}); // muss das setState drinnen bleiben?
-      });
-    _updateOpacity();
+    _checkOpacityAnimation();
   }
 
   @override
   void didUpdateWidget(covariant ReorderableAnimatedOpacity oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _updateOpacity();
+    final oldEntity = oldWidget.reorderableEntity;
+    final newEntity = widget.reorderableEntity;
+    if (oldEntity.isBuildingOffset && !newEntity.isBuildingOffset) {
+      _checkOpacityAnimation();
+    } else if (oldEntity.originalOrderId != ReorderableEntity.isNewChildId &&
+        newEntity.originalOrderId == ReorderableEntity.isNewChildId) {
+      _checkOpacityAnimation();
+    }
   }
 
   @override
@@ -71,18 +67,46 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: _opacity.value,
+      opacity: _opacityAnimation?.value ?? opacity,
       child: widget.child,
     );
   }
 
-  Future<void> _updateOpacity() async {
-    if (widget.reorderableEntity.originalOrderId ==
-            ReorderableEntity.isNewChildId &&
-        !_animationController.isAnimating) {
-      _animationController.reset();
-      await _animationController.forward();
-      widget.onOpacityFinished(widget.reorderableEntity);
+  Future<void> _checkOpacityAnimation() async {
+    final reorderableEntity = widget.reorderableEntity;
+
+    if (reorderableEntity.originalOrderId == ReorderableEntity.isNewChildId) {
+      if (!reorderableEntity.isBuildingOffset) {
+        _animationController.reset();
+        _updateOpacityAnimation(begin: 0, end: 1);
+        await _animationController.forward();
+        widget.onOpacityFinished(widget.reorderableEntity);
+      } else {
+        _animationController.stop();
+        opacity = 0.0;
+        _opacityAnimation = null;
+      }
+    } else {
+      if (!reorderableEntity.isBuildingOffset) {
+        _animationController.stop();
+        opacity = 1.0;
+        _opacityAnimation = null;
+      }
+    }
+  }
+
+  void _updateOpacityAnimation({
+    required double begin,
+    required double end,
+  }) {
+    if (!_animationController.isAnimating) {
+      _opacityAnimation = Tween<double>(
+        begin: begin,
+        end: end,
+      ).animate(_animationController)
+        ..addListener(() {
+          setState(() {});
+        });
     }
   }
 }

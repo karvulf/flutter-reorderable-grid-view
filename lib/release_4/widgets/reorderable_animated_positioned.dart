@@ -20,27 +20,70 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
 }
 
 class _ReorderableAnimatedPositionedState
-    extends State<ReorderableAnimatedPositioned> {
+    extends State<ReorderableAnimatedPositioned>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _animateOffset(begin: Offset.zero);
+  }
+
   @override
   void didUpdateWidget(covariant ReorderableAnimatedPositioned oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final oldEntity = oldWidget.reorderableEntity;
+    final newEntity = widget.reorderableEntity;
+    if (oldEntity.updatedOffset != newEntity.updatedOffset ||
+        oldEntity.isBuildingOffset != newEntity.isBuildingOffset) {
+      if (!newEntity.isBuildingOffset) {
+        _updateOffsetAnimation();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final offset = _offset;
     return Container(
       transform: Matrix4.translationValues(
-        0, // offset.dx,
-        0, // offset.dy,
+        _offsetAnimation.value.dx,
+        _offsetAnimation.value.dy,
         0.0,
       ),
       child: widget.child,
     );
   }
 
-  Offset get _offset {
+  void _updateOffsetAnimation() {
     final reorderableEntity = widget.reorderableEntity;
-    return reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
+
+    late Offset offset;
+    if (reorderableEntity.originalOrderId == ReorderableEntity.isNewChildId) {
+      offset = Offset.zero;
+    } else {
+      offset =
+          reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
+    }
+    _animateOffset(begin: offset);
+  }
+
+  Future<void> _animateOffset({required Offset begin}) async {
+    final tween = Tween<Offset>(begin: begin, end: Offset.zero);
+    _offsetAnimation = tween.animate(_animationController)
+      ..addListener(() {
+        setState(() {}); // muss das setState drinnen bleiben?
+      });
+    await _animationController.forward();
+
+    if (begin != Offset.zero) {
+      widget.onMovingFinished(widget.reorderableEntity);
+    }
   }
 }

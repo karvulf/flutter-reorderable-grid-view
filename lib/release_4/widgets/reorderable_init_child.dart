@@ -55,6 +55,6 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
 
   bool get visible {
     final reorderableEntity = widget.reorderableEntity;
-    return true;
+    return !reorderableEntity.isBuildingOffset;
   }
 }

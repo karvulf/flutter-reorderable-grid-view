@@ -21,24 +21,29 @@ class ReorderableEntity {
   final Offset originalOffset;
   final Offset updatedOffset;
 
+  final bool isBuildingOffset;
+
   const ReorderableEntity({
     required this.key,
     required this.originalOrderId,
     required this.updatedOrderId,
     required this.originalOffset,
     required this.updatedOffset,
+    required this.isBuildingOffset,
   });
 
   factory ReorderableEntity.create({
     required ValueKey key,
     required int updatedOrderId,
+    Offset? offset,
   }) =>
       ReorderableEntity(
         key: key,
         originalOrderId: isNewChildId,
         updatedOrderId: updatedOrderId,
-        originalOffset: Offset.zero,
-        updatedOffset: Offset.zero,
+        originalOffset: offset ?? Offset.zero,
+        updatedOffset: offset ?? Offset.zero,
+        isBuildingOffset: offset == null,
       );
 
   @override
@@ -48,17 +53,19 @@ class ReorderableEntity {
             other.originalOffset == originalOffset &&
             other.originalOrderId == originalOrderId &&
             other.updatedOrderId == updatedOrderId &&
-            other.updatedOffset == updatedOffset);
+            other.updatedOffset == updatedOffset &&
+            other.isBuildingOffset == isBuildingOffset);
   }
 
   @override
-  int get hashCode => originalOrderId;
+  int get hashCode => originalOrderId + updatedOrderId;
 
   ReorderableEntity copyWith({
     int? originalOrderId,
     int? updatedOrderId,
     Offset? originalOffset,
     Offset? updatedOffset,
+    bool? isBuildingOffset,
   }) =>
       ReorderableEntity(
         key: key,
@@ -66,14 +73,28 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId ?? this.updatedOrderId,
         originalOffset: originalOffset ?? this.originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
+        isBuildingOffset: isBuildingOffset ?? this.isBuildingOffset,
       );
 
-  ReorderableEntity creationFinished() => ReorderableEntity(
+  ReorderableEntity fadedIn() => ReorderableEntity(
         key: key,
         originalOrderId: updatedOrderId,
         updatedOrderId: updatedOrderId,
         originalOffset: updatedOffset,
         updatedOffset: updatedOffset,
+        isBuildingOffset: false,
+      );
+
+  ReorderableEntity creationFinished({
+    required Offset? offset,
+  }) =>
+      ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: offset ?? updatedOffset,
+        isBuildingOffset: false,
       );
 
   ReorderableEntity updated({
@@ -86,5 +107,15 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId,
         originalOffset: originalOffset,
         updatedOffset: updatedOffset ?? this.updatedOffset,
+        isBuildingOffset: updatedOffset == null,
+      );
+
+  ReorderableEntity positionUpdated() => ReorderableEntity(
+        key: key,
+        originalOrderId: updatedOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: updatedOffset,
+        updatedOffset: updatedOffset,
+        isBuildingOffset: false,
       );
 }

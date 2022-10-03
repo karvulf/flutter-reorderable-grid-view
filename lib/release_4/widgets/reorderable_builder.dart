@@ -143,6 +143,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    if (oldWidget.children == widget.children) return;
+
     var index = 0;
     for (final child in widget.children) {
       _checkChildState(child: child);
@@ -154,6 +156,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         final reorderableEntity = ReorderableEntity.create(
           key: child.key as ValueKey,
           updatedOrderId: index,
+          offset: offset,
         );
         _updateMaps(reorderableEntity: reorderableEntity);
       } else {
@@ -204,17 +207,15 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   }
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {
-    final updatedReorderableEntity = reorderableEntity.copyWith(
-      originalOffset: reorderableEntity.updatedOffset,
-      originalOrderId: reorderableEntity.updatedOrderId,
+    _updateMaps(
+      reorderableEntity: reorderableEntity.positionUpdated(),
     );
-    _updateMaps(reorderableEntity: updatedReorderableEntity);
     setState(() {});
   }
 
   void _handleOpacityFinished(ReorderableEntity reorderableEntity) {
     _updateMaps(
-      reorderableEntity: reorderableEntity.creationFinished(),
+      reorderableEntity: reorderableEntity.fadedIn(),
     );
     setState(() {});
   }
@@ -231,10 +232,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       offset = renderBox.localToGlobal(Offset.zero);
     }
 
-    final updatedReorderableEntity = reorderableEntity.copyWith(
-      updatedOffset: offset,
+    _updateMaps(
+      reorderableEntity: reorderableEntity.creationFinished(
+        offset: offset,
+      ),
     );
-    _updateMaps(reorderableEntity: updatedReorderableEntity);
     setState(() {});
   }
 
