@@ -17,7 +17,13 @@ typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
 class ReorderableBuilder extends StatefulWidget {
-  final List<Widget> children;
+  ///
+  final List<Widget>? children;
+
+  ///
+  final Widget Function(
+    Widget Function(Widget child, int index) itemBuilder,
+  )? childBuilder;
 
   /// Specify indices for [children] that should not change their position while dragging.
   ///
@@ -58,7 +64,7 @@ class ReorderableBuilder extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   /// Callback to return updated [children].
-  final DraggableBuilder builder;
+  final DraggableBuilder? builder;
 
   /// After releasing the dragged child, [onReorder] is called.
   ///
@@ -109,6 +115,27 @@ class ReorderableBuilder extends StatefulWidget {
     this.onDragEnd,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+        childBuilder = null,
+        super(key: key);
+
+  const ReorderableBuilder.builder({
+    required this.childBuilder,
+    this.scrollController,
+    this.onReorder,
+    this.lockedIndices = const [],
+    this.enableLongPress = true,
+    this.longPressDelay = kLongPressTimeout,
+    this.enableDraggable = true,
+    this.automaticScrollExtent = 80.0,
+    this.enableScrollingWhileDragging = true,
+    this.dragChildBoxDecoration,
+    this.initDelay,
+    this.onDragStarted,
+    this.onDragEnd,
+    Key? key,
+  })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+        children = null,
+        builder = null,
         super(key: key);
 
   @override
@@ -124,8 +151,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   void initState() {
     super.initState();
 
+    final children = widget.children;
+    if (children == null) return;
+
     var index = 0;
-    for (final child in widget.children) {
+    for (final child in children) {
       _checkChildState(child: child);
       assert(!_childrenKeyMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
@@ -141,38 +171,23 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   @override
   void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.children == widget.children) return;
+    final children = widget.children;
+    if (oldWidget.children == children || children == null) return;
 
     var updatedChildrenKeyMap = <dynamic, ReorderableEntity>{};
     var updatedChildrenOrderMap = <int, ReorderableEntity>{};
 
     var index = 0;
-    for (final child in widget.children) {
-      _checkChildState(child: child);
-      final key = child.key as ValueKey;
-      final childInKeyMap = _childrenKeyMap[key.value];
-      final offset = _offsetMap[index];
-      late final ReorderableEntity reorderableEntity;
-
-      if (childInKeyMap == null) {
-        reorderableEntity = ReorderableEntity.create(
-          key: key,
-          updatedOrderId: index,
-          offset: offset,
-        );
-      } else {
-        reorderableEntity = childInKeyMap.updated(
-          updatedOrderId: index,
-          updatedOffset: offset,
-        );
-      }
-
+    for (final child in children) {
+      final reorderableEntity = _getReorderableEntity(
+        child: child,
+        index: index++,
+      );
       final originalOrderId = reorderableEntity.originalOrderId;
       updatedChildrenOrderMap[originalOrderId] = reorderableEntity;
-      updatedChildrenKeyMap[key.value] = reorderableEntity;
-
-      index++;
+      updatedChildrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
     }
+
     setState(() {
       _childrenOrderMap = updatedChildrenOrderMap;
       _childrenKeyMap = updatedChildrenKeyMap;
@@ -186,31 +201,106 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(_wrapChildren());
+    final builder = widget.builder;
+    if (builder == null) {
+      return widget.childBuilder!(_buildItem);
+    } else {
+      return builder(_wrapChildren());
+    }
+  }
+
+  Widget _buildItem(Widget child, int index) {
+    final childInKeyMap = _childrenKeyMap[(child.key as ValueKey).value];
+    if (childInKeyMap != null &&
+        childInKeyMap.originalOrderId == ReorderableEntity.isNewChildId) {
+      return _wrapChild(
+        child: child,
+        reorderableEntity: childInKeyMap,
+      );
+    }
+
+    final reorderableEntity = _getReorderableEntity(
+      child: child,
+      index: index,
+    );
+    final originalOrderId = reorderableEntity.originalOrderId;
+    // todo vlt eher der index?
+    _childrenOrderMap[originalOrderId] = reorderableEntity;
+    _childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
+    return _wrapChild(
+      child: child,
+      reorderableEntity: reorderableEntity,
+    );
+  }
+
+  ReorderableEntity _getReorderableEntity({
+    required Widget child,
+    required int index,
+  }) {
+    _checkChildState(child: child);
+
+    final key = child.key as ValueKey;
+    final childInKeyMap = _childrenKeyMap[key.value];
+    final offset = _offsetMap[index];
+    late final ReorderableEntity reorderableEntity;
+
+    if (childInKeyMap == null) {
+      reorderableEntity = ReorderableEntity.create(
+        key: key,
+        updatedOrderId: index,
+        offset: offset,
+      );
+    } else {
+      reorderableEntity = childInKeyMap.updated(
+        updatedOrderId: index,
+        updatedOffset: offset,
+      );
+    }
+    return reorderableEntity;
   }
 
   List<Widget> _wrapChildren() {
+    final children = widget.children;
+    if (children == null) return <Widget>[];
+
     final updatedChildren = <Widget>[];
 
-    for (final child in widget.children) {
+    for (final child in children) {
       final reorderableEntity = _childrenKeyMap[(child.key as ValueKey).value]!;
       updatedChildren.add(
-        ReorderableAnimatedOpacity(
+        _wrapChild(
+          child: child,
           reorderableEntity: reorderableEntity,
-          onOpacityFinished: _handleOpacityFinished,
-          child: ReorderableAnimatedPositioned(
-            reorderableEntity: reorderableEntity,
-            onMovingFinished: _handleMovingFinished,
-            child: ReorderableInitChild(
-              reorderableEntity: reorderableEntity,
-              onCreated: _handleCreatedChild,
-              child: child,
-            ),
-          ),
         ),
       );
     }
     return updatedChildren;
+  }
+
+  Widget _wrapChild({
+    required Widget child,
+    required ReorderableEntity reorderableEntity,
+  }) {
+    return ReorderableAnimatedOpacity(
+      reorderableEntity: reorderableEntity,
+      onOpacityFinished: _handleOpacityFinished,
+      onDispose: (ReorderableEntity reorderableEntity) {
+        // with children, this would lead into an opacity bug with the last child
+        if (widget.children == null) {
+          _childrenKeyMap.remove(reorderableEntity.key.value);
+          _childrenOrderMap.remove(reorderableEntity.updatedOrderId);
+        }
+      },
+      child: ReorderableAnimatedPositioned(
+        reorderableEntity: reorderableEntity,
+        onMovingFinished: _handleMovingFinished,
+        child: ReorderableInitChild(
+          reorderableEntity: reorderableEntity,
+          onCreated: _handleCreatedChild,
+          child: child,
+        ),
+      ),
+    );
   }
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {

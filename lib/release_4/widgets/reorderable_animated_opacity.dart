@@ -15,11 +15,13 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
 
   final OnOpacityResetCallback onOpacityFinished;
+  final void Function(ReorderableEntity reorderableEntity) onDispose;
 
   const ReorderableAnimatedOpacity({
     required this.child,
     required this.reorderableEntity,
     required this.onOpacityFinished,
+    required this.onDispose,
     Key? key,
   }) : super(key: key);
 
@@ -61,6 +63,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   @override
   void dispose() {
     _animationController.dispose();
+    widget.onDispose(widget.reorderableEntity);
     super.dispose();
   }
 

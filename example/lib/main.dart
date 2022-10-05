@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
@@ -183,9 +182,8 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewBuilder:
-        return ReorderableBuilder(
+        return ReorderableBuilder.builder(
           key: Key(_gridViewKey.toString()),
-          children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: () {
@@ -195,13 +193,16 @@ class _MyAppState extends State<MyApp> {
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
           scrollController: _scrollController,
-          builder: (children) {
+          childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
-                return children[index];
+                return itemBuilder(
+                  generatedChildren[index],
+                  index,
+                );
               },
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
