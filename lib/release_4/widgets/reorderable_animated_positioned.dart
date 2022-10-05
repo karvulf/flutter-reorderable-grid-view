@@ -33,7 +33,8 @@ class _ReorderableAnimatedPositionedState
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _animateOffset(begin: Offset.zero);
+
+    _updateOffsetAnimation();
   }
 
   @override
@@ -66,6 +67,7 @@ class _ReorderableAnimatedPositionedState
 
   @override
   Widget build(BuildContext context) {
+    // print('${widget.reorderableEntity.key}: dx ${_offsetAnimation.value.dx}');
     return Container(
       transform: Matrix4.translationValues(
         _offsetAnimation.value.dx,
@@ -86,6 +88,7 @@ class _ReorderableAnimatedPositionedState
       offset =
           reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
     }
+
     _animateOffset(begin: offset);
   }
 
@@ -93,7 +96,7 @@ class _ReorderableAnimatedPositionedState
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
-        setState(() {}); // muss das setState drinnen bleiben?
+        setState(() {});
       });
     await _animationController.forward();
 

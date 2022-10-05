@@ -94,31 +94,47 @@ class ReorderableEntity {
 
   ReorderableEntity creationFinished({
     required Offset? offset,
-  }) =>
-      ReorderableEntity(
-        key: key,
-        originalOrderId: originalOrderId,
-        updatedOrderId: updatedOrderId,
-        originalOffset: originalOffset,
-        updatedOffset: offset ?? updatedOffset,
-        isBuildingOffset: false,
-        hasSwappedOrder: false,
-      );
+  }) {
+    var updatedOffset = this.updatedOffset;
+    if (offset != null && originalOffset == this.updatedOffset) {
+      updatedOffset = offset;
+    }
+
+    return ReorderableEntity(
+      key: key,
+      originalOrderId: originalOrderId,
+      updatedOrderId: updatedOrderId,
+      originalOffset: originalOffset,
+      updatedOffset: updatedOffset,
+      isBuildingOffset: false,
+      hasSwappedOrder: false,
+    );
+  }
 
   ReorderableEntity updated({
     required int updatedOrderId,
     required Offset? updatedOffset,
-  }) =>
-      ReorderableEntity(
-        key: key,
-        originalOrderId: originalOrderId,
-        updatedOrderId: updatedOrderId,
-        originalOffset: originalOffset,
-        updatedOffset: updatedOffset ?? this.updatedOffset,
-        isBuildingOffset: updatedOffset == null,
-        hasSwappedOrder:
-            updatedOrderId != originalOrderId && updatedOffset != null,
-      );
+  }) {
+    var originalOrderId = this.originalOrderId;
+    var originalOffset = this.originalOffset;
+
+    // could happen if there is another update while this one is updated
+    if (originalOrderId != this.updatedOrderId) {
+      originalOrderId = this.updatedOrderId;
+      originalOffset = this.updatedOffset;
+    }
+
+    return ReorderableEntity(
+      key: key,
+      originalOrderId: originalOrderId,
+      updatedOrderId: updatedOrderId,
+      originalOffset: originalOffset,
+      updatedOffset: updatedOffset ?? this.updatedOffset,
+      isBuildingOffset: updatedOffset == null,
+      hasSwappedOrder:
+          updatedOrderId != originalOrderId && updatedOffset != null,
+    );
+  }
 
   ReorderableEntity positionUpdated() => ReorderableEntity(
         key: key,

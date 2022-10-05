@@ -233,11 +233,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
   ) {
     Offset? offset;
 
+    var index = reorderableEntity.updatedOrderId;
     final renderObject = key.currentContext?.findRenderObject();
-    if (renderObject != null) {
+
+    if (renderObject != null && _offsetMap[index] == null) {
       final renderBox = renderObject as RenderBox;
       offset = renderBox.localToGlobal(Offset.zero);
-      _offsetMap[reorderableEntity.updatedOrderId] = offset;
+      _offsetMap[index] = offset;
     }
 
     _updateMaps(
