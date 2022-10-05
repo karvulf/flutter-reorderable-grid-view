@@ -119,10 +119,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _getReorderableWidget() {
-    final generatedChildren = _getGeneratedChildren();
-
     switch (reorderableType) {
       case ReorderableType.gridView:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -146,6 +145,7 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewCount:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -162,6 +162,7 @@ class _MyAppState extends State<MyApp> {
           },
         );
       case ReorderableType.gridViewExtent:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -200,7 +201,7 @@ class _MyAppState extends State<MyApp> {
               itemCount: children.length,
               itemBuilder: (context, index) {
                 return itemBuilder(
-                  generatedChildren[index],
+                  _getChild(index: index),
                   index,
                 );
               },
@@ -218,18 +219,22 @@ class _MyAppState extends State<MyApp> {
   List<Widget> _getGeneratedChildren() {
     return List<Widget>.generate(
       children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(),
-          ),
+      (index) => _getChild(index: index),
+    );
+  }
+
+  Widget _getChild({required int index}) {
+    return Container(
+      key: Key(children[index].toString()),
+      decoration: BoxDecoration(
+        color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+      ),
+      height: 100.0,
+      width: 100.0,
+      child: Center(
+        child: Text(
+          'test ${children[index]}',
+          style: const TextStyle(),
         ),
       ),
     );
