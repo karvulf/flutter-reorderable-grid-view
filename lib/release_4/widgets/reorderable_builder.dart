@@ -166,7 +166,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     super.didUpdateWidget(oldWidget);
 
     final children = widget.children;
-    if (oldWidget.children == children || children == null) return;
+    if (children == null || children == oldWidget.children) return;
 
     reorderableBuilderController.updateChildren(children: children);
     setState(() {});
@@ -220,20 +220,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,
-      onDispose: (ReorderableEntity reorderableEntity) {
-        // with children, this would lead into an opacity bug with the last child
-        if (widget.children == null) {
-          reorderableItemBuilderController.handleDispose(
-            reorderableEntity: reorderableEntity,
-          );
-        }
-      },
       child: ReorderableAnimatedPositioned(
         reorderableEntity: reorderableEntity,
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
           onCreated: _handleCreatedChild,
+          onDispose: (ReorderableEntity reorderableEntity) {
+            // with children, this would lead into an opacity bug with the last child
+            if (widget.children == null) {
+              reorderableItemBuilderController.handleDispose(
+                reorderableEntity: reorderableEntity,
+              );
+            }
+          },
           child: child,
         ),
       ),
