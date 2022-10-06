@@ -224,7 +224,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
       index: index,
     );
     final originalOrderId = reorderableEntity.originalOrderId;
-    // todo vlt eher der index?
     _childrenOrderMap[originalOrderId] = reorderableEntity;
     _childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
     return _wrapChild(
