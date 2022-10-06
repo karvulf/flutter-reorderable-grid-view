@@ -43,13 +43,13 @@ abstract class ReorderableController {
     return reorderableEntity;
   }
 
-  void handleMovingFinished(ReorderableEntity reorderableEntity) {
+  void handleMovingFinished({required ReorderableEntity reorderableEntity}) {
     _updateMaps(
       reorderableEntity: reorderableEntity.positionUpdated(),
     );
   }
 
-  void handleOpacityFinished(ReorderableEntity reorderableEntity) {
+  void handleOpacityFinished({required ReorderableEntity reorderableEntity}) {
     _updateMaps(
       reorderableEntity: reorderableEntity.fadedIn(),
     );

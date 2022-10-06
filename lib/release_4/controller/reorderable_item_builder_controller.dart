@@ -23,4 +23,11 @@ class ReorderableItemBuilderController extends ReorderableController {
 
     return reorderableEntity;
   }
+
+  void handleDispose({
+    required ReorderableEntity reorderableEntity,
+  }) {
+    super.childrenKeyMap.remove(reorderableEntity.key.value);
+    super.childrenOrderMap.remove(reorderableEntity.updatedOrderId);
+  }
 }
