@@ -11,13 +11,11 @@ class ReorderableInitChild extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
 
   final OnCreatedFunction onCreated;
-  final void Function(ReorderableEntity reorderableEntity) onDispose;
 
   const ReorderableInitChild({
     required this.child,
     required this.reorderableEntity,
     required this.onCreated,
-    required this.onDispose,
     Key? key,
   }) : super(key: key);
 
@@ -35,12 +33,6 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.onCreated(_globalKey, widget.reorderableEntity);
     });
-  }
-
-  @override
-  void dispose() {
-    widget.onDispose(widget.reorderableEntity);
-    super.dispose();
   }
 
   @override

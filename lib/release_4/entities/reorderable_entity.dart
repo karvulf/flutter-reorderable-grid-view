@@ -11,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 /// Also the current state of [child] is added as information: [isBuilding],
 /// [isNew] and [hasSwappedOrder].
 class ReorderableEntity {
-  static const isNewChildId = -1;
+  static const _isNewChildId = -1;
 
   final ValueKey key;
 
@@ -41,7 +41,7 @@ class ReorderableEntity {
   }) =>
       ReorderableEntity(
         key: key,
-        originalOrderId: isNewChildId,
+        originalOrderId: _isNewChildId,
         updatedOrderId: updatedOrderId,
         originalOffset: offset ?? Offset.zero,
         updatedOffset: offset ?? Offset.zero,
@@ -63,6 +63,10 @@ class ReorderableEntity {
 
   @override
   int get hashCode => originalOrderId + updatedOrderId;
+
+  @override
+  String toString() =>
+      '[$key]: Original OrderId: $originalOrderId, Updated OrderId: $updatedOrderId, Original Offset: $originalOffset, Updated Offset: $updatedOffset';
 
   ReorderableEntity copyWith({
     int? originalOrderId,
@@ -96,7 +100,7 @@ class ReorderableEntity {
     required Offset? offset,
   }) {
     var updatedOffset = this.updatedOffset;
-    if (offset != null && originalOffset == this.updatedOffset) {
+    if (offset != null) {
       updatedOffset = offset;
     }
 
@@ -107,7 +111,7 @@ class ReorderableEntity {
       originalOffset: originalOffset,
       updatedOffset: updatedOffset,
       isBuildingOffset: false,
-      hasSwappedOrder: false,
+      hasSwappedOrder: false, // todo false wirklich richtig?
     );
   }
 
@@ -118,8 +122,8 @@ class ReorderableEntity {
     var originalOrderId = this.originalOrderId;
     var originalOffset = this.originalOffset;
 
-    // could happen if there is another update while this one is updated
-    if (originalOrderId != this.updatedOrderId) {
+    // should only update original when previous updated orderId is different to previous one
+    if (updatedOrderId != this.updatedOrderId) {
       originalOrderId = this.updatedOrderId;
       originalOffset = this.updatedOffset;
     }
@@ -145,4 +149,6 @@ class ReorderableEntity {
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );
+
+  bool get isNew => originalOrderId == _isNewChildId;
 }

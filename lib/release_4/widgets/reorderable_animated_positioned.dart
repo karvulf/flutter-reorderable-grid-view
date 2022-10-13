@@ -81,18 +81,16 @@ class _ReorderableAnimatedPositionedState
   void _updateOffsetAnimation() {
     final reorderableEntity = widget.reorderableEntity;
 
-    late Offset offset;
-    if (reorderableEntity.originalOrderId == ReorderableEntity.isNewChildId) {
-      offset = Offset.zero;
-    } else {
+    var offset = Offset.zero;
+    if (!reorderableEntity.isNew) {
       offset =
           reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
     }
-
     _animateOffset(begin: offset);
   }
 
   Future<void> _animateOffset({required Offset begin}) async {
+    // print('animate with begin $begin');
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {

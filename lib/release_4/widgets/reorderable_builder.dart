@@ -5,8 +5,7 @@ import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_b
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opacity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity2.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 
@@ -218,12 +217,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     required Widget child,
     required ReorderableEntity reorderableEntity,
   }) {
-    return ReorderableAnimatedOpacity2(
-      key: reorderableEntity.key,
-      reorderableEntity: reorderableEntity,
-      onOpacityFinished: _handleOpacityFinished,
-      child: child,
-    );
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,
@@ -233,14 +226,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
           onCreated: _handleCreatedChild,
-          onDispose: (ReorderableEntity reorderableEntity) {
-            // with children, this would lead into an opacity bug with the last child
-            if (widget.children == null) {
-              reorderableItemBuilderController.handleDispose(
-                reorderableEntity: reorderableEntity,
-              );
-            }
-          },
           child: child,
         ),
       ),

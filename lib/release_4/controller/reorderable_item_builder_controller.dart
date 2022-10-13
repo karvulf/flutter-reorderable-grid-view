@@ -7,12 +7,6 @@ class ReorderableItemBuilderController extends ReorderableController {
     required ValueKey key,
     required int index,
   }) {
-    final childInKeyMap = super.childrenKeyMap[key.value];
-    if (childInKeyMap != null &&
-        childInKeyMap.originalOrderId == ReorderableEntity.isNewChildId) {
-      return childInKeyMap;
-    }
-
     final reorderableEntity = super.getReorderableEntity(
       key: key,
       index: index,
@@ -22,12 +16,5 @@ class ReorderableItemBuilderController extends ReorderableController {
     super.childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
 
     return reorderableEntity;
-  }
-
-  void handleDispose({
-    required ReorderableEntity reorderableEntity,
-  }) {
-    super.childrenKeyMap.remove(reorderableEntity.key.value);
-    super.childrenOrderMap.remove(reorderableEntity.updatedOrderId);
   }
 }
