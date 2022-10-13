@@ -50,6 +50,26 @@ abstract class ReorderableController {
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
+  void handleDeviceOrientationChanged() {
+    offsetMap.clear();
+
+    for (final entry in childrenOrderMap.entries) {
+      final value = entry.value;
+      childrenOrderMap[entry.key] = ReorderableEntity.create(
+        key: value.key,
+        updatedOrderId: value.updatedOrderId,
+      );
+    }
+
+    for (final entry in childrenKeyMap.entries) {
+      final value = entry.value;
+      childrenKeyMap[entry.key] = ReorderableEntity.create(
+        key: value.key,
+        updatedOrderId: value.updatedOrderId,
+      );
+    }
+  }
+
   void _updateMaps({required ReorderableEntity reorderableEntity}) {
     childrenOrderMap[reorderableEntity.originalOrderId] = reorderableEntity;
     childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;

@@ -69,9 +69,11 @@ class _ReorderableAnimatedOpacityState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // this prevents the flickering before updating the position
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _opacity = 1.0;
-        });
+        if (mounted) {
+          setState(() {
+            _opacity = 1.0;
+          });
+        }
       });
     });
   }

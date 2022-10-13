@@ -145,13 +145,16 @@ class ReorderableBuilder extends StatefulWidget {
   State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState extends State<ReorderableBuilder> {
+// Todo: Scrollposition wird noch nicht berücksichtigt
+class _ReorderableBuilderState extends State<ReorderableBuilder>
+    with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
   @override
   void initState() {
     super.initState();
+    _ambiguate(WidgetsBinding.instance)!.addObserver(this);
 
     reorderableBuilderController = ReorderableBuilderController();
     reorderableItemBuilderController = ReorderableItemBuilderController();
@@ -170,6 +173,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
 
     reorderableBuilderController.updateChildren(children: children);
     setState(() {});
+  }
+
+  @override
+  void didChangeMetrics() {
+    final orientationBefore = MediaQuery.of(context).orientation;
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final orientationAfter = MediaQuery.of(context).orientation;
+      if (orientationBefore != orientationAfter) {
+        // Todo: Dieser Aufruf geschieht gleich 3 Mal!
+        _reorderableController.handleDeviceOrientationChanged();
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ambiguate(WidgetsBinding.instance)!.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -277,3 +300,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> {
     }
   }
 }
+
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;

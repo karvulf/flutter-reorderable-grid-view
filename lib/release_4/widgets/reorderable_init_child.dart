@@ -36,6 +36,21 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   }
 
   @override
+  void didUpdateWidget(covariant ReorderableInitChild oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldEntity = oldWidget.reorderableEntity;
+    final newEntity = widget.reorderableEntity;
+
+    // this case can happen if the orientation changed
+    if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
+        newEntity.isBuildingOffset) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        widget.onCreated(_globalKey, widget.reorderableEntity);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Visibility(
       key: _globalKey,
