@@ -58,7 +58,7 @@ class _ReorderableAnimatedOpacityState
 
   Duration get _duration {
     if (widget.reorderableEntity.isNew) {
-      return const Duration(milliseconds: 5000);
+      return const Duration(milliseconds: 500);
     } else {
       return Duration.zero;
     }

@@ -26,7 +26,6 @@ abstract class ReorderableController {
         updatedOffset: offset,
       );
     }
-    // print('get ${reorderableEntity.toString()}');
     return reorderableEntity;
   }
 
@@ -35,23 +34,19 @@ abstract class ReorderableController {
     required ReorderableEntity reorderableEntity,
   }) {
     if (offset != null) {
-      print('created ${reorderableEntity.key} $offset');
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
     final updatedEntity = reorderableEntity.creationFinished(offset: offset);
-    // print('creation finished ${updatedEntity.toString()}');
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
   void handleOpacityFinished({required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.fadedIn();
-    // print('opacity finished ${updatedEntity.toString()}');
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
   void handleMovingFinished({required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.positionUpdated();
-    // print('moving finished ${updatedEntity.toString()}');
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
