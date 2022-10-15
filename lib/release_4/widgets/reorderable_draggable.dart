@@ -29,7 +29,7 @@ class ReorderableDraggable extends StatefulWidget {
 
   final void Function(ReorderableEntity reorderableEntity) onDragStarted;
 
-  final ReorderableEntity? currentDraggedChild;
+  final ReorderableEntity? currentDraggedEntity;
 
   const ReorderableDraggable({
     required this.child,
@@ -38,7 +38,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.longPressDelay,
     required this.enableDraggable,
     required this.onDragStarted,
-    required this.currentDraggedChild,
+    required this.currentDraggedEntity,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -100,12 +100,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       key: _globalKey,
       child: reorderableEntityChild,
     );
-
+    final size = reorderableEntity.size;
     final feedback = Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: SizedBox(
-        height: reorderableEntity.size.height,
-        width: reorderableEntity.size.width,
+        height: size.height,
+        width: size.width,
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
           decoration: _decorationTween.animate(_controller),
@@ -114,8 +114,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       ),
     );
 
-    final draggedKey = widget.currentDraggedChild?.key;
-    final key = reorderableEntityChild.key;
+    final draggedKey = widget.currentDraggedEntity?.key;
+    final key = reorderableEntity.key;
     final visible = key != draggedKey;
 
     final childWhenDragging = Visibility(

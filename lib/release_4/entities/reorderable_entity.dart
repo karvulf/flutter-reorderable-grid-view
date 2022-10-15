@@ -41,6 +41,7 @@ class ReorderableEntity {
     required ValueKey key,
     required int updatedOrderId,
     Offset? offset,
+    Size? size,
   }) =>
       ReorderableEntity(
         key: key,
@@ -48,7 +49,7 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId,
         originalOffset: offset ?? Offset.zero,
         updatedOffset: offset ?? Offset.zero,
-        size: Size.zero,
+        size: size ?? Size.zero,
         isBuildingOffset: offset == null,
         hasSwappedOrder: false,
       );

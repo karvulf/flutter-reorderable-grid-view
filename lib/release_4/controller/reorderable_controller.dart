@@ -12,6 +12,8 @@ abstract class ReorderableController {
   }) {
     final childInKeyMap = childrenKeyMap[key.value];
     final offset = offsetMap[index];
+    // todo: only working for gridviews because every child has the same size
+    final size = childrenOrderMap[index]?.size;
     late final ReorderableEntity reorderableEntity;
 
     if (childInKeyMap == null) {
@@ -19,6 +21,7 @@ abstract class ReorderableController {
         key: key,
         updatedOrderId: index,
         offset: offset,
+        size: size,
       );
     } else {
       reorderableEntity = childInKeyMap.updated(

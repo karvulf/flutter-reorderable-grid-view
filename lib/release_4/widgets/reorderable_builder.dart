@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_builder_controller.dart';
-import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_controller.dart';
+import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_scrolling_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -210,9 +212,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       key: child.key as ValueKey,
       index: index,
     );
+    final reorderableController = _reorderableController;
+    final draggedEntity = reorderableController.draggedEntity;
     return _wrapChild(
       child: child,
       reorderableEntity: reorderableEntity,
+      currentDraggedEntity: draggedEntity,
     );
   }
 
@@ -222,7 +227,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     final updatedChildren = <Widget>[];
 
-    final childrenKeyMap = _reorderableController.childrenKeyMap;
+    final reorderableController = _reorderableController;
+    final childrenKeyMap = reorderableController.childrenKeyMap;
+    final draggedEntity = reorderableController.draggedEntity;
     for (final child in children) {
       final key = (child.key as ValueKey);
       final reorderableEntity = childrenKeyMap[key.value]!;
@@ -230,6 +237,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         _wrapChild(
           child: child,
           reorderableEntity: reorderableEntity,
+          currentDraggedEntity: draggedEntity,
         ),
       );
     }
@@ -239,7 +247,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   Widget _wrapChild({
     required Widget child,
     required ReorderableEntity reorderableEntity,
+    required ReorderableEntity? currentDraggedEntity,
   }) {
+    print('${child.key} currentDraggedEntity ${currentDraggedEntity?.key}');
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,
@@ -249,11 +259,57 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
           onCreated: _handleCreatedChild,
-          child: child,
+          child: ReorderableScrollingListener(
+            automaticScrollExtent: widget.automaticScrollExtent,
+            enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+            isDragging: currentDraggedEntity != null,
+            onDragEnd: _handleDragEnd,
+            onDragUpdate: _handleDragUpdate,
+            onScrollUpdate: _handleScrollUpdate,
+            reorderableChildKey: null,
+            scrollController: widget.scrollController,
+            child: ReorderableDraggable(
+              reorderableEntity: reorderableEntity,
+              enableDraggable: widget.enableDraggable,
+              currentDraggedEntity: currentDraggedEntity,
+              enableLongPress: widget.enableLongPress,
+              longPressDelay: widget.longPressDelay,
+              dragChildBoxDecoration: widget.dragChildBoxDecoration,
+              onDragStarted: _handleDragStarted,
+              child: child,
+            ),
+          ),
         ),
       ),
     );
   }
+
+  /// Drag and Drop part
+  void _handleDragStarted(ReorderableEntity reorderableEntity) {
+    _reorderableController.handleDragStarted(
+      reorderableEntity: reorderableEntity,
+    );
+    setState(() {});
+  }
+
+  void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
+    _reorderableController.handleDragUpdate(
+      pointerMoveEvent: pointerMoveEvent,
+    );
+  }
+
+  void _handleScrollUpdate(double scrollPixels) {
+    _reorderableController.handleScrollUpdate(
+      scrollPixels: scrollPixels,
+    );
+  }
+
+  void _handleDragEnd() {
+    _reorderableController.handleDragEnd();
+    setState(() {});
+  }
+
+  /// Animation part
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {
     _reorderableController.handleMovingFinished(
@@ -299,7 +355,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {});
   }
 
-  ReorderableController get _reorderableController {
+  ReorderableDragAndDropController get _reorderableController {
     if (widget.children == null) {
       return reorderableItemBuilderController;
     } else {
