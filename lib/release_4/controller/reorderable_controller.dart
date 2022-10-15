@@ -31,12 +31,16 @@ abstract class ReorderableController {
 
   void handleCreatedChild({
     required Offset? offset,
+    required Size? size,
     required ReorderableEntity reorderableEntity,
   }) {
     if (offset != null) {
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
-    final updatedEntity = reorderableEntity.creationFinished(offset: offset);
+    final updatedEntity = reorderableEntity.creationFinished(
+      offset: offset,
+      size: size,
+    );
     _updateMaps(reorderableEntity: updatedEntity);
   }
 

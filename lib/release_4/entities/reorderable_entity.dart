@@ -21,6 +21,8 @@ class ReorderableEntity {
   final Offset originalOffset;
   final Offset updatedOffset;
 
+  final Size size;
+
   final bool isBuildingOffset;
   final bool hasSwappedOrder;
 
@@ -30,6 +32,7 @@ class ReorderableEntity {
     required this.updatedOrderId,
     required this.originalOffset,
     required this.updatedOffset,
+    required this.size,
     required this.isBuildingOffset,
     required this.hasSwappedOrder,
   });
@@ -45,6 +48,7 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId,
         originalOffset: offset ?? Offset.zero,
         updatedOffset: offset ?? Offset.zero,
+        size: Size.zero,
         isBuildingOffset: offset == null,
         hasSwappedOrder: false,
       );
@@ -57,6 +61,7 @@ class ReorderableEntity {
             other.originalOrderId == originalOrderId &&
             other.updatedOrderId == updatedOrderId &&
             other.updatedOffset == updatedOffset &&
+            other.size == size &&
             other.isBuildingOffset == isBuildingOffset &&
             other.hasSwappedOrder == hasSwappedOrder);
   }
@@ -68,48 +73,28 @@ class ReorderableEntity {
   String toString() =>
       '[$key]: Original OrderId: $originalOrderId, Updated OrderId: $updatedOrderId, Original Offset: $originalOffset, Updated Offset: $updatedOffset';
 
-  ReorderableEntity copyWith({
-    int? originalOrderId,
-    int? updatedOrderId,
-    Offset? originalOffset,
-    Offset? updatedOffset,
-    bool? isBuildingOffset,
-    bool? hasSwappedOrder,
-  }) =>
-      ReorderableEntity(
-        key: key,
-        originalOrderId: originalOrderId ?? this.originalOrderId,
-        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
-        originalOffset: originalOffset ?? this.originalOffset,
-        updatedOffset: updatedOffset ?? this.updatedOffset,
-        isBuildingOffset: isBuildingOffset ?? this.isBuildingOffset,
-        hasSwappedOrder: hasSwappedOrder ?? this.hasSwappedOrder,
-      );
-
   ReorderableEntity fadedIn() => ReorderableEntity(
         key: key,
         originalOrderId: updatedOrderId,
         updatedOrderId: updatedOrderId,
         originalOffset: updatedOffset,
         updatedOffset: updatedOffset,
+        size: size,
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );
 
   ReorderableEntity creationFinished({
     required Offset? offset,
+    required Size? size,
   }) {
-    var updatedOffset = this.updatedOffset;
-    if (offset != null) {
-      updatedOffset = offset;
-    }
-
     return ReorderableEntity(
       key: key,
       originalOrderId: originalOrderId,
       updatedOrderId: updatedOrderId,
       originalOffset: originalOffset,
-      updatedOffset: updatedOffset,
+      updatedOffset: offset ?? updatedOffset,
+      size: size ?? this.size,
       isBuildingOffset: false,
       hasSwappedOrder: false, // todo false wirklich richtig?
     );
@@ -134,6 +119,7 @@ class ReorderableEntity {
       updatedOrderId: updatedOrderId,
       originalOffset: originalOffset,
       updatedOffset: updatedOffset ?? this.updatedOffset,
+      size: size,
       isBuildingOffset: updatedOffset == null,
       hasSwappedOrder:
           updatedOrderId != originalOrderId && updatedOffset != null,
@@ -146,6 +132,7 @@ class ReorderableEntity {
         updatedOrderId: updatedOrderId,
         originalOffset: updatedOffset,
         updatedOffset: updatedOffset,
+        size: size,
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );

@@ -277,6 +277,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final offsetMap = reorderableController.offsetMap;
 
     Offset? offset;
+    Size? size;
 
     var index = reorderableEntity.updatedOrderId;
     final renderObject = key.currentContext?.findRenderObject();
@@ -287,11 +288,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         localOffset.dx,
         localOffset.dy + _scrollPixels,
       );
+      size = renderBox.size;
     }
 
     reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,
+      size: size,
     );
     setState(() {});
   }
