@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 10;
+  static const _startCounter = 0;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -119,26 +119,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _getReorderableWidget() {
-    final generatedChildren = List<Widget>.generate(
-      children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(),
-          ),
-        ),
-      ),
-    );
-
     switch (reorderableType) {
       case ReorderableType.gridView:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -162,6 +145,7 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewCount:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -178,6 +162,7 @@ class _MyAppState extends State<MyApp> {
           },
         );
       case ReorderableType.gridViewExtent:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -198,8 +183,8 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewBuilder:
-        return ReorderableBuilder(
-          children: generatedChildren,
+        return ReorderableBuilder.builder(
+          key: Key(_gridViewKey.toString()),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: () {
@@ -209,13 +194,16 @@ class _MyAppState extends State<MyApp> {
             ScaffoldMessenger.of(context).showSnackBar(snackBar);
           },
           scrollController: _scrollController,
-          builder: (children) {
+          childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
-                return children[index];
+                return itemBuilder(
+                  _getChild(index: index),
+                  index,
+                );
               },
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -226,6 +214,30 @@ class _MyAppState extends State<MyApp> {
           },
         );
     }
+  }
+
+  List<Widget> _getGeneratedChildren() {
+    return List<Widget>.generate(
+      children.length,
+      (index) => _getChild(index: index),
+    );
+  }
+
+  Widget _getChild({required int index}) {
+    return Container(
+      key: Key(children[index].toString()),
+      decoration: BoxDecoration(
+        color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+      ),
+      height: 100.0,
+      width: 100.0,
+      child: Center(
+        child: Text(
+          'test ${children[index]}',
+          style: const TextStyle(),
+        ),
+      ),
+    );
   }
 
   void _handleDragStarted() {
