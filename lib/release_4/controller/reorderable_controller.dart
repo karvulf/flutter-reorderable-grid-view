@@ -27,6 +27,7 @@ abstract class ReorderableController {
       reorderableEntity = childInKeyMap.updated(
         updatedOrderId: index,
         updatedOffset: offset,
+        size: size,
       );
     }
     return reorderableEntity;

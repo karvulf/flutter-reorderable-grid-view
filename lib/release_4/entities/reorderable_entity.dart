@@ -104,6 +104,7 @@ class ReorderableEntity {
   ReorderableEntity updated({
     required int updatedOrderId,
     required Offset? updatedOffset,
+    required Size? size,
   }) {
     var originalOrderId = this.originalOrderId;
     var originalOffset = this.originalOffset;
@@ -120,7 +121,7 @@ class ReorderableEntity {
       updatedOrderId: updatedOrderId,
       originalOffset: originalOffset,
       updatedOffset: updatedOffset ?? this.updatedOffset,
-      size: size,
+      size: size ?? this.size,
       isBuildingOffset: updatedOffset == null,
       hasSwappedOrder:
           updatedOrderId != originalOrderId && updatedOffset != null,

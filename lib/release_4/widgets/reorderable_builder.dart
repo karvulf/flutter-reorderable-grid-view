@@ -249,7 +249,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required ReorderableEntity reorderableEntity,
     required ReorderableEntity? currentDraggedEntity,
   }) {
-    print('${child.key} currentDraggedEntity ${currentDraggedEntity?.key}');
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,

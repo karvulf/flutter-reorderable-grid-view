@@ -90,7 +90,6 @@ class _ReorderableAnimatedPositionedState
   }
 
   Future<void> _animateOffset({required Offset begin}) async {
-    // print('animate with begin $begin');
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {

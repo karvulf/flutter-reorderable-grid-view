@@ -49,11 +49,12 @@ class ReorderableDraggable extends StatefulWidget {
 
 class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
+  late final AnimationController _decoratedBoxAnimationController;
+  late AnimationController _offsetAnimationController;
   late final DecorationTween _decorationTween;
 
-  /// [GlobalKey] assigned to this widget for getting size and position.
-  final _globalKey = GlobalKey();
+  ///
+  Animation<Offset>? _offsetAnimation;
 
   /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
@@ -71,9 +72,13 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    _decoratedBoxAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+    );
+    _offsetAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
     );
 
     final beginDragBoxDecoration = widget.dragChildBoxDecoration?.copyWith(
@@ -88,18 +93,24 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _decoratedBoxAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final reorderableEntity = widget.reorderableEntity;
-    final reorderableEntityChild = widget.child;
-    final child = Container(
-      key: _globalKey,
-      child: reorderableEntityChild,
-    );
+    var child = widget.child;
+    if (_offsetAnimation != null) {
+      child = Container(
+        transform: Matrix4.translationValues(
+          _offsetAnimation!.value.dx,
+          _offsetAnimation!.value.dy,
+          0.0,
+        ),
+        child: child,
+      );
+    }
     final size = reorderableEntity.size;
     final feedback = Material(
       color: Colors.transparent, // removes white corners when having shadow
@@ -108,8 +119,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         width: size.width,
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
-          decoration: _decorationTween.animate(_controller),
-          child: reorderableEntityChild,
+          decoration:
+              _decorationTween.animate(_decoratedBoxAnimationController),
+          child: child,
         ),
       ),
     );
@@ -151,11 +163,20 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   /// Called after dragging started.
   void _handleDragStarted() {
     widget.onDragStarted(widget.reorderableEntity);
-    _controller.forward();
+    _decoratedBoxAnimationController.forward();
   }
 
   /// Called after releasing dragged child.
-  void _handleDragEnd(DraggableDetails details) {
-    _controller.reset();
+  Future<void> _handleDragEnd(DraggableDetails details) async {
+    _decoratedBoxAnimationController.reset();
+    final begin = details.offset - widget.reorderableEntity.originalOffset;
+    final tween = Tween<Offset>(begin: begin, end: Offset.zero);
+    _offsetAnimation = tween.animate(_offsetAnimationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    await _offsetAnimationController.forward();
+    _offsetAnimationController.reset();
+    _offsetAnimation = null;
   }
 }
