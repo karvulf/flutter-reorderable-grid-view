@@ -145,7 +145,7 @@ class ReorderableBuilder extends StatefulWidget {
   State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
-// Todo: Scrollposition wird noch nicht berücksichtigt
+// Todo: Items tauschen im Builder, z. B. 140 auf Position 300
 class _ReorderableBuilderState extends State<ReorderableBuilder>
     with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
@@ -282,7 +282,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final renderObject = key.currentContext?.findRenderObject();
     if (renderObject != null && offsetMap[index] == null) {
       final renderBox = renderObject as RenderBox;
-      offset = renderBox.localToGlobal(Offset.zero);
+      final localOffset = renderBox.localToGlobal(Offset.zero);
+      offset = Offset(
+        localOffset.dx,
+        localOffset.dy + _scrollPixels,
+      );
     }
 
     reorderableController.handleCreatedChild(
@@ -297,6 +301,31 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       return reorderableItemBuilderController;
     } else {
       return reorderableBuilderController;
+    }
+  }
+
+  /// Returning the current scroll position.
+  ///
+  /// There are two possibilities to get the scroll position.
+  ///
+  /// First one is, the returned child of [widget.builder] is a scrollable widget.
+  /// In this case, it is important that the [widget.scrollController] is added
+  /// to the scrollable widget to get the current scroll position.
+  ///
+  /// Another possibility is that one of the parents is scrollable.
+  /// In that case, the position of the scroll is accessible inside [context].
+  ///
+  /// Otherwise, 0.0 will be returned.
+  double get _scrollPixels {
+    var pixels = Scrollable.of(context)?.position.pixels;
+    final scrollController = widget.scrollController;
+
+    if (pixels != null) {
+      return pixels;
+    } else if (scrollController != null && scrollController.hasClients) {
+      return scrollController.position.pixels;
+    } else {
+      return 0.0;
     }
   }
 }
