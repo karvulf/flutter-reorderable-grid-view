@@ -254,6 +254,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       onOpacityFinished: _handleOpacityFinished,
       child: ReorderableAnimatedPositioned(
         reorderableEntity: reorderableEntity,
+        isDragging: currentDraggedEntity != null,
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
@@ -314,6 +315,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Animation part
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {
+    return;
     _reorderableController.handleMovingFinished(
       reorderableEntity: reorderableEntity,
     );
