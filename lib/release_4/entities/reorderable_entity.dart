@@ -139,5 +139,20 @@ class ReorderableEntity {
         hasSwappedOrder: false,
       );
 
+  ReorderableEntity dragUpdated({
+    required int updatedOrderId,
+    required Offset updatedOffset,
+  }) =>
+      ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: updatedOffset,
+        size: size,
+        isBuildingOffset: isBuildingOffset,
+        hasSwappedOrder: true,
+      );
+
   bool get isNew => originalOrderId == _isNewChildId;
 }

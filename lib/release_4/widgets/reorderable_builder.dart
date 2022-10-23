@@ -287,14 +287,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     _reorderableController.handleDragStarted(
       reorderableEntity: reorderableEntity,
+      currentScrollPixels: _scrollPixels,
     );
     setState(() {});
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
-    _reorderableController.handleDragUpdate(
+    final hasUpdated = _reorderableController.handleDragUpdate(
       pointerMoveEvent: pointerMoveEvent,
+      lockedIndices: widget.lockedIndices,
     );
+    if (hasUpdated) setState(() {});
   }
 
   void _handleScrollUpdate(double scrollPixels) {

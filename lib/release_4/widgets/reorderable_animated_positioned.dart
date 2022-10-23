@@ -83,14 +83,17 @@ class _ReorderableAnimatedPositionedState
 
     var offset = Offset.zero;
     if (!reorderableEntity.isNew) {
-      offset =
-          reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
+      final originalOffset = reorderableEntity.originalOffset;
+      final updatedOffset = reorderableEntity.updatedOffset;
+      // offset = originalOffset - updatedOffset;
+      offset = updatedOffset - originalOffset;
     }
     _animateOffset(begin: offset);
   }
 
   Future<void> _animateOffset({required Offset begin}) async {
-    final tween = Tween<Offset>(begin: begin, end: Offset.zero);
+    // final tween = Tween<Offset>(begin: begin, end: Offset.zero);
+    final tween = Tween<Offset>(begin: Offset.zero, end: begin);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
         setState(() {});
