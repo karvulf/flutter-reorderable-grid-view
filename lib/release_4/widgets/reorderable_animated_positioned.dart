@@ -108,14 +108,14 @@ class _ReorderableAnimatedPositionedState
     required Offset end,
   }) async {
     final tween = Tween<Offset>(begin: begin, end: end);
-    print('${widget.reorderableEntity} $tween');
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
         setState(() {});
       });
     await _animationController.forward();
 
-    if (begin != Offset.zero) {
+    if (end != Offset.zero) {
+      print('${widget.reorderableEntity} $tween');
       widget.onMovingFinished(widget.reorderableEntity);
     }
   }

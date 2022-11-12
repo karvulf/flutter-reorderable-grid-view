@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart'
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_item_builder_controller.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
@@ -15,7 +16,7 @@ typedef DraggableBuilder = Widget Function(
   List<Widget> children,
 );
 
-typedef ReorderListCallback = void Function(List<OrderUpdateEntity>);
+typedef ReorderListCallback = void Function(List<ReorderUpdateEntity>);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
@@ -289,6 +290,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _reorderableController.handleDragStarted(
       reorderableEntity: reorderableEntity,
       currentScrollPixels: _scrollPixels,
+      lockedIndices: widget.lockedIndices,
     );
     setState(() {});
   }
@@ -308,14 +310,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleDragEnd() {
-    _reorderableController.handleDragEnd();
-    setState(() {});
+    final reorderUpdateEntities = _reorderableController.handleDragEnd();
+
+    if (reorderUpdateEntities != null) {
+      widget.onReorder!(reorderUpdateEntities);
+      setState(() {});
+    }
   }
 
   /// Animation part
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {
-    return;
     _reorderableController.handleMovingFinished(
       reorderableEntity: reorderableEntity,
     );
