@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned2.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_scrolling_listener.dart';
@@ -253,7 +252,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,
-      child: ReorderableAnimatedPositioned(
+      child: ReorderableAnimatedPositioned2(
         reorderableEntity: reorderableEntity,
         isDragging: currentDraggedEntity != null,
         onMovingFinished: _handleMovingFinished,
@@ -314,8 +313,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     if (reorderUpdateEntities != null) {
       widget.onReorder!(reorderUpdateEntities);
-      setState(() {});
     }
+    // important to update the dragged entity which should be null at this point
+    setState(() {});
   }
 
   /// Animation part
@@ -346,6 +346,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     var index = reorderableEntity.updatedOrderId;
     final renderObject = key.currentContext?.findRenderObject();
+
     if (renderObject != null && offsetMap[index] == null) {
       final renderBox = renderObject as RenderBox;
       final localOffset = renderBox.localToGlobal(Offset.zero);

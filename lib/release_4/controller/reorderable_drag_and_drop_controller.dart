@@ -3,6 +3,8 @@ import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_c
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
+var counter = 0;
+
 class ReorderableDragAndDropController extends ReorderableController {
   ReorderableEntity? _draggedEntity;
   var _lockedIndices = <int>[];
@@ -43,8 +45,12 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
       final draggedOrderId = _draggedEntity!.updatedOrderId;
-
       final difference = draggedOrderId - collisionOrderId;
+
+      if (difference > 1 || difference < -1) {
+        // print('_draggedEntity $_draggedEntity');
+      }
+
       if (difference > 1) {
         _updateMultipleCollisions(
           collisionReorderableEntity: collisionReorderableEntity!,
@@ -81,14 +87,18 @@ class ReorderableDragAndDropController extends ReorderableController {
     final oldIndex = _draggedEntity!.originalOrderId;
     final newIndex = _draggedEntity!.updatedOrderId;
 
-    if (oldIndex == newIndex) return null;
-
     _draggedEntity = null;
 
-    return _getOrderUpdateEntities(
+    if (oldIndex == newIndex) return null;
+
+    final orderUpdateEntities = _getOrderUpdateEntities(
       oldIndex: oldIndex,
       newIndex: newIndex,
     );
+
+    updateToActualPositions();
+
+    return orderUpdateEntities;
   }
 
   ReorderableEntity? get draggedEntity => _draggedEntity;
@@ -111,11 +121,6 @@ class ReorderableDragAndDropController extends ReorderableController {
 
       if (!lockedIndices.contains(currentCollisionOrderId)) {
         final collisionMapEntry = childrenOrderMap[currentCollisionOrderId];
-        /*final collisionMapEntry2 = childrenKeyMap.entries
-            .firstWhere(
-              (entry) => entry.value.updatedOrderId == currentCollisionOrderId,
-            )
-            .value;*/
         _updateCollision(
           collisionReorderableEntity: collisionMapEntry!,
           lockedIndices: lockedIndices,
@@ -173,39 +178,33 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     final collisionOffsetBefore = updatedCollisionEntity.originalOffset;
     final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
+/*
+    print(
+        'Dragged $draggedOrderIdBefore(${draggedEntity.key}) -> $draggedOrderIdAfter(${updatedDraggedEntity.key})');
+    print(
+        'Collisioned $collisionOrderIdBefore(${collisionReorderableEntity.key}) -> $collisionOrderIdAfter(${updatedCollisionEntity.key})');
 
     print('');
-    print('---- Dragged child at position $draggedOrderIdBefore ----');
     print('Dragged Entity: $updatedDraggedEntity');
     print('----');
-    print('Collisioned Entity: $collisionReorderableEntity');
+    print('Collisioned Entity: $updatedCollisionEntity');
     print('---- END ----');
     print('');
-    /*
-    print('');
-    print('---- Dragged child at position $draggedOrderIdBefore ----');
-    print(
-        'Dragged child from position $draggedOrderIdBefore to $draggedOrderIdAfter');
-    print(
-        'Dragged child from offset $draggedOffsetBefore to $draggedOffsetAfter');
-    print('----');
-    print(
-        'Collisioned child from position $collisionOrderIdBefore to $collisionOrderIdAfter');
-    print(
-        'Collisioned child from offset $collisionOffsetBefore to $collisionOffsetAfter');
-    print('---- END ----');
-    print('');*/
+*/
 
     _draggedEntity = updatedDraggedEntity;
 
-    final collisionKeyValue = collisionReorderableEntity.key.value;
-    final collisionUpdatedOrderId = collisionReorderableEntity.updatedOrderId;
+    final collisionKeyValue = updatedCollisionEntity.key.value;
+    final collisionUpdatedOrderId = updatedCollisionEntity.updatedOrderId;
 
     childrenKeyMap[collisionKeyValue] = updatedCollisionEntity;
     childrenOrderMap[collisionUpdatedOrderId] = updatedCollisionEntity;
 
-    childrenKeyMap[draggedEntity.key.value] = updatedDraggedEntity;
-    childrenOrderMap[draggedEntity.updatedOrderId] = updatedDraggedEntity;
+    final draggedKeyValue = updatedDraggedEntity.key.value;
+    final draggedUpdatedOrderId = updatedDraggedEntity.updatedOrderId;
+
+    childrenKeyMap[draggedKeyValue] = updatedDraggedEntity;
+    childrenOrderMap[draggedUpdatedOrderId] = updatedDraggedEntity;
   }
 
   /// Checking if the dragged child collision with another child in [_childrenMap].

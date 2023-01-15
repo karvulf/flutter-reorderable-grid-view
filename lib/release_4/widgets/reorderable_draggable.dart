@@ -52,6 +52,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   late final AnimationController _decoratedBoxAnimationController;
   late AnimationController _offsetAnimationController;
   late final DecorationTween _decorationTween;
+  late DraggableDetails lastDraggedDetails;
 
   ///
   Animation<Offset>? _offsetAnimation;
@@ -92,8 +93,22 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   @override
+  void didUpdateWidget(covariant ReorderableDraggable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final currentDraggedEntity = widget.currentDraggedEntity;
+    final oldDraggedEntity = oldWidget.currentDraggedEntity;
+    if (currentDraggedEntity != oldWidget.currentDraggedEntity &&
+        currentDraggedEntity == null) {
+      if (oldDraggedEntity?.key == widget.reorderableEntity.key) {
+        // _handleDragEnd(details);
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _decoratedBoxAnimationController.dispose();
+    _offsetAnimationController.dispose();
     super.dispose();
   }
 
@@ -119,8 +134,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         width: size.width,
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
-          decoration:
-              _decorationTween.animate(_decoratedBoxAnimationController),
+          decoration: _decorationTween.animate(
+            _decoratedBoxAnimationController,
+          ),
           child: child,
         ),
       ),
@@ -168,8 +184,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
   /// Called after releasing dragged child.
   Future<void> _handleDragEnd(DraggableDetails details) async {
+    // Todo: klappt leider nicht so gut, wenn das item seine position verändert hat
+    return;
+    lastDraggedDetails = details;
+
     _decoratedBoxAnimationController.reset();
-    final begin = details.offset - widget.reorderableEntity.originalOffset;
+    final begin = details.offset - widget.reorderableEntity.updatedOffset;
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_offsetAnimationController)
       ..addListener(() {

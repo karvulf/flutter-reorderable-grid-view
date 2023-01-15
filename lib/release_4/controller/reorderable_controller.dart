@@ -78,6 +78,33 @@ abstract class ReorderableController {
     }
   }
 
+  void updateToActualPositions() {
+    var updatedChildrenKeyMap = <dynamic, ReorderableEntity>{};
+    var updatedChildrenOrderMap = <int, ReorderableEntity>{};
+
+    for (final entry in childrenKeyMap.entries) {
+      final key = entry.key;
+      final updatedReorderableEntity = entry.value.positionUpdated();
+      final originalOrderId = updatedReorderableEntity.originalOrderId;
+      updatedChildrenOrderMap[originalOrderId] = updatedReorderableEntity;
+      updatedChildrenKeyMap[key] = updatedReorderableEntity;
+    }
+    replaceMaps(
+      updatedChildrenKeyMap: updatedChildrenKeyMap,
+      updatedChildrenOrderMap: updatedChildrenOrderMap,
+    );
+  }
+
+  void replaceMaps({
+    required Map<dynamic, ReorderableEntity> updatedChildrenKeyMap,
+    required Map<int, ReorderableEntity> updatedChildrenOrderMap,
+  }) {
+    childrenOrderMap.clear();
+    childrenOrderMap.addAll(updatedChildrenOrderMap);
+    childrenKeyMap.clear();
+    childrenKeyMap.addAll(updatedChildrenKeyMap);
+  }
+
   void _updateMaps({required ReorderableEntity reorderableEntity}) {
     childrenOrderMap[reorderableEntity.originalOrderId] = reorderableEntity;
     childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
