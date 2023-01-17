@@ -176,34 +176,6 @@ class ReorderableDragAndDropController extends ReorderableController {
       updatedOrderId: collisionReorderableEntity.updatedOrderId,
     );
 
-    ///
-    /// some prints for me
-    ///
-    final draggedOrderIdBefore = updatedDraggedEntity.originalOrderId;
-    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-    final draggedOffsetBefore = updatedDraggedEntity.originalOffset;
-    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
-
-    final collisionOrderIdBefore = updatedCollisionEntity.originalOrderId;
-    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-    final collisionOffsetBefore = updatedCollisionEntity.originalOffset;
-    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
-/*
-    print(
-        'Dragged $draggedOrderIdBefore(${draggedEntity.key}) -> $draggedOrderIdAfter(${updatedDraggedEntity.key})');
-    print(
-        'Collisioned $collisionOrderIdBefore(${collisionReorderableEntity.key}) -> $collisionOrderIdAfter(${updatedCollisionEntity.key})');
-
-    print('');
-    print('Dragged Entity: $updatedDraggedEntity');
-    print('----');
-    print('Collisioned Entity: $updatedCollisionEntity');
-    print('---- END ----');
-    print('');
-*/
-
     _draggedEntity = updatedDraggedEntity;
 
     final collisionKeyValue = updatedCollisionEntity.key.value;
@@ -374,3 +346,36 @@ class ReorderableDragAndDropController extends ReorderableController {
     return orderUpdateEntities;
   }
 }
+
+
+/**
+ *
+    ///
+    /// some prints for me
+    ///
+    final draggedOrderIdBefore = updatedDraggedEntity.originalOrderId;
+    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
+
+    final draggedOffsetBefore = updatedDraggedEntity.originalOffset;
+    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
+
+    final collisionOrderIdBefore = updatedCollisionEntity.originalOrderId;
+    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
+
+    final collisionOffsetBefore = updatedCollisionEntity.originalOffset;
+    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
+    /*
+    print(
+    'Dragged $draggedOrderIdBefore(${draggedEntity.key}) -> $draggedOrderIdAfter(${updatedDraggedEntity.key})');
+    print(
+    'Collisioned $collisionOrderIdBefore(${collisionReorderableEntity.key}) -> $collisionOrderIdAfter(${updatedCollisionEntity.key})');
+
+    print('');
+    print('Dragged Entity: $updatedDraggedEntity');
+    print('----');
+    print('Collisioned Entity: $updatedCollisionEntity');
+    print('---- END ----');
+    print('');
+    */
+
+ */
