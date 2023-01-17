@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_ent
 class ReorderableBuilderController extends ReorderableDragAndDropController {
   void initChildren({required List<Widget> children}) {
     var index = 0;
+
     for (final child in children) {
       assert(!childrenKeyMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
