@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
 
 class ReorderableAnimatedPositioned2 extends StatefulWidget {
   final Widget child;
@@ -39,6 +40,11 @@ class _ReorderableAnimatedPositioned2State
         child: widget.child,
       );
     } else {
+      return ReorderableAnimatedPositioned(
+        reorderableEntity: widget.reorderableEntity,
+        onMovingFinished: widget.onMovingFinished,
+        child: widget.child,
+      );
       return AnimatedContainer(
         duration:
             changedPosition ? const Duration(milliseconds: 200) : Duration.zero,

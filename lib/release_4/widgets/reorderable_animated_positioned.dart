@@ -4,14 +4,12 @@ import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_ent
 class ReorderableAnimatedPositioned extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
-  final bool isDragging;
 
   final void Function(ReorderableEntity reorderableEntity) onMovingFinished;
 
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
-    required this.isDragging,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
@@ -26,7 +24,6 @@ class _ReorderableAnimatedPositionedState
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<Offset> _offsetAnimation;
-  Offset? lastOffset;
 
   @override
   void initState() {
@@ -84,38 +81,24 @@ class _ReorderableAnimatedPositionedState
   void _updateOffsetAnimation() {
     final reorderableEntity = widget.reorderableEntity;
 
-    var begin = Offset.zero;
-    var end = Offset.zero;
+    var offset = Offset.zero;
     if (!reorderableEntity.isNew) {
-      final originalOffset = reorderableEntity.originalOffset;
-      final updatedOffset = reorderableEntity.updatedOffset;
-      if (widget.isDragging) {
-        if (lastOffset != null) {
-          begin = lastOffset!;
-        }
-        end = updatedOffset - originalOffset;
-        lastOffset = end;
-      } else {
-        begin = originalOffset - updatedOffset;
-        lastOffset = null;
-      }
+      offset =
+          reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
     }
-    _animateOffset(begin: begin, end: end);
+    _animateOffset(begin: offset);
   }
 
-  Future<void> _animateOffset({
-    required Offset begin,
-    required Offset end,
-  }) async {
-    final tween = Tween<Offset>(begin: begin, end: end);
+  Future<void> _animateOffset({required Offset begin}) async {
+    // print('animate with begin $begin');
+    final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
         setState(() {});
       });
     await _animationController.forward();
 
-    if (end != Offset.zero) {
-      print('${widget.reorderableEntity} $tween');
+    if (begin != Offset.zero) {
       widget.onMovingFinished(widget.reorderableEntity);
     }
   }
