@@ -29,7 +29,6 @@ abstract class ReorderableController {
         updatedOffset: offset,
         size: size,
       );
-      print('updated $reorderableEntity');
     }
     return reorderableEntity;
   }
