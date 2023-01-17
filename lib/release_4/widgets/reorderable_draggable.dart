@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = void Function(
@@ -26,8 +27,11 @@ class ReorderableDraggable extends StatefulWidget {
   final Duration longPressDelay;
   final bool enableDraggable;
   final BoxDecoration? dragChildBoxDecoration;
+  final ReleasedReorderableEntity? releasedReorderableEntity;
 
   final void Function(ReorderableEntity reorderableEntity) onDragStarted;
+  final void Function(ReleasedReorderableEntity releasedReorderableEntity)
+      onDragEnd;
 
   final ReorderableEntity? currentDraggedEntity;
 
@@ -38,7 +42,9 @@ class ReorderableDraggable extends StatefulWidget {
     required this.longPressDelay,
     required this.enableDraggable,
     required this.onDragStarted,
+    required this.onDragEnd,
     required this.currentDraggedEntity,
+    required this.releasedReorderableEntity,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -78,7 +84,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       duration: const Duration(milliseconds: 250),
     );
     _offsetAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
       vsync: this,
     );
 
@@ -102,6 +108,17 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       if (oldDraggedEntity?.key == widget.reorderableEntity.key) {
         // _handleDragEnd(details);
       }
+    }
+
+    final releasedReorderableEntity = widget.releasedReorderableEntity;
+    if (oldWidget.releasedReorderableEntity !=
+            widget.releasedReorderableEntity &&
+        releasedReorderableEntity != null &&
+        releasedReorderableEntity.reorderableEntity.key ==
+            widget.reorderableEntity.key) {
+      _handleReleasedReorderableEntity(
+        releasedReorderableEntity: releasedReorderableEntity,
+      );
     }
   }
 
@@ -182,14 +199,22 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _decoratedBoxAnimationController.forward();
   }
 
-  /// Called after releasing dragged child.
-  Future<void> _handleDragEnd(DraggableDetails details) async {
-    // Todo: klappt leider nicht so gut, wenn das item seine position verändert hat
-    return;
-    lastDraggedDetails = details;
+  void _handleDragEnd(DraggableDetails details) {
+    widget.onDragEnd(
+      ReleasedReorderableEntity(
+        reorderableEntity: widget.reorderableEntity,
+        dropOffset: details.offset,
+      ),
+    );
+  }
 
+  /// Called after releasing dragged child.
+  Future<void> _handleReleasedReorderableEntity({
+    required ReleasedReorderableEntity releasedReorderableEntity,
+  }) async {
     _decoratedBoxAnimationController.reset();
-    final begin = details.offset - widget.reorderableEntity.updatedOffset;
+    final begin = releasedReorderableEntity.dropOffset -
+        widget.reorderableEntity.updatedOffset;
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_offsetAnimationController)
       ..addListener(() {

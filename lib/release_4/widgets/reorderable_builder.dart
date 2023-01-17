@@ -276,6 +276,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
+              onDragEnd: (releasedReorderableEntity) {
+                _reorderableController.updateReleasedReorderableEntity(
+                  releasedReorderableEntity: releasedReorderableEntity,
+                );
+                setState(() {});
+              },
+              releasedReorderableEntity:
+                  _reorderableController.releasedReorderableEntity,
               child: child,
             ),
           ),

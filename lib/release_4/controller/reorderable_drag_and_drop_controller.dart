@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_controller.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
@@ -8,6 +9,7 @@ var counter = 0;
 class ReorderableDragAndDropController extends ReorderableController {
   ReorderableEntity? _draggedEntity;
   var _lockedIndices = <int>[];
+  ReleasedReorderableEntity? _releasedReorderableEntity;
 
   /// Holding this value for better performance.
   ///
@@ -19,6 +21,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     required double currentScrollPixels,
     required List<int> lockedIndices,
   }) {
+    _releasedReorderableEntity = null;
     _lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     _scrollPositionPixels = currentScrollPixels;
@@ -100,6 +103,15 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     return orderUpdateEntities;
   }
+
+  void updateReleasedReorderableEntity({
+    required ReleasedReorderableEntity releasedReorderableEntity,
+  }) {
+    _releasedReorderableEntity = releasedReorderableEntity;
+  }
+
+  ReleasedReorderableEntity? get releasedReorderableEntity =>
+      _releasedReorderableEntity;
 
   ReorderableEntity? get draggedEntity => _draggedEntity;
 
