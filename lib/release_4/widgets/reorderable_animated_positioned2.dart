@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
 
-class ReorderableAnimatedPositioned2 extends StatefulWidget {
+class ReorderableAnimatedPositioned2 extends StatelessWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
   final bool isDragging;
@@ -18,48 +18,50 @@ class ReorderableAnimatedPositioned2 extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ReorderableAnimatedPositioned2> createState() =>
-      _ReorderableAnimatedPositioned2State();
-}
-
-class _ReorderableAnimatedPositioned2State
-    extends State<ReorderableAnimatedPositioned2> {
-  @override
   Widget build(BuildContext context) {
     final offset = this.offset;
-    final changedPosition = widget.reorderableEntity.originalOrderId !=
-        widget.reorderableEntity.updatedOrderId;
 
-    if (widget.isDragging) {
+    if (isDragging) {
+      print('is dragging');
       return AnimatedContainer(
+        key: const ValueKey('dragging-animated-container'),
         duration: const Duration(milliseconds: 200),
-        onEnd: () {
-          // widget.onMovingFinished(widget.reorderableEntity);
-        },
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
-        child: widget.child,
+        child: child,
       );
     } else {
+      print('is NOT dragging');
       return ReorderableAnimatedPositioned(
-        reorderableEntity: widget.reorderableEntity,
-        onMovingFinished: widget.onMovingFinished,
-        child: widget.child,
+        key: const ValueKey('not-dragging-animated-container'),
+        reorderableEntity: reorderableEntity,
+        onMovingFinished: onMovingFinished,
+        child: child,
+      );
+      /*return AnimatedContainer(
+        duration:
+        changedPosition ? const Duration(milliseconds: 200) : Duration.zero,
+        transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
+        child: child,
+      );
+      return ReorderableAnimatedPositioned(
+        reorderableEntity: reorderableEntity,
+        onMovingFinished: onMovingFinished,
+        child: child,
       );
       return AnimatedContainer(
         duration:
             changedPosition ? const Duration(milliseconds: 200) : Duration.zero,
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
-        child: widget.child,
-      );
+        child: child,
+      );*/
     }
   }
 
   Offset get offset {
-    if (widget.isDragging) {
-      final reorderableEntity = widget.reorderableEntity;
+    if (isDragging) {
       return reorderableEntity.updatedOffset - reorderableEntity.originalOffset;
     } else {
-      return Offset.zero;
+      return reorderableEntity.originalOffset - reorderableEntity.updatedOffset;
     }
   }
 }
