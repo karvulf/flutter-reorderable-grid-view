@@ -6,7 +6,7 @@ import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_i
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned2.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_scrolling_listener.dart';
@@ -252,7 +252,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       onOpacityFinished: _handleOpacityFinished,
-      child: ReorderableAnimatedPositioned2(
+      child: ReorderableAnimatedPositioned(
         reorderableEntity: reorderableEntity,
         isDragging: currentDraggedEntity != null,
         onMovingFinished: _handleMovingFinished,
