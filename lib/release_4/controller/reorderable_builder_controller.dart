@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_controller.dart';
+import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
-class ReorderableBuilderController extends ReorderableController {
+class ReorderableBuilderController extends ReorderableDragAndDropController {
   void initChildren({required List<Widget> children}) {
     var index = 0;
+
     for (final child in children) {
       assert(!childrenKeyMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
@@ -33,9 +34,9 @@ class ReorderableBuilderController extends ReorderableController {
       updatedChildrenOrderMap[originalOrderId] = reorderableEntity;
       updatedChildrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
     }
-    super.childrenOrderMap.clear();
-    super.childrenOrderMap.addAll(updatedChildrenOrderMap);
-    super.childrenKeyMap.clear();
-    super.childrenKeyMap.addAll(updatedChildrenKeyMap);
+    replaceMaps(
+      updatedChildrenKeyMap: updatedChildrenKeyMap,
+      updatedChildrenOrderMap: updatedChildrenOrderMap,
+    );
   }
 }

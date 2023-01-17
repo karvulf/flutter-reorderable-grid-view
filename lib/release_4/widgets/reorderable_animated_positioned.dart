@@ -4,12 +4,14 @@ import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_ent
 class ReorderableAnimatedPositioned extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
+  final bool isDragging;
 
   final void Function(ReorderableEntity reorderableEntity) onMovingFinished;
 
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
+    required this.isDragging,
     required this.onMovingFinished,
     Key? key,
   }) : super(key: key);
@@ -30,11 +32,15 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
 
-    _updateOffsetAnimation();
+    if (widget.isDragging) {
+      _updateDragOffsetAnimation();
+    } else {
+      _updateOffsetAnimation();
+    }
   }
 
   @override
@@ -45,7 +51,14 @@ class _ReorderableAnimatedPositionedState
     if (oldEntity.updatedOffset != newEntity.updatedOffset ||
         oldEntity.isBuildingOffset != newEntity.isBuildingOffset ||
         oldEntity.key != newEntity.key) {
-      if (!newEntity.isBuildingOffset) {
+      if (widget.isDragging) {
+        final currentAnimationValue = _offsetAnimation.value;
+        _animationController.reset();
+        _updateDragOffsetAnimation(
+          begin: currentAnimationValue,
+          end: newEntity.updatedOffset - newEntity.originalOffset,
+        );
+      } else if (!newEntity.isBuildingOffset) {
         if (newEntity.hasSwappedOrder) {
           // important to prevent flickering for calculating new offsets
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -67,7 +80,6 @@ class _ReorderableAnimatedPositionedState
 
   @override
   Widget build(BuildContext context) {
-    // print('${widget.reorderableEntity.key}: dx ${_offsetAnimation.value.dx}');
     return Container(
       transform: Matrix4.translationValues(
         _offsetAnimation.value.dx,
@@ -76,6 +88,18 @@ class _ReorderableAnimatedPositionedState
       ),
       child: widget.child,
     );
+  }
+
+  Future<void> _updateDragOffsetAnimation({
+    Offset begin = Offset.zero,
+    Offset end = Offset.zero,
+  }) async {
+    final tween = Tween<Offset>(begin: begin, end: end);
+    _offsetAnimation = tween.animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    await _animationController.forward();
   }
 
   void _updateOffsetAnimation() {
@@ -90,7 +114,6 @@ class _ReorderableAnimatedPositionedState
   }
 
   Future<void> _animateOffset({required Offset begin}) async {
-    // print('animate with begin $begin');
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {

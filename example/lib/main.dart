@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 0;
+  static const _startCounter = 2;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+  ReorderableType reorderableType = ReorderableType.gridView;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 onTapSwap: () {
                   _handleReorder([
-                    const OrderUpdateEntity(oldIndex: 0, newIndex: 1),
+                    const ReorderUpdateEntity(oldIndex: 0, newIndex: 1),
                   ]);
                 },
               ),
@@ -110,7 +110,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
+  void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
     for (final reorder in onReorderList) {
       final child = children.removeAt(reorder.oldIndex);
       children.insert(reorder.newIndex, child);

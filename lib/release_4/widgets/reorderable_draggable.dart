@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 
 typedef OnCreatedFunction = void Function(
   ReorderableEntity reorderableEntity,
@@ -20,25 +21,30 @@ typedef OnDragUpdateFunction = Function(
 /// [onBuilding] is always called if [isBuilding] of [reorderableEntity] is true.
 /// That means, that there was an update in the position, usually a new position.
 class ReorderableDraggable extends StatefulWidget {
+  final Widget child;
   final ReorderableEntity reorderableEntity;
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
   final BoxDecoration? dragChildBoxDecoration;
+  final ReleasedReorderableEntity? releasedReorderableEntity;
 
-  final OnCreatedFunction onCreated;
   final void Function(ReorderableEntity reorderableEntity) onDragStarted;
+  final void Function(ReleasedReorderableEntity releasedReorderableEntity)
+      onDragEnd;
 
-  final ReorderableEntity? currentDraggedChild;
+  final ReorderableEntity? currentDraggedEntity;
 
   const ReorderableDraggable({
+    required this.child,
     required this.reorderableEntity,
     required this.enableLongPress,
     required this.longPressDelay,
     required this.enableDraggable,
-    required this.onCreated,
     required this.onDragStarted,
-    required this.currentDraggedChild,
+    required this.onDragEnd,
+    required this.currentDraggedEntity,
+    required this.releasedReorderableEntity,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -49,11 +55,13 @@ class ReorderableDraggable extends StatefulWidget {
 
 class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
+  late final AnimationController _decoratedBoxAnimationController;
+  late AnimationController _offsetAnimationController;
   late final DecorationTween _decorationTween;
+  late DraggableDetails lastDraggedDetails;
 
-  /// [GlobalKey] assigned to this widget for getting size and position.
-  final _globalKey = GlobalKey();
+  ///
+  Animation<Offset>? _offsetAnimation;
 
   /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
@@ -70,11 +78,14 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   @override
   void initState() {
     super.initState();
-    _handleCreated();
 
-    _controller = AnimationController(
+    _decoratedBoxAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+    );
+    _offsetAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
     );
 
     final beginDragBoxDecoration = widget.dragChildBoxDecoration?.copyWith(
@@ -88,35 +99,68 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   @override
+  void didUpdateWidget(covariant ReorderableDraggable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final currentDraggedEntity = widget.currentDraggedEntity;
+    final oldDraggedEntity = oldWidget.currentDraggedEntity;
+    if (currentDraggedEntity != oldWidget.currentDraggedEntity &&
+        currentDraggedEntity == null) {
+      if (oldDraggedEntity?.key == widget.reorderableEntity.key) {
+        // _handleDragEnd(details);
+      }
+    }
+
+    final releasedReorderableEntity = widget.releasedReorderableEntity;
+    if (oldWidget.releasedReorderableEntity !=
+            widget.releasedReorderableEntity &&
+        releasedReorderableEntity != null &&
+        releasedReorderableEntity.reorderableEntity.key ==
+            widget.reorderableEntity.key) {
+      _handleReleasedReorderableEntity(
+        releasedReorderableEntity: releasedReorderableEntity,
+      );
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _decoratedBoxAnimationController.dispose();
+    _offsetAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final reorderableEntity = widget.reorderableEntity;
-    final reorderableEntityChild = widget.reorderableEntity.child;
-    final child = Container(
-      key: _globalKey,
-      child: reorderableEntityChild,
-    );
-
+    var child = widget.child;
+    if (_offsetAnimation != null) {
+      child = Container(
+        transform: Matrix4.translationValues(
+          _offsetAnimation!.value.dx,
+          _offsetAnimation!.value.dy,
+          0.0,
+        ),
+        child: child,
+      );
+    }
+    final size = reorderableEntity.size;
     final feedback = Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: SizedBox(
-        height: reorderableEntity.size.height,
-        width: reorderableEntity.size.width,
+        height: size.height,
+        width: size.width,
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
-          decoration: _decorationTween.animate(_controller),
-          child: reorderableEntityChild,
+          decoration: _decorationTween.animate(
+            _decoratedBoxAnimationController,
+          ),
+          child: child,
         ),
       ),
     );
 
-    final draggedKey = widget.currentDraggedChild?.child.key;
-    final key = reorderableEntityChild.key;
+    final draggedKey = widget.currentDraggedEntity?.key;
+    final key = reorderableEntity.key;
     final visible = key != draggedKey;
 
     final childWhenDragging = Visibility(
@@ -149,36 +193,35 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     }
   }
 
-  /// Updates [_reorderableEntity] after calling [onCreated].
-  void _handleCreated() {
-    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
-      _callOnCreated();
-    });
-  }
-
-  void _callOnCreated() {
-    widget.onCreated(
-      widget.reorderableEntity,
-      _globalKey,
-    );
-  }
-
   /// Called after dragging started.
   void _handleDragStarted() {
     widget.onDragStarted(widget.reorderableEntity);
-    _controller.forward();
+    _decoratedBoxAnimationController.forward();
+  }
+
+  void _handleDragEnd(DraggableDetails details) {
+    widget.onDragEnd(
+      ReleasedReorderableEntity(
+        reorderableEntity: widget.reorderableEntity,
+        dropOffset: details.offset,
+      ),
+    );
   }
 
   /// Called after releasing dragged child.
-  void _handleDragEnd(DraggableDetails details) {
-    _controller.reset();
+  Future<void> _handleReleasedReorderableEntity({
+    required ReleasedReorderableEntity releasedReorderableEntity,
+  }) async {
+    _decoratedBoxAnimationController.reset();
+    final begin = releasedReorderableEntity.dropOffset -
+        widget.reorderableEntity.updatedOffset;
+    final tween = Tween<Offset>(begin: begin, end: Offset.zero);
+    _offsetAnimation = tween.animate(_offsetAnimationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    await _offsetAnimationController.forward();
+    _offsetAnimationController.reset();
+    _offsetAnimation = null;
   }
 }
-
-/// This allows a value of type T or T?
-/// to be treated as a value of type T?.
-///
-/// We use this so that APIs that have become
-/// non-nullable can still be used with `!` and `?`
-/// to support older versions of the API as well.
-T? _ambiguate<T>(T? value) => value;
