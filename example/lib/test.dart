@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 class MyApp extends StatefulWidget {
@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
       body: ReorderableBuilder(
         children: generatedChildren,
         scrollController: _scrollController,
-        onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
+        onReorder: (List<ReorderUpdateEntity> orderUpdateEntities) {
           for (final orderUpdateEntity in orderUpdateEntities) {
             final fruit = _fruits.removeAt(orderUpdateEntity.oldIndex);
             _fruits.insert(orderUpdateEntity.newIndex, fruit);

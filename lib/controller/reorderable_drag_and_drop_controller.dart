@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_controller.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/released_reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
+import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 var counter = 0;
 
@@ -100,7 +100,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     );
 
     updateToActualPositions();
-
     return orderUpdateEntities;
   }
 
@@ -346,7 +345,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     return orderUpdateEntities;
   }
 }
-
 
 /**
  *

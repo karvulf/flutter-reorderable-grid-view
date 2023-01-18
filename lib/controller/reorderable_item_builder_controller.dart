@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/release_4/controller/reorderable_drag_and_drop_controller.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 class ReorderableItemBuilderController
     extends ReorderableDragAndDropController {

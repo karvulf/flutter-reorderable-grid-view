@@ -1,3 +1,19 @@
+## 4.0.0-dev.1
+ℹ️ℹ️ℹ️ℹ️
+* This is a prerelease and does not contain all functionalities that are tagged in GitHub for the release
+  * the functionalities will be implemented if possible
+* This release contains
+  * completely redesigned logic for the animation and drag and drop
+  * smoother animation
+  * much better performance (`GridView.builder` is now working as it should work, see more on the example in `main.dart`)
+* Still missing
+  * tests
+  * comments
+  * documentation
+  * some features from GitHub for this release
+* there are still some bugs (I am pretty sure), so please try out this prerelease and post the issues on GitHub!
+  
+ℹ️ℹ️ℹ️ℹ️
 ## 3.1.3
 🐛 **Fixed some bugs**
 * fixed two null check errors (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41) and Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))

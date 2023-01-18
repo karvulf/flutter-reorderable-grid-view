@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 2;
-  final lockedIndices = <int>[];
+  static const _startCounter = 20;
+  final lockedIndices = <int>[1, 5, 9];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -112,10 +112,17 @@ class _MyAppState extends State<MyApp> {
 
   void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
     for (final reorder in onReorderList) {
-      final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);
+      final sublist = children.sublist(reorder.oldIndex, reorder.newIndex + 1);
+      final child = sublist.removeAt(0);
+      sublist.insert(sublist.length, child);
+      children.replaceRange(reorder.oldIndex, reorder.newIndex + 1, sublist);
     }
     setState(() {});
+  }
+
+  List<Object> shift({required List<Object> list, required int v}) {
+    var i = v % list.length;
+    return list.sublist(i)..addAll(list.sublist(0, i));
   }
 
   Widget _getReorderableWidget() {
