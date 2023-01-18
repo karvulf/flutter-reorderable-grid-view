@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
+  static const _startCounter = 999999999;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewExtent;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();

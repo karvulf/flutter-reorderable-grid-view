@@ -200,12 +200,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   Widget build(BuildContext context) {
+    late Widget child;
+
     final builder = widget.builder;
     if (builder == null) {
-      return widget.childBuilder!(_buildItem);
+      child = widget.childBuilder!(_buildItem);
     } else {
-      return builder(_wrapChildren());
+      child = builder(_wrapChildren());
     }
+
+    return ReorderableScrollingListener(
+      isDragging: _reorderableController.draggedEntity != null,
+      reorderableChildKey: child.key as GlobalKey?,
+      scrollController: widget.scrollController,
+      automaticScrollExtent: widget.automaticScrollExtent,
+      enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+      onDragUpdate: _handleDragUpdate,
+      onDragEnd: _handleDragEnd,
+      onScrollUpdate: _handleScrollUpdate,
+      child: child,
+    );
   }
 
   Widget _buildItem(Widget child, int index) {
@@ -260,36 +274,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
           onCreated: _handleCreatedChild,
-          child: ReorderableScrollingListener(
-            automaticScrollExtent: widget.automaticScrollExtent,
-            enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
-            isDragging: currentDraggedEntity != null,
-            onDragEnd: _handleDragEnd,
-            onDragUpdate: _handleDragUpdate,
-            onScrollUpdate: _handleScrollUpdate,
-            reorderableChildKey: null,
-            scrollController: widget.scrollController,
-            child: ReorderableAnimatedReleasedContainer(
-              releasedReorderableEntity:
-                  _reorderableController.releasedReorderableEntity,
-              scrollPixels: _scrollPixels,
+          child: ReorderableAnimatedReleasedContainer(
+            releasedReorderableEntity:
+                _reorderableController.releasedReorderableEntity,
+            scrollPixels: _scrollPixels,
+            reorderableEntity: reorderableEntity,
+            child: ReorderableDraggable(
               reorderableEntity: reorderableEntity,
-              child: ReorderableDraggable(
-                reorderableEntity: reorderableEntity,
-                enableDraggable: widget.enableDraggable,
-                currentDraggedEntity: currentDraggedEntity,
-                enableLongPress: widget.enableLongPress,
-                longPressDelay: widget.longPressDelay,
-                dragChildBoxDecoration: widget.dragChildBoxDecoration,
-                onDragStarted: _handleDragStarted,
-                onDragEnd: (releasedReorderableEntity) {
-                  _reorderableController.updateReleasedReorderableEntity(
-                    releasedReorderableEntity: releasedReorderableEntity,
-                  );
-                  setState(() {});
-                },
-                child: child,
-              ),
+              enableDraggable: widget.enableDraggable,
+              currentDraggedEntity: currentDraggedEntity,
+              enableLongPress: widget.enableLongPress,
+              longPressDelay: widget.longPressDelay,
+              dragChildBoxDecoration: widget.dragChildBoxDecoration,
+              onDragStarted: _handleDragStarted,
+              onDragEnd: (releasedReorderableEntity) {
+                _reorderableController.updateReleasedReorderableEntity(
+                  releasedReorderableEntity: releasedReorderableEntity,
+                );
+                setState(() {});
+              },
+              child: child,
             ),
           ),
         ),
