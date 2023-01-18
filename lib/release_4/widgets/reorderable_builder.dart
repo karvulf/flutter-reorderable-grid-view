@@ -7,6 +7,7 @@ import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_
 import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_animated_released_container.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_scrolling_listener.dart';
@@ -268,23 +269,27 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             onScrollUpdate: _handleScrollUpdate,
             reorderableChildKey: null,
             scrollController: widget.scrollController,
-            child: ReorderableDraggable(
-              reorderableEntity: reorderableEntity,
-              enableDraggable: widget.enableDraggable,
-              currentDraggedEntity: currentDraggedEntity,
-              enableLongPress: widget.enableLongPress,
-              longPressDelay: widget.longPressDelay,
-              dragChildBoxDecoration: widget.dragChildBoxDecoration,
-              onDragStarted: _handleDragStarted,
-              onDragEnd: (releasedReorderableEntity) {
-                _reorderableController.updateReleasedReorderableEntity(
-                  releasedReorderableEntity: releasedReorderableEntity,
-                );
-                setState(() {});
-              },
+            child: ReorderableAnimatedReleasedContainer(
               releasedReorderableEntity:
                   _reorderableController.releasedReorderableEntity,
-              child: child,
+              scrollPixels: _scrollPixels,
+              reorderableEntity: reorderableEntity,
+              child: ReorderableDraggable(
+                reorderableEntity: reorderableEntity,
+                enableDraggable: widget.enableDraggable,
+                currentDraggedEntity: currentDraggedEntity,
+                enableLongPress: widget.enableLongPress,
+                longPressDelay: widget.longPressDelay,
+                dragChildBoxDecoration: widget.dragChildBoxDecoration,
+                onDragStarted: _handleDragStarted,
+                onDragEnd: (releasedReorderableEntity) {
+                  _reorderableController.updateReleasedReorderableEntity(
+                    releasedReorderableEntity: releasedReorderableEntity,
+                  );
+                  setState(() {});
+                },
+                child: child,
+              ),
             ),
           ),
         ),
