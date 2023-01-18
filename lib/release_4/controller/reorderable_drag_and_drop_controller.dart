@@ -100,7 +100,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     );
 
     updateToActualPositions();
-
     return orderUpdateEntities;
   }
 
