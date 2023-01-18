@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorder_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/release_4/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {

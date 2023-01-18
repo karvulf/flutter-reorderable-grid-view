@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/release_4/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 typedef OnOpacityResetCallback = void Function(
     ReorderableEntity reorderableEntity);

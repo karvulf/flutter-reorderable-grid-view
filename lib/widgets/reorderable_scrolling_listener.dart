@@ -59,13 +59,11 @@ class _ReorderableScrollingListenerState
   @override
   void didUpdateWidget(covariant ReorderableScrollingListener oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isDragging != oldWidget.isDragging) {
-      if (widget.isDragging) {
-        _updateChildSizeAndOffset();
-        setState(() {
-          _scrollPositionPixels = _scrollPixels;
-        });
-      }
+    if (widget.isDragging != oldWidget.isDragging && widget.isDragging) {
+      _updateChildSizeAndOffset();
+      setState(() {
+        _scrollPositionPixels = _scrollPixels;
+      });
     }
   }
 
