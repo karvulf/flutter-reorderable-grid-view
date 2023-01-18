@@ -111,30 +111,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
-    print('start');
     for (final reorder in onReorderList) {
-      /*final reorderedChild = children[reorder.oldIndex];
-      final movingChild = children[reorder.newIndex];
-      children[reorder.oldIndex] = movingChild;
-      children[reorder.newIndex] = reorderedChild;*/
-      /*final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);*/
-      
       final sublist = children.sublist(reorder.oldIndex, reorder.newIndex + 1);
       final child = sublist.removeAt(0);
       sublist.insert(sublist.length, child);
       children.replaceRange(reorder.oldIndex, reorder.newIndex + 1, sublist);
-
-      /* final startPart = children.sublist(0, reorder.oldIndex - 1);
-      final endPart = children.sublist(reorder.newIndex + 1);
-      final middlePart =
-          children.sublist(reorder.oldIndex + 1, reorder.newIndex - 1);
-      children =
-          startPart + middlePart + [children[reorder.oldIndex]] + endPart;
-*/
-      print('done');
     }
-    print('finish');
     setState(() {});
   }
 
