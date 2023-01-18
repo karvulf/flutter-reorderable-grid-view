@@ -12,6 +12,10 @@
   * documentation
   * some features from GitHub for this release
 * there are still some bugs (I am pretty sure), so please try out this prerelease and post the issues on GitHub!
+  * known bugs:
+    * drag and drop in combination with `lockedIndices` and `GridView.builder` can lead to wrong animations
+    * Android: seems like it is possible that the drag and drop leads to wrong positioning of items when releasing the dragged item
+    * `GridView.builder`: rotating the device leads to wrong behavior when using drag and drop
   
 ℹ️ℹ️ℹ️ℹ️
 ## 3.1.3
