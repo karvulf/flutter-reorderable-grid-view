@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 class ReorderableAnimatedPositioned extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
   final bool isDragging;
 
-  final void Function(ReorderableEntity reorderableEntity) onMovingFinished;
+  final ReorderableEntityCallback onMovingFinished;
 
   const ReorderableAnimatedPositioned({
     required this.child,

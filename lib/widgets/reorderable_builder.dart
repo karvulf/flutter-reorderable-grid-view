@@ -352,8 +352,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleCreatedChild(
-    GlobalKey key,
     ReorderableEntity reorderableEntity,
+    GlobalKey key,
   ) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
