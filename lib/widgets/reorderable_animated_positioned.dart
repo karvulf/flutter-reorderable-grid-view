@@ -2,11 +2,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
+/// Responsible for the animation when the [child] changes his position.
+///
+/// There are two types of animation when the position changes:
+/// - after a drag and drop
+/// - when the [child] was just moved to another position
+///
+/// The drag and drop animation is always showing a position that the [child]
+/// still hasn't.
+///
+/// When the [child] changes his position, then the animation is reversing the
+/// new position and animates the way to the new position.
 class ReorderableAnimatedPositioned extends StatefulWidget {
+  /// [child] that could have changed his position.
   final Widget child;
+
+  /// Contains all information to animate the new position.
   final ReorderableEntity reorderableEntity;
+
+  /// Indicator to know if the [child] changed his position while drag and drop.
   final bool isDragging;
 
+  /// Callback for the animation after moving the [child].
+  ///
+  /// Important: This callback is only fired when the [child] changed
+  /// his position. When position change was triggered while drag and drop,
+  /// then the callback won't be fired.
   final ReorderableEntityCallback onMovingFinished;
 
   const ReorderableAnimatedPositioned({
@@ -25,7 +46,10 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
 class _ReorderableAnimatedPositionedState
     extends State<ReorderableAnimatedPositioned>
     with SingleTickerProviderStateMixin {
+  /// This controller will be used for the animation when the position changes.
   late AnimationController _animationController;
+
+  /// Animation value for the position change.
   late Animation<Offset> _offsetAnimation;
 
   @override
@@ -33,6 +57,7 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
+      // Todo: duration zu den parametern hinzufügen
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
