@@ -72,8 +72,48 @@ class _ReorderableAnimatedPositionedState
   @override
   void didUpdateWidget(covariant ReorderableAnimatedPositioned oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldEntity = oldWidget.reorderableEntity;
-    final newEntity = widget.reorderableEntity;
+
+    _compareUpdatedReorderableEntity(
+      oldEntity: oldWidget.reorderableEntity,
+      newEntity: widget.reorderableEntity,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      transform: Matrix4.translationValues(
+        _offsetAnimation.value.dx,
+        _offsetAnimation.value.dy,
+        0.0,
+      ),
+      child: widget.child,
+    );
+  }
+
+  /// Compares values of [newEntity] and [oldEntity] to calculate animations for the position.
+  ///
+  /// There are some criteria before showing an animation:
+  /// - updatedOffset has to be different
+  /// - isBuildingOffset has to be different
+  /// - the key has to be different
+  ///
+  /// If the criteria is true, then there is a new animation in the position.
+  /// The animation approach is different if the position change was triggered
+  /// while dragging.
+  ///
+  /// If the animation change was not triggered while dragging, then the animation
+  /// depends on a position change (hasSwappedOrder) or just a new position.
+  void _compareUpdatedReorderableEntity({
+    required ReorderableEntity oldEntity,
+    required ReorderableEntity newEntity,
+  }) {
     if (oldEntity.updatedOffset != newEntity.updatedOffset ||
         oldEntity.isBuildingOffset != newEntity.isBuildingOffset ||
         oldEntity.key != newEntity.key) {
@@ -98,24 +138,9 @@ class _ReorderableAnimatedPositionedState
     }
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      transform: Matrix4.translationValues(
-        _offsetAnimation.value.dx,
-        _offsetAnimation.value.dy,
-        0.0,
-      ),
-      child: widget.child,
-    );
-  }
-
+  /// Updates [_offsetAnimation] for the position change.
+  ///
+  /// The new offset is still not rendered and will be shown like a preview.
   Future<void> _updateDragOffsetAnimation({
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
@@ -128,6 +153,10 @@ class _ReorderableAnimatedPositionedState
     await _animationController.forward();
   }
 
+  /// Calculates the old offset and animates from this position to the new one.
+  ///
+  /// The animation depends on the value isNew. Only updated children gets
+  /// an animation because a new child comes with a new position.
   void _updateOffsetAnimation() {
     final reorderableEntity = widget.reorderableEntity;
 
@@ -139,6 +168,10 @@ class _ReorderableAnimatedPositionedState
     _animateOffset(begin: offset);
   }
 
+  /// Helper function to start the animation with [begin].
+  ///
+  /// Important, this function is only added when [widget.child] updates his
+  /// position, not while dragging.
   Future<void> _animateOffset({required Offset begin}) async {
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
@@ -147,6 +180,7 @@ class _ReorderableAnimatedPositionedState
       });
     await _animationController.forward();
 
+    // there is no need to call the callback if the widget didn't change his position.
     if (begin != Offset.zero) {
       widget.onMovingFinished(widget.reorderableEntity);
     }
