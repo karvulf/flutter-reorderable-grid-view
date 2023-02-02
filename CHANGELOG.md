@@ -1,17 +1,6 @@
-## 4.0.0
-ℹ️ **Information**
-
-This is not the new big release! This will come with version `5.0.0`.
-  * the reason is the flutter upgrade `3.7.0` that was released a couple days ago
-  * to ensure that people who are still using a lower flutter are not updating this package automatically, I had to make this update with `4.0.0`
-  * so the big update will come with `5.0.0` hopefully in one or two months
-  * you could already test it as pre-release
-
-🐛 **Fixed error because of flutter upgrade `3.7.0`**
-* fixed an error that was thrown because of the flutter ugprade `3.7.0`
 
 
-## 4.0.0-dev.1
+## 5.0.0-dev.1
 ℹ️ℹ️ℹ️ℹ️
 * This is a prerelease and does not contain all functionalities that are tagged in GitHub for the release
   * the functionalities will be implemented if possible
@@ -29,8 +18,21 @@ This is not the new big release! This will come with version `5.0.0`.
     * drag and drop in combination with `lockedIndices` and `GridView.builder` can lead to wrong animations
     * Android: seems like it is possible that the drag and drop leads to wrong positioning of items when releasing the dragged item
     * `GridView.builder`: rotating the device leads to wrong behavior when using drag and drop
-  
+
 ℹ️ℹ️ℹ️ℹ️
+
+## 4.0.0
+ℹ️ **Information**
+
+This is not the new big release! This will come with version `5.0.0`.
+  * the reason is the flutter upgrade `3.7.0` that was released a couple days ago
+  * to ensure that people who are still using a lower flutter are not updating this package automatically, I had to make this update with `4.0.0`
+  * so the big update will come with `5.0.0` hopefully in one or two months
+  * you could already test it as pre-release
+
+🐛 **Fixed error because of flutter upgrade `3.7.0`**
+* fixed an error that was thrown because of the flutter ugprade `3.7.0`
+
 ## 3.1.3
 🐛 **Fixed some bugs**
 * fixed two null check errors (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41) and Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))
