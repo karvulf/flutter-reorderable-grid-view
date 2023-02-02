@@ -403,7 +403,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   ///
   /// Otherwise, 0.0 will be returned.
   double get _scrollPixels {
-    var pixels = Scrollable.of(context)?.position.pixels;
+    var pixels = Scrollable.maybeOf(context)?.position.pixels;
     final scrollController = widget.scrollController;
 
     if (pixels != null) {

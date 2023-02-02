@@ -1,3 +1,16 @@
+## 4.0.0
+ℹ️ **Information**
+
+This is not the new big release! This will come with version `5.0.0`.
+  * the reason is the flutter upgrade `3.7.0` that was released a couple days ago
+  * to ensure that people who are still using a lower flutter are not updating this package automatically, I had to make this update with `4.0.0`
+  * so the big update will come with `5.0.0` hopefully in one or two months
+  * you could already test it as pre-release
+
+🐛 **Fixed error because of flutter upgrade `3.7.0`**
+* fixed an error that was thrown because of the flutter ugprade `3.7.0`
+
+
 ## 4.0.0-dev.1
 ℹ️ℹ️ℹ️ℹ️
 * This is a prerelease and does not contain all functionalities that are tagged in GitHub for the release
