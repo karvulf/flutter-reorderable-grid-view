@@ -192,7 +192,8 @@ class _ReorderableScrollingListenerState
             reorderableChildRenderBox.localToGlobal(Offset.zero);
 
         // a scrollable widget is outside when there was found one, probably not the best solution to detect that
-        _isScrollableOutside = Scrollable.maybeOf(context)?.position.pixels != null;
+        _isScrollableOutside =
+            Scrollable.maybeOf(context)?.position.pixels != null;
 
         if (_isScrollableOutside) {
           reorderableChildOffset = Offset(
