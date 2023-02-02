@@ -1,3 +1,16 @@
+## 4.0.0
+ℹ️ **Information**
+
+This is not the new big release! This will come with version `5.0.0`.
+  * the reason is the flutter upgrade `3.7.0` that was released a couple days ago
+  * to ensure that people who are still using a lower flutter are not updating this package automatically, I had to make this update with `4.0.0`
+  * so the big update will come with `5.0.0` hopefully in one or two months
+  * you could already test it as pre-release
+
+🐛 **Fixed error because of flutter upgrade `3.7.0`**
+* fixed an error that was thrown because of the flutter ugprade `3.7.0`
+
+
 ## 3.1.3
 🐛 **Fixed some bugs**
 * fixed two null check errors (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41) and Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))
