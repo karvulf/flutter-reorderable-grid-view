@@ -41,7 +41,7 @@ This is not the new big release! This will come with version `5.0.0`.
   * this should also fix the callback `onReorder` where an index of an item is returned that should not exist
 
 ℹ️ **Information**
-* added Roadmap for release `4.0.0`
+* added Roadmap for release `5.0.0`
 
 ## 3.1.2
 🐛 **Fixed small bug**
