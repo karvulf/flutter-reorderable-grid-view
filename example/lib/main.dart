@@ -22,7 +22,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
+  static const _startCounter = 5;
   final lockedIndices = <int>[1, 5, 9];
 
   int keyCounter = _startCounter;
@@ -108,29 +108,6 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
-  }
-
-  void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
-    for (final reorder in onReorderList) {
-      final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);
-      /*
-      // Todo: Optimierung läuft noch auf Fehler, wenn lockedIndices dazwischen und vermutlich von rechts nach links drag and droppen
-      final oldIndex = reorder.oldIndex;
-      final newIndex = reorder.newIndex;
-      final start = oldIndex > newIndex ? newIndex : oldIndex;
-      final end = oldIndex > newIndex ? oldIndex : newIndex;
-      final sublist = children.sublist(start, end + 1);
-      final child = sublist.removeAt(0);
-      sublist.insert(sublist.length, child);
-      children.replaceRange(start, end, sublist);*/
-    }
-    setState(() {});
-  }
-
-  List<Object> shift({required List<Object> list, required int v}) {
-    var i = v % list.length;
-    return list.sublist(i)..addAll(list.sublist(0, i));
   }
 
   Widget _getReorderableWidget() {
@@ -262,6 +239,21 @@ class _MyAppState extends State<MyApp> {
       duration: Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
+    for (final reorder in onReorderList) {
+      /*final child = children.removeAt(reorder.oldIndex);
+      children.insert(reorder.newIndex, child);*/
+
+      final start = reorder.oldIndex;
+      final end = reorder.newIndex;
+      final sublist = children.sublist(start, end + 1);
+      final child = sublist.removeAt(0);
+      sublist.insert(sublist.length, child);
+      children.replaceRange(start, end + 1, sublist);
+    }
+    setState(() {});
   }
 
   void _handleDragEnd() {
