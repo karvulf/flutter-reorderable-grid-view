@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -22,7 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 5;
+  static const _startCounter = 100000;
   final lockedIndices = <int>[1, 3, 9];
 
   int keyCounter = _startCounter;
@@ -72,9 +71,11 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  _handleReorder([
-                    const ReorderUpdateEntity(oldIndex: 0, newIndex: 1),
-                  ]);
+                  final child1 = children[0];
+                  final child2 = children[1];
+                  children[0] = child2;
+                  children[1] = child1;
+                  setState(() {});
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -241,24 +242,10 @@ class _MyAppState extends State<MyApp> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
-    for (final reorder in onReorderList) {
-      /*final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);*/
-
-      final hasChangedOrderLeftToRight = reorder.oldIndex < reorder.newIndex;
-      final start =
-          hasChangedOrderLeftToRight ? reorder.oldIndex : reorder.newIndex;
-      final end =
-          hasChangedOrderLeftToRight ? reorder.newIndex : reorder.oldIndex;
-      final sublist = children.sublist(start, end + 1);
-      final child = hasChangedOrderLeftToRight
-          ? sublist.removeAt(0)
-          : sublist.removeLast();
-      sublist.insert(hasChangedOrderLeftToRight ? sublist.length : 0, child);
-      children.replaceRange(start, end + 1, sublist);
-    }
-    setState(() {});
+  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+    setState(() {
+      children = reorderedListFunction(children) as List<int>;
+    });
   }
 
   void _handleDragEnd() {
