@@ -4,12 +4,22 @@ import 'package:flutter/cupertino.dart';
 
 /// Uses [Listener] to indicate position updates while dragging a child and enables an autoscroll functionality.
 class ReorderableScrollingListener extends StatefulWidget {
+  /// [child] added to build method.
   final Widget child;
+
+  /// Indicator if the user is using drag and drop.
   final bool isDragging;
+
+  /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
   final double automaticScrollExtent;
+
+  /// Enables the functionality to scroll while dragging a child to the top or bottom.
   final bool enableScrollingWhileDragging;
 
+  /// Callback when the offset of the tapped area is changing.
   final PointerMoveEventListener onDragUpdate;
+
+  /// Called after releasing the dragged child.
   final VoidCallback onDragEnd;
 
   /// Called when the current scrolling position changes.
@@ -41,7 +51,7 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
-  /// If true, ta widget outside of [ReorderableBuilder] is scrollable and not the widget inside ([GridView])
+  /// If true, the widget outside of [ReorderableBuilder] is scrollable and not the widget inside ([GridView])
   bool _isScrollableOutside = false;
 
   /// Describes current scroll position in pixels.

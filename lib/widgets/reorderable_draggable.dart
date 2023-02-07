@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-
-typedef OnCreatedFunction = void Function(
-  ReorderableEntity reorderableEntity,
-  GlobalKey key,
-);
-
-typedef OnDragUpdateFunction = Function(
-  DragUpdateDetails details,
-);
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 /// Enables drag and drop behaviour for [child].
 ///
@@ -28,9 +20,8 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableDraggable;
   final BoxDecoration? dragChildBoxDecoration;
 
-  final void Function(ReorderableEntity reorderableEntity) onDragStarted;
-  final void Function(ReleasedReorderableEntity releasedReorderableEntity)
-      onDragEnd;
+  final ReorderableEntityCallback onDragStarted;
+  final ReleasedReorderableEntityCallback onDragEnd;
 
   final ReorderableEntity? currentDraggedEntity;
 

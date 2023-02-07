@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -22,8 +21,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
-  final lockedIndices = <int>[1, 5, 9];
+  static const _startCounter = 100000;
+  final lockedIndices = <int>[1, 3, 9];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -72,9 +71,11 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  _handleReorder([
-                    const ReorderUpdateEntity(oldIndex: 0, newIndex: 1),
-                  ]);
+                  final child1 = children[0];
+                  final child2 = children[1];
+                  children[0] = child2;
+                  children[1] = child1;
+                  setState(() {});
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -108,29 +109,6 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
-  }
-
-  void _handleReorder(List<ReorderUpdateEntity> onReorderList) {
-    for (final reorder in onReorderList) {
-      final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);
-      /*
-      // Todo: Optimierung läuft noch auf Fehler, wenn lockedIndices dazwischen und vermutlich von rechts nach links drag and droppen
-      final oldIndex = reorder.oldIndex;
-      final newIndex = reorder.newIndex;
-      final start = oldIndex > newIndex ? newIndex : oldIndex;
-      final end = oldIndex > newIndex ? oldIndex : newIndex;
-      final sublist = children.sublist(start, end + 1);
-      final child = sublist.removeAt(0);
-      sublist.insert(sublist.length, child);
-      children.replaceRange(start, end, sublist);*/
-    }
-    setState(() {});
-  }
-
-  List<Object> shift({required List<Object> list, required int v}) {
-    var i = v % list.length;
-    return list.sublist(i)..addAll(list.sublist(0, i));
   }
 
   Widget _getReorderableWidget() {
@@ -262,6 +240,12 @@ class _MyAppState extends State<MyApp> {
       duration: Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+    setState(() {
+      children = reorderedListFunction(children) as List<int>;
+    });
   }
 
   void _handleDragEnd() {

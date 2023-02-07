@@ -344,6 +344,37 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     return orderUpdateEntities;
   }
+
+  /// Reorders list of [items] that depends on [reorderUpdateEntities].
+  ///
+  /// This function optimizes the reordering process of [items].
+  /// This is very helpful when having big lists. The function only orders
+  /// the items sublist that is affected of the reordered items.
+  ///
+  /// E. g. if you have the list = [0, 1, 2, 3, 4] and changes the position
+  /// between "2" and "3", then it is more performant when only updating the
+  /// items on position 2 and 3 by creating a sublist containing [2, 3] and
+  /// changing them to [3, 2] and inserting this sublist afterwards to the list
+  /// and getting [0, 1, 3, 2, 4].
+  List reorderList({
+    required List items,
+    required List<ReorderUpdateEntity> reorderUpdateEntities,
+  }) {
+    final updatedItems = items.toList();
+
+    for (final reorder in reorderUpdateEntities) {
+      final reorderLeftToRight = reorder.oldIndex < reorder.newIndex;
+      final start = reorderLeftToRight ? reorder.oldIndex : reorder.newIndex;
+      final end = reorderLeftToRight ? reorder.newIndex : reorder.oldIndex;
+      final sublist = updatedItems.sublist(start, end + 1);
+      final child =
+          reorderLeftToRight ? sublist.removeAt(0) : sublist.removeLast();
+      sublist.insert(reorderLeftToRight ? sublist.length : 0, child);
+      updatedItems.replaceRange(start, end + 1, sublist);
+    }
+
+    return updatedItems;
+  }
 }
 
 /**

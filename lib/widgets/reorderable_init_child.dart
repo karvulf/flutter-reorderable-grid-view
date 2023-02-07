@@ -1,10 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-
-typedef OnCreatedFunction = void Function(
-  GlobalKey key,
-  ReorderableEntity reorderableEntity,
-);
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 class ReorderableInitChild extends StatefulWidget {
   final Widget child;
@@ -31,7 +27,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onCreated(_globalKey, widget.reorderableEntity);
+      widget.onCreated(widget.reorderableEntity, _globalKey);
     });
   }
 
@@ -45,7 +41,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
         newEntity.isBuildingOffset) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        widget.onCreated(_globalKey, widget.reorderableEntity);
+        widget.onCreated(widget.reorderableEntity, _globalKey);
       });
     }
   }
