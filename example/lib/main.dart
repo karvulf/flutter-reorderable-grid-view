@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 5;
-  final lockedIndices = <int>[1, 5, 9];
+  final lockedIndices = <int>[1, 3, 9];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
@@ -246,11 +246,16 @@ class _MyAppState extends State<MyApp> {
       /*final child = children.removeAt(reorder.oldIndex);
       children.insert(reorder.newIndex, child);*/
 
-      final start = reorder.oldIndex;
-      final end = reorder.newIndex;
+      final hasChangedOrderLeftToRight = reorder.oldIndex < reorder.newIndex;
+      final start =
+          hasChangedOrderLeftToRight ? reorder.oldIndex : reorder.newIndex;
+      final end =
+          hasChangedOrderLeftToRight ? reorder.newIndex : reorder.oldIndex;
       final sublist = children.sublist(start, end + 1);
-      final child = sublist.removeAt(0);
-      sublist.insert(sublist.length, child);
+      final child = hasChangedOrderLeftToRight
+          ? sublist.removeAt(0)
+          : sublist.removeLast();
+      sublist.insert(hasChangedOrderLeftToRight ? sublist.length : 0, child);
       children.replaceRange(start, end + 1, sublist);
     }
     setState(() {});
