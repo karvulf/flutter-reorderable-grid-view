@@ -1,4 +1,14 @@
 
+## 5.0.0-dev.2
+* 🐛 This release contains some bugfixes
+  * drag and drop combined with `lockedIndices` and `GridView.builder` should work now
+* ⭐️ Optimized reordering items
+  * the callback `onReorder` is offering a function as parameter after reordering items
+  * the reason for that change is a performance issue, especially having big lists
+  * to ensure that everyone is using the same reordering process, I moved the logic to the package inside a function
+* 🧑‍💻
+  * refactored some code and added comments to some parts
+
 
 ## 5.0.0-dev.1
 ℹ️ℹ️ℹ️ℹ️
