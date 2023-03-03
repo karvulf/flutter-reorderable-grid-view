@@ -13,18 +13,18 @@ class ReorderableDragAndDropController extends ReorderableController {
 
   /// Holding this value for better performance.
   ///
-  /// After dragging a child, [_scrollPositionPixels] is always updated.
-  double _scrollPositionPixels = 0.0;
+  /// After dragging a child, [_scrollOffset] is always updated.
+  Offset _scrollOffset =Offset.zero;
 
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
-    required double currentScrollPixels,
+    required Offset currentScrollOffset,
     required List<int> lockedIndices,
   }) {
     _releasedReorderableEntity = null;
     _lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
-    _scrollPositionPixels = currentScrollPixels;
+    _scrollOffset = currentScrollOffset;
   }
 
   bool handleDragUpdate({
@@ -36,8 +36,8 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     final position = pointerMoveEvent.position;
     var draggedOffset = Offset(
-      position.dx,
-      position.dy + _scrollPositionPixels,
+      position.dx + _scrollOffset.dx,
+      position.dy + _scrollOffset.dy,
     );
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(
@@ -80,8 +80,8 @@ class ReorderableDragAndDropController extends ReorderableController {
     return false;
   }
 
-  void handleScrollUpdate({required double scrollPixels}) {
-    _scrollPositionPixels = scrollPixels;
+  void handleScrollUpdate({required Offset scrollOffset}) {
+    _scrollOffset = scrollOffset;
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {

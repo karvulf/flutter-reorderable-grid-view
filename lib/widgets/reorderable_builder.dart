@@ -218,6 +218,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       onDragUpdate: _handleDragUpdate,
       onDragEnd: _handleDragEnd,
       onScrollUpdate: _handleScrollUpdate,
+      getScrollOffset: _getScrollOffset,
       child: child,
     );
   }
@@ -278,7 +279,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           child: ReorderableAnimatedReleasedContainer(
             releasedReorderableEntity:
                 _reorderableController.releasedReorderableEntity,
-            scrollPixels: _scrollPixels,
+            scrollOffset: _getScrollOffset(),
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
               reorderableEntity: reorderableEntity,
@@ -306,7 +307,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     _reorderableController.handleDragStarted(
       reorderableEntity: reorderableEntity,
-      currentScrollPixels: _scrollPixels,
+      currentScrollOffset: _getScrollOffset(),
       lockedIndices: widget.lockedIndices,
     );
     setState(() {});
@@ -320,9 +321,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (hasUpdated) setState(() {});
   }
 
-  void _handleScrollUpdate(double scrollPixels) {
+  void _handleScrollUpdate(Offset scrollOffset) {
     _reorderableController.handleScrollUpdate(
-      scrollPixels: scrollPixels,
+      scrollOffset: scrollOffset,
     );
   }
 
@@ -370,11 +371,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     if (renderObject != null && offsetMap[index] == null) {
       final renderBox = renderObject as RenderBox;
-      final localOffset = renderBox.localToGlobal(Offset.zero);
-      offset = Offset(
-        localOffset.dx,
-        localOffset.dy + _scrollPixels,
-      );
+      offset = renderBox.localToGlobal(Offset.zero) + _getScrollOffset();
       size = renderBox.size;
     }
 
@@ -406,17 +403,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// In that case, the position of the scroll is accessible inside [context].
   ///
   /// Otherwise, 0.0 will be returned.
-  double get _scrollPixels {
-    var pixels = Scrollable.maybeOf(context)?.position.pixels;
+  Offset _getScrollOffset() {
+    var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
 
-    if (pixels != null) {
-      return pixels;
-    } else if (scrollController != null && scrollController.hasClients) {
-      return scrollController.position.pixels;
-    } else {
-      return 0.0;
+    if (scrollPosition == null &&
+        scrollController != null &&
+        scrollController.hasClients) {
+      scrollPosition = scrollController.position;
     }
+
+    if (scrollPosition != null) {
+      final pixels = scrollPosition.pixels;
+      final isScrollingVertical = scrollPosition.axis == Axis.vertical;
+      return Offset(
+        isScrollingVertical ? 0.0 : pixels,
+        isScrollingVertical ? pixels : 0.0,
+      );
+    }
+
+    return Offset.zero;
   }
 }
 

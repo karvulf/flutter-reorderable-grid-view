@@ -21,12 +21,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 100000;
-  final lockedIndices = <int>[1, 3, 9];
+  static const _startCounter = 33;
+  final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+  ReorderableType reorderableType = ReorderableType.gridViewCount;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -145,12 +145,18 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           scrollController: _scrollController,
+          initDelay: const Duration(milliseconds: 1500),
+          enableLongPress: true,
           builder: (children) {
             return GridView.count(
               key: _gridViewKey,
               controller: _scrollController,
-              children: children,
+              scrollDirection: Axis.horizontal,
               crossAxisCount: 3,
+              shrinkWrap: true,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              children: children,
             );
           },
         );
