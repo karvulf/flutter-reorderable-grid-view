@@ -13,10 +13,14 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Called when the fade in animation was finished.
   final ReorderableEntityCallback onOpacityFinished;
 
+  /// Duration for the fade in animation when [child] appears for the first time.
+  final Duration fadeInDuration;
+
   const ReorderableAnimatedOpacity({
     required this.reorderableEntity,
     required this.child,
     required this.onOpacityFinished,
+    required this.fadeInDuration,
     Key? key,
   }) : super(key: key);
 
@@ -53,20 +57,28 @@ class _ReorderableAnimatedOpacityState
     return AnimatedOpacity(
       opacity: _opacity,
       duration: _duration,
-      onEnd: () {
-        if (widget.reorderableEntity.isNew) {
-          widget.onOpacityFinished(widget.reorderableEntity);
-        }
-      },
+      onEnd: _handleAnimationFinished,
       child: widget.child,
     );
+  }
+
+  void _handleAnimationFinished() {
+    if (widget.reorderableEntity.isNew) {
+      // post frame delay is needed to ensure the widget was built
+      if (widget.fadeInDuration == Duration.zero) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onOpacityFinished(widget.reorderableEntity);
+        });
+      } else {
+        widget.onOpacityFinished(widget.reorderableEntity);
+      }
+    }
   }
 
   /// [Duration] used for the opacity animation.
   Duration get _duration {
     if (widget.reorderableEntity.isNew) {
-      // Todo: Add duration as parameter for ReorderableBuilder
-      return const Duration(milliseconds: 500);
+      return widget.fadeInDuration;
     } else {
       return Duration.zero;
     }

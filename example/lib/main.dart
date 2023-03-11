@@ -145,7 +145,7 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           scrollController: _scrollController,
-          initDelay: const Duration(milliseconds: 1500),
+          fadeInDuration: Duration.zero,
           enableLongPress: true,
           builder: (children) {
             return GridView.count(
