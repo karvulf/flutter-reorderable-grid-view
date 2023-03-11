@@ -157,7 +157,6 @@ class _ReorderableScrollingListenerState
         childOffset.dx + childSize.width - allowedRange,
         childOffset.dy + childSize.height - allowedRange,
       );
-      print('maxOffset $maxOffset');
 
       // minDy can be different when having the scrollable outside ReorderableBuilder
       // at the beginning the childOffset dy would be the correct minDy
