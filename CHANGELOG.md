@@ -1,3 +1,12 @@
+## 5.0.0-dev.3
+⭐️ **New features**
+* added support for horizontal direction (Issue [#53](https://github.com/karvulf/flutter-reorderable-grid-view/issues/53))
+  * with this, you can use your `GridView` in both directions
+  * currently there might be still small bugs
+* added parameter `fadeInDuration` (Issue [#68](https://github.com/karvulf/flutter-reorderable-grid-view/issues/68))
+  * default value is `const Duration(milliseconds: 500)`
+  * this parameter is responsible for the animation when a new child appears and describes the duration of the animation
+* parameter `initDelay` is working again
 
 ## 5.0.0-dev.2
 * 🐛 This release contains some bugfixes
