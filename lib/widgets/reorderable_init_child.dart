@@ -8,10 +8,13 @@ class ReorderableInitChild extends StatefulWidget {
 
   final OnCreatedFunction onCreated;
 
+  final Duration? initDelay;
+
   const ReorderableInitChild({
     required this.child,
     required this.reorderableEntity,
     required this.onCreated,
+    this.initDelay,
     Key? key,
   }) : super(key: key);
 
@@ -26,9 +29,17 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onCreated(widget.reorderableEntity, _globalKey);
-    });
+    final initDelay = widget.initDelay;
+
+    if (initDelay != null) {
+      Future.delayed(initDelay).then((value) {
+        widget.onCreated(widget.reorderableEntity, _globalKey);
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        widget.onCreated(widget.reorderableEntity, _globalKey);
+      });
+    }
   }
 
   @override

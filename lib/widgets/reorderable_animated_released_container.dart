@@ -14,8 +14,8 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   /// Related to [child] and required for animation purposes.
   final ReorderableEntity reorderableEntity;
 
-  /// Current scrolling value. (Currently only support to y-direction).
-  final double scrollPixels;
+  /// Current scrolling offset for vertical and horizontal scrolling.
+  final Offset scrollOffset;
 
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
@@ -26,7 +26,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   const ReorderableAnimatedReleasedContainer({
     required this.child,
     required this.reorderableEntity,
-    required this.scrollPixels,
+    required this.scrollOffset,
     required this.releasedReorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -136,6 +136,6 @@ class _ReorderableAnimatedReleasedContainerState
   }) {
     return releasedReorderableEntity.dropOffset -
         widget.reorderableEntity.updatedOffset +
-        Offset(0.0, widget.scrollPixels);
+        widget.scrollOffset;
   }
 }
