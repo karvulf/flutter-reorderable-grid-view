@@ -239,7 +239,7 @@ class _MyAppState extends State<MyApp> {
     ScaffoldMessenger.of(context).clearSnackBars();
     final snackBar = SnackBar(
       content: Text('Dragging at index $index has started!'),
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -254,7 +254,7 @@ class _MyAppState extends State<MyApp> {
     ScaffoldMessenger.of(context).clearSnackBars();
     final snackBar = SnackBar(
       content: Text('Dragging was finished at $index!'),
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
