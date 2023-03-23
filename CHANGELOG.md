@@ -1,3 +1,14 @@
+## 5.0.0-dev.4
+⭐️ **New features**
+* updated two functions
+  * `onDragStarted`
+    * added `index` to parameter
+    * `index` is the index where the drag started
+  * `onDragEnd`
+    * added `index` to parameter
+    * `index` is the index where the drag ended
+
+
 ## 5.0.0-dev.3
 ⭐️ **New features**
 * added support for horizontal direction (Issue [#53](https://github.com/karvulf/flutter-reorderable-grid-view/issues/53))

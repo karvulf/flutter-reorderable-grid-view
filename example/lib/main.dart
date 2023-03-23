@@ -26,7 +26,7 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewCount;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -186,12 +186,8 @@ class _MyAppState extends State<MyApp> {
           key: Key(_gridViewKey.toString()),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          onDragStarted: () {
-            const snackBar = SnackBar(
-              content: Text('Dragging has started!'),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          },
+          onDragStarted: _handleDragStarted,
+          onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           childBuilder: (itemBuilder) {
             return GridView.builder(
@@ -239,10 +235,10 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleDragStarted() {
+  void _handleDragStarted(int index) {
     ScaffoldMessenger.of(context).clearSnackBars();
-    const snackBar = SnackBar(
-      content: Text('Dragging has started!'),
+    final snackBar = SnackBar(
+      content: Text('Dragging at index $index has started!'),
       duration: Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -254,10 +250,10 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _handleDragEnd() {
+  void _handleDragEnd(int index) {
     ScaffoldMessenger.of(context).clearSnackBars();
-    const snackBar = SnackBar(
-      content: Text('Dragging was finished!'),
+    final snackBar = SnackBar(
+      content: Text('Dragging was finished at $index!'),
       duration: Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

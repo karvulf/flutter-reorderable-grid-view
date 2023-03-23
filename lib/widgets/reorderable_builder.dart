@@ -91,14 +91,18 @@ class ReorderableBuilder extends StatefulWidget {
   /// Not recommended to use.
   final Duration? initDelay;
 
-  /// Callback when dragging starts.
+  /// Callback when dragging starts with the index where it started.
   ///
   /// Prevent updating your children while you are dragging because this can lead
   /// to an unexpected behavior.
-  final VoidCallback? onDragStarted;
+  /// [index] is the position of the child where the dragging started.
+  final void Function(int index)? onDragStarted;
 
-  /// Callback when the dragged child was released.
-  final VoidCallback? onDragEnd;
+  /// Callback when the dragged child was released with the index.
+  ///
+  /// [index] is the position of the child where the dragging ended.
+  /// Important: This is called before [onReorder].
+  final void Function(int index)? onDragEnd;
 
   /// [ScrollController] to get the current scroll position. Important for calculations!
   ///
@@ -318,6 +322,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       currentScrollOffset: _getScrollOffset(),
       lockedIndices: widget.lockedIndices,
     );
+    widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
+
     setState(() {});
   }
 
@@ -336,6 +342,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleDragEnd() {
+    final draggedEntity = _reorderableController.draggedEntity;
+    widget.onDragEnd?.call(draggedEntity!.updatedOrderId);
+
     final reorderUpdateEntities = _reorderableController.handleDragEnd();
 
     if (reorderUpdateEntities != null) {
