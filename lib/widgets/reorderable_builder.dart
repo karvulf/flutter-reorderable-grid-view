@@ -168,7 +168,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void initState() {
     super.initState();
-    _ambiguate(WidgetsBinding.instance)!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     reorderableBuilderController = ReorderableBuilderController();
     reorderableItemBuilderController = ReorderableItemBuilderController();
@@ -192,9 +192,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
-    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final orientationAfter = MediaQuery.of(context).orientation;
+
       if (orientationBefore != orientationAfter) {
         // Todo: Dieser Aufruf geschieht gleich 3 Mal!
         _reorderableController.handleDeviceOrientationChanged();
@@ -205,7 +206,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   @override
   void dispose() {
-    _ambiguate(WidgetsBinding.instance)!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -442,11 +443,3 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return Offset.zero;
   }
 }
-
-/// This allows a value of type T or T?
-/// to be treated as a value of type T?.
-///
-/// We use this so that APIs that have become
-/// non-nullable can still be used with `!` and `?`
-/// to support older versions of the API as well.
-T? _ambiguate<T>(T? value) => value;

@@ -193,7 +193,10 @@ class _ReorderableScrollingListenerState
               bigger: _scrollOffset,
               smaller: Offset.zero,
               scrollDirection: scrollDirection)) {
-        _scrollOffset -= const Offset(variance, variance);
+        _scrollOffset = _updateScrollOffset(
+          variance: -variance,
+          scrollDirection: scrollDirection,
+        );
         _scrollTo(scrollOffset: _scrollOffset);
       } else if (_compareOffsets(
               bigger: dragPosition,
@@ -203,7 +206,10 @@ class _ReorderableScrollingListenerState
               bigger: Offset(maxScrollExtent, maxScrollExtent),
               smaller: _scrollOffset,
               scrollDirection: scrollDirection)) {
-        _scrollOffset += const Offset(variance, variance);
+        _scrollOffset = _updateScrollOffset(
+          variance: variance,
+          scrollDirection: scrollDirection,
+        );
         _scrollTo(scrollOffset: _scrollOffset);
       }
     }
@@ -216,7 +222,6 @@ class _ReorderableScrollingListenerState
     if (scrollController != null && scrollController.hasClients) {
       final value = scrollOffset.dx > 0 ? scrollOffset.dx : scrollOffset.dy;
       scrollController.jumpTo(value);
-
       widget.onScrollUpdate(scrollOffset);
     }
   }
@@ -272,6 +277,21 @@ class _ReorderableScrollingListenerState
         _childOffset = reorderableChildOffset;
       }
     });
+  }
+
+  Offset _updateScrollOffset({
+    required double variance,
+    required Axis scrollDirection,
+  }) {
+    late final Offset updatedOffset;
+
+    if (scrollDirection == Axis.horizontal) {
+      updatedOffset = _scrollOffset + Offset(variance, 0.0);
+    } else {
+      updatedOffset = _scrollOffset + Offset(0.0, variance);
+    }
+
+    return updatedOffset;
   }
 
   bool _compareOffsets({
