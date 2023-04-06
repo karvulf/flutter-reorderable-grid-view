@@ -214,7 +214,7 @@ class _MyAppState extends State<MyApp> {
   List<Widget> _getGeneratedChildren() {
     return List<Widget>.generate(
       children.length,
-          (index) => _getChild(index: index),
+      (index) => _getChild(index: index),
     );
   }
 
