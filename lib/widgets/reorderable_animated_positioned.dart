@@ -117,7 +117,8 @@ class _ReorderableAnimatedPositionedState
     if (oldEntity.updatedOffset != newEntity.updatedOffset ||
         oldEntity.isBuildingOffset != newEntity.isBuildingOffset ||
         oldEntity.key != newEntity.key) {
-      if (widget.isDragging) {
+      // if it is new, this can lead to a wrong position
+      if (widget.isDragging && !widget.reorderableEntity.isNew) {
         final currentAnimationValue = _offsetAnimation.value;
         _animationController.reset();
         _updateDragOffsetAnimation(
