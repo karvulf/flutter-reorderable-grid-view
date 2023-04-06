@@ -2,12 +2,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
+/// Widget that calls [onCreated] if [reorderableEntity] is new.
+///
+/// When the flag "isBuildingOffset" is true, then it means the [child] is new
+/// and is currently building. In that time, the visibility of this widget is
+/// false to ensure that the positioning can start at the correct position
+/// when the [child] was built.
 class ReorderableInitChild extends StatefulWidget {
+  /// Returns this child with [Visibility] wrapped.
   final Widget child;
+
+  /// Used to obtain more info about the [child].
   final ReorderableEntity reorderableEntity;
 
+  /// Called when "buildingOffset" of [reorderableEntity] is true and the child was built.
   final OnCreatedFunction onCreated;
 
+  /// Calls [onCreated] after this delay.
+  ///
+  /// Warning: You should prevent using this. Sometimes there are "heavy" widgets
+  /// e. g. widgets with images that needs more time to be loaded. In these
+  /// cases [initDelay] can be useful to ensure that the drag and drop works
+  /// correctly with correct calculated positions.
   final Duration? initDelay;
 
   const ReorderableInitChild({
@@ -23,6 +39,7 @@ class ReorderableInitChild extends StatefulWidget {
 }
 
 class _ReorderableInitChildState extends State<ReorderableInitChild> {
+  /// Key for Visibility wrapped with [widget.child].
   final _globalKey = GlobalKey();
 
   @override
@@ -69,6 +86,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     );
   }
 
+  /// Returns true if "isBuildingOffset" of [widget.reorderableEntity] is false.
   bool get visible {
     final reorderableEntity = widget.reorderableEntity;
     return !reorderableEntity.isBuildingOffset;
