@@ -279,6 +279,7 @@ class _ReorderableScrollingListenerState
     });
   }
 
+  /// Depending on [scrollDirection], [_scrollOffset] will be updated in x- or y-direction.
   Offset _updateScrollOffset({
     required double variance,
     required Axis scrollDirection,

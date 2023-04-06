@@ -35,7 +35,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     if (draggedKey == null) return false;
 
     final position = pointerMoveEvent.position;
-    print('_scrollOffset $_scrollOffset');
     var draggedOffset = Offset(
       position.dx + _scrollOffset.dx,
       position.dy + _scrollOffset.dy,
