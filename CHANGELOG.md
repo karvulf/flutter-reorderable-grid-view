@@ -1,3 +1,8 @@
+## 5.0.0-dev.5
+🐛 This release contains some bugfixes
+* fixed drag and drop after using functionality "scrolling while dragging" (thanks to [tsquillario](https://github.com/tsquillario) for pointing out that issue)
+* fixed disappeared children after using functionality "scrolling while dragging"
+
 ## 5.0.0-dev.4
 ⭐️ **New features**
 * updated two functions

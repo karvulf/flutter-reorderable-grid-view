@@ -14,7 +14,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// Holding this value for better performance.
   ///
   /// After dragging a child, [_scrollOffset] is always updated.
-  Offset _scrollOffset =Offset.zero;
+  Offset _scrollOffset = Offset.zero;
 
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
