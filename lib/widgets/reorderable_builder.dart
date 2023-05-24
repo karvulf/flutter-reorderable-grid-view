@@ -228,7 +228,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       automaticScrollExtent: widget.automaticScrollExtent,
       enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
       onDragUpdate: _handleDragUpdate,
-      onDragEnd: _handleDragEnd,
       onScrollUpdate: _handleScrollUpdate,
       getScrollOffset: _getScrollOffset,
       child: child,
@@ -303,10 +302,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
               onDragEnd: (releasedReorderableEntity) {
+                // call to ensure animation to dropped item
                 _reorderableController.updateReleasedReorderableEntity(
                   releasedReorderableEntity: releasedReorderableEntity,
                 );
                 setState(() {});
+                _handleDragEnd();
               },
               child: child,
             ),
@@ -333,7 +334,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       pointerMoveEvent: pointerMoveEvent,
       lockedIndices: widget.lockedIndices,
     );
-    if (hasUpdated) setState(() {});
+    if (hasUpdated) {
+      // this fixes the issue when the user scrolls while dragging to get the updated scroll value
+      _reorderableController.scrollOffset = _getScrollOffset();
+      setState(() {});
+    }
   }
 
   void _handleScrollUpdate(Offset scrollOffset) {
@@ -344,7 +349,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   void _handleDragEnd() {
     final draggedEntity = _reorderableController.draggedEntity;
-    widget.onDragEnd?.call(draggedEntity!.updatedOrderId);
+    if (draggedEntity == null) return;
+
+    widget.onDragEnd?.call(draggedEntity.updatedOrderId);
 
     final reorderUpdateEntities = _reorderableController.handleDragEnd();
 
@@ -354,6 +361,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             reorderUpdateEntities: reorderUpdateEntities,
           ));
     }
+
     // important to update the dragged entity which should be null at this point
     setState(() {});
   }

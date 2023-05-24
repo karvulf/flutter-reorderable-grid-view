@@ -1,3 +1,8 @@
+## 5.0.0-dev.6
+🐛 This release contains some bugfixes (optimization)
+* while dragging there were issues when the user scrolled with another finger
+  * the dragged item was dropped if when it shouldn't
+
 ## 5.0.0-dev.5
 🐛 This release contains some bugfixes
 * fixed drag and drop after using functionality "scrolling while dragging" (thanks to [tsquillario](https://github.com/tsquillario) for pointing out that issue)

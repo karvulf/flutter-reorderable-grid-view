@@ -23,9 +23,6 @@ class ReorderableScrollingListener extends StatefulWidget {
   /// Callback when the offset of the tapped area is changing.
   final PointerMoveEventListener onDragUpdate;
 
-  /// Called after releasing the dragged child.
-  final VoidCallback onDragEnd;
-
   /// Called when the current scrolling position changes.
   final void Function(Offset scrollOffset) onScrollUpdate;
 
@@ -43,7 +40,6 @@ class ReorderableScrollingListener extends StatefulWidget {
     required this.enableScrollingWhileDragging,
     required this.automaticScrollExtent,
     required this.onDragUpdate,
-    required this.onDragEnd,
     required this.onScrollUpdate,
     required this.getScrollOffset,
     required this.reorderableChildKey,
@@ -92,11 +88,6 @@ class _ReorderableScrollingListenerState
       onPointerMove: (details) {
         if (widget.isDragging) {
           _handleDragUpdate(details);
-        }
-      },
-      onPointerUp: (details) {
-        if (widget.isDragging) {
-          widget.onDragEnd();
         }
       },
       child: widget.child,

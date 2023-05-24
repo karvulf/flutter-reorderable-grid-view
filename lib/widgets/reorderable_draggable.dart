@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
+import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 
 /// Enables drag and drop behaviour for [child].
 ///
@@ -89,20 +90,13 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   Widget build(BuildContext context) {
     final reorderableEntity = widget.reorderableEntity;
     var child = widget.child;
-    final size = reorderableEntity.size;
-    final feedback = Material(
-      color: Colors.transparent, // removes white corners when having shadow
-      child: SizedBox(
-        height: size.height,
-        width: size.width,
-        child: DecoratedBoxTransition(
-          position: DecorationPosition.background,
-          decoration: _decorationTween.animate(
-            _decoratedBoxAnimationController,
-          ),
-          child: child,
-        ),
+
+    final feedback = DraggableFeedback(
+      reorderableEntity: reorderableEntity,
+      decoration: _decorationTween.animate(
+        _decoratedBoxAnimationController,
       ),
+      child: child,
     );
 
     final draggedKey = widget.currentDraggedEntity?.key;
@@ -123,18 +117,22 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       return LongPressDraggable(
         delay: widget.longPressDelay,
         onDragStarted: _handleDragStarted,
-        onDragEnd: _handleDragEnd,
+        onDraggableCanceled: (Velocity velocity, Offset offset) {
+          _handleDragEnd(offset);
+        },
         feedback: feedback,
         childWhenDragging: childWhenDragging,
-        child: childWhenDragging,
+        child: child,
       );
     } else {
       return Draggable(
         onDragStarted: _handleDragStarted,
-        onDragEnd: _handleDragEnd,
+        onDraggableCanceled: (Velocity velocity, Offset offset) {
+          _handleDragEnd(offset);
+        },
         feedback: feedback,
         childWhenDragging: childWhenDragging,
-        child: childWhenDragging,
+        child: child,
       );
     }
   }
@@ -145,13 +143,19 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _decoratedBoxAnimationController.forward();
   }
 
-  void _handleDragEnd(DraggableDetails details) {
-    _decoratedBoxAnimationController.reset();
+  /// Called after dragging ends.
+  ///
+  /// Important: This can also be called after the widget was disposed but
+  /// is still dragged. This has to be done to finish the drag and drop.
+  void _handleDragEnd(Offset offset) {
+    if (mounted) {
+      _decoratedBoxAnimationController.reset();
+    }
 
     widget.onDragEnd(
       ReleasedReorderableEntity(
         reorderableEntity: widget.reorderableEntity,
-        dropOffset: details.offset,
+        dropOffset: offset,
       ),
     );
   }
