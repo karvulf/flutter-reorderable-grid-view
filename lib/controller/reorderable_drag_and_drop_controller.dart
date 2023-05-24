@@ -16,6 +16,10 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// After dragging a child, [_scrollOffset] is always updated.
   Offset _scrollOffset = Offset.zero;
 
+  set scrollOffset(Offset offset) {
+    _scrollOffset = offset;
+  }
+
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
@@ -132,8 +136,14 @@ class ReorderableDragAndDropController extends ReorderableController {
 
       if (!lockedIndices.contains(currentCollisionOrderId)) {
         final collisionMapEntry = childrenOrderMap[currentCollisionOrderId];
+
+        // can happen if the collision item is still building
+        if (collisionMapEntry == null) {
+          return;
+        }
+
         _updateCollision(
-          collisionReorderableEntity: collisionMapEntry!,
+          collisionReorderableEntity: collisionMapEntry,
           lockedIndices: lockedIndices,
         );
       }
