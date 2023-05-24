@@ -335,8 +335,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       lockedIndices: widget.lockedIndices,
     );
     if (hasUpdated) {
-      final scrollOffset = _getScrollOffset();
-      _reorderableController.scrollOffset = scrollOffset;
+      // this fixes the issue when the user scrolls while dragging to get the updated scroll value
+      _reorderableController.scrollOffset = _getScrollOffset();
       setState(() {});
     }
   }
