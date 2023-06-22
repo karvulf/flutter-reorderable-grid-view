@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
+import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 
 /// Enables drag and drop behaviour for [child].
@@ -110,6 +111,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       maintainState: true,
       child: child,
     );
+    final data = _getData();
 
     if (!widget.enableDraggable) {
       return child;
@@ -122,6 +124,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         },
         feedback: feedback,
         childWhenDragging: childWhenDragging,
+        data: data,
         child: child,
       );
     } else {
@@ -132,6 +135,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         },
         feedback: feedback,
         childWhenDragging: childWhenDragging,
+        data: data,
         child: child,
       );
     }
@@ -158,5 +162,15 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         dropOffset: offset,
       ),
     );
+  }
+
+  Object? _getData() {
+    final child = widget.child;
+
+    if (child is CustomDraggable) {
+      return child.data;
+    } else {
+      return null;
+    }
   }
 }
