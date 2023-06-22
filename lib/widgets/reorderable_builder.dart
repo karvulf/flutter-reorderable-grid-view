@@ -428,7 +428,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Another possibility is that one of the parents is scrollable.
   /// In that case, the position of the scroll is accessible inside [context].
   ///
-  /// Otherwise, 0.0 will be returned.
+  /// If there is value inside [context] and [widget.scrollController], then
+  /// the value of [widget.scrollController] is used.
+  ///
+  /// Otherwise, [Offset.zero] will be returned.
   Offset _getScrollOffset() {
     var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
