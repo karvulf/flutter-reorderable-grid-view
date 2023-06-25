@@ -1,3 +1,9 @@
+## 5.0.0-dev.7
+⭐️ **New features**
+* you can add `data` to `Draggable` or `LongPressDraggable`
+  * use the widget `CustomDraggable` for that
+  * more info is added to the read me
+
 ## 5.0.0-dev.6
 🐛 This release contains some bugfixes (optimization)
 * while dragging there were issues when the user scrolled with another finger

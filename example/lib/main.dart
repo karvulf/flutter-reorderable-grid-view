@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
@@ -219,17 +220,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _getChild({required int index}) {
-    return Container(
+    return CustomDraggable(
       key: Key(children[index].toString()),
-      decoration: BoxDecoration(
-        color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-      ),
-      height: 100.0,
-      width: 100.0,
-      child: Center(
-        child: Text(
-          'test ${children[index]}',
-          style: const TextStyle(),
+      data: index,
+      child: Container(
+        decoration: BoxDecoration(
+          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+        ),
+        height: 100.0,
+        width: 100.0,
+        child: Center(
+          child: Text(
+            'test ${children[index]}',
+            style: const TextStyle(),
+          ),
         ),
       ),
     );

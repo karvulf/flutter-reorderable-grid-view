@@ -142,6 +142,25 @@ There are different animations:
 | `onDragEnd` | Callback when user releases dragged child. |**-** |
 | `builder` | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.|**-** |
 
+### `CustomDraggable`
+
+The widget `CustomDraggable` is a helper widget that can contain optionally info that should be added for `Draggable` or `LongPressDraggable`.
+
+It is important that this widget wraps your child that you add to your `GridView`. That also means that `CustomDraggable` gets the unique key.
+
+```dart
+  CustomDraggable(
+    // add your unique key here
+    key: Key('unique'),
+    // will be passed to `Draggable` or `LongPressDraggable`
+    data: 'data',
+    child: Placeholder(),
+  ),
+```
+
+#### Parameter
+`data`
+- will be added to `Draggable` or `LongPressDraggable`
 
 ## Road map for release of version `5.0.0`
 * Code Refactoring for easier understanding!
