@@ -15,12 +15,13 @@ class ReorderableBuilderController extends ReorderableDragAndDropController {
     var index = 0;
 
     for (final child in children) {
-      assert(!childrenKeyMap.containsKey(child.key), "Key is duplicated!");
       final key = child.key! as ValueKey;
+      assert(!childrenKeyMap.containsKey(key.value), "Key is duplicated!");
       final reorderableEntity = ReorderableEntity.create(
         key: key,
         updatedOrderId: index,
       );
+      // todo: macht iwie keinen sinn, weil beim ersten erstellen alle die originalOrderId von -1 haben
       super.childrenOrderMap[reorderableEntity.originalOrderId] =
           reorderableEntity;
       super.childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
