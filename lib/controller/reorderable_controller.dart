@@ -2,17 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 abstract class ReorderableController {
+  @visibleForTesting
   final childrenOrderMap = <int, ReorderableEntity>{};
+
+  @visibleForTesting
   final childrenKeyMap = <dynamic, ReorderableEntity>{};
+
+  @visibleForTesting
   final offsetMap = <int, Offset>{};
 
+  /// Creates or updates [ReorderableEntity] related to [key] and returns it.
+  ///
+  /// Looks for [ReorderableEntity] in [childrenKeyMap] and updates it if found.
+  /// Otherwise it will be created with offset and size.
   ReorderableEntity getReorderableEntity({
     required ValueKey key,
     required int index,
   }) {
     final childInKeyMap = childrenKeyMap[key.value];
     final offset = offsetMap[index];
-    // todo: only working for gridviews because every child has the same size
+    // todo warum child aus der anderen map genommen?
     final size = childrenOrderMap[index]?.size;
     late final ReorderableEntity reorderableEntity;
 
@@ -33,6 +42,14 @@ abstract class ReorderableController {
     return reorderableEntity;
   }
 
+  /// Updates specific values of [reorderableEntity] and update maps.
+  ///
+  /// When the child was created, [offset] will be added to [offsetMap]
+  /// to simplify the access to the offset of the order id of [reorderableEntity].
+  ///
+  /// Then #creationFinished is called that updates some important values.
+  ///
+  /// In the end, the [childrenOrderMap] and [childrenKeyMap] are updated.
   void handleCreatedChild({
     required Offset? offset,
     required Size? size,
@@ -48,21 +65,36 @@ abstract class ReorderableController {
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
+  /// Updates offset and order id of [reorderableEntity] faded in.
+  ///
+  /// Should be called when the fade in was finished. Then the original
+  /// offset and orderId are overwritten with the updated values of the entity.
   void handleOpacityFinished({required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.fadedIn();
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
+  /// TODO das fadedIn und positionUpdated scheint identisch zu sein, ergo ist diese methode mit der obigen gleich und kann vielleicht zusammengeführt werden
+  /// Updates offset and order id of [reorderableEntity] faded in.
+  ///
+  /// Should be called when the fade in was finished. Then the original
+  /// offset and orderId are overwritten with the updated values of the entity.
   void handleMovingFinished({required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.positionUpdated();
     _updateMaps(reorderableEntity: updatedEntity);
   }
 
+  /// Resets all entities in [childrenOrderMap] and [childrenKeyMap].
+  ///
+  /// Clears [offsetMap] and rebuilds all entities in [childrenOrderMap] and
+  /// [childrenKeyMap] because after the orientation change, the children
+  /// will have new offsets that has to be recalculated.
   void handleDeviceOrientationChanged() {
     offsetMap.clear();
 
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
+      // todo: wieso wird hier auf entry.key und nicht auf updatedOrderId zugegriffen??
       childrenOrderMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
@@ -71,6 +103,7 @@ abstract class ReorderableController {
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
+      // todo: wieso wird hier auf entry.key und nicht auf entry.key.value zugegriffen??
       childrenKeyMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
