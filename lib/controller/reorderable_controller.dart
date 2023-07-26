@@ -6,7 +6,7 @@ abstract class ReorderableController {
   final childrenOrderMap = <int, ReorderableEntity>{};
 
   @visibleForTesting
-  final childrenKeyMap = <dynamic, ReorderableEntity>{};
+  final childrenKeyMap = <String, ReorderableEntity>{};
 
   @visibleForTesting
   final offsetMap = <int, Offset>{};
@@ -94,7 +94,6 @@ abstract class ReorderableController {
 
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
-      // todo: wieso wird hier auf entry.key und nicht auf updatedOrderId zugegriffen??
       childrenOrderMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
@@ -103,7 +102,6 @@ abstract class ReorderableController {
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
-      // todo: wieso wird hier auf entry.key und nicht auf entry.key.value zugegriffen??
       childrenKeyMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
@@ -112,15 +110,14 @@ abstract class ReorderableController {
   }
 
   void updateToActualPositions() {
-    var updatedChildrenKeyMap = <dynamic, ReorderableEntity>{};
+    var updatedChildrenKeyMap = <String, ReorderableEntity>{};
     var updatedChildrenOrderMap = <int, ReorderableEntity>{};
 
     for (final entry in childrenKeyMap.entries) {
-      final key = entry.key;
       final updatedReorderableEntity = entry.value.positionUpdated();
       final originalOrderId = updatedReorderableEntity.originalOrderId;
       updatedChildrenOrderMap[originalOrderId] = updatedReorderableEntity;
-      updatedChildrenKeyMap[key] = updatedReorderableEntity;
+      updatedChildrenKeyMap[entry.key] = updatedReorderableEntity;
     }
     replaceMaps(
       updatedChildrenKeyMap: updatedChildrenKeyMap,
@@ -129,7 +126,7 @@ abstract class ReorderableController {
   }
 
   void replaceMaps({
-    required Map<dynamic, ReorderableEntity> updatedChildrenKeyMap,
+    required Map<String, ReorderableEntity> updatedChildrenKeyMap,
     required Map<int, ReorderableEntity> updatedChildrenOrderMap,
   }) {
     childrenOrderMap.clear();

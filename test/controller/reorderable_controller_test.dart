@@ -223,8 +223,8 @@ void main() {
     final givenEntities = reorderableBuilder.getUniqueEntities(count: 5);
 
     test(
-        'GIVEN reorderableEntity '
-        'WHEN calling #handleMovingFinished '
+        'GIVEN filled offsetMap, childrenKeyMap and childrenOrderMap '
+        'WHEN calling #handleDeviceOrientationChanged '
         'THEN should update maps as expected', () {
       // given
       controller.offsetMap[0] = Offset.zero;
@@ -232,13 +232,27 @@ void main() {
 
       for (final entity in givenEntities) {
         controller.childrenKeyMap[entity.key.value] = entity;
-        controller.childrenOrderMap[entity.updatedOrderId] = entity;
+        controller.childrenOrderMap[entity.originalOrderId] = entity;
       }
 
       // when
-      // controller.handleDeviceOrientationChanged();
+      controller.handleDeviceOrientationChanged();
 
       // then
+      final expectedChildrenKeyMap = <String, ReorderableEntity>{};
+      final expectedChildrenOrderMap = <int, ReorderableEntity>{};
+      for (final entity in givenEntities) {
+        final expectedEntity = ReorderableEntity.create(
+          key: entity.key,
+          updatedOrderId: entity.updatedOrderId,
+        );
+        expectedChildrenKeyMap[entity.key.value] = expectedEntity;
+        expectedChildrenOrderMap[entity.originalOrderId] = expectedEntity;
+      }
+
+      expect(controller.offsetMap, isEmpty);
+      expect(controller.childrenOrderMap, equals(expectedChildrenOrderMap));
+      expect(controller.childrenKeyMap, equals(expectedChildrenKeyMap));
     });
   });
 
