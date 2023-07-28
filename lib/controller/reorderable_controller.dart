@@ -3,6 +3,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 abstract class ReorderableController {
   @visibleForTesting
+// todo nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
   final childrenOrderMap = <int, ReorderableEntity>{};
 
   @visibleForTesting
@@ -109,6 +110,13 @@ abstract class ReorderableController {
     }
   }
 
+  /// Iterates through [childrenKeyMap] and updates [ReorderableEntity].
+  ///
+  /// The original offset and orderId of [ReorderableEntity] will be set
+  /// to the updated offset and orderId.
+  ///
+  /// At the end [childrenKeyMap] and [childrenOrderMap] are replaced with the
+  /// updated maps.
   void updateToActualPositions() {
     var updatedChildrenKeyMap = <String, ReorderableEntity>{};
     var updatedChildrenOrderMap = <int, ReorderableEntity>{};
@@ -119,6 +127,7 @@ abstract class ReorderableController {
       updatedChildrenOrderMap[originalOrderId] = updatedReorderableEntity;
       updatedChildrenKeyMap[entry.key] = updatedReorderableEntity;
     }
+
     replaceMaps(
       updatedChildrenKeyMap: updatedChildrenKeyMap,
       updatedChildrenOrderMap: updatedChildrenOrderMap,

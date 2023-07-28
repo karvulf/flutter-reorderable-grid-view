@@ -256,9 +256,69 @@ void main() {
     });
   });
 
-  group('#updateToActualPositions', () {});
+  group('#updateToActualPositions', () {
+    final givenEntities = reorderableBuilder.getUniqueEntities(count: 5);
 
-  group('#replaceMaps', () {});
+    test(
+        'GIVEN filled childrenKeyMap '
+        'WHEN calling #updateToActualPositions '
+        'THEN should update maps as expected', () {
+      // given
+      for (final entity in givenEntities) {
+        controller.childrenKeyMap[entity.key.value] = entity;
+      }
+
+      // when
+      controller.updateToActualPositions();
+
+      // then
+      final expectedChildrenKeyMap = <String, ReorderableEntity>{};
+      final expectedChildrenOrderMap = <int, ReorderableEntity>{};
+      for (final entity in givenEntities) {
+        final expectedEntity = entity.positionUpdated();
+        expectedChildrenKeyMap[expectedEntity.key.value] = expectedEntity;
+        expectedChildrenOrderMap[expectedEntity.originalOrderId] =
+            expectedEntity;
+      }
+
+      expect(controller.offsetMap, isEmpty);
+      expect(controller.childrenOrderMap, equals(expectedChildrenOrderMap));
+      expect(controller.childrenKeyMap, equals(expectedChildrenKeyMap));
+    });
+  });
+
+  group('#replaceMaps', () {
+    final givenReorderableEntity1 = reorderableBuilder.getEntity(key: '1');
+    final givenReorderableEntity2 = reorderableBuilder.getEntity(key: '2');
+    final givenReorderableEntity3 = reorderableBuilder.getEntity(key: '3');
+
+    test(
+        'GIVEN updated key and order map '
+        'WHEN calling #replaceMaps '
+        'THEN should update maps as expected', () {
+      // given
+      final givenUpdatedChildrenKeyMap = {
+        '1': givenReorderableEntity1,
+        '2': givenReorderableEntity2,
+        '3': givenReorderableEntity3,
+      };
+      final givenUpdatedChildrenOrderMap = {
+        0: givenReorderableEntity1,
+        1: givenReorderableEntity2,
+        2: givenReorderableEntity3,
+      };
+
+      // when
+      controller.replaceMaps(
+        updatedChildrenKeyMap: givenUpdatedChildrenKeyMap,
+        updatedChildrenOrderMap: givenUpdatedChildrenOrderMap,
+      );
+
+      // then
+      expect(controller.childrenOrderMap, equals(givenUpdatedChildrenOrderMap));
+      expect(controller.childrenKeyMap, equals(givenUpdatedChildrenKeyMap));
+    });
+  });
 }
 
 class _TestReorderableController extends ReorderableController {}
