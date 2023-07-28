@@ -1,3 +1,9 @@
+## 5.0.0-dev.8
+⭐️ **New features**
+* added new callback `onDraggedChildUpdated` (thanks for the PR [Bader-AI](https://github.com/Bader-Al))
+  * always called when the dragged child updated his position while dragging
+  * you should use this without changing the children, otherwise this could lead to weird behavior while using drag and drop
+
 ## 5.0.0-dev.7
 ⭐️ **New features**
 * you can add `data` to `Draggable` or `LongPressDraggable`

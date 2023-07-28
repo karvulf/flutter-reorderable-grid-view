@@ -122,6 +122,7 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: _handleDragStarted,
+          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           builder: (children) {
@@ -188,6 +189,7 @@ class _MyAppState extends State<MyApp> {
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: _handleDragStarted,
+          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           childBuilder: (itemBuilder) {
@@ -240,12 +242,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleDragStarted(int index) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    final snackBar = SnackBar(
-      content: Text('Dragging at index $index has started!'),
-      duration: const Duration(milliseconds: 1000),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    _showSnackbar(text: 'Dragging at index $index has started!');
+  }
+
+  void _handleUpdatedDraggedChild(int index) {
+    _showSnackbar(text: 'Dragged child updated position to $index');
   }
 
   void _handleReorder(ReorderedListFunction reorderedListFunction) {
@@ -255,9 +256,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleDragEnd(int index) {
+    _showSnackbar(text: 'Dragging was finished at $index!');
+  }
+
+  void _showSnackbar({required String text}) {
     ScaffoldMessenger.of(context).clearSnackBars();
     final snackBar = SnackBar(
-      content: Text('Dragging was finished at $index!'),
+      content: Text(text),
       duration: const Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

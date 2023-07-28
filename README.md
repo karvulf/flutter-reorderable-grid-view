@@ -125,22 +125,23 @@ There are different animations:
 
 ### Parameters
 
-| **Parameter** | **Description** | **Default Value** |
-| :------------- | :------------- | :-------------: |
-| `children` | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child. |**-** |
-| `lockedIndices` | Define all children that can't be moved while dragging. You need to add the index of this child in a list. | **<int>[]** |
-| `enableLongPress` | Decides if the user needs a long press to move the item around. | **true** |
-| `longPressDelay` | Specify the delay to move an item when enabling long press. | **500 ms** |
-| `enableDraggable` | Enables the drag and drop functionality. | **true** |
-| `dragChildBoxDecoration` | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape. |**-** |
-| `initDelay` | !**Not recommended**! - Adding a delay when creating children instead of a PostFrameCallback.|**-** |
-| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.|**true** |
-| `automaticScrollExtent` | Defines the height of the top or bottom before the dragged child indicates a scrolling. |**80.0** |
-| `scrollController` | `ScrollController` to get the current scroll position. Important for calculations!|**-** |
-| `onReorder` | Called after drag and drop was released. Contains a list of `OrderUpdateEntity` that has information about the old and new index. See more on the example `main.dart`|**-** |
-| `onDragStarted` | Callback when user starts dragging a child. |**-** |
-| `onDragEnd` | Callback when user releases dragged child. |**-** |
-| `builder` | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.|**-** |
+| **Parameter**                  | **Description**                                                                                                                                                       | **Default Value** |
+|:-------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------| :-------------: |
+| `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.                                                      |**-** |
+| `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.                                                            | **<int>[]** |
+| `enableLongPress`              | Decides if the user needs a long press to move the item around.                                                                                                       | **true** |
+| `longPressDelay`               | Specify the delay to move an item when enabling long press.                                                                                                           | **500 ms** |
+| `enableDraggable`              | Enables the drag and drop functionality.                                                                                                                              | **true** |
+| `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration, e. g. if your children have another shape.                                                       |**-** |
+| `initDelay`                    | !**Not recommended**! - Adding a delay when creating children instead of a PostFrameCallback.                                                                         |**-** |
+| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                                                                      |**true** |
+| `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                                                               |**80.0** |
+| `scrollController`             | `ScrollController` to get the current scroll position. Important for calculations!                                                                                    |**-** |
+| `onReorder`                    | Called after drag and drop was released. Contains a list of `OrderUpdateEntity` that has information about the old and new index. See more on the example `main.dart` |**-** |
+| `onDragStarted`                | Callback when user starts dragging a child.                                                                                                                           |**-** |
+| `onDragEnd`                    | Callback when user releases dragged child.                                                                                                                            |**-** |
+| `onDraggedChildUpdated`        | Callback when the dragged child updated his position.                                                                                                                 |**-** |
+| `builder`                      | Important function that returns your `children` as modified `children` to enable animations and the drag and drop. See more on the example `main.dart`.               |**-** |
 
 ### `CustomDraggable`
 

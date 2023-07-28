@@ -17,6 +17,7 @@ typedef DraggableBuilder = Widget Function(
 
 typedef ReorderedListFunction = List Function(List);
 typedef OnReorderCallback = void Function(ReorderedListFunction);
+typedef ItemCallback = void Function(int intdex);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
@@ -58,7 +59,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// Combined with the value of [automaticScrollExtent], an automatic scroll starts,
   /// when you drag the child and the widget of [builder] is scrollable.
   ///
-  /// Defualt value: true
+  /// Default value: true
   final bool enableScrollingWhileDragging;
 
   /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
@@ -96,19 +97,20 @@ class ReorderableBuilder extends StatefulWidget {
   /// Prevent updating your children while you are dragging because this can lead
   /// to an unexpected behavior.
   /// [index] is the position of the child where the dragging started.
-  final void Function(int index)? onDragStarted;
+  final ItemCallback? onDragStarted;
 
   /// Callback when the dragged child was released with the index.
   ///
   /// [index] is the position of the child where the dragging ended.
   /// Important: This is called before [onReorder].
-  final void Function(int index)? onDragEnd;
+  final ItemCallback? onDragEnd;
 
-  /// Callback when the dragged child is hovering over a new index that could be the new position.
-  /// fn
-  /// [index] is the position of the child where the dragging is hovering over.
-
-  final void Function(int index)? onDragHoverOverNewIndex;
+  /// Called when the dragged child has updated his position while dragging.
+  ///
+  /// [index] is the new position of the dragged child. While this callback
+  /// you should not update your [children] by yourself to ensure a correct
+  /// behavior while dragging.
+  final ItemCallback? onUpdatedDraggedChild;
 
   /// [ScrollController] to get the current scroll position. Important for calculations!
   ///
@@ -135,7 +137,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
-    this.onDragHoverOverNewIndex,
+    this.onUpdatedDraggedChild,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         childBuilder = null,
@@ -156,7 +158,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
-    this.onDragHoverOverNewIndex,
+    this.onUpdatedDraggedChild,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         children = null,
@@ -168,7 +170,8 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 // Todo: Items tauschen im Builder, z. B. 140 auf Position 300
-class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBindingObserver {
+class _ReorderableBuilderState extends State<ReorderableBuilder>
+    with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
@@ -296,7 +299,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
           initDelay: widget.initDelay,
           onCreated: _handleCreatedChild,
           child: ReorderableAnimatedReleasedContainer(
-            releasedReorderableEntity: _reorderableController.releasedReorderableEntity,
+            releasedReorderableEntity:
+                _reorderableController.releasedReorderableEntity,
             scrollOffset: _getScrollOffset(),
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
@@ -343,7 +347,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
     if (hasUpdated) {
       // this fixes the issue when the user scrolls while dragging to get the updated scroll value
       _reorderableController.scrollOffset = _getScrollOffset();
-      widget.onDragHoverOverNewIndex?.call(_reorderableController.draggedEntity!.updatedOrderId);
+
+      // notifying about the new position of the dragged child
+      final orderId = _reorderableController.draggedEntity!.updatedOrderId;
+      widget.onUpdatedDraggedChild?.call(orderId);
+
       setState(() {});
     }
   }
@@ -440,7 +448,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
     var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
 
-    if (scrollPosition == null && scrollController != null && scrollController.hasClients) {
+    if (scrollPosition == null &&
+        scrollController != null &&
+        scrollController.hasClients) {
       scrollPosition = scrollController.position;
     }
 
