@@ -17,6 +17,7 @@ typedef DraggableBuilder = Widget Function(
 
 typedef ReorderedListFunction = List Function(List);
 typedef OnReorderCallback = void Function(ReorderedListFunction);
+typedef ItemCallback = void Function(int intdex);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
@@ -58,7 +59,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// Combined with the value of [automaticScrollExtent], an automatic scroll starts,
   /// when you drag the child and the widget of [builder] is scrollable.
   ///
-  /// Defualt value: true
+  /// Default value: true
   final bool enableScrollingWhileDragging;
 
   /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
@@ -96,13 +97,20 @@ class ReorderableBuilder extends StatefulWidget {
   /// Prevent updating your children while you are dragging because this can lead
   /// to an unexpected behavior.
   /// [index] is the position of the child where the dragging started.
-  final void Function(int index)? onDragStarted;
+  final ItemCallback? onDragStarted;
 
   /// Callback when the dragged child was released with the index.
   ///
   /// [index] is the position of the child where the dragging ended.
   /// Important: This is called before [onReorder].
-  final void Function(int index)? onDragEnd;
+  final ItemCallback? onDragEnd;
+
+  /// Called when the dragged child has updated his position while dragging.
+  ///
+  /// [index] is the new position of the dragged child. While this callback
+  /// you should not update your [children] by yourself to ensure a correct
+  /// behavior while dragging.
+  final ItemCallback? onUpdatedDraggedChild;
 
   /// [ScrollController] to get the current scroll position. Important for calculations!
   ///
@@ -129,6 +137,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
+    this.onUpdatedDraggedChild,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         childBuilder = null,
@@ -149,6 +158,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
+    this.onUpdatedDraggedChild,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         children = null,
@@ -337,6 +347,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (hasUpdated) {
       // this fixes the issue when the user scrolls while dragging to get the updated scroll value
       _reorderableController.scrollOffset = _getScrollOffset();
+
+      // notifying about the new position of the dragged child
+      final orderId = _reorderableController.draggedEntity!.updatedOrderId;
+      widget.onUpdatedDraggedChild?.call(orderId);
+
       setState(() {});
     }
   }
