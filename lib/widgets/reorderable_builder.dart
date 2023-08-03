@@ -414,11 +414,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {});
   }
 
-  void _handleCreatedChild(
-    ReorderableEntity reorderableEntity,
-    GlobalKey key, {
-    int attempts = 0,
-  }) {
+  void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
@@ -435,23 +431,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         renderBox.localToGlobal(Offset.zero),
       );
       offset += _getScrollOffset();
-      // offset = renderBox.localToGlobal(Offset.zero) + _getScrollOffset();
-      // print('pos $pos');
       size = renderBox.size;
     }
-
-    if (size == null || size.isEmpty && attempts < 10) {
-      Future.delayed(const Duration(milliseconds: 100)).then((_) {
-        _handleCreatedChild(
-          reorderableEntity,
-          key,
-          attempts: attempts++,
-        );
-      });
-      return;
-    }
-    print(
-        'created child ${reorderableEntity.key} with size $size and $offset with attempts $attempts and scroll ${_getScrollOffset()}');
 
     reorderableController.handleCreatedChild(
       offset: offset,
