@@ -9,6 +9,11 @@ typedef ReorderableEntityCallback = void Function(
 typedef ReleasedReorderableEntityCallback = void Function(
     ReleasedReorderableEntity releasedReorderableEntity);
 
+typedef OnDragEndFunction = void Function(
+  ReorderableEntity reorderableEntity,
+  Offset globalOffset,
+);
+
 typedef OnCreatedFunction = void Function(
   ReorderableEntity reorderableEntity,
   GlobalKey key,

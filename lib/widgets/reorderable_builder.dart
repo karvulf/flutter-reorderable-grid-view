@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
+import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
@@ -311,14 +312,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
-              onDragEnd: (releasedReorderableEntity) {
-                // call to ensure animation to dropped item
-                _reorderableController.updateReleasedReorderableEntity(
-                  releasedReorderableEntity: releasedReorderableEntity,
-                );
-                setState(() {});
-                _handleDragEnd();
-              },
+              onDragEnd: _handleDragEnd,
               child: child,
             ),
           ),
@@ -356,13 +350,36 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
   }
 
+  /// Called after dragged item was released.
+  ///
+  /// [globalOffset] has to be translated to the local position to ensure
+  /// that the animation for the released item starts at the correct position.
+  void _handleDragEnd(
+    ReorderableEntity reorderableEntity,
+    Offset globalOffset,
+  ) {
+    var globalRenderObject = context.findRenderObject() as RenderBox;
+    final localOffset = globalRenderObject.globalToLocal(globalOffset);
+
+    // call to ensure animation to dropped item
+    _reorderableController.updateReleasedReorderableEntity(
+      releasedReorderableEntity: ReleasedReorderableEntity(
+        dropOffset: localOffset,
+        reorderableEntity: reorderableEntity,
+      ),
+    );
+    setState(() {});
+
+    _finishDragging();
+  }
+
   void _handleScrollUpdate(Offset scrollOffset) {
     _reorderableController.handleScrollUpdate(
       scrollOffset: scrollOffset,
     );
   }
 
-  void _handleDragEnd() {
+  void _finishDragging() {
     final draggedEntity = _reorderableController.draggedEntity;
     if (draggedEntity == null) return;
 
@@ -399,8 +416,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   void _handleCreatedChild(
     ReorderableEntity reorderableEntity,
-    GlobalKey key,
-  ) {
+    GlobalKey key, {
+    int attempts = 0,
+  }) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
@@ -412,9 +430,28 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     if (renderObject != null && offsetMap[index] == null) {
       final renderBox = renderObject as RenderBox;
-      offset = renderBox.localToGlobal(Offset.zero) + _getScrollOffset();
+      var parentRenderObject = context.findRenderObject() as RenderBox;
+      offset = parentRenderObject.globalToLocal(
+        renderBox.localToGlobal(Offset.zero),
+      );
+      offset += _getScrollOffset();
+      // offset = renderBox.localToGlobal(Offset.zero) + _getScrollOffset();
+      // print('pos $pos');
       size = renderBox.size;
     }
+
+    if (size == null || size.isEmpty && attempts < 10) {
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        _handleCreatedChild(
+          reorderableEntity,
+          key,
+          attempts: attempts++,
+        );
+      });
+      return;
+    }
+    print(
+        'created child ${reorderableEntity.key} with size $size and $offset with attempts $attempts and scroll ${_getScrollOffset()}');
 
     reorderableController.handleCreatedChild(
       offset: offset,
