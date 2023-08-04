@@ -51,7 +51,7 @@ class _ReorderableAnimatedReleasedContainerState
 
     // Todo: add duration to parameter of this package
     _offsetAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
   }

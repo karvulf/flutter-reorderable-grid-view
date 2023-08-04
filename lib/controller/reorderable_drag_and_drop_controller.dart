@@ -10,15 +10,12 @@ class ReorderableDragAndDropController extends ReorderableController {
   ReorderableEntity? _draggedEntity;
   var _lockedIndices = <int>[];
   ReleasedReorderableEntity? _releasedReorderableEntity;
+  Offset _startDraggingScrollOffset = Offset.zero;
 
   /// Holding this value for better performance.
   ///
-  /// After dragging a child, [_scrollOffset] is always updated.
-  Offset _scrollOffset = Offset.zero;
-
-  set scrollOffset(Offset offset) {
-    _scrollOffset = offset;
-  }
+  /// After dragging a child, [scrollOffset] is always updated.
+  Offset scrollOffset = Offset.zero;
 
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
@@ -28,22 +25,30 @@ class ReorderableDragAndDropController extends ReorderableController {
     _releasedReorderableEntity = null;
     _lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
-    _scrollOffset = currentScrollOffset;
+    scrollOffset = currentScrollOffset;
+    _startDraggingScrollOffset = currentScrollOffset;
   }
 
   bool handleDragUpdate({
-    required Offset offset,
+    required PointerMoveEvent pointerMoveEvent,
     required List<int> lockedIndices,
+    required bool isScrollableOutside,
   }) {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
-/*
-    final position = pointerMoveEvent.localPosition;
-    var draggedOffset = Offset(
-      position.dx + _scrollOffset.dx,
-      position.dy + _scrollOffset.dy,
-    );
-*/
+
+    final localOffset = pointerMoveEvent.localPosition;
+
+    late final Offset offset;
+    // scrollable is outside
+    if (isScrollableOutside) {
+      print('local offset with YES scroll');
+      offset = localOffset + scrollOffset;
+    } else {
+      print('local offset with NO scroll');
+      offset = localOffset + (scrollOffset - _startDraggingScrollOffset);
+    }
+
     final collisionReorderableEntity = _getCollisionReorderableEntity(
       keyValue: draggedKey.value,
       draggedOffset: offset,
@@ -82,10 +87,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     }
 
     return false;
-  }
-
-  void handleScrollUpdate({required Offset scrollOffset}) {
-    _scrollOffset = scrollOffset;
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {

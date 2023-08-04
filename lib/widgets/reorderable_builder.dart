@@ -334,29 +334,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
-    var localOffset = pointerMoveEvent.localPosition;
-    var localOffsetWithScroll =
-        pointerMoveEvent.localPosition + _getScrollOffset();
-    var globalOffset = pointerMoveEvent.position;
-    var globalOffsetWithScroll = pointerMoveEvent.position + _getScrollOffset();
-
-    print('local offset $localOffset with scroll $localOffsetWithScroll');
-    print('global offset $globalOffset with scroll $globalOffsetWithScroll');
-    print('---');
-
-    late final Offset offset;
-    // scrollable is outside
-    if (Scrollable.maybeOf(context)?.position == null) {
-      print('local offset with scroll');
-      offset = localOffsetWithScroll;
-    } else {
-      print('local offset with NO scroll');
-      offset = localOffset;
-    }
-
     final hasUpdated = _reorderableController.handleDragUpdate(
-      offset: offset,
+      pointerMoveEvent: pointerMoveEvent,
       lockedIndices: widget.lockedIndices,
+      isScrollableOutside: Scrollable.maybeOf(context)?.position == null,
     );
 
     if (hasUpdated) {
@@ -387,7 +368,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     } else {
       var globalRenderObject = context.findRenderObject() as RenderBox;
       final globalLocalOffset = globalRenderObject.globalToLocal(globalOffset);
-      offset = globalLocalOffset - _getScrollOffset();
+      offset = globalLocalOffset - _reorderableController.scrollOffset;
     }
 
     // call to ensure animation to dropped item
@@ -403,9 +384,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleScrollUpdate(Offset scrollOffset) {
-    _reorderableController.handleScrollUpdate(
-      scrollOffset: scrollOffset,
-    );
+    _reorderableController.scrollOffset = scrollOffset;
   }
 
   void _finishDragging() {
