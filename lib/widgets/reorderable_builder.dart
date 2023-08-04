@@ -334,14 +334,22 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
-    // final renderBox = renderObject as RenderBox;
-    var parentRenderObject = context.findRenderObject() as RenderBox;
-    final offset = parentRenderObject.globalToLocal(
-      pointerMoveEvent.position,
-    );
+    var localOffset = pointerMoveEvent.localPosition;
+    var localOffsetWithScroll =
+        pointerMoveEvent.localPosition + _getScrollOffset();
+    var globalOffset = pointerMoveEvent.position;
+    var globalOffsetWithScroll = pointerMoveEvent.position + _getScrollOffset();
+
+    print('local offset $localOffset with scroll $localOffsetWithScroll');
+    print('global offset $globalOffset with scroll $globalOffsetWithScroll');
+    print('---');
+    // scrollable is outside
+    if (Scrollable.maybeOf(context)?.position == null) {
+      // offset += _getScrollOffset();
+    }
 
     final hasUpdated = _reorderableController.handleDragUpdate(
-      offset: offset,
+      offset: localOffset,
       lockedIndices: widget.lockedIndices,
     );
 
