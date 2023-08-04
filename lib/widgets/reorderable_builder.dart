@@ -367,21 +367,20 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
   /// Called after dragged item was released.
   ///
-  /// [globalOffset] has to be translated to the local position to ensure
-  /// that the animation for the released item starts at the correct position.
+  /// The offset will be translated to the local position of this widget
+  ///
+  /// If the scrollable part is outside the widget then the scroll offset
+  /// has to be subtracted to get the correct position.
   void _handleDragEnd(
     ReorderableEntity reorderableEntity,
     Offset globalOffset,
   ) {
-    late final Offset offset;
+    var globalRenderObject = context.findRenderObject() as RenderBox;
+    var offset = globalRenderObject.globalToLocal(globalOffset);
 
-    if (Scrollable.maybeOf(context)?.position == null) {
-      var globalRenderObject = context.findRenderObject() as RenderBox;
-      offset = globalRenderObject.globalToLocal(globalOffset);
-    } else {
-      var globalRenderObject = context.findRenderObject() as RenderBox;
-      final globalLocalOffset = globalRenderObject.globalToLocal(globalOffset);
-      offset = globalLocalOffset - _reorderableController.scrollOffset;
+    // scrollable part is outside this widget
+    if (Scrollable.maybeOf(context)?.position != null) {
+      offset -= -_reorderableController.scrollOffset;
     }
 
     // call to ensure animation to dropped item
@@ -435,6 +434,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {});
   }
 
+  /// Creates [ReorderableEntity] that contains all required values for animations.
+  ///
+  /// When the child was created, the offset and size is calculated (with [key]).
+  /// The offset is a bit more tricky and has to be translated to the local
+  /// offset in this widget.
+  /// At this way the offset will always be correct for calculations even though
+  /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
   void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
@@ -446,12 +452,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null && offsetMap[index] == null) {
+      // translating global offset to the local offset in this widget
       final renderBox = renderObject as RenderBox;
       var parentRenderObject = context.findRenderObject() as RenderBox;
       offset = parentRenderObject.globalToLocal(
         renderBox.localToGlobal(Offset.zero),
       );
       offset += _getScrollOffset();
+
       size = renderBox.size;
     }
 

@@ -11,7 +11,19 @@ class ReorderableDragAndDropController extends ReorderableController {
   var _lockedIndices = <int>[];
   ReleasedReorderableEntity? _releasedReorderableEntity;
 
+  /// Defines if the scrollable part is outside of the widget.
+  ///
+  /// The scrollable part can be a SingleChildScrollView that contains a
+  /// GridView. In that case the GridView wouldn't be scrollable and this
+  /// parameter should be true.
+  ///
+  /// If the GridView is scrollable, then this will be true.
   bool _isScrollableOutside = false;
+
+  /// Saves the state of scroll [Offset] when the drag and drop is starting.
+  ///
+  /// This is need to calculate with correct values later when doing
+  /// drag and drop while scrolling.
   Offset _startDraggingScrollOffset = Offset.zero;
 
   /// Holding this value for better performance.
