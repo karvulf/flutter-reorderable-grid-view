@@ -33,6 +33,7 @@ class _ReorderableAnimatedOpacityState
     extends State<ReorderableAnimatedOpacity> {
   /// Value that will be used for the opacity animation.
   late double _opacity;
+  late final _globalKey = GlobalKey();
 
   @override
   void initState() {
@@ -55,6 +56,7 @@ class _ReorderableAnimatedOpacityState
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
+      key: _globalKey,
       opacity: _opacity,
       duration: _duration,
       onEnd: _handleAnimationFinished,
@@ -67,12 +69,19 @@ class _ReorderableAnimatedOpacityState
       // post frame delay is needed to ensure the widget was built
       if (widget.fadeInDuration == Duration.zero) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onOpacityFinished(widget.reorderableEntity);
+          _callOnOpacityFinished();
         });
       } else {
-        widget.onOpacityFinished(widget.reorderableEntity);
+        _callOnOpacityFinished();
       }
     }
+  }
+
+  void _callOnOpacityFinished() {
+    final renderObject = _globalKey.currentContext?.findRenderObject();
+    final renderBox = renderObject as RenderBox?;
+    final size = renderBox?.size;
+    widget.onOpacityFinished(widget.reorderableEntity.copyWith(size: size));
   }
 
   /// [Duration] used for the opacity animation.

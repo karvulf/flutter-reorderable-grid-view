@@ -442,32 +442,33 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// offset in this widget.
   /// At this way the offset will always be correct for calculations even though
   /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
-  void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
+  Future<void> _handleCreatedChild(
+      ReorderableEntity reorderableEntity, GlobalKey key) async {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
     Offset? offset;
-    Size? size;
 
     var index = reorderableEntity.updatedOrderId;
     final renderObject = key.currentContext?.findRenderObject();
 
-    if (renderObject != null && offsetMap[index] == null) {
-      // translating global offset to the local offset in this widget
+    if (renderObject != null) {
       final renderBox = renderObject as RenderBox;
-      var parentRenderObject = context.findRenderObject() as RenderBox;
-      offset = parentRenderObject.globalToLocal(
-        renderBox.localToGlobal(Offset.zero),
-      );
-      offset += _getScrollOffset();
 
-      size = renderBox.size;
+      // should only add offset if it is not existing to prevent wrong animations
+      if (offsetMap[index] == null) {
+        // translating global offset to the local offset in this widget
+        var parentRenderObject = context.findRenderObject() as RenderBox;
+        offset = parentRenderObject.globalToLocal(
+          renderBox.localToGlobal(Offset.zero),
+        );
+        offset += _getScrollOffset();
+      }
     }
 
     reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,
-      size: size,
     );
     setState(() {});
   }

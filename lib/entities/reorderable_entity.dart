@@ -85,17 +85,14 @@ class ReorderableEntity {
         hasSwappedOrder: false,
       );
 
-  ReorderableEntity creationFinished({
-    required Offset? offset,
-    required Size? size,
-  }) {
+  ReorderableEntity creationFinished({required Offset? offset}) {
     return ReorderableEntity(
       key: key,
       originalOrderId: originalOrderId,
       updatedOrderId: updatedOrderId,
       originalOffset: originalOffset,
       updatedOffset: offset ?? updatedOffset,
-      size: size ?? this.size,
+      size: size,
       isBuildingOffset: false,
       hasSwappedOrder: false, // todo false wirklich richtig?
     );
@@ -152,6 +149,17 @@ class ReorderableEntity {
         size: size,
         isBuildingOffset: isBuildingOffset,
         hasSwappedOrder: true,
+      );
+
+  ReorderableEntity copyWith({Size? size}) => ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: updatedOffset,
+        size: size ?? this.size,
+        isBuildingOffset: isBuildingOffset,
+        hasSwappedOrder: hasSwappedOrder,
       );
 
   bool get isNew => originalOrderId == _isNewChildId;
