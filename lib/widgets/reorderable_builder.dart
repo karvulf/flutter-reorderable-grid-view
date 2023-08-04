@@ -345,11 +345,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     print('---');
     // scrollable is outside
     if (Scrollable.maybeOf(context)?.position == null) {
-      // offset += _getScrollOffset();
+      print('local offset with scroll');
+    } else {
+      print('local offset with NO scroll');
     }
 
     final hasUpdated = _reorderableController.handleDragUpdate(
-      offset: localOffset,
+      offset: localOffsetWithScroll,
       lockedIndices: widget.lockedIndices,
     );
 
