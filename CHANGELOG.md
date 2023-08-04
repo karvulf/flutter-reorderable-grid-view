@@ -1,3 +1,7 @@
+## 5.0.0-dev.8
+🐛 **Bug fixes**
+* fixed animation when releasing a dragged item
+
 ## 5.0.0-dev.7
 ⭐️ **New features**
 * you can add `data` to `Draggable` or `LongPressDraggable`
