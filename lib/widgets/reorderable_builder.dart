@@ -73,6 +73,14 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: const Duration(milliseconds: 500)
   final Duration fadeInDuration;
 
+  /// [Duration] for the position animation when a dragged child was released.
+  ///
+  /// The duration influence the time of the released dragged child going back
+  /// to his new position.
+  ///
+  /// Default value: const Duration(milliseconds: 150)
+  final Duration releasedChildDuration;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -91,9 +99,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// longer delay is necessary to ensure a correct behavior when using drag and drop.
   ///
   /// Not recommended to use.
-  @Deprecated(
-    """This can be removed and is not required anymore to fix weird drag and drop behavior.""",
-  )
+  @Deprecated("""This can be removed and is not required anymore.""")
   final Duration? initDelay;
 
   /// Callback when dragging starts with the index where it started.
@@ -137,6 +143,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.automaticScrollExtent = 80.0,
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
+    this.releasedChildDuration = const Duration(milliseconds: 150),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -147,6 +154,7 @@ class ReorderableBuilder extends StatefulWidget {
         childBuilder = null,
         super(key: key);
 
+  // Todo: werte eher oben definieren und hier wiederverwenden
   const ReorderableBuilder.builder({
     required this.childBuilder,
     this.scrollController,
@@ -158,6 +166,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.automaticScrollExtent = 80.0,
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
+    this.releasedChildDuration = const Duration(milliseconds: 150),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -306,6 +315,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             releasedReorderableEntity:
                 _reorderableController.releasedReorderableEntity,
             scrollOffset: _getScrollOffset(),
+            releasedChildDuration: widget.releasedChildDuration,
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
               reorderableEntity: reorderableEntity,

@@ -17,6 +17,9 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   /// Current scrolling offset for vertical and horizontal scrolling.
   final Offset scrollOffset;
 
+  /// [Duration] for the position animation when a dragged child was released.
+  final Duration releasedChildDuration;
+
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
   /// If this value is not null, it will be checked, if this is related to
@@ -27,6 +30,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.child,
     required this.reorderableEntity,
     required this.scrollOffset,
+    required this.releasedChildDuration,
     required this.releasedReorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -51,7 +55,7 @@ class _ReorderableAnimatedReleasedContainerState
 
     // Todo: add duration to parameter of this package
     _offsetAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: widget.releasedChildDuration,
       vsync: this,
     );
   }
