@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
+import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
@@ -72,6 +73,14 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: const Duration(milliseconds: 500)
   final Duration fadeInDuration;
 
+  /// [Duration] for the position animation when a dragged child was released.
+  ///
+  /// The duration influence the time of the released dragged child going back
+  /// to his new position.
+  ///
+  /// Default value: const Duration(milliseconds: 150)
+  final Duration releasedChildDuration;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -90,6 +99,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// longer delay is necessary to ensure a correct behavior when using drag and drop.
   ///
   /// Not recommended to use.
+  @Deprecated("""This can be removed and is not required anymore.""")
   final Duration? initDelay;
 
   /// Callback when dragging starts with the index where it started.
@@ -133,6 +143,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.automaticScrollExtent = 80.0,
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
+    this.releasedChildDuration = const Duration(milliseconds: 150),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -143,6 +154,7 @@ class ReorderableBuilder extends StatefulWidget {
         childBuilder = null,
         super(key: key);
 
+  // Todo: werte eher oben definieren und hier wiederverwenden
   const ReorderableBuilder.builder({
     required this.childBuilder,
     this.scrollController,
@@ -154,6 +166,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.automaticScrollExtent = 80.0,
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
+    this.releasedChildDuration = const Duration(milliseconds: 150),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -296,12 +309,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
+          // ignore: deprecated_member_use_from_same_package
           initDelay: widget.initDelay,
           onCreated: _handleCreatedChild,
           child: ReorderableAnimatedReleasedContainer(
             releasedReorderableEntity:
                 _reorderableController.releasedReorderableEntity,
             scrollOffset: _getScrollOffset(),
+            releasedChildDuration: widget.releasedChildDuration,
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
               reorderableEntity: reorderableEntity,
@@ -311,14 +326,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
-              onDragEnd: (releasedReorderableEntity) {
-                // call to ensure animation to dropped item
-                _reorderableController.updateReleasedReorderableEntity(
-                  releasedReorderableEntity: releasedReorderableEntity,
-                );
-                setState(() {});
-                _handleDragEnd();
-              },
+              onDragEnd: _handleDragEnd,
               child: child,
             ),
           ),
@@ -333,6 +341,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       reorderableEntity: reorderableEntity,
       currentScrollOffset: _getScrollOffset(),
       lockedIndices: widget.lockedIndices,
+      isScrollableOutside: Scrollable.maybeOf(context)?.position == null,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
@@ -344,6 +353,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       pointerMoveEvent: pointerMoveEvent,
       lockedIndices: widget.lockedIndices,
     );
+
     if (hasUpdated) {
       // this fixes the issue when the user scrolls while dragging to get the updated scroll value
       _reorderableController.scrollOffset = _getScrollOffset();
@@ -356,13 +366,41 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
   }
 
-  void _handleScrollUpdate(Offset scrollOffset) {
-    _reorderableController.handleScrollUpdate(
-      scrollOffset: scrollOffset,
+  /// Called after dragged item was released.
+  ///
+  /// The offset will be translated to the local position of this widget
+  ///
+  /// If the scrollable part is outside the widget then the scroll offset
+  /// has to be subtracted to get the correct position.
+  void _handleDragEnd(
+    ReorderableEntity reorderableEntity,
+    Offset globalOffset,
+  ) {
+    var globalRenderObject = context.findRenderObject() as RenderBox;
+    var offset = globalRenderObject.globalToLocal(globalOffset);
+
+    // scrollable part is outside this widget
+    if (Scrollable.maybeOf(context)?.position != null) {
+      offset -= _reorderableController.scrollOffset;
+    }
+
+    // call to ensure animation to dropped item
+    _reorderableController.updateReleasedReorderableEntity(
+      releasedReorderableEntity: ReleasedReorderableEntity(
+        dropOffset: offset,
+        reorderableEntity: reorderableEntity,
+      ),
     );
+    setState(() {});
+
+    _finishDragging();
   }
 
-  void _handleDragEnd() {
+  void _handleScrollUpdate(Offset scrollOffset) {
+    _reorderableController.scrollOffset = scrollOffset;
+  }
+
+  void _finishDragging() {
     final draggedEntity = _reorderableController.draggedEntity;
     if (draggedEntity == null) return;
 
@@ -397,10 +435,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {});
   }
 
-  void _handleCreatedChild(
-    ReorderableEntity reorderableEntity,
-    GlobalKey key,
-  ) {
+  /// Creates [ReorderableEntity] that contains all required values for animations.
+  ///
+  /// When the child was created, the offset and size is calculated (with [key]).
+  /// The offset is a bit more tricky and has to be translated to the local
+  /// offset in this widget.
+  /// At this way the offset will always be correct for calculations even though
+  /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
+  void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
@@ -411,8 +453,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final renderObject = key.currentContext?.findRenderObject();
 
     if (renderObject != null && offsetMap[index] == null) {
+      // translating global offset to the local offset in this widget
       final renderBox = renderObject as RenderBox;
-      offset = renderBox.localToGlobal(Offset.zero) + _getScrollOffset();
+      var parentRenderObject = context.findRenderObject() as RenderBox;
+      offset = parentRenderObject.globalToLocal(
+        renderBox.localToGlobal(Offset.zero),
+      );
+      offset += _getScrollOffset();
+
       size = renderBox.size;
     }
 

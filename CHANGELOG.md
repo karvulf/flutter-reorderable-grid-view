@@ -1,14 +1,26 @@
 ## 5.0.0-dev.8
-⭐️ **New features**
-* added new callback `onDraggedChildUpdated` (thanks for the PR [Bader-AI](https://github.com/Bader-Al))
-  * always called when the dragged child updated his position while dragging
-  * you should use this without changing the children, otherwise this could lead to weird behavior while using drag and drop
+🐛 **Bug fixes**
+* fixed animation when releasing a dragged item
 
 ## 5.0.0-dev.7
 ⭐️ **New features**
 * you can add `data` to `Draggable` or `LongPressDraggable`
   * use the widget `CustomDraggable` for that
   * more info is added to the read me
+* added new callback `onDraggedChildUpdated` (thanks for the PR [Bader-AI](https://github.com/Bader-Al))
+  * always called when the dragged child updated his position while dragging
+  * you should use this without changing the children, otherwise this could lead to weird behavior while using drag and drop
+* added new parameter `releasedChildDuration`
+  * can be used to define the duration when a dragged child was released and is moving to his new position
+  * default value is 150ms
+
+🐛 **Bug fixes**
+* there were issues that required to add `initDelay` to fix wrong behavior while drag and drop
+  * this should be fixed by calculating the positions differently to before
+  * before the positions were calculated related to the global widget
+  * now the positions are only calculated to the local widget
+  * this fixes wrong calculated positions
+  * fixes issue of `naw2nd` in [Issue #83](https://github.com/karvulf/flutter-reorderable-grid-view/issues/83) when using a BottomModalSheet
 
 ## 5.0.0-dev.6
 🐛 This release contains some bugfixes (optimization)

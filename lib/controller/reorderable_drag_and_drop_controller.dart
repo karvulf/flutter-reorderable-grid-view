@@ -11,24 +11,38 @@ class ReorderableDragAndDropController extends ReorderableController {
   var _lockedIndices = <int>[];
   ReleasedReorderableEntity? _releasedReorderableEntity;
 
+  /// Defines if the scrollable part is outside of the widget.
+  ///
+  /// The scrollable part can be a SingleChildScrollView that contains a
+  /// GridView. In that case the GridView wouldn't be scrollable and this
+  /// parameter should be true.
+  ///
+  /// If the GridView is scrollable, then this will be true.
+  bool _isScrollableOutside = false;
+
+  /// Saves the state of scroll [Offset] when the drag and drop is starting.
+  ///
+  /// This is need to calculate with correct values later when doing
+  /// drag and drop while scrolling.
+  Offset _startDraggingScrollOffset = Offset.zero;
+
   /// Holding this value for better performance.
   ///
-  /// After dragging a child, [_scrollOffset] is always updated.
-  Offset _scrollOffset = Offset.zero;
-
-  set scrollOffset(Offset offset) {
-    _scrollOffset = offset;
-  }
+  /// After dragging a child, [scrollOffset] is always updated.
+  Offset scrollOffset = Offset.zero;
 
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
+    required bool isScrollableOutside,
   }) {
     _releasedReorderableEntity = null;
     _lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
-    _scrollOffset = currentScrollOffset;
+    scrollOffset = currentScrollOffset;
+    _isScrollableOutside = isScrollableOutside;
+    _startDraggingScrollOffset = currentScrollOffset;
   }
 
   bool handleDragUpdate({
@@ -38,15 +52,18 @@ class ReorderableDragAndDropController extends ReorderableController {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
 
-    final position = pointerMoveEvent.position;
-    var draggedOffset = Offset(
-      position.dx + _scrollOffset.dx,
-      position.dy + _scrollOffset.dy,
-    );
+    final localOffset = pointerMoveEvent.localPosition;
+    late final Offset offset;
+
+    if (_isScrollableOutside) {
+      offset = localOffset + scrollOffset;
+    } else {
+      offset = localOffset + (scrollOffset - _startDraggingScrollOffset);
+    }
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(
       keyValue: draggedKey.value,
-      draggedOffset: draggedOffset,
+      draggedOffset: offset,
     );
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
@@ -82,10 +99,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     }
 
     return false;
-  }
-
-  void handleScrollUpdate({required Offset scrollOffset}) {
-    _scrollOffset = scrollOffset;
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {
