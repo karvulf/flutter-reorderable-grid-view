@@ -1,5 +1,8 @@
-## 5.0.0-dev.8
+## 5.0.0-dev.7
 ⭐️ **New features**
+* you can add `data` to `Draggable` or `LongPressDraggable`
+  * use the widget `CustomDraggable` for that
+  * more info is added to the read me
 * added new callback `onDraggedChildUpdated` (thanks for the PR [Bader-AI](https://github.com/Bader-Al))
   * always called when the dragged child updated his position while dragging
   * you should use this without changing the children, otherwise this could lead to weird behavior while using drag and drop
@@ -14,12 +17,6 @@
   * now the positions are only calculated to the local widget
   * this fixes wrong calculated positions
   * fixes issue of `naw2nd` in [Issue #83](https://github.com/karvulf/flutter-reorderable-grid-view/issues/83) when using a BottomModalSheet
-
-## 5.0.0-dev.7
-⭐️ **New features**
-* you can add `data` to `Draggable` or `LongPressDraggable`
-  * use the widget `CustomDraggable` for that
-  * more info is added to the read me
 
 ## 5.0.0-dev.6
 🐛 This release contains some bugfixes (optimization)
