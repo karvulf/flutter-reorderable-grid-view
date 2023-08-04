@@ -4,7 +4,7 @@ version: 5.0.0-dev.7
 repository: https://github.com/karvulf/flutter-reorderable-grid-view
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:

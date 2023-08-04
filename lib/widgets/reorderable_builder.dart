@@ -309,6 +309,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
+          // ignore: deprecated_member_use_from_same_package
           initDelay: widget.initDelay,
           onCreated: _handleCreatedChild,
           child: ReorderableAnimatedReleasedContainer(
