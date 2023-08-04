@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
@@ -23,7 +22,7 @@ class ReorderableDraggable extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   final ReorderableEntityCallback onDragStarted;
-  final ReleasedReorderableEntityCallback onDragEnd;
+  final OnDragEndFunction onDragEnd;
 
   final ReorderableEntity? currentDraggedEntity;
 
@@ -157,10 +156,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     }
 
     widget.onDragEnd(
-      ReleasedReorderableEntity(
-        reorderableEntity: widget.reorderableEntity,
-        dropOffset: offset,
-      ),
+      widget.reorderableEntity,
+      offset,
     );
   }
 
