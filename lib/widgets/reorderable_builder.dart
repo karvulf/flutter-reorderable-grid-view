@@ -385,7 +385,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       var globalRenderObject = context.findRenderObject() as RenderBox;
       offset = globalRenderObject.globalToLocal(globalOffset);
     } else {
-      offset = globalOffset;
+      var globalRenderObject = context.findRenderObject() as RenderBox;
+      final globalLocalOffset = globalRenderObject.globalToLocal(globalOffset);
+      offset = globalLocalOffset - _getScrollOffset();
     }
 
     // call to ensure animation to dropped item
