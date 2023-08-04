@@ -91,6 +91,9 @@ class ReorderableBuilder extends StatefulWidget {
   /// longer delay is necessary to ensure a correct behavior when using drag and drop.
   ///
   /// Not recommended to use.
+  @Deprecated((
+    """This can be removed and is not required anymore to fix weird drag and drop behavior.""",
+  ))
   final Duration? initDelay;
 
   /// Callback when dragging starts with the index where it started.
