@@ -343,15 +343,19 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     print('local offset $localOffset with scroll $localOffsetWithScroll');
     print('global offset $globalOffset with scroll $globalOffsetWithScroll');
     print('---');
+
+    late final Offset offset;
     // scrollable is outside
     if (Scrollable.maybeOf(context)?.position == null) {
       print('local offset with scroll');
+      offset = localOffsetWithScroll;
     } else {
       print('local offset with NO scroll');
+      offset = localOffset;
     }
 
     final hasUpdated = _reorderableController.handleDragUpdate(
-      offset: localOffsetWithScroll,
+      offset: offset,
       lockedIndices: widget.lockedIndices,
     );
 
