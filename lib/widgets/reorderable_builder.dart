@@ -327,6 +327,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       reorderableEntity: reorderableEntity,
       currentScrollOffset: _getScrollOffset(),
       lockedIndices: widget.lockedIndices,
+      isScrollableOutside: Scrollable.maybeOf(context)?.position == null,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
@@ -337,7 +338,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final hasUpdated = _reorderableController.handleDragUpdate(
       pointerMoveEvent: pointerMoveEvent,
       lockedIndices: widget.lockedIndices,
-      isScrollableOutside: Scrollable.maybeOf(context)?.position == null,
     );
 
     if (hasUpdated) {

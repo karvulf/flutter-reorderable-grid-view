@@ -10,6 +10,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   ReorderableEntity? _draggedEntity;
   var _lockedIndices = <int>[];
   ReleasedReorderableEntity? _releasedReorderableEntity;
+
+  bool _isScrollableOutside = false;
   Offset _startDraggingScrollOffset = Offset.zero;
 
   /// Holding this value for better performance.
@@ -21,31 +23,29 @@ class ReorderableDragAndDropController extends ReorderableController {
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
+    required bool isScrollableOutside,
   }) {
     _releasedReorderableEntity = null;
     _lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
+    _isScrollableOutside = isScrollableOutside;
     _startDraggingScrollOffset = currentScrollOffset;
   }
 
   bool handleDragUpdate({
     required PointerMoveEvent pointerMoveEvent,
     required List<int> lockedIndices,
-    required bool isScrollableOutside,
   }) {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
 
     final localOffset = pointerMoveEvent.localPosition;
-
     late final Offset offset;
-    // scrollable is outside
-    if (isScrollableOutside) {
-      print('local offset with YES scroll');
+
+    if (_isScrollableOutside) {
       offset = localOffset + scrollOffset;
     } else {
-      print('local offset with NO scroll');
       offset = localOffset + (scrollOffset - _startDraggingScrollOffset);
     }
 
