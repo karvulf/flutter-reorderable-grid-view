@@ -381,7 +381,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     // scrollable part is outside this widget
     if (Scrollable.maybeOf(context)?.position != null) {
-      offset -= -_reorderableController.scrollOffset;
+      offset -= _reorderableController.scrollOffset;
     }
 
     // call to ensure animation to dropped item
