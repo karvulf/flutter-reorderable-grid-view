@@ -334,10 +334,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
+    // final renderBox = renderObject as RenderBox;
+    var parentRenderObject = context.findRenderObject() as RenderBox;
+    final offset = parentRenderObject.globalToLocal(
+      pointerMoveEvent.position,
+    );
+
     final hasUpdated = _reorderableController.handleDragUpdate(
-      pointerMoveEvent: pointerMoveEvent,
+      offset: offset,
       lockedIndices: widget.lockedIndices,
     );
+
     if (hasUpdated) {
       // this fixes the issue when the user scrolls while dragging to get the updated scroll value
       _reorderableController.scrollOffset = _getScrollOffset();

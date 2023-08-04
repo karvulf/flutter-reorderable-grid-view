@@ -32,21 +32,21 @@ class ReorderableDragAndDropController extends ReorderableController {
   }
 
   bool handleDragUpdate({
-    required PointerMoveEvent pointerMoveEvent,
+    required Offset offset,
     required List<int> lockedIndices,
   }) {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
-
+/*
     final position = pointerMoveEvent.localPosition;
     var draggedOffset = Offset(
       position.dx + _scrollOffset.dx,
       position.dy + _scrollOffset.dy,
     );
-
+*/
     final collisionReorderableEntity = _getCollisionReorderableEntity(
       keyValue: draggedKey.value,
-      draggedOffset: draggedOffset,
+      draggedOffset: offset,
     );
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
