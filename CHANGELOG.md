@@ -1,6 +1,7 @@
 ## 5.0.0-dev.8
 🐛 **Bug fixes**
 * fixed animation when releasing a dragged item
+* fixed item animations when adding or removing them
 
 ## 5.0.0-dev.7
 ⭐️ **New features**
