@@ -442,8 +442,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// offset in this widget.
   /// At this way the offset will always be correct for calculations even though
   /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
-  Future<void> _handleCreatedChild(
-      ReorderableEntity reorderableEntity, GlobalKey key) async {
+  void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 

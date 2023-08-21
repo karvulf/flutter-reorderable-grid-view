@@ -65,16 +65,9 @@ class _ReorderableAnimatedOpacityState
   }
 
   void _handleAnimationFinished() {
-    if (widget.reorderableEntity.isNew) {
-      // post frame delay is needed to ensure the widget was built
-      if (widget.fadeInDuration == Duration.zero) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _callOnOpacityFinished();
-        });
-      } else {
-        _callOnOpacityFinished();
-      }
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _callOnOpacityFinished();
+    });
   }
 
   void _callOnOpacityFinished() {
