@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
+import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 100;
+  static const _startCounter = 3333;
   final lockedIndices = <int>[];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -72,9 +72,11 @@ class _MyAppState extends State<MyApp> {
                   }
                 },
                 onTapSwap: () {
-                  _handleReorder([
-                    const OrderUpdateEntity(oldIndex: 0, newIndex: 1),
-                  ]);
+                  final child1 = children[0];
+                  final child2 = children[1];
+                  children[0] = child2;
+                  children[1] = child1;
+                  setState(() {});
                 },
               ),
               DropdownButton<ReorderableType>(
@@ -110,41 +112,17 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _handleReorder(List<OrderUpdateEntity> onReorderList) {
-    for (final reorder in onReorderList) {
-      final child = children.removeAt(reorder.oldIndex);
-      children.insert(reorder.newIndex, child);
-    }
-    setState(() {});
-  }
-
   Widget _getReorderableWidget() {
-    final generatedChildren = List<Widget>.generate(
-      children.length,
-      (index) => Container(
-        key: Key(children[index].toString()),
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
-        ),
-        height: 100.0,
-        width: 100.0,
-        child: Center(
-          child: Text(
-            'test ${children[index]}',
-            style: const TextStyle(),
-          ),
-        ),
-      ),
-    );
-
     switch (reorderableType) {
       case ReorderableType.gridView:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: _handleDragStarted,
+          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           builder: (children) {
@@ -162,22 +140,30 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewCount:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           scrollController: _scrollController,
+          fadeInDuration: Duration.zero,
+          enableLongPress: true,
           builder: (children) {
             return GridView.count(
               key: _gridViewKey,
               controller: _scrollController,
-              children: children,
+              scrollDirection: Axis.horizontal,
               crossAxisCount: 3,
+              shrinkWrap: true,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              children: children,
             );
           },
         );
       case ReorderableType.gridViewExtent:
+        final generatedChildren = _getGeneratedChildren();
         return ReorderableBuilder(
           key: Key(_gridViewKey.toString()),
           children: generatedChildren,
@@ -198,24 +184,24 @@ class _MyAppState extends State<MyApp> {
         );
 
       case ReorderableType.gridViewBuilder:
-        return ReorderableBuilder(
-          children: generatedChildren,
+        return ReorderableBuilder.builder(
+          key: Key(_gridViewKey.toString()),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
-          onDragStarted: () {
-            const snackBar = SnackBar(
-              content: Text('Dragging has started!'),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          },
+          onDragStarted: _handleDragStarted,
+          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
+          onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
-          builder: (children) {
+          childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
-                return children[index];
+                return itemBuilder(
+                  _getChild(index: index),
+                  index,
+                );
               },
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
@@ -228,20 +214,56 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void _handleDragStarted() {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    const snackBar = SnackBar(
-      content: Text('Dragging has started!'),
-      duration: Duration(milliseconds: 1000),
+  List<Widget> _getGeneratedChildren() {
+    return List<Widget>.generate(
+      children.length,
+      (index) => _getChild(index: index),
     );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _handleDragEnd() {
+  Widget _getChild({required int index}) {
+    return CustomDraggable(
+      key: Key(children[index].toString()),
+      data: index,
+      child: Container(
+        decoration: BoxDecoration(
+          color: lockedIndices.contains(index) ? Colors.black : Colors.white,
+        ),
+        height: 100.0,
+        width: 100.0,
+        child: Center(
+          child: Text(
+            'test ${children[index]}',
+            style: const TextStyle(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleDragStarted(int index) {
+    _showSnackbar(text: 'Dragging at index $index has started!');
+  }
+
+  void _handleUpdatedDraggedChild(int index) {
+    _showSnackbar(text: 'Dragged child updated position to $index');
+  }
+
+  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+    setState(() {
+      children = reorderedListFunction(children) as List<int>;
+    });
+  }
+
+  void _handleDragEnd(int index) {
+    _showSnackbar(text: 'Dragging was finished at $index!');
+  }
+
+  void _showSnackbar({required String text}) {
     ScaffoldMessenger.of(context).clearSnackBars();
-    const snackBar = SnackBar(
-      content: Text('Dragging was finished!'),
-      duration: Duration(milliseconds: 1000),
+    final snackBar = SnackBar(
+      content: Text(text),
+      duration: const Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
