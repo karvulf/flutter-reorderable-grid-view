@@ -22,12 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 3333;
-  final lockedIndices = <int>[];
+  static const _startCounter = 2;
+  final lockedIndices = <int>[0];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+  ReorderableType reorderableType = ReorderableType.gridViewExtent;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -45,14 +45,14 @@ class _MyAppState extends State<MyApp> {
                 onTapAddChild: () {
                   setState(() {
                     // children = children..add(keyCounter++);
-                    children.insert(0, keyCounter++);
+                    children.insert(1, keyCounter++);
                   });
                 },
                 onTapRemoveChild: () {
                   if (children.isNotEmpty) {
                     setState(() {
                       // children = children..removeLast();
-                      children.removeAt(0);
+                      children.removeAt(2);
                     });
                   }
                 },
@@ -217,11 +217,33 @@ class _MyAppState extends State<MyApp> {
   List<Widget> _getGeneratedChildren() {
     return List<Widget>.generate(
       children.length,
-      (index) => _getChild(index: index),
+          (index) => _getChild(index: index),
     );
   }
 
   Widget _getChild({required int index}) {
+    if (index == 0) {
+      return CustomDraggable(
+          key: Key(children[index].toString()),
+          data: index,
+          child: DragTarget(
+            onAccept: (v) {
+              setState(() {
+                children.removeAt(v as int);
+              });
+            },
+            builder: (context, candidateData, rejectedData) {
+              return Container(
+                height: 100.0,
+                width: 100.0,
+                child: Center(
+                  child: Icon(Icons.delete),
+                ),
+              );
+            },
+          ));
+    }
+
     return CustomDraggable(
       key: Key(children[index].toString()),
       data: index,
