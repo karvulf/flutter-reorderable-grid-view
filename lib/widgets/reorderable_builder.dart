@@ -376,6 +376,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     ReorderableEntity reorderableEntity,
     Offset globalOffset,
   ) {
+    if(globalOffset == Offset(-999, -999)){
+      _finishDragging(updateState: false);
+      return;
+    }
     var globalRenderObject = context.findRenderObject() as RenderBox;
     var offset = globalRenderObject.globalToLocal(globalOffset);
 
@@ -393,14 +397,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
     setState(() {});
 
-    _finishDragging();
+    _finishDragging(updateState: true);
   }
 
   void _handleScrollUpdate(Offset scrollOffset) {
     _reorderableController.scrollOffset = scrollOffset;
   }
 
-  void _finishDragging() {
+  void _finishDragging({required bool updateState}) {
     final draggedEntity = _reorderableController.draggedEntity;
     if (draggedEntity == null) return;
 
@@ -416,7 +420,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     // important to update the dragged entity which should be null at this point
-    setState(() {});
+    if(updateState) setState(() {});
   }
 
   /// Animation part

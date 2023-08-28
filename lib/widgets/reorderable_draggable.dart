@@ -81,6 +81,14 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   @override
+  void deactivate() {
+    if( widget.reorderableEntity.key == widget.currentDraggedEntity?.key) {
+      _handleDragEnd(const Offset(-999, -999));
+    }
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _decoratedBoxAnimationController.dispose();
     super.dispose();
