@@ -53,7 +53,6 @@ abstract class ReorderableController {
   /// In the end, the [childrenOrderMap] and [childrenKeyMap] are updated.
   void handleCreatedChild({
     required Offset? offset,
-    required Size? size,
     required ReorderableEntity reorderableEntity,
   }) {
     if (offset != null) {
@@ -61,7 +60,6 @@ abstract class ReorderableController {
     }
     final updatedEntity = reorderableEntity.creationFinished(
       offset: offset,
-      size: size,
     );
     _updateMaps(reorderableEntity: updatedEntity);
   }
@@ -145,6 +143,13 @@ abstract class ReorderableController {
   }
 
   void _updateMaps({required ReorderableEntity reorderableEntity}) {
+    // removes deprecated values in maps
+    childrenKeyMap.removeWhere(
+      (key, value) => value.updatedOrderId == reorderableEntity.updatedOrderId,
+    );
+    childrenOrderMap.removeWhere(
+      (key, value) => value.updatedOrderId == reorderableEntity.updatedOrderId,
+    );
     childrenOrderMap[reorderableEntity.originalOrderId] = reorderableEntity;
     childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
   }
