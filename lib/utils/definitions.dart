@@ -9,9 +9,13 @@ typedef ReorderableEntityCallback = void Function(
 typedef ReleasedReorderableEntityCallback = void Function(
     ReleasedReorderableEntity releasedReorderableEntity);
 
+///
+///
+/// If [globalOffset] is null then [reorderableEntity] was removed before the
+/// drag was finished.
 typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
-  Offset globalOffset,
+  Offset? globalOffset,
 );
 
 typedef OnCreatedFunction = void Function(

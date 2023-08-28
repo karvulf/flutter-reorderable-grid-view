@@ -374,9 +374,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// has to be subtracted to get the correct position.
   void _handleDragEnd(
     ReorderableEntity reorderableEntity,
-    Offset globalOffset,
+    Offset? globalOffset,
   ) {
-    if(globalOffset == Offset(-999, -999)){
+    if (globalOffset == null) {
       _finishDragging(updateState: false);
       return;
     }
@@ -420,7 +420,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
 
     // important to update the dragged entity which should be null at this point
-    if(updateState) setState(() {});
+    if (updateState) setState(() {});
   }
 
   /// Animation part

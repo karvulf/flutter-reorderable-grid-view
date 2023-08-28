@@ -81,14 +81,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   }
 
   @override
-  void deactivate() {
-    if( widget.reorderableEntity.key == widget.currentDraggedEntity?.key) {
-      _handleDragEnd(const Offset(-999, -999));
-    }
-    super.deactivate();
-  }
-
-  @override
   void dispose() {
     _decoratedBoxAnimationController.dispose();
     super.dispose();
@@ -104,6 +96,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
+      onDispose: (reorderableEntity) {
+        _handleDragEnd(null);
+      },
       child: child,
     );
 
@@ -158,8 +153,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   ///
   /// Important: This can also be called after the widget was disposed but
   /// is still dragged. This has to be done to finish the drag and drop.
-  void _handleDragEnd(Offset offset) {
-    if (mounted) {
+  void _handleDragEnd(Offset? offset) {
+    if (mounted && offset != null) {
       _decoratedBoxAnimationController.reset();
     }
 

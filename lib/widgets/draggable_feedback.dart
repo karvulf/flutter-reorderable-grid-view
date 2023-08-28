@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
-class DraggableFeedback extends StatelessWidget {
+class DraggableFeedback extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
   final Animation<Decoration> decoration;
+  final void Function(ReorderableEntity reorderableEntity) onDispose;
 
   const DraggableFeedback({
     required this.child,
     required this.reorderableEntity,
     required this.decoration,
+    required this.onDispose,
     Key? key,
   }) : super(key: key);
 
   @override
+  State<DraggableFeedback> createState() => _DraggableFeedbackState();
+}
+
+class _DraggableFeedbackState extends State<DraggableFeedback> {
+  @override
+  void deactivate() {
+    widget.onDispose(widget.reorderableEntity);
+    super.deactivate();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final size = reorderableEntity.size;
+    final size = widget.reorderableEntity.size;
 
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
@@ -24,8 +38,8 @@ class DraggableFeedback extends StatelessWidget {
         width: size.width,
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
-          decoration: decoration,
-          child: child,
+          decoration: widget.decoration,
+          child: widget.child,
         ),
       ),
     );
