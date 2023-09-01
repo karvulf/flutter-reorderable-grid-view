@@ -98,7 +98,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
-      onDispose: (reorderableEntity) {
+      onDeactivate: (reorderableEntity) {
         widget.onDragCanceled(reorderableEntity);
       },
       child: child,
