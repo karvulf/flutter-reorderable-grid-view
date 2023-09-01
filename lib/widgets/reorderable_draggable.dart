@@ -23,6 +23,7 @@ class ReorderableDraggable extends StatefulWidget {
 
   final ReorderableEntityCallback onDragStarted;
   final OnDragEndFunction onDragEnd;
+  final OnDragCanceledFunction onDragCanceled;
 
   final ReorderableEntity? currentDraggedEntity;
 
@@ -34,6 +35,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.enableDraggable,
     required this.onDragStarted,
     required this.onDragEnd,
+    required this.onDragCanceled,
     required this.currentDraggedEntity,
     this.dragChildBoxDecoration,
     Key? key,
@@ -97,7 +99,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         _decoratedBoxAnimationController,
       ),
       onDispose: (reorderableEntity) {
-        _handleDragEnd(null);
+        widget.onDragCanceled(reorderableEntity);
       },
       child: child,
     );
@@ -153,8 +155,8 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   ///
   /// Important: This can also be called after the widget was disposed but
   /// is still dragged. This has to be done to finish the drag and drop.
-  void _handleDragEnd(Offset? offset) {
-    if (mounted && offset != null) {
+  void _handleDragEnd(Offset offset) {
+    if (mounted) {
       _decoratedBoxAnimationController.reset();
     }
 

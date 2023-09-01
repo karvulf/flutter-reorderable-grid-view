@@ -327,6 +327,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
               onDragEnd: _handleDragEnd,
+              onDragCanceled: _handleDragCanceled,
               child: child,
             ),
           ),
@@ -374,12 +375,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// has to be subtracted to get the correct position.
   void _handleDragEnd(
     ReorderableEntity reorderableEntity,
-    Offset? globalOffset,
+    Offset globalOffset,
   ) {
-    if (globalOffset == null) {
-      _finishDragging(updateState: false);
-      return;
-    }
     var globalRenderObject = context.findRenderObject() as RenderBox;
     var offset = globalRenderObject.globalToLocal(globalOffset);
 
@@ -397,14 +394,24 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
     setState(() {});
 
-    _finishDragging(updateState: true);
+    _finishDragging();
+
+    // important to update the dragged entity which should be null at this point
+    setState(() {});
+  }
+
+  /// Called after the dragged child was canceled, e.g. deleted.
+  ///
+  /// Finishes dragging without doing any animation for the dragged entity.
+  void _handleDragCanceled(ReorderableEntity reorderableEntity) {
+    _finishDragging();
   }
 
   void _handleScrollUpdate(Offset scrollOffset) {
     _reorderableController.scrollOffset = scrollOffset;
   }
 
-  void _finishDragging({required bool updateState}) {
+  void _finishDragging() {
     final draggedEntity = _reorderableController.draggedEntity;
     if (draggedEntity == null) return;
 
@@ -418,9 +425,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             reorderUpdateEntities: reorderUpdateEntities,
           ));
     }
-
-    // important to update the dragged entity which should be null at this point
-    if (updateState) setState(() {});
   }
 
   /// Animation part
