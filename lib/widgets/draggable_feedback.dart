@@ -6,13 +6,13 @@ class DraggableFeedback extends StatefulWidget {
   final Widget child;
   final ReorderableEntity reorderableEntity;
   final Animation<Decoration> decoration;
-  final void Function(ReorderableEntity reorderableEntity) onDispose;
+  final ReorderableEntityCallback onDeactivate;
 
   const DraggableFeedback({
     required this.child,
     required this.reorderableEntity,
     required this.decoration,
-    required this.onDispose,
+    required this.onDeactivate,
     Key? key,
   }) : super(key: key);
 
@@ -23,7 +23,7 @@ class DraggableFeedback extends StatefulWidget {
 class _DraggableFeedbackState extends State<DraggableFeedback> {
   @override
   void deactivate() {
-    widget.onDispose(widget.reorderableEntity);
+    widget.onDeactivate(widget.reorderableEntity);
     super.deactivate();
   }
 

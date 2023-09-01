@@ -1,3 +1,7 @@
+## 5.0.0-dev.9
+🐛 **Bug fixes**
+* fixed issue when deleting the dragged child (thanks to `khjde1207` - Issue [#88](https://github.com/karvulf/flutter-reorderable-grid-view/issues/88))
+
 ## 5.0.0-dev.8
 🐛 **Bug fixes**
 * fixed animation when releasing a dragged item
