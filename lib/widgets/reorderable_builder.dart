@@ -352,7 +352,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
     final hasUpdated = _reorderableController.handleDragUpdate(
       pointerMoveEvent: pointerMoveEvent,
-      lockedIndices: widget.lockedIndices,
     );
 
     if (hasUpdated) {

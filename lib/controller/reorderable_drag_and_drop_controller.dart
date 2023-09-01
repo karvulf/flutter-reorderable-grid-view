@@ -10,7 +10,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   ReorderableEntity? _draggedEntity;
 
   /// Indices of children that cannot move while drag and drop.
-  var _lockedIndices = <int>[];
+  @visibleForTesting
+  var lockedIndices = <int>[];
 
   /// Entity that is released after drag and drop.
   ///
@@ -25,7 +26,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// parameter should be true.
   ///
   /// If the GridView is scrollable, then this will be true.
-  bool _isScrollableOutside = false;
+  @visibleForTesting
+  bool isScrollableOutside = false;
 
   /// Saves the state of scroll [Offset] when the drag and drop is starting.
   ///
@@ -46,24 +48,21 @@ class ReorderableDragAndDropController extends ReorderableController {
     required bool isScrollableOutside,
   }) {
     _releasedReorderableEntity = null;
-    _lockedIndices = lockedIndices;
+    this.lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
-    _isScrollableOutside = isScrollableOutside;
+    this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
   }
 
-  bool handleDragUpdate({
-    required PointerMoveEvent pointerMoveEvent,
-    required List<int> lockedIndices,
-  }) {
+  bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
 
     final localOffset = pointerMoveEvent.localPosition;
     late final Offset offset;
 
-    if (_isScrollableOutside) {
+    if (isScrollableOutside) {
       offset = localOffset + scrollOffset;
     } else {
       offset = localOffset + (scrollOffset - startDraggingScrollOffset);
@@ -351,7 +350,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     while (currentCollisionOrderId != newIndex) {
       currentCollisionOrderId += summands;
 
-      if (!_lockedIndices.contains(currentCollisionOrderId)) {
+      if (!lockedIndices.contains(currentCollisionOrderId)) {
         // if there was one or more locked indices, then a new OrderUpdateEntity has to be added
         // this prevents wrong ordering values when calling onReorder
         if (hasFoundLockedIndex) {

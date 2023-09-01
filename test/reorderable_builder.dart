@@ -9,13 +9,17 @@ class ReorderableBuilder {
     ).toList();
   }
 
-  ReorderableEntity getEntity({String key = 'key'}) {
+  ReorderableEntity getEntity({
+    String key = 'key',
+    int updatedOrderId = 1,
+    Offset updatedOffset = const Offset(30.0, 31.0),
+  }) {
     return ReorderableEntity(
       key: ValueKey(key),
       originalOrderId: 0,
-      updatedOrderId: 1,
+      updatedOrderId: updatedOrderId,
       originalOffset: const Offset(20.0, 21.0),
-      updatedOffset: const Offset(30.0, 31.0),
+      updatedOffset: updatedOffset,
       size: const Size(10.0, 11.0),
       isBuildingOffset: true,
       hasSwappedOrder: true,
