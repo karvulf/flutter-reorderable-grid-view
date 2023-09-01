@@ -327,6 +327,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               onDragStarted: _handleDragStarted,
               onDragEnd: _handleDragEnd,
+              onDragCanceled: _handleDragCanceled,
               child: child,
             ),
           ),
@@ -394,6 +395,16 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     setState(() {});
 
     _finishDragging();
+
+    // important to update the dragged entity which should be null at this point
+    setState(() {});
+  }
+
+  /// Called after the dragged child was canceled, e.g. deleted.
+  ///
+  /// Finishes dragging without doing any animation for the dragged entity.
+  void _handleDragCanceled(ReorderableEntity reorderableEntity) {
+    _finishDragging();
   }
 
   void _handleScrollUpdate(Offset scrollOffset) {
@@ -414,9 +425,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             reorderUpdateEntities: reorderUpdateEntities,
           ));
     }
-
-    // important to update the dragged entity which should be null at this point
-    setState(() {});
   }
 
   /// Animation part

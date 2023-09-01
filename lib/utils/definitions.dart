@@ -9,9 +9,15 @@ typedef ReorderableEntityCallback = void Function(
 typedef ReleasedReorderableEntityCallback = void Function(
     ReleasedReorderableEntity releasedReorderableEntity);
 
+///
 typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
   Offset globalOffset,
+);
+
+/// Called if drag was canceled, e.g. the dragged item is removed while dragging.
+typedef OnDragCanceledFunction = void Function(
+  ReorderableEntity reorderableEntity,
 );
 
 typedef OnCreatedFunction = void Function(

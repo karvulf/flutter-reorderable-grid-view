@@ -23,6 +23,7 @@ class ReorderableDraggable extends StatefulWidget {
 
   final ReorderableEntityCallback onDragStarted;
   final OnDragEndFunction onDragEnd;
+  final OnDragCanceledFunction onDragCanceled;
 
   final ReorderableEntity? currentDraggedEntity;
 
@@ -34,6 +35,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.enableDraggable,
     required this.onDragStarted,
     required this.onDragEnd,
+    required this.onDragCanceled,
     required this.currentDraggedEntity,
     this.dragChildBoxDecoration,
     Key? key,
@@ -96,6 +98,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
+      onDeactivate: (reorderableEntity) {
+        widget.onDragCanceled(reorderableEntity);
+      },
       child: child,
     );
 
