@@ -1,15 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
+/// TODO: add comment
 abstract class ReorderableController {
-  @visibleForTesting
 // todo nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
   final childrenOrderMap = <int, ReorderableEntity>{};
 
-  @visibleForTesting
   final childrenKeyMap = <String, ReorderableEntity>{};
 
-  @visibleForTesting
   final offsetMap = <int, Offset>{};
 
   /// Creates or updates [ReorderableEntity] related to [key] and returns it.

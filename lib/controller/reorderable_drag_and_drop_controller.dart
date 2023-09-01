@@ -4,11 +4,18 @@ import 'package:flutter_reorderable_grid_view/entities/released_reorderable_enti
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-var counter = 0;
-
+/// TODO: add comment
 class ReorderableDragAndDropController extends ReorderableController {
+  /// Instance of dragged entity when dragging starts.
   ReorderableEntity? _draggedEntity;
+
+  /// Indices of children that cannot move while drag and drop.
   var _lockedIndices = <int>[];
+
+  /// Entity that is released after drag and drop.
+  ///
+  /// [ReleasedReorderableEntity] contains the offset where it was released.
+  /// This value is required to animate the released item to his new position.
   ReleasedReorderableEntity? _releasedReorderableEntity;
 
   /// Defines if the scrollable part is outside of the widget.
@@ -24,7 +31,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   ///
   /// This is need to calculate with correct values later when doing
   /// drag and drop while scrolling.
-  Offset _startDraggingScrollOffset = Offset.zero;
+  @visibleForTesting
+  Offset startDraggingScrollOffset = Offset.zero;
 
   /// Holding this value for better performance.
   ///
@@ -42,7 +50,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
     _isScrollableOutside = isScrollableOutside;
-    _startDraggingScrollOffset = currentScrollOffset;
+    startDraggingScrollOffset = currentScrollOffset;
   }
 
   bool handleDragUpdate({
@@ -58,7 +66,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     if (_isScrollableOutside) {
       offset = localOffset + scrollOffset;
     } else {
-      offset = localOffset + (scrollOffset - _startDraggingScrollOffset);
+      offset = localOffset + (scrollOffset - startDraggingScrollOffset);
     }
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(

@@ -8,5 +8,9 @@ void main() {
     controller = ReorderableDragAndDropController();
   });
 
-
+  group('#handleDragStarted', () {
+    test('description', () {
+      //
+    });
+  });
 }
