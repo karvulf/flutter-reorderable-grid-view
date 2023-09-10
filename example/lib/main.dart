@@ -23,8 +23,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 3333;
-  final lockedIndices = <int>[];
-
+  final lockedIndices = <int>[0];
+  final nonDraggableIndices = [0, 2, 3];
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
   ReorderableType reorderableType = ReorderableType.gridViewBuilder;
@@ -121,6 +121,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
@@ -145,6 +146,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
           fadeInDuration: Duration.zero,
           enableLongPress: true,
@@ -168,6 +170,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
           builder: (children) {
             return GridView.extent(
@@ -187,12 +190,14 @@ class _MyAppState extends State<MyApp> {
           key: Key(_gridViewKey.toString()),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           onDragStarted: _handleDragStarted,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
+              scrollDirection: Axis.horizontal,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
