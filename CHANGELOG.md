@@ -5,6 +5,8 @@
 ⭐️ **New features**
 * added parameter `positionDuration` (thanks to `naderhezzy` - Issue [#94](https://github.com/karvulf/flutter-reorderable-grid-view/issues/94))
   * changes the animation duration when a child updates his position e.g. when adding or removing a child
+* added parameter `nonDraggableIndicies` (thanks to `Bader-Al` for the PR [#93](https://github.com/karvulf/flutter-reorderable-grid-view/pull/93/))
+  * you can specify the indices of children that cannot be dragged but are still movable while dragging
 
 ## 5.0.0-dev.8
 🐛 **Bug fixes**
