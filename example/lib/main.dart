@@ -186,6 +186,7 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewBuilder:
         return ReorderableBuilder.builder(
           key: Key(_gridViewKey.toString()),
+          positionDuration: const Duration(seconds: 1),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           onDragStarted: _handleDragStarted,

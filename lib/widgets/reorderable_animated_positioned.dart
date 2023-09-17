@@ -30,11 +30,15 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// then the callback won't be fired.
   final ReorderableEntityCallback onMovingFinished;
 
+  /// Duration for the position change of [child] (won't be used while dragging!).
+  final Duration positionDuration;
+
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
+    required this.positionDuration,
     Key? key,
   }) : super(key: key);
 
@@ -46,6 +50,12 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
 class _ReorderableAnimatedPositionedState
     extends State<ReorderableAnimatedPositioned>
     with SingleTickerProviderStateMixin {
+  /// Default duration when an item changes his position.
+  ///
+  /// This duration will be used for position changes while draggong or not
+  /// dragging.
+  final _defaultAnimationDuration = const Duration(milliseconds: 200);
+
   /// This controller will be used for the animation when the position changes.
   late AnimationController _animationController;
 
@@ -57,8 +67,7 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
-      // Todo: duration zu den parametern hinzufügen
-      duration: const Duration(milliseconds: 200),
+      duration: _defaultAnimationDuration,
       vsync: this,
     );
 
@@ -146,6 +155,7 @@ class _ReorderableAnimatedPositionedState
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
   }) async {
+    _animationController.duration = _defaultAnimationDuration;
     final tween = Tween<Offset>(begin: begin, end: end);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
@@ -174,6 +184,8 @@ class _ReorderableAnimatedPositionedState
   /// Important, this function is only added when [widget.child] updates his
   /// position, not while dragging.
   Future<void> _animateOffset({required Offset begin}) async {
+    _animationController.duration = widget.positionDuration;
+
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {

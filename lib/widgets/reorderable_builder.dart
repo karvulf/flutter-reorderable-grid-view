@@ -81,6 +81,14 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: const Duration(milliseconds: 150)
   final Duration releasedChildDuration;
 
+  /// Duration for the position change of a child.
+  ///
+  /// The position can be updated if a child was removed or added.
+  /// This duration won't be used for the position changes while dragging.
+  ///
+  /// Default value: const Duration(milliseconds: 200)
+  final Duration positionDuration;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -144,6 +152,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
     this.releasedChildDuration = const Duration(milliseconds: 150),
+    this.positionDuration = const Duration(milliseconds: 200),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -167,6 +176,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.enableScrollingWhileDragging = true,
     this.fadeInDuration = const Duration(milliseconds: 500),
     this.releasedChildDuration = const Duration(milliseconds: 150),
+    this.positionDuration = const Duration(milliseconds: 200),
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -306,6 +316,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       child: ReorderableAnimatedPositioned(
         reorderableEntity: reorderableEntity,
         isDragging: currentDraggedEntity != null,
+        positionDuration: widget.positionDuration,
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
