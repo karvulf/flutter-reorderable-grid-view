@@ -3,6 +3,7 @@ import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
+//
 enum ReorderableType {
   gridView,
   gridViewCount,
@@ -23,8 +24,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 3333;
-  final lockedIndices = <int>[];
-
+  final lockedIndices = <int>[0];
+  final nonDraggableIndices = [0, 2, 3];
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
   ReorderableType reorderableType = ReorderableType.gridViewBuilder;
@@ -121,6 +122,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           onDragStarted: _handleDragStarted,
           onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
@@ -146,6 +148,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
           fadeInDuration: Duration.zero,
           enableLongPress: true,
@@ -169,6 +172,7 @@ class _MyAppState extends State<MyApp> {
           children: generatedChildren,
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
           builder: (children) {
             return GridView.extent(
@@ -188,6 +192,7 @@ class _MyAppState extends State<MyApp> {
           key: Key(_gridViewKey.toString()),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
+          nonDraggableIndices: nonDraggableIndices,
           onDragStarted: _handleDragStarted,
           onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
@@ -195,6 +200,7 @@ class _MyAppState extends State<MyApp> {
           childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
+              scrollDirection: Axis.horizontal,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {
