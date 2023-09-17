@@ -38,6 +38,11 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: <int>[]
   final List<int> lockedIndices;
 
+  ///
+  ///
+  /// Default value: <int>[]
+  final List<int> nonDraggableIndices;
+
   /// The drag of a child can be started with the long press.
   ///
   /// Default value: true
@@ -145,6 +150,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
+    this.nonDraggableIndices = const [],
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
@@ -169,6 +175,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
+    this.nonDraggableIndices = const [],
     this.enableLongPress = true,
     this.longPressDelay = kLongPressTimeout,
     this.enableDraggable = true,
@@ -193,8 +200,7 @@ class ReorderableBuilder extends StatefulWidget {
 }
 
 // Todo: Items tauschen im Builder, z. B. 140 auf Position 300
-class _ReorderableBuilderState extends State<ReorderableBuilder>
-    with WidgetsBindingObserver {
+class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
@@ -274,11 +280,14 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
     final reorderableController = _reorderableController;
     final draggedEntity = reorderableController.draggedEntity;
+    // Check if the current index is in the lockedIndices list
+    bool isDraggable = !widget.nonDraggableIndices.contains(index);
+
     return _wrapChild(
-      child: child,
-      reorderableEntity: reorderableEntity,
-      currentDraggedEntity: draggedEntity,
-    );
+        child: child,
+        reorderableEntity: reorderableEntity,
+        currentDraggedEntity: draggedEntity,
+        isDraggable: isDraggable);
   }
 
   List<Widget> _wrapChildren() {
@@ -293,22 +302,25 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     for (final child in children) {
       final key = (child.key as ValueKey);
       final reorderableEntity = childrenKeyMap[key.value]!;
+      // Check if the current index is in the lockedIndices list
+      bool isDraggable = !widget.nonDraggableIndices.contains(key.value);
+
       updatedChildren.add(
         _wrapChild(
-          child: child,
-          reorderableEntity: reorderableEntity,
-          currentDraggedEntity: draggedEntity,
-        ),
+            child: child,
+            reorderableEntity: reorderableEntity,
+            currentDraggedEntity: draggedEntity,
+            isDraggable: isDraggable),
       );
     }
     return updatedChildren;
   }
 
-  Widget _wrapChild({
-    required Widget child,
-    required ReorderableEntity reorderableEntity,
-    required ReorderableEntity? currentDraggedEntity,
-  }) {
+  Widget _wrapChild(
+      {required Widget child,
+      required ReorderableEntity reorderableEntity,
+      required ReorderableEntity? currentDraggedEntity,
+      required bool isDraggable}) {
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
@@ -324,14 +336,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
           initDelay: widget.initDelay,
           onCreated: _handleCreatedChild,
           child: ReorderableAnimatedReleasedContainer(
-            releasedReorderableEntity:
-                _reorderableController.releasedReorderableEntity,
+            releasedReorderableEntity: _reorderableController.releasedReorderableEntity,
             scrollOffset: _getScrollOffset(),
             releasedChildDuration: widget.releasedChildDuration,
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
               reorderableEntity: reorderableEntity,
-              enableDraggable: widget.enableDraggable,
+              enableDraggable: widget.enableDraggable && isDraggable, //! Added new check here
               currentDraggedEntity: currentDraggedEntity,
               enableLongPress: widget.enableLongPress,
               longPressDelay: widget.longPressDelay,
@@ -515,9 +526,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
 
-    if (scrollPosition == null &&
-        scrollController != null &&
-        scrollController.hasClients) {
+    if (scrollPosition == null && scrollController != null && scrollController.hasClients) {
       scrollPosition = scrollController.position;
     }
 
