@@ -24,7 +24,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const _startCounter = 3333;
-  final lockedIndices = <int>[0];
+  final lockedIndices = <int>[0, 4];
   final nonDraggableIndices = [0, 2, 3];
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
