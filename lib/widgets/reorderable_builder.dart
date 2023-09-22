@@ -336,7 +336,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required ReorderableEntity? currentDraggedEntity,
     required int index,
   }) {
-    bool isDraggable = !widget.nonDraggableIndices.contains(index);
+    bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
+        !widget.lockedIndices.contains(index);
+
     return ReorderableAnimatedOpacity(
       reorderableEntity: reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
