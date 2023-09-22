@@ -11,74 +11,156 @@ import 'package:flutter/cupertino.dart';
 /// Also the current state of [child] is added as information: [isBuilding],
 /// [isNew] and [hasSwappedOrder].
 class ReorderableEntity {
-  /// Represents this entity
-  final Widget child;
+  static const _isNewChildId = -1;
 
-  /// Describes [size] of [child].
-  final Size size;
+  final ValueKey key;
 
-  /// Describes the original orderId before it was updated.
   final int originalOrderId;
-
-  /// Describes the updated orderId when it was updated.
   final int updatedOrderId;
 
-  /// Describes the original [Offset] before it was updated.
   final Offset originalOffset;
-
-  /// Describes the updated [Offset] when it was updated.
   final Offset updatedOffset;
 
-  /// Usually means that the [child] has a new position that is still unknown.
-  ///
-  /// If [isBuilding] is true, then it is possible, that the [Offset] and
-  /// orderId will be updated.
-  final bool isBuilding;
+  final Size size;
 
-  /// The [Offset] can already be known but this is still a flag to know, that [child] didn't exist before.
-  final bool isNew;
-
-  /// Is true, when this [child] only changed the position with another child.
-  ///
-  /// This is only true, when the changed position has nothing to do with
-  /// another added or removed child.
+  final bool isBuildingOffset;
   final bool hasSwappedOrder;
 
   const ReorderableEntity({
-    required this.child,
+    required this.key,
     required this.originalOrderId,
     required this.updatedOrderId,
-    required this.isBuilding,
-    this.originalOffset = Offset.zero,
-    this.updatedOffset = Offset.zero,
-    this.size = Size.zero,
-    this.isNew = false,
-    this.hasSwappedOrder = false,
+    required this.originalOffset,
+    required this.updatedOffset,
+    required this.size,
+    required this.isBuildingOffset,
+    required this.hasSwappedOrder,
   });
 
-  /// Overrides all parameters of this entity and returns the updated [ReorderableEntity].
-  ReorderableEntity copyWith({
-    Offset? originalOffset,
-    Offset? updatedOffset,
-    Widget? child,
+  factory ReorderableEntity.create({
+    required ValueKey key,
+    required int updatedOrderId,
+    Offset? offset,
     Size? size,
-    int? originalOrderId,
-    int? updatedOrderId,
-    bool? isBuilding,
-    bool? isNew,
-    bool? hasSwappedOrder,
   }) =>
       ReorderableEntity(
-        size: size ?? this.size,
-        originalOffset: originalOffset ?? this.originalOffset,
-        updatedOffset: updatedOffset ?? this.updatedOffset,
-        child: child ?? this.child,
-        updatedOrderId: updatedOrderId ?? this.updatedOrderId,
-        originalOrderId: originalOrderId ?? this.originalOrderId,
-        isBuilding: isBuilding ?? this.isBuilding,
-        isNew: isNew ?? this.isNew,
-        hasSwappedOrder: hasSwappedOrder ?? this.hasSwappedOrder,
+        key: key,
+        originalOrderId: _isNewChildId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: offset ?? Offset.zero,
+        updatedOffset: offset ?? Offset.zero,
+        size: size ?? Size.zero,
+        isBuildingOffset: offset == null,
+        hasSwappedOrder: false,
       );
 
-  Key get key => child.key!;
+  @override
+  bool operator ==(Object other) {
+    return other is ReorderableEntity &&
+        (other.key == key &&
+            other.originalOffset == originalOffset &&
+            other.originalOrderId == originalOrderId &&
+            other.updatedOrderId == updatedOrderId &&
+            other.updatedOffset == updatedOffset &&
+            other.size == size &&
+            other.isBuildingOffset == isBuildingOffset &&
+            other.hasSwappedOrder == hasSwappedOrder);
+  }
+
+  @override
+  int get hashCode => originalOrderId + updatedOrderId;
+
+  @override
+  String toString() =>
+      '[$key]: Original OrderId: $originalOrderId, Updated OrderId: $updatedOrderId, Original Offset: $originalOffset, Updated Offset: $updatedOffset';
+
+  ReorderableEntity fadedIn() => ReorderableEntity(
+        key: key,
+        originalOrderId: updatedOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: updatedOffset,
+        updatedOffset: updatedOffset,
+        size: size,
+        isBuildingOffset: false,
+        hasSwappedOrder: false,
+      );
+
+  ReorderableEntity creationFinished({required Offset? offset}) {
+    return ReorderableEntity(
+      key: key,
+      originalOrderId: originalOrderId,
+      updatedOrderId: updatedOrderId,
+      originalOffset: originalOffset,
+      updatedOffset: offset ?? updatedOffset,
+      size: size,
+      isBuildingOffset: false,
+      hasSwappedOrder: false, // todo false wirklich richtig?
+    );
+  }
+
+  ReorderableEntity updated({
+    required int updatedOrderId,
+    required Offset? updatedOffset,
+    required Size? size,
+  }) {
+    var originalOrderId = this.originalOrderId;
+    var originalOffset = this.originalOffset;
+
+    // should only update original when previous updated orderId is different to previous one
+    if (updatedOrderId != this.updatedOrderId) {
+      originalOrderId = this.updatedOrderId;
+      originalOffset = this.updatedOffset;
+    }
+
+    return ReorderableEntity(
+      key: key,
+      originalOrderId: originalOrderId,
+      updatedOrderId: updatedOrderId,
+      originalOffset: originalOffset,
+      updatedOffset: updatedOffset ?? this.updatedOffset,
+      size: size ?? this.size,
+      isBuildingOffset: updatedOffset == null,
+      hasSwappedOrder:
+          updatedOrderId != originalOrderId && updatedOffset != null,
+    );
+  }
+
+  ReorderableEntity positionUpdated() => ReorderableEntity(
+        key: key,
+        originalOrderId: updatedOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: updatedOffset,
+        updatedOffset: updatedOffset,
+        size: size,
+        isBuildingOffset: false,
+        hasSwappedOrder: false,
+      );
+
+  ReorderableEntity dragUpdated({
+    required int updatedOrderId,
+    required Offset updatedOffset,
+  }) =>
+      ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: updatedOffset,
+        size: size,
+        isBuildingOffset: isBuildingOffset,
+        hasSwappedOrder: true,
+      );
+
+  ReorderableEntity copyWith({Size? size}) => ReorderableEntity(
+        key: key,
+        originalOrderId: originalOrderId,
+        updatedOrderId: updatedOrderId,
+        originalOffset: originalOffset,
+        updatedOffset: updatedOffset,
+        size: size ?? this.size,
+        isBuildingOffset: isBuildingOffset,
+        hasSwappedOrder: hasSwappedOrder,
+      );
+
+  bool get isNew => originalOrderId == _isNewChildId;
 }

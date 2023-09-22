@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/order_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 class MyApp extends StatefulWidget {
@@ -12,7 +11,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _scrollController = ScrollController();
   final _gridViewKey = GlobalKey();
-  final _fruits = <String>["apple", "banana", "strawberry"];
+  var _fruits = <String>["apple", "banana", "strawberry"];
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +30,10 @@ class _MyAppState extends State<MyApp> {
       body: ReorderableBuilder(
         children: generatedChildren,
         scrollController: _scrollController,
-        onReorder: (List<OrderUpdateEntity> orderUpdateEntities) {
-          for (final orderUpdateEntity in orderUpdateEntities) {
-            final fruit = _fruits.removeAt(orderUpdateEntity.oldIndex);
-            _fruits.insert(orderUpdateEntity.newIndex, fruit);
-          }
+        onReorder: (ReorderedListFunction reorderedListFunction) {
+          setState(() {
+            _fruits = reorderedListFunction(_fruits) as List<String>;
+          });
         },
         builder: (children) {
           return GridView(
