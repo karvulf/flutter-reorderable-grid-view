@@ -28,3 +28,11 @@ typedef OnCreatedFunction = void Function(
 typedef OnDragUpdateFunction = Function(
   DragUpdateDetails details,
 );
+
+typedef CustomDraggableBuilder<T extends Draggable<T>> = T Function(
+  VoidCallback internalOnDragStarted,
+  void Function(Offset offset) internalOnDragCanceled,
+  bool dragging,
+  Widget feedback,
+  Widget child,
+);
