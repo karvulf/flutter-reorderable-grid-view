@@ -27,6 +27,8 @@ class ReorderableDraggable extends StatefulWidget {
 
   final ReorderableEntity? currentDraggedEntity;
 
+  final CustomDraggableBuilder? customDraggableBuilder;
+
   const ReorderableDraggable({
     required this.child,
     required this.reorderableEntity,
@@ -38,6 +40,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onDragCanceled,
     required this.currentDraggedEntity,
     this.dragChildBoxDecoration,
+    this.customDraggableBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -117,6 +120,15 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     );
     final data = _getData();
 
+    if (widget.customDraggableBuilder != null) {
+      return widget.customDraggableBuilder!.call(
+        _handleDragStarted,
+        _handleDragEnd,
+        !visible,
+        feedback,
+        child,
+      );
+    }
     if (!widget.enableDraggable) {
       return child;
     } else if (widget.enableLongPress) {

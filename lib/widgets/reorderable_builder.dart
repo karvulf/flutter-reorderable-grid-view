@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_dr
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
@@ -153,9 +154,13 @@ class ReorderableBuilder extends StatefulWidget {
   /// and to your [GridView].
   final ScrollController? scrollController;
 
+  //A builder to create customized draggables
+  final CustomDraggableBuilder? customDraggableBuilder;
+
   const ReorderableBuilder({
     required this.children,
     required this.builder,
+    this.customDraggableBuilder,
     this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
@@ -181,6 +186,7 @@ class ReorderableBuilder extends StatefulWidget {
   // Todo: werte eher oben definieren und hier wiederverwenden
   const ReorderableBuilder.builder({
     required this.childBuilder,
+    this.customDraggableBuilder,
     this.scrollController,
     this.onReorder,
     this.lockedIndices = const [],
@@ -360,6 +366,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
             releasedChildDuration: widget.releasedChildDuration,
             reorderableEntity: reorderableEntity,
             child: ReorderableDraggable(
+              customDraggableBuilder: widget.customDraggableBuilder,
               reorderableEntity: reorderableEntity,
               enableDraggable: widget.enableDraggable && isDraggable,
               currentDraggedEntity: currentDraggedEntity,
