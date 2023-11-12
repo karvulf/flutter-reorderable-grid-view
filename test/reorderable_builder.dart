@@ -11,12 +11,13 @@ class ReorderableBuilder {
 
   ReorderableEntity getEntity({
     String key = 'key',
+    int originalOrderId = 0,
     int updatedOrderId = 1,
     Offset updatedOffset = const Offset(30.0, 31.0),
   }) {
     return ReorderableEntity(
       key: ValueKey(key),
-      originalOrderId: 0,
+      originalOrderId: originalOrderId,
       updatedOrderId: updatedOrderId,
       originalOffset: const Offset(20.0, 21.0),
       updatedOffset: updatedOffset,

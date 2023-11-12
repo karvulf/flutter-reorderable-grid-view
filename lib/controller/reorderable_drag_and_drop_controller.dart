@@ -186,8 +186,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     final draggedEntity = _draggedEntity;
     if (draggedEntity == null) return;
 
-    final collisionOrderId = collisionReorderableEntity.updatedOrderId;
-    if (lockedIndices.contains(collisionOrderId)) return;
     if (collisionReorderableEntity.updatedOrderId ==
         _draggedEntity!.updatedOrderId) {
       return;
