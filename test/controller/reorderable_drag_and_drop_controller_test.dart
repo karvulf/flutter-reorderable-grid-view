@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
