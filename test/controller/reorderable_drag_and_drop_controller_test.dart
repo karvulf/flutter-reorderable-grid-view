@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -356,6 +357,22 @@ void main() {
   });
 
   group('#handleDragEnd', () {
+    void compareReorderUpdateEntities(
+      List<ReorderUpdateEntity> actual,
+      List<ReorderUpdateEntity> expected,
+    ) {
+      expect(actual.length, equals(expected.length));
+
+      var index = 0;
+      for (final expectedOrderUpdateEntity in expected) {
+        final actualOldIndex = actual[index].oldIndex;
+        final actualNewIndex = actual[index].newIndex;
+        expect(actualOldIndex, equals(expectedOrderUpdateEntity.oldIndex));
+        expect(actualNewIndex, equals(expectedOrderUpdateEntity.newIndex));
+        index++;
+      }
+    }
+
     test(
         'GIVEN draggedEntity = null '
         'WHEN calling handleDragEnd '
@@ -387,23 +404,95 @@ void main() {
       expect(actual, isNull);
     });
 
-
     test(
-        'GIVEN draggedEntity '
-            'WHEN calling handleDragEnd '
-            'THEN should return null', () {
+        'GIVEN draggedEntity with originalOrderId = 0 and updatedOrderId = 1 '
+        'WHEN calling handleDragEnd '
+        'THEN should return list with one ReorderUpdateEntity', () {
       // given
       final givenReorderableEntity = reorderableBuilder.getEntity(
         originalOrderId: 0,
-        updatedOrderId: 0,
+        updatedOrderId: 1,
+        key: '1',
       );
+      controller.childrenKeyMap.addAll({
+        givenReorderableEntity.key.value: givenReorderableEntity,
+      });
+      controller.childrenOrderMap.addAll({
+        0: givenReorderableEntity,
+      });
       setUpDragStarted(reorderableEntity: givenReorderableEntity);
 
       // when
       final actual = controller.handleDragEnd();
 
       // then
-      expect(actual, isNull);
+      final expectedOrderUpdateEntities = [
+        const ReorderUpdateEntity(oldIndex: 0, newIndex: 1),
+      ];
+      compareReorderUpdateEntities(actual!, expectedOrderUpdateEntities);
+      final expectedKeyMap = {
+        '1': givenReorderableEntity.positionUpdated(),
+      };
+      final expectedOrderMap = {
+        1: givenReorderableEntity.positionUpdated(),
+      };
+      expect(controller.childrenKeyMap, equals(expectedKeyMap));
+      expect(controller.childrenOrderMap, equals(expectedOrderMap));
+    });
+
+    test(
+        'GIVEN draggedEntity with originalOrderId = 5 and updatedOrderId = 0 and '
+        'lockedIndices = [1, 3] '
+        'WHEN calling handleDragEnd '
+        'THEN should return list with three ReorderUpdateEntity', () {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOrderId: 5,
+        updatedOrderId: 0,
+      );
+      controller.childrenKeyMap.addAll({
+        givenReorderableEntity.key.value: givenReorderableEntity,
+      });
+      setUpDragStarted(
+        reorderableEntity: givenReorderableEntity,
+        lockedIndices: [1, 3],
+      );
+
+      // when
+      final actual = controller.handleDragEnd();
+
+      // then
+      final expectedOrderUpdateEntities = [
+        const ReorderUpdateEntity(oldIndex: 5, newIndex: 0),
+        const ReorderUpdateEntity(oldIndex: 3, newIndex: 4),
+        const ReorderUpdateEntity(oldIndex: 1, newIndex: 2),
+      ];
+      compareReorderUpdateEntities(actual!, expectedOrderUpdateEntities);
+    });
+  });
+
+  group('#reorderList', () {
+    test(
+        'GIVEN items with 5 ints and a list of three OrderUpdateEntity '
+        'WHEN calling handleDragEnd '
+        'THEN should return list with three ReorderUpdateEntity', () {
+      // given
+      final givenItems = [0, 1, 2, 3, 4, 5];
+      final givenOrderUpdateEntities = [
+        const ReorderUpdateEntity(oldIndex: 5, newIndex: 0),
+        const ReorderUpdateEntity(oldIndex: 3, newIndex: 4),
+        const ReorderUpdateEntity(oldIndex: 1, newIndex: 2),
+      ];
+
+      // when
+      final actual = controller.reorderList(
+        items: givenItems,
+        reorderUpdateEntities: givenOrderUpdateEntities,
+      );
+
+      // then
+      final expectedList = [5, 1, 0, 3, 2, 4];
+      expect(actual, equals(expectedList));
     });
   });
 }

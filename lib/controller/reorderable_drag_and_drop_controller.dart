@@ -324,8 +324,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     required oldIndex,
     required newIndex,
   }) {
-    if (oldIndex == newIndex) return [];
-
     final orderUpdateEntities = [
       ReorderUpdateEntity(
         oldIndex: oldIndex,
