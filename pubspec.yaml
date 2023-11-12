@@ -1,6 +1,6 @@
 name: flutter_reorderable_grid_view
 description: Enables animated GridViews when updating children or when trying to reorder them by using drag and drop.
-version: 5.0.0-dev.8
+version: 5.0.0-dev.10
 repository: https://github.com/karvulf/flutter-reorderable-grid-view
 
 environment:

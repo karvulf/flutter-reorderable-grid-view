@@ -68,7 +68,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     // this case can happen if the orientation changed
     if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
         newEntity.isBuildingOffset) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onCreated(widget.reorderableEntity, _globalKey);
       });
     }
