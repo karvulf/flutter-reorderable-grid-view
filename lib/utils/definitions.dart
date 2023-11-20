@@ -7,7 +7,8 @@ typedef ReorderableEntityCallback = void Function(
 );
 
 typedef ReleasedReorderableEntityCallback = void Function(
-    ReleasedReorderableEntity releasedReorderableEntity);
+  ReleasedReorderableEntity releasedReorderableEntity,
+);
 
 ///
 typedef OnDragEndFunction = void Function(
