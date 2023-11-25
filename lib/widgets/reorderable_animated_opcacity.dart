@@ -64,10 +64,17 @@ class _ReorderableAnimatedOpacityState
     );
   }
 
+  /// Will call [widget.onOpacityFinished] only when opacity changed to 1.0.
+  ///
+  /// 1.0 means that the widget appeared. When the animation ends because it
+  /// was set to 0.0, then the call shouldn't happen because that would be a
+  /// fade out which is not supported currently.
   void _handleAnimationFinished() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _callOnOpacityFinished();
-    });
+    if (_opacity == 1.0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _callOnOpacityFinished();
+      });
+    }
   }
 
   void _callOnOpacityFinished() {
