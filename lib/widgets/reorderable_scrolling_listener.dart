@@ -173,9 +173,9 @@ class _ReorderableScrollingListenerState
 
       const variance = 5.0;
 
-      // scroll to top
       final maxScrollExtent = widget.scrollController!.position.maxScrollExtent;
 
+      // scroll to top
       if (_compareOffsets(
               bigger: minOffset,
               smaller: dragPosition,
