@@ -13,17 +13,20 @@ class ReorderableBuilder {
     String key = 'key',
     int originalOrderId = 0,
     int updatedOrderId = 1,
+    Offset originalOffset = const Offset(20.0, 21.0),
     Offset updatedOffset = const Offset(30.0, 31.0),
+    bool isBuildingOffset = true,
+    bool hasSwappedOrder = true,
   }) {
     return ReorderableEntity(
       key: ValueKey(key),
       originalOrderId: originalOrderId,
       updatedOrderId: updatedOrderId,
-      originalOffset: const Offset(20.0, 21.0),
+      originalOffset:originalOffset,
       updatedOffset: updatedOffset,
       size: const Size(10.0, 11.0),
-      isBuildingOffset: true,
-      hasSwappedOrder: true,
+      isBuildingOffset: isBuildingOffset,
+      hasSwappedOrder: hasSwappedOrder,
     );
   }
 }
