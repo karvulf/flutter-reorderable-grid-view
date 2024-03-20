@@ -84,13 +84,13 @@ class _ReorderableAnimatedReleasedContainerState
 
     final offset = _offsetAnimation?.value;
 
-    if (offset != null) {
+    if (offset == null) {
+      return child;
+    } else {
       return Transform(
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
         child: child,
       );
-    } else {
-      return child;
     }
   }
 
