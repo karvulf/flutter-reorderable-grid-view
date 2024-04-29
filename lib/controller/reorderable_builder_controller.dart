@@ -15,6 +15,7 @@ class ReorderableBuilderController extends ReorderableDragAndDropController {
     var index = 0;
 
     for (final child in children) {
+      assert(child.key != null, 'Add a unique key to every child');
       final key = child.key! as ValueKey;
       assert(!childrenKeyMap.containsKey(key.value), "Key is duplicated!");
       final reorderableEntity = ReorderableEntity.create(

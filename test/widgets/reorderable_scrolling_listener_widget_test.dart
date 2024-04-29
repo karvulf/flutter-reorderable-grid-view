@@ -256,7 +256,7 @@ void main() {
           tester: tester,
           moveOffset: const Offset(0, 200),
         );
-        final actualBeforeScrollValue = actualScrollValue!;
+        final actualBeforeScrollValue = actualScrollValue;
 
         // when
         await move(
