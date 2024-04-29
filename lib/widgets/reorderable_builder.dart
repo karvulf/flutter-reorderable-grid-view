@@ -25,7 +25,18 @@ typedef ItemCallback = void Function(int intdex);
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
 class ReorderableBuilder extends StatefulWidget {
-  ///
+  static const _defaultLockedIndices = <int>[];
+  static const _defaultNonDraggableIndices = <int>[];
+  static const _defaultEnableLongPress = true;
+  static const _defaultLongPressDelay = kLongPressTimeout;
+  static const _defaultEnableDraggable = true;
+  static const _defaultAutomaticScrollExtent = 80.0;
+  static const _defaultEnableScrollingWhileDragging = true;
+  static const _defaultFadeInDuration = Duration(milliseconds: 500);
+  static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
+  static const _defaultPositionDuration = Duration(milliseconds: 200);
+
+  /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
 
   ///
@@ -158,16 +169,16 @@ class ReorderableBuilder extends StatefulWidget {
     required this.builder,
     this.scrollController,
     this.onReorder,
-    this.lockedIndices = const [],
-    this.nonDraggableIndices = const [],
-    this.enableLongPress = true,
-    this.longPressDelay = kLongPressTimeout,
-    this.enableDraggable = true,
-    this.automaticScrollExtent = 80.0,
-    this.enableScrollingWhileDragging = true,
-    this.fadeInDuration = const Duration(milliseconds: 500),
-    this.releasedChildDuration = const Duration(milliseconds: 150),
-    this.positionDuration = const Duration(milliseconds: 200),
+    this.lockedIndices = _defaultLockedIndices,
+    this.nonDraggableIndices = _defaultNonDraggableIndices,
+    this.enableLongPress = _defaultEnableLongPress,
+    this.longPressDelay = _defaultLongPressDelay,
+    this.enableDraggable = _defaultEnableDraggable,
+    this.automaticScrollExtent = _defaultAutomaticScrollExtent,
+    this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    this.fadeInDuration = _defaultFadeInDuration,
+    this.releasedChildDuration = _defaultReleasedChildDuration,
+    this.positionDuration = _defaultPositionDuration,
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -178,21 +189,20 @@ class ReorderableBuilder extends StatefulWidget {
         childBuilder = null,
         super(key: key);
 
-  // Todo: werte eher oben definieren und hier wiederverwenden
   const ReorderableBuilder.builder({
     required this.childBuilder,
     this.scrollController,
     this.onReorder,
-    this.lockedIndices = const [],
-    this.nonDraggableIndices = const [],
-    this.enableLongPress = true,
-    this.longPressDelay = kLongPressTimeout,
-    this.enableDraggable = true,
-    this.automaticScrollExtent = 80.0,
-    this.enableScrollingWhileDragging = true,
-    this.fadeInDuration = const Duration(milliseconds: 500),
-    this.releasedChildDuration = const Duration(milliseconds: 150),
-    this.positionDuration = const Duration(milliseconds: 200),
+    this.lockedIndices = _defaultLockedIndices,
+    this.nonDraggableIndices = _defaultNonDraggableIndices,
+    this.enableLongPress = _defaultEnableLongPress,
+    this.longPressDelay = _defaultLongPressDelay,
+    this.enableDraggable = _defaultEnableDraggable,
+    this.automaticScrollExtent = _defaultAutomaticScrollExtent,
+    this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    this.fadeInDuration = _defaultFadeInDuration,
+    this.releasedChildDuration = _defaultReleasedChildDuration,
+    this.positionDuration = _defaultPositionDuration,
     this.dragChildBoxDecoration,
     this.initDelay,
     this.onDragStarted,
@@ -377,7 +387,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     );
   }
 
+  ///
   /// Drag and Drop part
+  ///
+
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     _reorderableController.handleDragStarted(
       reorderableEntity: reorderableEntity,
@@ -393,7 +406,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
     final hasUpdated = _reorderableController.handleDragUpdate(
       pointerMoveEvent: pointerMoveEvent,
-      lockedIndices: widget.lockedIndices,
     );
 
     if (hasUpdated) {
@@ -468,7 +480,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     }
   }
 
+  ///
   /// Animation part
+  ///
 
   void _handleMovingFinished(ReorderableEntity reorderableEntity) {
     _reorderableController.handleMovingFinished(

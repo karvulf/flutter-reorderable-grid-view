@@ -4,11 +4,19 @@ import 'package:flutter_reorderable_grid_view/entities/released_reorderable_enti
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-var counter = 0;
-
+/// TODO: add comment
 class ReorderableDragAndDropController extends ReorderableController {
+  /// Instance of dragged entity when dragging starts.
   ReorderableEntity? _draggedEntity;
-  var _lockedIndices = <int>[];
+
+  /// Indices of children that cannot move while drag and drop.
+  @visibleForTesting
+  var lockedIndices = <int>[];
+
+  /// Entity that is released after drag and drop.
+  ///
+  /// [ReleasedReorderableEntity] contains the offset where it was released.
+  /// This value is required to animate the released item to his new position.
   ReleasedReorderableEntity? _releasedReorderableEntity;
 
   /// Defines if the scrollable part is outside of the widget.
@@ -18,13 +26,15 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// parameter should be true.
   ///
   /// If the GridView is scrollable, then this will be true.
-  bool _isScrollableOutside = false;
+  @visibleForTesting
+  bool isScrollableOutside = false;
 
   /// Saves the state of scroll [Offset] when the drag and drop is starting.
   ///
   /// This is need to calculate with correct values later when doing
   /// drag and drop while scrolling.
-  Offset _startDraggingScrollOffset = Offset.zero;
+  @visibleForTesting
+  Offset startDraggingScrollOffset = Offset.zero;
 
   /// Holding this value for better performance.
   ///
@@ -38,27 +48,24 @@ class ReorderableDragAndDropController extends ReorderableController {
     required bool isScrollableOutside,
   }) {
     _releasedReorderableEntity = null;
-    _lockedIndices = lockedIndices;
+    this.lockedIndices = lockedIndices;
     _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
-    _isScrollableOutside = isScrollableOutside;
-    _startDraggingScrollOffset = currentScrollOffset;
+    this.isScrollableOutside = isScrollableOutside;
+    startDraggingScrollOffset = currentScrollOffset;
   }
 
-  bool handleDragUpdate({
-    required PointerMoveEvent pointerMoveEvent,
-    required List<int> lockedIndices,
-  }) {
+  bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {
     final draggedKey = draggedEntity?.key;
     if (draggedKey == null) return false;
 
     final localOffset = pointerMoveEvent.localPosition;
     late final Offset offset;
 
-    if (_isScrollableOutside) {
+    if (isScrollableOutside) {
       offset = localOffset + scrollOffset;
     } else {
-      offset = localOffset + (scrollOffset - _startDraggingScrollOffset);
+      offset = localOffset + (scrollOffset - startDraggingScrollOffset);
     }
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(
@@ -179,8 +186,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     final draggedEntity = _draggedEntity;
     if (draggedEntity == null) return;
 
-    final collisionOrderId = collisionReorderableEntity.updatedOrderId;
-    if (lockedIndices.contains(collisionOrderId)) return;
     if (collisionReorderableEntity.updatedOrderId ==
         _draggedEntity!.updatedOrderId) {
       return;
@@ -319,8 +324,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     required oldIndex,
     required newIndex,
   }) {
-    if (oldIndex == newIndex) return [];
-
     final orderUpdateEntities = [
       ReorderUpdateEntity(
         oldIndex: oldIndex,
@@ -343,7 +346,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     while (currentCollisionOrderId != newIndex) {
       currentCollisionOrderId += summands;
 
-      if (!_lockedIndices.contains(currentCollisionOrderId)) {
+      if (!lockedIndices.contains(currentCollisionOrderId)) {
         // if there was one or more locked indices, then a new OrderUpdateEntity has to be added
         // this prevents wrong ordering values when calling onReorder
         if (hasFoundLockedIndex) {

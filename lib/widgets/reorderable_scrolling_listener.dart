@@ -173,9 +173,9 @@ class _ReorderableScrollingListenerState
 
       const variance = 5.0;
 
-      // scroll to top
       final maxScrollExtent = widget.scrollController!.position.maxScrollExtent;
 
+      // scroll to top/left
       if (_compareOffsets(
               bigger: minOffset,
               smaller: dragPosition,
@@ -233,9 +233,9 @@ class _ReorderableScrollingListenerState
       // scrolling while dragging won't be possible
       if (scrollDirection == null) return;
 
+      final currentContext = widget.reorderableChildKey?.currentContext;
       final reorderableChildRenderBox =
-          widget.reorderableChildKey?.currentContext?.findRenderObject()
-              as RenderBox?;
+          currentContext?.findRenderObject() as RenderBox?;
       final screenSize = MediaQuery.of(context).size;
 
       if (reorderableChildRenderBox != null) {

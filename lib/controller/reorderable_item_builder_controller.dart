@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 class ReorderableItemBuilderController
     extends ReorderableDragAndDropController {
+  /// Returns [ReorderableEntity] that is related to [key] and [index].
   ReorderableEntity buildItem({
     required ValueKey key,
     required int index,
