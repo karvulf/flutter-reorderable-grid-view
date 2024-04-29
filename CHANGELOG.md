@@ -1,3 +1,6 @@
+## 5.0.0
+⭐️ **New features**
+
 ## 5.0.0-dev.10
 🐛 **Bug fix**
 * locked children were still draggable, now they are locked (thanks to `gmarizy` - Issue [#97](https://github.com/karvulf/flutter-reorderable-grid-view/issues/97))
