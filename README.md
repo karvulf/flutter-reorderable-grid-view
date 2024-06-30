@@ -2,14 +2,10 @@
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/karvulf/flutter-reorderable-grid-view/master?style=flat-square)
 
 <p>
-  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_drag_and_drop.gif?raw=true"
+  <img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_drag_and_drop.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_add.gif?raw=true"
+<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_items.gif?raw=true"
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_remove.gif?raw=true"
-    alt="An animated image of the iOS ReordableGridView UI" height="400"/>
-<img src="https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/doc/animated_grid_view_swap.gif?raw=true"
-alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 </p>
 
 Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
