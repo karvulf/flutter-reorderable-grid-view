@@ -1,3 +1,111 @@
+## 5.0.0
+⭐️ **New features**
+
+## 5.0.0-dev.10
+🐛 **Bug fix**
+* locked children were still draggable, now they are locked (thanks to `gmarizy` - Issue [#97](https://github.com/karvulf/flutter-reorderable-grid-view/issues/97))
+
+## 5.0.0-dev.9
+🐛 **Bug fixes**
+* fixed issue when deleting the dragged child (thanks to `khjde1207` - Issue [#88](https://github.com/karvulf/flutter-reorderable-grid-view/issues/88))
+
+⭐️ **New features**
+* added parameter `positionDuration` (thanks to `naderhezzy` - Issue [#94](https://github.com/karvulf/flutter-reorderable-grid-view/issues/94))
+  * changes the animation duration when a child updates his position e.g. when adding or removing a child
+* added parameter `nonDraggableIndicies` (thanks to `Bader-Al` for the PR [#93](https://github.com/karvulf/flutter-reorderable-grid-view/pull/93/))
+  * you can specify the indices of children that cannot be dragged but are still movable while dragging
+
+## 5.0.0-dev.8
+🐛 **Bug fixes**
+* fixed animation when releasing a dragged item
+* fixed item animations when adding or removing them
+
+## 5.0.0-dev.7
+⭐️ **New features**
+* you can add `data` to `Draggable` or `LongPressDraggable`
+  * use the widget `CustomDraggable` for that
+  * more info is added to the read me
+* added new callback `onDraggedChildUpdated` (thanks for the PR [Bader-AI](https://github.com/Bader-Al))
+  * always called when the dragged child updated his position while dragging
+  * you should use this without changing the children, otherwise this could lead to weird behavior while using drag and drop
+* added new parameter `releasedChildDuration`
+  * can be used to define the duration when a dragged child was released and is moving to his new position
+  * default value is 150ms
+
+🐛 **Bug fixes**
+* there were issues that required to add `initDelay` to fix wrong behavior while drag and drop
+  * this should be fixed by calculating the positions differently to before
+  * before the positions were calculated related to the global widget
+  * now the positions are only calculated to the local widget
+  * this fixes wrong calculated positions
+  * fixes issue of `naw2nd` in [Issue #83](https://github.com/karvulf/flutter-reorderable-grid-view/issues/83) when using a BottomModalSheet
+
+## 5.0.0-dev.6
+🐛 This release contains some bugfixes (optimization)
+* while dragging there were issues when the user scrolled with another finger
+  * the dragged item was dropped if when it shouldn't
+
+## 5.0.0-dev.5
+🐛 This release contains some bugfixes
+* fixed drag and drop after using functionality "scrolling while dragging" (thanks to [tsquillario](https://github.com/tsquillario) for pointing out that issue)
+* fixed disappeared children after using functionality "scrolling while dragging"
+
+## 5.0.0-dev.4
+⭐️ **New features**
+* updated two functions
+  * `onDragStarted`
+    * added `index` to parameter
+    * `index` is the index where the drag started
+  * `onDragEnd`
+    * added `index` to parameter
+    * `index` is the index where the drag ended
+
+🐛 This release contains some bugfixes
+* `onDragStarted` wasn't called and should work now
+* `onDragEnd` wasn't called and should work now
+
+## 5.0.0-dev.3
+⭐️ **New features**
+* added support for horizontal direction (Issue [#53](https://github.com/karvulf/flutter-reorderable-grid-view/issues/53))
+  * with this, you can use your `GridView` in both directions
+  * currently there might be still small bugs
+* added parameter `fadeInDuration` (Issue [#68](https://github.com/karvulf/flutter-reorderable-grid-view/issues/68))
+  * default value is `const Duration(milliseconds: 500)`
+  * this parameter is responsible for the animation when a new child appears and describes the duration of the animation
+* parameter `initDelay` is working again
+
+## 5.0.0-dev.2
+* 🐛 This release contains some bugfixes
+  * drag and drop combined with `lockedIndices` and `GridView.builder` should work now
+* ⭐️ Optimized reordering items
+  * the callback `onReorder` is offering a function as parameter after reordering items
+  * the reason for that change is a performance issue, especially having big lists
+  * to ensure that everyone is using the same reordering process, I moved the logic to the package inside a function
+* 🧑‍💻
+  * refactored some code and added comments to some parts
+
+
+## 5.0.0-dev.1
+ℹ️ℹ️ℹ️ℹ️
+* This is a prerelease and does not contain all functionalities that are tagged in GitHub for the release
+  * the functionalities will be implemented if possible
+* This release contains
+  * completely redesigned logic for the animation and drag and drop
+  * smoother animation
+  * much better performance (`GridView.builder` is now working as it should work, see more on the example in `main.dart`)
+* Still missing
+  * tests
+  * comments
+  * documentation
+  * some features from GitHub for this release
+* there are still some bugs (I am pretty sure), so please try out this prerelease and post the issues on GitHub!
+  * known bugs:
+    * drag and drop in combination with `lockedIndices` and `GridView.builder` can lead to wrong animations
+    * Android: seems like it is possible that the drag and drop leads to wrong positioning of items when releasing the dragged item
+    * `GridView.builder`: rotating the device leads to wrong behavior when using drag and drop
+
+ℹ️ℹ️ℹ️ℹ️
+
 ## 4.0.0
 ℹ️ **Information**
 
@@ -10,7 +118,6 @@ This is not the new big release! This will come with version `5.0.0`.
 🐛 **Fixed error because of flutter upgrade `3.7.0`**
 * fixed an error that was thrown because of the flutter ugprade `3.7.0`
 
-
 ## 3.1.3
 🐛 **Fixed some bugs**
 * fixed two null check errors (Issue [#41](https://github.com/karvulf/flutter-reorderable-grid-view/issues/41) and Issue [#44](https://github.com/karvulf/flutter-reorderable-grid-view/issues/44))
@@ -19,7 +126,7 @@ This is not the new big release! This will come with version `5.0.0`.
   * this should also fix the callback `onReorder` where an index of an item is returned that should not exist
 
 ℹ️ **Information**
-* added Roadmap for release `4.0.0`
+* added Roadmap for release `5.0.0`
 
 ## 3.1.2
 🐛 **Fixed small bug**
