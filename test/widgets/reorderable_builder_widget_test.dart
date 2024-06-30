@@ -109,7 +109,6 @@ void main() {
       expect(
           find.byWidgetPredicate((widget) =>
               widget is ReorderableInitChild &&
-              widget.initDelay == null &&
               widget.child is ReorderableAnimatedReleasedContainer),
           findsOneWidget);
       expect(
@@ -245,7 +244,6 @@ void main() {
       expect(
           find.byWidgetPredicate((widget) =>
               widget is ReorderableInitChild &&
-              widget.initDelay == null &&
               widget.child is ReorderableAnimatedReleasedContainer),
           findsNWidgets(3));
       expect(

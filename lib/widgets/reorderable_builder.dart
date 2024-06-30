@@ -39,7 +39,11 @@ class ReorderableBuilder extends StatefulWidget {
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
 
+  /// Enable support for [GridView.builder] using this function.
   ///
+  /// This function allows rendering all children using a builder.
+  /// Make sure your [GridView.builder] calls [childBuilder] to return
+  /// widgets that support animations and drag-and-drop functionality.
   final Widget Function(
     Widget Function(Widget child, int index) itemBuilder,
   )? childBuilder;
@@ -63,7 +67,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: <int>[]
   final List<int> nonDraggableIndices;
 
-  /// The drag of a child can be started with the long press.
+  /// The drag of a child will be started with a long press.
   ///
   /// Default value: true
   final bool enableLongPress;
@@ -117,23 +121,22 @@ class ReorderableBuilder extends StatefulWidget {
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
-  /// Callback to return updated [children].
+  /// It's required to use [ReorderableBuilder] to obtain updated [children].
+  ///
+  /// This function returns the [children] containing all necessary widgets
+  /// for animations and drag-and-drop functionality. Ensure to use the children
+  /// returned by this function for proper integration.
   final DraggableBuilder? builder;
 
   /// After releasing the dragged child, [onReorder] is called.
   ///
-  /// [enableDraggable] has to be true to ensure this is called.
+  /// Ensure [enableDraggable] is set to true for this callback to trigger.
+  /// This function takes a [ReorderedListFunction] as a parameter, which will
+  /// reorder a list of items. Make sure to pass your list to this function
+  /// and cast it afterward to your specific list type.
+  /// This mechanism ensures that your list is correctly updated. You can then
+  /// use the updated items returned by this function.
   final OnReorderCallback? onReorder;
-
-  /// Adding delay after initializing [children].
-  ///
-  /// Usually, the delay would be a postFrameCallBack. But sometimes, if the app
-  /// is a bit slow, or there are a lot of things happening at the same time, a
-  /// longer delay is necessary to ensure a correct behavior when using drag and drop.
-  ///
-  /// Not recommended to use.
-  @Deprecated("""This can be removed and is not required anymore.""")
-  final Duration? initDelay;
 
   /// Callback when dragging starts with the index where it started.
   ///
@@ -180,7 +183,6 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.dragChildBoxDecoration,
-    this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
@@ -204,7 +206,6 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.dragChildBoxDecoration,
-    this.initDelay,
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
@@ -218,7 +219,6 @@ class ReorderableBuilder extends StatefulWidget {
   State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
-// Todo: Items tauschen im Builder, z. B. 140 auf Position 300
 class _ReorderableBuilderState extends State<ReorderableBuilder>
     with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
@@ -360,8 +360,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
         onMovingFinished: _handleMovingFinished,
         child: ReorderableInitChild(
           reorderableEntity: reorderableEntity,
-          // ignore: deprecated_member_use_from_same_package
-          initDelay: widget.initDelay,
           onCreated: _handleCreatedChild,
           child: ReorderableAnimatedReleasedContainer(
             releasedReorderableEntity:

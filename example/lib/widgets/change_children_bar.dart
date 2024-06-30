@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view_example/widgets/container_button.dart';
 
 class ChangeChildrenBar extends StatelessWidget {
   final VoidCallback onTapUpdateChild;
@@ -19,35 +18,39 @@ class ChangeChildrenBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topCenter,
+    return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Wrap(
-          spacing: 20,
-          runSpacing: 20,
-          children: [
-            ContainerButton(
-              onTap: onTapUpdateChild,
-              icon: Icons.find_replace,
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Card(
+            child: Wrap(
+              spacing: 20,
+              runSpacing: 20,
+              children: [
+                IconButton(
+                  onPressed: onTapUpdateChild,
+                  icon: const Icon(Icons.find_replace),
+                ),
+                IconButton(
+                  onPressed: onTapAddChild,
+                  icon: const Icon(Icons.add),
+                ),
+                IconButton(
+                  onPressed: onTapRemoveChild,
+                  icon: const Icon(Icons.remove),
+                ),
+                IconButton(
+                  onPressed: onTapClear,
+                  icon: const Icon(Icons.delete),
+                ),
+                IconButton(
+                  onPressed: onTapSwap,
+                  icon: const Icon(Icons.swap_horiz),
+                ),
+              ],
             ),
-            ContainerButton(
-              onTap: onTapAddChild,
-              icon: Icons.add,
-            ),
-            ContainerButton(
-              onTap: onTapRemoveChild,
-              icon: Icons.remove,
-            ),
-            ContainerButton(
-              onTap: onTapClear,
-              icon: Icons.delete,
-            ),
-            ContainerButton(
-              onTap: onTapSwap,
-              icon: Icons.swap_horiz,
-            ),
-          ],
+          ),
         ),
       ),
     );
