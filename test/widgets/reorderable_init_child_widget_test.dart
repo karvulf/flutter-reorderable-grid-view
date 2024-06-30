@@ -17,7 +17,6 @@ void main() {
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
     OnCreatedFunction? onCreated,
-    Duration? initDelay,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -25,7 +24,6 @@ void main() {
             body: ReorderableInitChild(
               reorderableEntity: reorderableEntity,
               onCreated: onCreated ?? (_, __) {},
-              initDelay: initDelay,
               child: givenChild,
             ),
           ),
@@ -69,28 +67,26 @@ void main() {
   });
 
   testWidgets(
-      "GIVEN reorderableEntity with isBuildingOffset = false and delay = 500 ms "
+      "GIVEN reorderableEntity with isBuildingOffset = false "
       "WHEN pumping [ReorderableInitChild] "
       "THEN should show expected widgets", (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
       isBuildingOffset: false,
     );
-    const givenDelay = Duration(milliseconds: 500);
     ReorderableEntity? actualReorderableEntity;
     GlobalKey? actualGlobalKey;
 
     // when
     await pumpWidget(
       tester,
-      initDelay: givenDelay,
       reorderableEntity: givenReorderableEntity,
       onCreated: (reorderableEntity, globalKey) {
         actualReorderableEntity = reorderableEntity;
         actualGlobalKey = globalKey;
       },
     );
-    await tester.pump(givenDelay);
+    await tester.pump();
 
     // then
     expect(actualReorderableEntity, equals(givenReorderableEntity));

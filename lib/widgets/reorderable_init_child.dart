@@ -18,19 +18,10 @@ class ReorderableInitChild extends StatefulWidget {
   /// Called when "buildingOffset" of [reorderableEntity] is true and the child was built.
   final OnCreatedFunction onCreated;
 
-  /// Calls [onCreated] after this delay.
-  ///
-  /// Warning: You should prevent using this. Sometimes there are "heavy" widgets
-  /// e. g. widgets with images that needs more time to be loaded. In these
-  /// cases [initDelay] can be useful to ensure that the drag and drop works
-  /// correctly with correct calculated positions.
-  final Duration? initDelay;
-
   const ReorderableInitChild({
     required this.child,
     required this.reorderableEntity,
     required this.onCreated,
-    this.initDelay,
     Key? key,
   }) : super(key: key);
 
@@ -46,17 +37,9 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   void initState() {
     super.initState();
 
-    final initDelay = widget.initDelay;
-
-    if (initDelay != null) {
-      Future.delayed(initDelay).then((value) {
-        widget.onCreated(widget.reorderableEntity, _globalKey);
-      });
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        widget.onCreated(widget.reorderableEntity, _globalKey);
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      widget.onCreated(widget.reorderableEntity, _globalKey);
+    });
   }
 
   @override

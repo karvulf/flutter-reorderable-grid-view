@@ -15,6 +15,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _scrollController = ScrollController();
   final _gridViewKey = GlobalKey();
+
   var _fruits = <String>["apple", "banana", "strawberry"];
 
   @override
