@@ -283,7 +283,7 @@ class _MyAppState extends State<MyApp> {
         text,
         style: const TextStyle(color: Colors.white),
       ),
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       duration: const Duration(milliseconds: 1000),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
