@@ -9,7 +9,7 @@ class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -33,23 +33,23 @@ class _MyAppState extends State<MyApp> {
 
     return Scaffold(
       body: ReorderableBuilder(
-        children: generatedChildren,
         scrollController: _scrollController,
         onReorder: (ReorderedListFunction reorderedListFunction) {
           setState(() {
             _fruits = reorderedListFunction(_fruits) as List<String>;
           });
         },
+        children: generatedChildren,
         builder: (children) {
           return GridView(
             key: _gridViewKey,
             controller: _scrollController,
-            children: children,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               mainAxisSpacing: 4,
               crossAxisSpacing: 8,
             ),
+            children: children,
           );
         },
       ),
