@@ -1,4 +1,4 @@
-## 5.0.0
+## 5.0.1
 🐛 **Bug fix**
 * Dragging not working in release mode on Android (thanks to `shubham-gupta-16` - Issue [#105](https://github.com/karvulf/flutter-reorderable-grid-view/issues/105))
   * changed behavior of `Listener` to `HitTestBehavior.deferToChild`
