@@ -1,12 +1,11 @@
 name: flutter_reorderable_grid_view_example
-description: Demonstrates how to use the flutter_reorderable_grid_view plugin.
-
+description: "Demonstrates how to use the flutter_reorderable_grid_view plugin."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
+  sdk: '>=3.4.3 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -17,6 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_reorderable_grid_view:
     # When depending on this package from a real application you should use:
     #   flutter_reorderable_grid_view: ^x.y.z
@@ -27,9 +27,11 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.6
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 
@@ -38,12 +40,12 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -57,7 +59,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
+  # https://flutter.dev/assets-and-images/#resolution-aware
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
