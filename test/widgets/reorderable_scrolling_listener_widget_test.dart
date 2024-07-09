@@ -69,8 +69,10 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is Listener && widget.onPointerMove != null),
+        find.byWidgetPredicate((widget) =>
+            widget is Listener &&
+            widget.behavior == HitTestBehavior.deferToChild &&
+            widget.onPointerMove != null),
         findsOneWidget);
   });
 

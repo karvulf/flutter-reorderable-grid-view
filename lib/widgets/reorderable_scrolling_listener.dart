@@ -85,6 +85,8 @@ class _ReorderableScrollingListenerState
   @override
   Widget build(BuildContext context) {
     return Listener(
+      // fix for android release mode, otherwise dragging won't work correctly (since flutter 3.22.0)
+      behavior: HitTestBehavior.deferToChild,
       onPointerMove: (details) {
         if (widget.isDragging) {
           _handleDragUpdate(details);
