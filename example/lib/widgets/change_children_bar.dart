@@ -13,8 +13,8 @@ class ChangeChildrenBar extends StatelessWidget {
     required this.onTapRemoveChild,
     required this.onTapClear,
     required this.onTapSwap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
