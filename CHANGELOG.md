@@ -1,3 +1,9 @@
+## 5.1.0-dev.1
+* there were performance issues (Issue [#107](https://github.com/karvulf/flutter-reorderable-grid-view/issues/107))
+  * because `setState` was called many times, it rerendered all children
+  * I improved it by only rendering the updated children when they are built
+  * this version can be used to test it
+
 ## 5.0.1
 🐛 **Bug fix**
 * Dragging not working in release mode on Android (thanks to `shubham-gupta-16` - Issue [#105](https://github.com/karvulf/flutter-reorderable-grid-view/issues/105))

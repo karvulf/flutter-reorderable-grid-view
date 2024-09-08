@@ -19,7 +19,7 @@ void main() {
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
     required bool isDragging,
-    required ReorderableEntityCallback onMovingFinished,
+    required VoidCallback onMovingFinished,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -52,15 +52,15 @@ void main() {
         'WHEN pumping [ReorderableAnimatedPositioned] '
         'THEN should show expected widgets', (WidgetTester tester) async {
       // given
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidget(
         tester,
         reorderableEntity: givenReorderableEntity,
         isDragging: true,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
       await tester.pumpAndSettle();
@@ -72,7 +72,7 @@ void main() {
               widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0) &&
               widget.child == givenChild),
           findsOneWidget);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
 
     testWidgets(
@@ -83,22 +83,22 @@ void main() {
       final givenReorderableEntity = reorderableBuilder.getEntity(
         originalOrderId: -1,
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidget(
         tester,
         reorderableEntity: givenReorderableEntity,
         isDragging: false,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
       await tester.pumpAndSettle();
 
       // then
       findContainerWithMatrix(x: 0.0, y: 0.0);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
 
     testWidgets(
@@ -110,21 +110,21 @@ void main() {
         originalOffset: Offset.zero,
         updatedOffset: const Offset(100.0, 200.0),
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidget(
         tester,
         reorderableEntity: givenReorderableEntity,
         isDragging: false,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
       findContainerWithMatrix(x: -100.0, y: -200.0);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
 
     testWidgets(
@@ -137,14 +137,14 @@ void main() {
         originalOffset: Offset.zero,
         updatedOffset: const Offset(100.0, 200.0),
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       await pumpWidget(
         tester,
         reorderableEntity: givenReorderableEntity,
         isDragging: false,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
@@ -152,7 +152,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
       // then
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(callCounter, equals(1));
     });
   });
 
@@ -162,7 +162,7 @@ void main() {
       required ReorderableEntity reorderableEntity,
       required ReorderableEntity updatedReorderableEntity,
       required bool isDragging,
-      required ReorderableEntityCallback onMovingFinished,
+      required VoidCallback onMovingFinished,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -199,7 +199,7 @@ void main() {
         originalOrderId: -1,
         isBuildingOffset: true,
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidgetAndUpdate(
@@ -207,14 +207,14 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: true,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
       findContainerWithMatrix(x: 0.0, y: 0.0);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
 
     testWidgets(
@@ -237,7 +237,7 @@ void main() {
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidgetAndUpdate(
@@ -245,13 +245,13 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: false,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
-      expect(actualReorderableEntity, equals(givenUpdatedReorderableEntity));
+      expect(callCounter, equals(1));
     });
 
     testWidgets(
@@ -275,7 +275,7 @@ void main() {
         isBuildingOffset: false,
         hasSwappedOrder: true,
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidgetAndUpdate(
@@ -283,13 +283,13 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: false,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
-      expect(actualReorderableEntity, equals(givenUpdatedReorderableEntity));
+      expect(callCounter, equals(1));
     });
 
     testWidgets(
@@ -312,7 +312,7 @@ void main() {
         hasSwappedOrder: true,
         key: 'updated',
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidgetAndUpdate(
@@ -320,14 +320,14 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: true,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
       findContainerWithMatrix(x: 100.0, y: 200.0);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
 
     testWidgets(
@@ -347,7 +347,7 @@ void main() {
         isBuildingOffset: false,
         hasSwappedOrder: true,
       );
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
 
       // when
       await pumpWidgetAndUpdate(
@@ -355,14 +355,14 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: true,
-        onMovingFinished: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onMovingFinished: () {
+          callCounter++;
         },
       );
 
       // then
       findContainerWithMatrix(x: 0.0, y: 0.0);
-      expect(actualReorderableEntity, isNull);
+      expect(callCounter, equals(0));
     });
   });
 }
@@ -371,7 +371,7 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
   final bool isDragging;
-  final ReorderableEntityCallback onMovingFinished;
+  final VoidCallback onMovingFinished;
 
   const _TestUpdateReorderableAnimatedPositioned({
     required this.reorderableEntity,

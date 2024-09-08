@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +17,7 @@ void main() {
   Future<void> pumpWidget(
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
-    required ReorderableEntityCallback onOpacityFinished,
+    required void Function(Size? size) onOpacityFinished,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -63,20 +62,20 @@ void main() {
   testWidgets(
       'GIVEN reorderableEntity which is NOT new and pumped [ReorderableAnimatedOpacity] '
       'WHEN animation ends '
-      'THEN should call onOpacityFinished with expected ReorderableEntity',
+      'THEN should call onOpacityFinished with expected size',
       (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
       originalOrderId: 0,
     );
-    ReorderableEntity? actualReorderableEntity;
+    Size? actualSize;
 
     // when
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: (reorderableEntity) {
-        actualReorderableEntity = reorderableEntity;
+      onOpacityFinished: (size) {
+        actualSize = size;
       },
     );
     await tester.pumpAndSettle();
@@ -87,10 +86,7 @@ void main() {
             (widget) => widget is AnimatedOpacity && widget.opacity == 1.0),
         findsOneWidget);
 
-    final expectedReorderableEntity = givenReorderableEntity.copyWith(
-      size: const Size.square(givenDimension),
-    );
-    expect(actualReorderableEntity, equals(expectedReorderableEntity));
+    expect(actualSize, equals(const Size.square(givenDimension)));
   });
 
   testWidgets(
@@ -165,7 +161,7 @@ void main() {
 class _TestUpdatedReorderableAnimatedOpacity extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
-  final ReorderableEntityCallback onOpacityFinished;
+  final void Function(Size? size) onOpacityFinished;
 
   const _TestUpdatedReorderableAnimatedOpacity({
     required this.reorderableEntity,

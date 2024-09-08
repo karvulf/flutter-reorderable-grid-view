@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
+/// In this example [ReorderableBuilder.builder] is used.
+///
+/// The widget can build 9999 items with an image included.
 void main() {
   runApp(const MaterialApp(home: MyApp()));
 }

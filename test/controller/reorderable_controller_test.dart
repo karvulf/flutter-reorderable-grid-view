@@ -134,7 +134,7 @@ void main() {
       // given
 
       // when
-      controller.handleCreatedChild(
+      final actual = controller.handleCreatedChild(
         offset: givenOffset,
         reorderableEntity: givenReorderableEntity,
       );
@@ -143,6 +143,7 @@ void main() {
       final expectedUpdatedEntity = givenReorderableEntity.creationFinished(
         offset: givenOffset,
       );
+      expect(actual, equals(expectedUpdatedEntity));
       expect(controller.offsetMap[givenUpdatedOrderId], equals(givenOffset));
       checkMaps(expectedReorderableEntity: expectedUpdatedEntity);
     });
@@ -154,7 +155,7 @@ void main() {
       // given
 
       // when
-      controller.handleCreatedChild(
+      final actual = controller.handleCreatedChild(
         offset: null,
         reorderableEntity: givenReorderableEntity,
       );
@@ -163,6 +164,7 @@ void main() {
       final expectedUpdatedEntity = givenReorderableEntity.creationFinished(
         offset: null,
       );
+      expect(actual, equals(expectedUpdatedEntity));
       expect(controller.offsetMap[givenUpdatedOrderId], isNull);
       checkMaps(expectedReorderableEntity: expectedUpdatedEntity);
     });
@@ -181,12 +183,13 @@ void main() {
       // given
 
       // when
-      controller.handleOpacityFinished(
+      final actual = controller.handleOpacityFinished(
         reorderableEntity: givenReorderableEntity,
       );
 
       // then
       final expectedUpdatedEntity = givenReorderableEntity.fadedIn();
+      expect(actual, equals(expectedUpdatedEntity));
       checkMaps(expectedReorderableEntity: expectedUpdatedEntity);
     });
   });
@@ -204,12 +207,13 @@ void main() {
       // given
 
       // when
-      controller.handleMovingFinished(
+      final actual = controller.handleMovingFinished(
         reorderableEntity: givenReorderableEntity,
       );
 
       // then
       final expectedUpdatedEntity = givenReorderableEntity.positionUpdated();
+      expect(actual, equals(expectedUpdatedEntity));
       checkMaps(expectedReorderableEntity: expectedUpdatedEntity);
     });
   });

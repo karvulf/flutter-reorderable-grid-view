@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../reorderable_builder.dart';
-
 void main() {
-  final reorderableBuilder = ReorderableBuilder();
-
-  final givenReorderableEntity = reorderableBuilder.getEntity();
+  const givenSize = Size(100.0, 200.5);
   const givenChild = Placeholder();
 
   Future<void> pumpWidget(
     WidgetTester tester, {
-    required ReorderableEntityCallback onDeactivate,
+    required VoidCallback onDeactivate,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: _TestAnimatedDraggableFeedback(
               onDeactivate: onDeactivate,
-              reorderableEntity: givenReorderableEntity,
+              size: givenSize,
               child: givenChild,
             ),
           ),
@@ -37,7 +31,7 @@ void main() {
     // when
     await pumpWidget(
       tester,
-      onDeactivate: (_) {},
+      onDeactivate: () {},
     );
 
     // then
@@ -48,8 +42,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is SizedBox &&
-            widget.height == givenReorderableEntity.size.height &&
-            widget.width == givenReorderableEntity.size.width),
+            widget.height == givenSize.height &&
+            widget.width == givenSize.width),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -64,31 +58,31 @@ void main() {
       'WHEN widget is disposed '
       'THEN should call onDeactivate', (WidgetTester tester) async {
     // given
-    ReorderableEntity? actualReorderableEntity;
+    int callCounter = 0;
 
     // when
     await pumpWidget(
       tester,
-      onDeactivate: (reorderableEntity) {
-        actualReorderableEntity = reorderableEntity;
+      onDeactivate: () {
+        callCounter++;
       },
     );
 
     // then
     addTearDown(() {
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(callCounter, equals(1));
     });
   });
 }
 
 class _TestAnimatedDraggableFeedback extends StatefulWidget {
   final Widget child;
-  final ReorderableEntity reorderableEntity;
-  final ReorderableEntityCallback onDeactivate;
+  final Size size;
+  final VoidCallback onDeactivate;
 
   const _TestAnimatedDraggableFeedback({
     required this.child,
-    required this.reorderableEntity,
+    required this.size,
     required this.onDeactivate,
     Key? key,
   }) : super(key: key);
@@ -123,7 +117,7 @@ class _TestAnimatedDraggableFeedbackState
   Widget build(BuildContext context) {
     return DraggableFeedback(
       onDeactivate: widget.onDeactivate,
-      reorderableEntity: widget.reorderableEntity,
+      size: widget.size,
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
