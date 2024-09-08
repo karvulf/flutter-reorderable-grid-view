@@ -349,16 +349,85 @@ void main() {
     });
   });
 
-  group('#didUpdateWidget', () {});
+  group('#didUpdateWidget', () {
+    testWidgets(
+        "GIVEN [ReorderableBuilderItem] "
+        "WHEN updating reorderableEntity which is new "
+        "THEN should update reorderableEntity", (tester) async {
+      // given
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _TestReorderableBuilderItem(
+            reorderableEntity: givenReorderableEntity,
+            onUpdate: () {
+              return givenUpdatedReorderableEntity;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      findWidget<ReorderableAnimatedPositioned>().onMovingFinished();
+      await tester.pump();
+
+      // when
+      await tester.tap(find.byType(IconButton));
+      await tester.pumpAndSettle();
+
+      // then
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is ReorderableDraggable &&
+              widget.reorderableEntity == givenUpdatedReorderableEntity),
+          findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN [ReorderableBuilderItem] "
+        "WHEN updating reorderableEntity which is newer but the same as the current one in widget "
+        "THEN should not update reorderableEntity", (tester) async {
+      // given
+      final givenUpdatedReorderableEntity2 = reorderableBuilder.getEntity(
+        key: 'Newer Update',
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _TestReorderableBuilderItem(
+            reorderableEntity: givenReorderableEntity,
+            onUpdate: () {
+              return givenUpdatedReorderableEntity2;
+            },
+            onMovingFinished: (_) {
+              return givenUpdatedReorderableEntity2;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      await tester.tap(find.byType(IconButton));
+      await tester.pumpAndSettle();
+
+      // then
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is ReorderableDraggable &&
+              widget.reorderableEntity == givenUpdatedReorderableEntity2),
+          findsOneWidget);
+    });
+  });
 }
 
 class _TestReorderableBuilderItem extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
-  final ReorderableEntity updatedReorderableEntity;
+  final ReorderableEntity Function() onUpdate;
+  final ReturnReorderableEntityCallback? onMovingFinished;
 
   const _TestReorderableBuilderItem({
     required this.reorderableEntity,
-    required this.updatedReorderableEntity,
+    required this.onUpdate,
+    this.onMovingFinished,
+    // ignore: unused_element
     super.key,
   });
 
@@ -379,7 +448,7 @@ class _TestReorderableBuilderItemState
           IconButton(
             onPressed: () {
               setState(() {
-                _reorderableEntity = widget.updatedReorderableEntity;
+                _reorderableEntity = widget.onUpdate();
               });
             },
             icon: const Icon(Icons.add),
@@ -392,7 +461,7 @@ class _TestReorderableBuilderItemState
         onOpacityFinished: (_) => _reorderableEntity,
         currentDraggedEntity: null,
         positionDuration: const Duration(milliseconds: 200),
-        onMovingFinished: (_) => _reorderableEntity,
+        onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
         onCreated: (_, __) => _reorderableEntity,
         releasedReorderableEntity: null,
         scrollOffset: Offset.zero,

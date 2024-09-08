@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,14 +15,14 @@ void main() {
   Future<void> pumpWidget(
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
-    OnCreatedFunction? onCreated,
+    void Function(GlobalKey key)? onCreated,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ReorderableInitChild(
               reorderableEntity: reorderableEntity,
-              onCreated: onCreated ?? (_, __) {},
+              onCreated: onCreated ?? (_) {},
               child: givenChild,
             ),
           ),
@@ -38,21 +37,18 @@ void main() {
     final givenReorderableEntity = reorderableBuilder.getEntity(
       isBuildingOffset: true,
     );
-    ReorderableEntity? actualReorderableEntity;
     GlobalKey? actualGlobalKey;
 
     // when
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onCreated: (reorderableEntity, globalKey) {
-        actualReorderableEntity = reorderableEntity;
+      onCreated: (globalKey) {
         actualGlobalKey = globalKey;
       },
     );
 
     // then
-    expect(actualReorderableEntity, equals(givenReorderableEntity));
     expect(actualGlobalKey, isNotNull);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -74,22 +70,19 @@ void main() {
     final givenReorderableEntity = reorderableBuilder.getEntity(
       isBuildingOffset: false,
     );
-    ReorderableEntity? actualReorderableEntity;
     GlobalKey? actualGlobalKey;
 
     // when
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onCreated: (reorderableEntity, globalKey) {
-        actualReorderableEntity = reorderableEntity;
+      onCreated: (globalKey) {
         actualGlobalKey = globalKey;
       },
     );
     await tester.pump();
 
     // then
-    expect(actualReorderableEntity, equals(givenReorderableEntity));
     expect(actualGlobalKey, isNotNull);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -108,7 +101,7 @@ void main() {
       WidgetTester tester, {
       required ReorderableEntity reorderableEntity,
       required ReorderableEntity updatedReorderableEntity,
-      required OnCreatedFunction onCreated,
+      required void Function(GlobalKey key) onCreated,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -145,7 +138,7 @@ void main() {
         tester,
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
-        onCreated: (_, __) {
+        onCreated: (_) {
           callCounter++;
         },
       );
@@ -172,7 +165,7 @@ void main() {
         tester,
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
-        onCreated: (_, __) {
+        onCreated: (_) {
           callCounter++;
         },
       );
@@ -199,7 +192,7 @@ void main() {
         tester,
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
-        onCreated: (_, __) {
+        onCreated: (_) {
           callCounter++;
         },
       );
@@ -214,7 +207,7 @@ class _TestUpdateReorderableInitChild extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
 
-  final OnCreatedFunction onCreated;
+  final void Function(GlobalKey key) onCreated;
 
   const _TestUpdateReorderableInitChild({
     required this.reorderableEntity,

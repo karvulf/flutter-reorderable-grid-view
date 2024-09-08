@@ -40,12 +40,12 @@ typedef ReturnOnCreatedFunction = ReorderableEntity Function(
 );
 
 /// Called after the position of the dragged child updates.
-typedef OnDragUpdateFunction = Function(
+typedef OnDragUpdateFunction = void Function(
   DragUpdateDetails details,
 );
 
 /// Called after the dragged child was released.
-typedef OnDragEndFunction = Function(
+typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
   Offset globalOffset,
 );
