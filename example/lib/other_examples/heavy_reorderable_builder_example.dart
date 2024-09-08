@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   final _scrollController = ScrollController();
   final _gridViewKey = GlobalKey();
 
-  var _children = List.generate(9999, (index) => index.toString());
+  var _children = List.generate(100, (index) => index.toString());
 
   @override
   Widget build(BuildContext context) {

@@ -8,6 +8,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
@@ -349,39 +350,26 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
         !widget.lockedIndices.contains(index);
 
-    return ReorderableAnimatedOpacity(
+    return ReorderableBuilderItem(
       reorderableEntity: reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
       onOpacityFinished: _handleOpacityFinished,
-      child: ReorderableAnimatedPositioned(
-        reorderableEntity: reorderableEntity,
-        isDragging: currentDraggedEntity != null,
-        positionDuration: widget.positionDuration,
-        onMovingFinished: _handleMovingFinished,
-        child: ReorderableInitChild(
-          reorderableEntity: reorderableEntity,
-          onCreated: _handleCreatedChild,
-          child: ReorderableAnimatedReleasedContainer(
-            releasedReorderableEntity:
-                _reorderableController.releasedReorderableEntity,
-            scrollOffset: _getScrollOffset(),
-            releasedChildDuration: widget.releasedChildDuration,
-            reorderableEntity: reorderableEntity,
-            child: ReorderableDraggable(
-              reorderableEntity: reorderableEntity,
-              enableDraggable: widget.enableDraggable && isDraggable,
-              currentDraggedEntity: currentDraggedEntity,
-              enableLongPress: widget.enableLongPress,
-              longPressDelay: widget.longPressDelay,
-              dragChildBoxDecoration: widget.dragChildBoxDecoration,
-              onDragStarted: _handleDragStarted,
-              onDragEnd: _handleDragEnd,
-              onDragCanceled: _handleDragCanceled,
-              child: child,
-            ),
-          ),
-        ),
-      ),
+      positionDuration: widget.positionDuration,
+      onMovingFinished: _handleMovingFinished,
+      onCreated: _handleCreatedChild,
+      releasedReorderableEntity:
+          _reorderableController.releasedReorderableEntity,
+      scrollOffset: _getScrollOffset(),
+      releasedChildDuration: widget.releasedChildDuration,
+      enableDraggable: widget.enableDraggable && isDraggable,
+      currentDraggedEntity: currentDraggedEntity,
+      enableLongPress: widget.enableLongPress,
+      longPressDelay: widget.longPressDelay,
+      dragChildBoxDecoration: widget.dragChildBoxDecoration,
+      onDragStarted: _handleDragStarted,
+      onDragEnd: _handleDragEnd,
+      onDragCanceled: _handleDragCanceled,
+      child: child,
     );
   }
 
@@ -482,18 +470,18 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Animation part
   ///
 
-  void _handleMovingFinished(ReorderableEntity reorderableEntity) {
-    _reorderableController.handleMovingFinished(
+  ReorderableEntity _handleMovingFinished(ReorderableEntity reorderableEntity) {
+    return _reorderableController.handleMovingFinished(
       reorderableEntity: reorderableEntity,
     );
-    setState(() {});
   }
 
-  void _handleOpacityFinished(ReorderableEntity reorderableEntity) {
-    _reorderableController.handleOpacityFinished(
+  ReorderableEntity _handleOpacityFinished(
+    ReorderableEntity reorderableEntity,
+  ) {
+    return _reorderableController.handleOpacityFinished(
       reorderableEntity: reorderableEntity,
     );
-    setState(() {});
   }
 
   /// Creates [ReorderableEntity] that contains all required values for animations.

@@ -6,11 +6,19 @@ typedef ReorderableEntityCallback = void Function(
   ReorderableEntity reorderableEntity,
 );
 
+typedef ReorderableEntityCallback2 = ReorderableEntity Function(
+  ReorderableEntity reorderableEntity,
+);
+
+typedef ReorderableBuilderCallback = Widget Function(
+  ReorderableEntity reorderableEntity,
+);
+
 typedef ReleasedReorderableEntityCallback = void Function(
   ReleasedReorderableEntity releasedReorderableEntity,
 );
 
-///
+/// Called after dragging of child ends.
 typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
   Offset globalOffset,

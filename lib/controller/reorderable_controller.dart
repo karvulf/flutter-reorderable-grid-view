@@ -66,9 +66,11 @@ abstract class ReorderableController {
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
-  void handleOpacityFinished({required ReorderableEntity reorderableEntity}) {
+  ReorderableEntity handleOpacityFinished(
+      {required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.fadedIn();
     _updateMaps(reorderableEntity: updatedEntity);
+    return updatedEntity;
   }
 
   /// TODO das fadedIn und positionUpdated scheint identisch zu sein, ergo ist diese methode mit der obigen gleich und kann vielleicht zusammengeführt werden
@@ -76,9 +78,11 @@ abstract class ReorderableController {
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
-  void handleMovingFinished({required ReorderableEntity reorderableEntity}) {
+  ReorderableEntity handleMovingFinished({required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.positionUpdated();
     _updateMaps(reorderableEntity: updatedEntity);
+
+    return updatedEntity;
   }
 
   /// Resets all entities in [childrenOrderMap] and [childrenKeyMap].
