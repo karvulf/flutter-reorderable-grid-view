@@ -13,42 +13,76 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// For [ReorderableAnimatedOpacity]
   ///
 
+  /// Contains all info to enable animations and drag and drop.
   final ReorderableEntity reorderableEntity;
+
+  /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
+
+  /// Called when the fade in animation was finished.
+  ///
+  /// Should add updated [ReorderableEntity] with updated size.
   final ReturnReorderableEntityCallback onOpacityFinished;
 
   ///
   /// For [ReorderableAnimatedPositioned]
   ///
+
+  /// Duration for the position change of [child] (won't be used while dragging!).
   final Duration positionDuration;
+
+  /// Callback for the animation after moving the [child].
   final ReturnReorderableEntityCallback onMovingFinished;
 
   ///
   /// For [ReorderableInitChild]
   ///
+
+  /// Called when the child in his position is built for the first time.
   final ReturnOnCreatedFunction onCreated;
 
   ///
   /// For [ReorderableAnimatedReleasedContainer]
   ///
+
+  /// Describes [reorderableEntity] that is released after drag and drop.
   final ReleasedReorderableEntity? releasedReorderableEntity;
+
+  /// Current scrolling offset for vertical and horizontal scrolling.
   final Offset scrollOffset;
+
+  /// [Duration] for the position animation when a dragged child was released.
   final Duration releasedChildDuration;
 
   ///
   /// For [ReorderableDraggable]
   ///
+
+  /// When disabling draggable, the drag and drop behavior is not working.
   final bool enableDraggable;
+
+  /// Will be assigned after starting to drag.
   final ReorderableEntity? currentDraggedEntity;
+
+  /// The drag of a child will be started with a long press.
   final bool enableLongPress;
+
+  /// Specify the [Duration] for the pressed child before starting the dragging.
   final Duration longPressDelay;
+
+  /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
+
+  /// Callback when dragging starts.
   final ReorderableEntityCallback onDragStarted;
-  final void Function(
-    ReorderableEntity reorderableEntity,
-    Offset globalOffset,
-  ) onDragEnd;
+
+  /// Callback when the dragged child was released.
+  final OnDragEndFunction onDragEnd;
+
+  /// Called after the dragged child was canceled, e.g. deleted.
   final ReorderableEntityCallback onDragCanceled;
+
+  /// The item that will be displayed in the GridView.
   final Widget child;
 
   const ReorderableBuilderItem({
@@ -65,7 +99,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.enableDraggable,
     required this.enableLongPress,
     required this.longPressDelay,
-    this.dragChildBoxDecoration,
+    required this.dragChildBoxDecoration,
     required this.onDragStarted,
     required this.onDragEnd,
     required this.onDragCanceled,
@@ -78,6 +112,15 @@ class ReorderableBuilderItem extends StatefulWidget {
 }
 
 class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
+  /// Holding the newest instance of [_reorderableEntity] here.
+  ///
+  /// The advantage of holding the instance here is a better performance
+  /// and control when the entity is updated.
+  /// Previously it was added in ReorderableBuilder which caused to rebuild
+  /// every child in the GridView.
+  /// Now only this widget will be rebuilt after updating the entity e.g.
+  /// when the child was created or the position changed after
+  /// the drag and drop.
   late ReorderableEntity _reorderableEntity;
 
   @override
@@ -92,6 +135,8 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     final oldEntity = oldWidget.reorderableEntity;
     final entity = widget.reorderableEntity;
 
+    // only updating if the entity is different to the previous one
+    // and the current entity is also different otherwise no update required
     if (entity != oldEntity && entity != _reorderableEntity) {
       _updateReorderableEntity(widget.reorderableEntity);
     }
@@ -136,6 +181,9 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               enableLongPress: widget.enableLongPress,
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
+              // all three dragging functions will trigger a setState for all children
+              // that's why the single entity won't be updated here because
+              // the drag and drop effects much more children
               onDragStarted: () => widget.onDragStarted(_reorderableEntity),
               onDragEnd: (globalOffset) => widget.onDragEnd(
                 _reorderableEntity,
