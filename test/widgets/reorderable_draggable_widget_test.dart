@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
@@ -21,9 +20,9 @@ void main() {
     required bool enableDraggable,
     ReorderableEntity? currentDraggedEntity,
     Widget? child,
-    ReorderableEntityCallback? onDragStarted,
-    OnDragEndFunction? onDragEnd,
-    OnDragCanceledFunction? onDragCanceled,
+    VoidCallback? onDragStarted,
+    void Function(Offset globalOffset)? onDragEnd,
+    VoidCallback? onDragCanceled,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -35,9 +34,9 @@ void main() {
               enableLongPress: enableLongPress,
               longPressDelay: givenLongPressDelay,
               dragChildBoxDecoration: null,
-              onDragStarted: onDragStarted ?? (_) {},
-              onDragEnd: onDragEnd ?? (_, __) {},
-              onDragCanceled: onDragCanceled ?? (_) {},
+              onDragStarted: onDragStarted ?? () {},
+              onDragEnd: onDragEnd ?? (_) {},
+              onDragCanceled: onDragCanceled ?? () {},
               child: child ?? givenChild,
             ),
           ),
@@ -81,8 +80,8 @@ void main() {
         find.byWidgetPredicate((widget) =>
             widget is LongPressDraggable &&
             widget.delay == givenLongPressDelay &&
-            (widget.feedback as DraggableFeedback).reorderableEntity ==
-                givenReorderableEntity &&
+            (widget.feedback as DraggableFeedback).size ==
+                givenReorderableEntity.size &&
             (widget.feedback as DraggableFeedback).decoration.value ==
                 const BoxDecoration() &&
             (widget.childWhenDragging as Visibility).visible &&
@@ -123,8 +122,8 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is Draggable &&
-              (widget.feedback as DraggableFeedback).reorderableEntity ==
-                  givenReorderableEntity &&
+              (widget.feedback as DraggableFeedback).size ==
+                  givenReorderableEntity.size &&
               (widget.feedback as DraggableFeedback).decoration.value ==
                   const BoxDecoration() &&
               (widget.childWhenDragging as Visibility).visible == false &&
@@ -146,13 +145,14 @@ void main() {
         "THEN should call onDragStarted and update feedback",
         (WidgetTester tester) async {
       // given
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
+
       await pumpWidget(
         tester,
         enableDraggable: true,
         enableLongPress: true,
-        onDragStarted: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onDragStarted: () {
+          callCounter++;
         },
       );
       await tester.pumpAndSettle();
@@ -164,7 +164,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // then
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(callCounter, equals(1));
 
       expect(find.byWidgetPredicate((widget) {
         if (widget is LongPressDraggable) {
@@ -189,19 +189,18 @@ void main() {
         "THEN should call onDragEnd and reset feedback",
         (WidgetTester tester) async {
       // given
-      ReorderableEntity? actualReorderableEntity;
       Offset? actualOffset;
-      ReorderableEntity? actualCanceledReorderableEntity;
+      int onDragCanceledCallCounter = 0;
+
       await pumpWidget(
         tester,
         enableDraggable: true,
         enableLongPress: true,
-        onDragEnd: (reorderableEntity, offset) {
-          actualReorderableEntity = reorderableEntity;
+        onDragEnd: (offset) {
           actualOffset = offset;
         },
-        onDragCanceled: (reorderableEntity) {
-          actualCanceledReorderableEntity = reorderableEntity;
+        onDragCanceled: () {
+          onDragCanceledCallCounter++;
         },
       );
       await tester.pumpAndSettle();
@@ -218,9 +217,8 @@ void main() {
       await tester.pump();
 
       // then
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(actualOffset, equals(const Offset(-32.75, 10.0)));
-      expect(actualCanceledReorderableEntity, equals(givenReorderableEntity));
+      expect(onDragCanceledCallCounter, equals(1));
 
       expect(find.byWidgetPredicate((widget) {
         if (widget is LongPressDraggable) {
@@ -241,13 +239,13 @@ void main() {
         "WHEN start dragging "
         "THEN should call onDragStarted", (WidgetTester tester) async {
       // given
-      ReorderableEntity? actualReorderableEntity;
+      int callCounter = 0;
       await pumpWidget(
         tester,
         enableDraggable: true,
         enableLongPress: false,
-        onDragStarted: (reorderableEntity) {
-          actualReorderableEntity = reorderableEntity;
+        onDragStarted: () {
+          callCounter++;
         },
       );
       await tester.pumpAndSettle();
@@ -258,7 +256,7 @@ void main() {
       await tester.pump(givenLongPressDelay);
 
       // then
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
+      expect(callCounter, equals(1));
     });
 
     testWidgets(
@@ -266,19 +264,18 @@ void main() {
         "WHEN cancelling dragging "
         "THEN should call onDragEnd", (WidgetTester tester) async {
       // given
-      ReorderableEntity? actualReorderableEntity;
       Offset? actualOffset;
-      ReorderableEntity? actualCanceledReorderableEntity;
+      int onDragCancelCallCounter = 0;
+
       await pumpWidget(
         tester,
         enableDraggable: true,
         enableLongPress: true,
-        onDragEnd: (reorderableEntity, offset) {
-          actualReorderableEntity = reorderableEntity;
+        onDragEnd: (offset) {
           actualOffset = offset;
         },
-        onDragCanceled: (reorderableEntity) {
-          actualCanceledReorderableEntity = reorderableEntity;
+        onDragCanceled: () {
+          onDragCancelCallCounter++;
         },
       );
       await tester.pumpAndSettle();
@@ -295,9 +292,8 @@ void main() {
       await tester.pump();
 
       // then
-      expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(actualOffset, equals(const Offset(-32.75, 10.0)));
-      expect(actualCanceledReorderableEntity, equals(givenReorderableEntity));
+      expect(onDragCancelCallCounter, equals(1));
     });
   });
 }

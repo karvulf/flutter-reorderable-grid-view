@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 /// Responsible for the animation when the [child] changes his position.
 ///
@@ -28,7 +27,7 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// Important: This callback is only fired when the [child] changed
   /// his position. When position change was triggered while drag and drop,
   /// then the callback won't be fired.
-  final ReorderableEntityCallback onMovingFinished;
+  final VoidCallback onMovingFinished;
 
   /// Duration for the position change of [child] (won't be used while dragging!).
   final Duration positionDuration;
@@ -195,7 +194,7 @@ class _ReorderableAnimatedPositionedState
 
     // there is no need to call the callback if the widget didn't change his position.
     if (begin != Offset.zero) {
-      widget.onMovingFinished(widget.reorderableEntity);
+      widget.onMovingFinished();
     }
   }
 }

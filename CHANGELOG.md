@@ -1,10 +1,42 @@
+## 5.1.0
+* there were performance issues (Issue [#107](https://github.com/karvulf/flutter-reorderable-grid-view/issues/107))
+  * because `setState` was called many times, it rerendered all children
+  * I improved it by only rendering the updated children when they are built
+  * this version can be used to test it
+
 ## 5.0.1
 🐛 **Bug fix**
 * Dragging not working in release mode on Android (thanks to `shubham-gupta-16` - Issue [#105](https://github.com/karvulf/flutter-reorderable-grid-view/issues/105))
   * changed behavior of `Listener` to `HitTestBehavior.deferToChild`
 
 ## 5.0.0
-*TODO: Add changelogs*
+This release introduces a complete overhaul of the package, delivering significant performance optimizations, bug fixes, and new features.
+
+⭐️ **New features**
+* Improved Reorderable.builder performance: Now only renders visible children, similar to GridView.builder, significantly enhancing performance
+* Horizontal direction support (Issue [#53](https://github.com/karvulf/flutter-reorderable-grid-view/issues/53)):
+  * `GridView` now supports both horizontal and vertical directions
+* New `fadeInDuration` parameter (Issue [#68](https://github.com/karvulf/flutter-reorderable-grid-view/issues/68)):
+  * Default: `500ms`
+  * Controls the animation duration when a new child appears
+* `Draggable` and `LongPressDraggable` now support `data` attachment
+* New `onDraggedChildUpdated` callback (thanks for the PR [Bader-AI](https://github.com/Bader-Al)):
+  * Called whenever a dragged child updates its position during dragging
+  * Avoid modifying children during this callback to prevent erratic behavior
+* New `releasedChildDuration` parameter:
+  * Defines the duration for a child to settle into its new position after being released
+  * Default `150ms`
+* New `positionDuration` parameter (thanks to `naderhezzy` - Issue [#94](https://github.com/karvulf/flutter-reorderable-grid-view/issues/94)):
+  * Adjusts the animation duration when a child's position changes (e.g., when adding/removing items)
+* New `nonDraggableIndicies` parameter (thanks to `Bader-Al` for the PR [#93](https://github.com/karvulf/flutter-reorderable-grid-view/pull/93/)):
+  * Specifies indices of non-draggable items, though they remain movable while dragging other items
+
+
+⚡️ **Breaking Changes**
+* `onReorder`  function now includes a reorder callback that must be invoked within the `onReorder` handler
+  * This improves performance, especially when working with large lists
+  * Refer to the updated examples for guidance
+* `onDragStarted` and `onDragEnd` callbacks now include the index of the dragged child in their parameters
 
 ## 5.0.0-dev.10
 🐛 **Bug fix**

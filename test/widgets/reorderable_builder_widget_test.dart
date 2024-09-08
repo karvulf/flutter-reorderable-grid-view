@@ -1,11 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -94,40 +90,22 @@ void main() {
               widget.child is SingleChildScrollView),
           findsOneWidget);
       expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedOpacity &&
-              widget.fadeInDuration == const Duration(milliseconds: 500) &&
-              widget.child is ReorderableAnimatedPositioned),
-          findsOneWidget);
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedPositioned &&
-              !widget.isDragging &&
-              widget.positionDuration == const Duration(milliseconds: 200) &&
-              widget.child is ReorderableInitChild),
-          findsOneWidget);
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableInitChild &&
-              widget.child is ReorderableAnimatedReleasedContainer),
-          findsOneWidget);
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedReleasedContainer &&
-              widget.scrollOffset == Offset.zero &&
-              widget.releasedChildDuration ==
-                  const Duration(milliseconds: 150) &&
-              widget.child is ReorderableDraggable),
-          findsOneWidget);
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableDraggable &&
-              widget.enableDraggable &&
-              widget.currentDraggedEntity == null &&
-              widget.enableLongPress &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.dragChildBoxDecoration == null &&
-              widget.child == givenChild),
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ReorderableBuilderItem &&
+                widget.fadeInDuration == const Duration(milliseconds: 500) &&
+                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.releasedReorderableEntity == null &&
+                widget.scrollOffset == Offset.zero &&
+                widget.releasedChildDuration ==
+                    const Duration(milliseconds: 150) &&
+                widget.enableDraggable &&
+                widget.currentDraggedEntity == null &&
+                widget.enableLongPress &&
+                widget.longPressDelay == const Duration(milliseconds: 500) &&
+                widget.dragChildBoxDecoration == null &&
+                widget.child == givenChild,
+          ),
           findsOneWidget);
     });
   });
@@ -228,60 +206,39 @@ void main() {
               widget.enableScrollingWhileDragging &&
               widget.child is SingleChildScrollView),
           findsOneWidget);
+
       expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedOpacity &&
-              widget.fadeInDuration == const Duration(milliseconds: 500) &&
-              widget.child is ReorderableAnimatedPositioned),
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ReorderableBuilderItem &&
+                widget.fadeInDuration == const Duration(milliseconds: 500) &&
+                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.releasedReorderableEntity == null &&
+                widget.scrollOffset == Offset.zero &&
+                widget.releasedChildDuration ==
+                    const Duration(milliseconds: 150) &&
+                widget.currentDraggedEntity == null &&
+                widget.enableLongPress &&
+                widget.longPressDelay == const Duration(milliseconds: 500) &&
+                widget.dragChildBoxDecoration == null,
+          ),
           findsNWidgets(3));
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedPositioned &&
-              !widget.isDragging &&
-              widget.positionDuration == const Duration(milliseconds: 200) &&
-              widget.child is ReorderableInitChild),
-          findsNWidgets(3));
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableInitChild &&
-              widget.child is ReorderableAnimatedReleasedContainer),
-          findsNWidgets(3));
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableAnimatedReleasedContainer &&
-              widget.scrollOffset == Offset.zero &&
-              widget.releasedChildDuration ==
-                  const Duration(milliseconds: 150) &&
-              widget.child is ReorderableDraggable),
-          findsNWidgets(3));
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableDraggable &&
+              widget is ReorderableBuilderItem &&
               widget.enableDraggable &&
-              widget.currentDraggedEntity == null &&
-              widget.enableLongPress &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.dragChildBoxDecoration == null &&
               widget.child == givenChildren[0]),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is ReorderableDraggable &&
+              widget is ReorderableBuilderItem &&
               !widget.enableDraggable &&
-              widget.currentDraggedEntity == null &&
-              widget.enableLongPress &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.dragChildBoxDecoration == null &&
               widget.child == givenChildren[1]),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is ReorderableDraggable &&
+              widget is ReorderableBuilderItem &&
               !widget.enableDraggable &&
-              widget.currentDraggedEntity == null &&
-              widget.enableLongPress &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.dragChildBoxDecoration == null &&
               widget.child == givenChildren[2]),
           findsOneWidget);
     });
