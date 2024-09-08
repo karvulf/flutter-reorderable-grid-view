@@ -80,7 +80,8 @@ abstract class ReorderableController {
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
-  ReorderableEntity handleMovingFinished({required ReorderableEntity reorderableEntity}) {
+  ReorderableEntity handleMovingFinished(
+      {required ReorderableEntity reorderableEntity}) {
     final updatedEntity = reorderableEntity.positionUpdated();
     _updateMaps(reorderableEntity: updatedEntity);
 
