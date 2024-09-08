@@ -21,12 +21,12 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// For [ReorderableAnimatedPositioned]
   ///
   final Duration positionDuration;
-  final ReorderableEntityCallback onMovingFinished;
+  final ReorderableEntityCallback2 onMovingFinished;
 
   ///
   /// For [ReorderableInitChild]
   ///
-  final OnCreatedFunction onCreated;
+  final OnCreatedFunction2 onCreated;
 
   ///
   /// For [ReorderableAnimatedReleasedContainer]
@@ -75,27 +75,60 @@ class ReorderableBuilderItem extends StatefulWidget {
 }
 
 class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
+  late ReorderableEntity _reorderableEntity;
+
+  @override
+  void initState() {
+    super.initState();
+    _reorderableEntity = widget.reorderableEntity;
+  }
+
+  @override
+  void didUpdateWidget(covariant ReorderableBuilderItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldEntity = oldWidget.reorderableEntity;
+    final entity = widget.reorderableEntity;
+
+    if (entity != oldEntity && entity != _reorderableEntity) {
+      setState(() {
+        _reorderableEntity = widget.reorderableEntity;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ReorderableAnimatedOpacity(
       reorderableEntity: widget.reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
-      onOpacityFinished: widget.onOpacityFinished,
-      builder: (reorderableEntity) => ReorderableAnimatedPositioned(
-        reorderableEntity: reorderableEntity,
+      onOpacityFinished: (reorderableEntity) {
+        final updatedEntity = widget.onOpacityFinished(reorderableEntity);
+        _updateReorderableEntity(updatedEntity);
+      },
+      child: ReorderableAnimatedPositioned(
+        reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
         positionDuration: widget.positionDuration,
-        onMovingFinished: widget.onMovingFinished,
+        onMovingFinished: (reorderableEntity) {
+          final updatedEntity = widget.onMovingFinished(reorderableEntity);
+          _updateReorderableEntity(updatedEntity);
+        },
         child: ReorderableInitChild(
-          reorderableEntity: reorderableEntity,
-          onCreated: widget.onCreated,
+          reorderableEntity: _reorderableEntity,
+          onCreated: (reorderableEntity, globalKey) {
+            final updatedEntity = widget.onCreated(
+              reorderableEntity,
+              globalKey,
+            );
+            _updateReorderableEntity(updatedEntity);
+          },
           child: ReorderableAnimatedReleasedContainer(
-            reorderableEntity: reorderableEntity,
+            reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
             scrollOffset: widget.scrollOffset,
             releasedChildDuration: widget.releasedChildDuration,
             child: ReorderableDraggable(
-              reorderableEntity: reorderableEntity,
+              reorderableEntity: _reorderableEntity,
               enableDraggable: widget.enableDraggable,
               currentDraggedEntity: widget.currentDraggedEntity,
               enableLongPress: widget.enableLongPress,
@@ -110,5 +143,11 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
         ),
       ),
     );
+  }
+
+  void _updateReorderableEntity(ReorderableEntity reorderableEntity) {
+    setState(() {
+      _reorderableEntity = reorderableEntity;
+    });
   }
 }

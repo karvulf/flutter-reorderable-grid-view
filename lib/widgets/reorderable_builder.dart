@@ -491,7 +491,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// offset in this widget.
   /// At this way the offset will always be correct for calculations even though
   /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
-  void _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
+  ReorderableEntity _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
@@ -514,11 +514,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       }
     }
 
-    reorderableController.handleCreatedChild(
+    return reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,
     );
-    setState(() {});
   }
 
   ReorderableDragAndDropController get _reorderableController {

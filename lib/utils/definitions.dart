@@ -30,6 +30,11 @@ typedef OnDragCanceledFunction = void Function(
 );
 
 typedef OnCreatedFunction = void Function(
+    ReorderableEntity reorderableEntity,
+    GlobalKey key,
+    );
+
+typedef OnCreatedFunction2 = ReorderableEntity Function(
   ReorderableEntity reorderableEntity,
   GlobalKey key,
 );

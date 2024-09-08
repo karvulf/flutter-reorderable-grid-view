@@ -49,7 +49,7 @@ abstract class ReorderableController {
   /// Then #creationFinished is called that updates some important values.
   ///
   /// In the end, the [childrenOrderMap] and [childrenKeyMap] are updated.
-  void handleCreatedChild({
+  ReorderableEntity handleCreatedChild({
     required Offset? offset,
     required ReorderableEntity reorderableEntity,
   }) {
@@ -60,6 +60,8 @@ abstract class ReorderableController {
       offset: offset,
     );
     _updateMaps(reorderableEntity: updatedEntity);
+
+    return updatedEntity;
   }
 
   /// Updates offset and order id of [reorderableEntity] faded in.

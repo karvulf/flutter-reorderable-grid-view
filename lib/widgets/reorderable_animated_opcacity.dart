@@ -7,18 +7,18 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Entity that contains all information to recognize it as a new widget.
   final ReorderableEntity reorderableEntity;
 
-  ///
-  final ReorderableBuilderCallback builder;
+  /// [child] that could get the fade in animation.
+  final Widget child;
 
   /// Called when the fade in animation was finished.
-  final ReorderableEntityCallback2 onOpacityFinished;
+  final ReorderableEntityCallback onOpacityFinished;
 
   /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
 
   const ReorderableAnimatedOpacity({
     required this.reorderableEntity,
-    required this.builder,
+    required this.child,
     required this.onOpacityFinished,
     required this.fadeInDuration,
     Key? key,
@@ -34,12 +34,10 @@ class _ReorderableAnimatedOpacityState
   /// Value that will be used for the opacity animation.
   late double _opacity;
   late final _globalKey = GlobalKey();
-  late ReorderableEntity _reorderableEntity;
 
   @override
   void initState() {
     super.initState();
-    _reorderableEntity = widget.reorderableEntity;
     _updateOpacity();
   }
 
@@ -48,12 +46,6 @@ class _ReorderableAnimatedOpacityState
     super.didUpdateWidget(oldWidget);
     final oldEntity = oldWidget.reorderableEntity;
     final entity = widget.reorderableEntity;
-
-    if (entity != oldEntity) {
-      setState(() {
-        _reorderableEntity = widget.reorderableEntity;
-      });
-    }
 
     // that means that the [child] is new and will have a fade in animation
     if (oldEntity.originalOrderId != entity.originalOrderId && entity.isNew) {
@@ -68,7 +60,7 @@ class _ReorderableAnimatedOpacityState
       opacity: _opacity,
       duration: _duration,
       onEnd: _handleAnimationFinished,
-      child: widget.builder(_reorderableEntity),
+      child: widget.child,
     );
   }
 
@@ -89,16 +81,7 @@ class _ReorderableAnimatedOpacityState
     final renderObject = _globalKey.currentContext?.findRenderObject();
     final renderBox = renderObject as RenderBox?;
     final size = renderBox?.size;
-
-    final updatedEntity = widget.onOpacityFinished(
-      widget.reorderableEntity.copyWith(size: size),
-    );
-
-    if (mounted) {
-      setState(() {
-        _reorderableEntity = updatedEntity;
-      });
-    }
+    widget.onOpacityFinished(widget.reorderableEntity.copyWith(size: size));
   }
 
   /// [Duration] used for the opacity animation.
