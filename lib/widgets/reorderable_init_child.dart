@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 /// Widget that calls [onCreated] if [reorderableEntity] is new.
 ///
@@ -16,7 +15,7 @@ class ReorderableInitChild extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
 
   /// Called when "buildingOffset" of [reorderableEntity] is true and the child was built.
-  final OnCreatedFunction onCreated;
+  final void Function(GlobalKey key) onCreated;
 
   const ReorderableInitChild({
     required this.child,
@@ -38,7 +37,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onCreated(widget.reorderableEntity, _globalKey);
+      widget.onCreated(_globalKey);
     });
   }
 
@@ -52,7 +51,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
         newEntity.isBuildingOffset) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onCreated(widget.reorderableEntity, _globalKey);
+        widget.onCreated(_globalKey);
       });
     }
   }

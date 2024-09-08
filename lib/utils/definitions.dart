@@ -6,11 +6,7 @@ typedef ReorderableEntityCallback = void Function(
   ReorderableEntity reorderableEntity,
 );
 
-typedef ReorderableEntityCallback2 = ReorderableEntity Function(
-  ReorderableEntity reorderableEntity,
-);
-
-typedef ReorderableBuilderCallback = Widget Function(
+typedef ReturnReorderableEntityCallback = ReorderableEntity Function(
   ReorderableEntity reorderableEntity,
 );
 
@@ -18,23 +14,12 @@ typedef ReleasedReorderableEntityCallback = void Function(
   ReleasedReorderableEntity releasedReorderableEntity,
 );
 
-/// Called after dragging of child ends.
-typedef OnDragEndFunction = void Function(
-  ReorderableEntity reorderableEntity,
-  Offset globalOffset,
-);
-
-/// Called if drag was canceled, e.g. the dragged item is removed while dragging.
-typedef OnDragCanceledFunction = void Function(
-  ReorderableEntity reorderableEntity,
-);
-
 typedef OnCreatedFunction = void Function(
-    ReorderableEntity reorderableEntity,
-    GlobalKey key,
-    );
+  ReorderableEntity reorderableEntity,
+  GlobalKey key,
+);
 
-typedef OnCreatedFunction2 = ReorderableEntity Function(
+typedef ReturnOnCreatedFunction = ReorderableEntity Function(
   ReorderableEntity reorderableEntity,
   GlobalKey key,
 );

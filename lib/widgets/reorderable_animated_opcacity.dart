@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 
 /// Responsible for the fade in animation when [child] is created.
 class ReorderableAnimatedOpacity extends StatefulWidget {
@@ -11,7 +10,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   final Widget child;
 
   /// Called when the fade in animation was finished.
-  final ReorderableEntityCallback onOpacityFinished;
+  final void Function(Size? size) onOpacityFinished;
 
   /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
@@ -81,7 +80,7 @@ class _ReorderableAnimatedOpacityState
     final renderObject = _globalKey.currentContext?.findRenderObject();
     final renderBox = renderObject as RenderBox?;
     final size = renderBox?.size;
-    widget.onOpacityFinished(widget.reorderableEntity.copyWith(size: size));
+    widget.onOpacityFinished(size);
   }
 
   /// [Duration] used for the opacity animation.

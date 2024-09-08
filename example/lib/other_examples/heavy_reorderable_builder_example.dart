@@ -50,7 +50,22 @@ class _MyAppState extends State<MyApp> {
                 child: Stack(
                   children: [
                     Image.asset(_imagePath),
-                    Center(child: Text(_children[index].toString())),
+                    Center(
+                      child: ColoredBox(
+                        color: Colors.blueGrey,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            _children[index].toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );

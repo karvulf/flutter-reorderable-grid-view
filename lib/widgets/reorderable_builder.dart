@@ -5,12 +5,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_dr
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
@@ -491,7 +486,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// offset in this widget.
   /// At this way the offset will always be correct for calculations even though
   /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
-  ReorderableEntity _handleCreatedChild(ReorderableEntity reorderableEntity, GlobalKey key) {
+  ReorderableEntity _handleCreatedChild(
+      ReorderableEntity reorderableEntity, GlobalKey key) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 

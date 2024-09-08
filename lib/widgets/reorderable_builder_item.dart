@@ -15,18 +15,18 @@ class ReorderableBuilderItem extends StatefulWidget {
 
   final ReorderableEntity reorderableEntity;
   final Duration fadeInDuration;
-  final ReorderableEntityCallback2 onOpacityFinished;
+  final ReturnReorderableEntityCallback onOpacityFinished;
 
   ///
   /// For [ReorderableAnimatedPositioned]
   ///
   final Duration positionDuration;
-  final ReorderableEntityCallback2 onMovingFinished;
+  final ReturnReorderableEntityCallback onMovingFinished;
 
   ///
   /// For [ReorderableInitChild]
   ///
-  final OnCreatedFunction2 onCreated;
+  final ReturnOnCreatedFunction onCreated;
 
   ///
   /// For [ReorderableAnimatedReleasedContainer]
@@ -44,8 +44,11 @@ class ReorderableBuilderItem extends StatefulWidget {
   final Duration longPressDelay;
   final BoxDecoration? dragChildBoxDecoration;
   final ReorderableEntityCallback onDragStarted;
-  final OnDragEndFunction onDragEnd;
-  final OnDragCanceledFunction onDragCanceled;
+  final void Function(
+    ReorderableEntity reorderableEntity,
+    Offset globalOffset,
+  ) onDragEnd;
+  final ReorderableEntityCallback onDragCanceled;
   final Widget child;
 
   const ReorderableBuilderItem({
@@ -90,9 +93,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     final entity = widget.reorderableEntity;
 
     if (entity != oldEntity && entity != _reorderableEntity) {
-      setState(() {
-        _reorderableEntity = widget.reorderableEntity;
-      });
+      _updateReorderableEntity(widget.reorderableEntity);
     }
   }
 
@@ -101,23 +102,24 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     return ReorderableAnimatedOpacity(
       reorderableEntity: widget.reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
-      onOpacityFinished: (reorderableEntity) {
-        final updatedEntity = widget.onOpacityFinished(reorderableEntity);
+      onOpacityFinished: (size) {
+        _reorderableEntity = _reorderableEntity.copyWith(size: size);
+        final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
       },
       child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
         positionDuration: widget.positionDuration,
-        onMovingFinished: (reorderableEntity) {
-          final updatedEntity = widget.onMovingFinished(reorderableEntity);
+        onMovingFinished: () {
+          final updatedEntity = widget.onMovingFinished(_reorderableEntity);
           _updateReorderableEntity(updatedEntity);
         },
         child: ReorderableInitChild(
           reorderableEntity: _reorderableEntity,
-          onCreated: (reorderableEntity, globalKey) {
+          onCreated: (globalKey) {
             final updatedEntity = widget.onCreated(
-              reorderableEntity,
+              _reorderableEntity,
               globalKey,
             );
             _updateReorderableEntity(updatedEntity);
@@ -134,9 +136,12 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               enableLongPress: widget.enableLongPress,
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
-              onDragStarted: widget.onDragStarted,
-              onDragEnd: widget.onDragEnd,
-              onDragCanceled: widget.onDragCanceled,
+              onDragStarted: () => widget.onDragStarted(_reorderableEntity),
+              onDragEnd: (globalOffset) => widget.onDragEnd(
+                _reorderableEntity,
+                globalOffset,
+              ),
+              onDragCanceled: () => widget.onDragCanceled(_reorderableEntity),
               child: widget.child,
             ),
           ),
@@ -146,8 +151,10 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   }
 
   void _updateReorderableEntity(ReorderableEntity reorderableEntity) {
-    setState(() {
-      _reorderableEntity = reorderableEntity;
-    });
+    if (mounted) {
+      setState(() {
+        _reorderableEntity = reorderableEntity;
+      });
+    }
   }
 }
