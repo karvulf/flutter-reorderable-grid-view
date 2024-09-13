@@ -163,6 +163,9 @@ class ReorderableBuilder extends StatefulWidget {
   /// and to your [GridView].
   final ScrollController? scrollController;
 
+  /// Whether the children should be displayed in reverse order.
+  final bool reverse;
+
   const ReorderableBuilder({
     required this.children,
     required this.builder,
@@ -182,6 +185,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
+    this.reverse = false,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         childBuilder = null,
@@ -205,6 +209,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
+    this.reverse = false,
     Key? key,
   })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
         children = null,
@@ -225,7 +230,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    reorderableBuilderController = ReorderableBuilderController();
+    reorderableBuilderController = ReorderableBuilderController(reverse: widget.reverse);
     reorderableItemBuilderController = ReorderableItemBuilderController();
 
     final children = widget.children;

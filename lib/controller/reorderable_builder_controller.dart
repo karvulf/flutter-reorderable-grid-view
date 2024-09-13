@@ -8,6 +8,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 /// the position, the size and so on. This is need for calculations later when
 /// the children are moving or changing their position.
 class ReorderableBuilderController extends ReorderableDragAndDropController {
+  ReorderableBuilderController({super.reverse = false});
   /// Adds [ReorderableEntity] for all [children] to two maps.
   ///
   /// This is called when the [children] are created for the first time.

@@ -6,6 +6,10 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 /// TODO: add comment
 class ReorderableDragAndDropController extends ReorderableController {
+  final bool reverse;
+
+  ReorderableDragAndDropController({this.reverse = false});
+
   /// Instance of dragged entity when dragging starts.
   ReorderableEntity? _draggedEntity;
 
@@ -386,6 +390,16 @@ class ReorderableDragAndDropController extends ReorderableController {
     required List items,
     required List<ReorderUpdateEntity> reorderUpdateEntities,
   }) {
+    if (reverse) {
+      items = items.reversed.toList();
+      reorderUpdateEntities = reorderUpdateEntities.map((e) => 
+        ReorderUpdateEntity(
+          oldIndex: items.length - 1 - e.oldIndex,
+          newIndex: items.length - 1 - e.newIndex
+        )
+      ).toList();
+    }
+
     final updatedItems = items.toList();
 
     for (final reorder in reorderUpdateEntities) {
@@ -399,7 +413,7 @@ class ReorderableDragAndDropController extends ReorderableController {
       updatedItems.replaceRange(start, end + 1, sublist);
     }
 
-    return updatedItems;
+    return reverse ? updatedItems.reversed.toList() : updatedItems;
   }
 }
 
