@@ -69,7 +69,6 @@ void main() {
               widget.children == null &&
               widget.lockedIndices.isEmpty &&
               widget.nonDraggableIndices.isEmpty &&
-              widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.enableDraggable &&
               widget.automaticScrollExtent == 80.0 &&
@@ -187,7 +186,6 @@ void main() {
               widget.childBuilder == null &&
               widget.lockedIndices == const [2] &&
               widget.nonDraggableIndices == const [1] &&
-              widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.enableDraggable &&
               widget.automaticScrollExtent == 80.0 &&

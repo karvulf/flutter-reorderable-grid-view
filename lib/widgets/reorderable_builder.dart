@@ -67,6 +67,9 @@ class ReorderableBuilder extends StatefulWidget {
   /// The drag of a child will be started with a long press.
   ///
   /// Default value: true
+  @Deprecated("This parameter is no longer needed.\n"
+      "To disable the long press and initiate the drag immediately, "
+      "set [longPressDelay] to [Duration.zero].")
   final bool enableLongPress;
 
   /// Specify the [Duration] for the pressed child before starting the dragging.
@@ -372,6 +375,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
       currentDraggedEntity: currentDraggedEntity,
+      // ignore: deprecated_member_use_from_same_package
       enableLongPress: widget.enableLongPress,
       longPressDelay: widget.longPressDelay,
       dragChildBoxDecoration: widget.dragChildBoxDecoration,
