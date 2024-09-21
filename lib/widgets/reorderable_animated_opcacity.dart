@@ -11,7 +11,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
 
   /// Called when the fade in animation was finished.
   ///
-  /// [_size] is calculated after the fade in and is related to the built [child].
+  /// [size] is calculated after the fade in and is related to the built [child].
   final void Function(Size? size) onOpacityFinished;
 
   /// Duration for the fade in animation when [child] appears for the first time.

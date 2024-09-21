@@ -62,6 +62,11 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
     );
   }
 
+  /// Updates size and offset of [widget.child].
+  ///
+  /// By changing the size, it is more clear that the dragging of [widget.child]
+  /// has started. Because the size change, also the offset has to be changed
+  /// to ensure that the widget is still centered.
   void _scaleAndCenterFeedback() {
     final feedbackSize = _size * widget.feedbackScaleFactor;
     final offsetToCenterFeedback = Offset(

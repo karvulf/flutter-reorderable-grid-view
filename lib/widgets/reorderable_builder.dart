@@ -123,7 +123,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// the feedback widget.
   /// For example, a value of 1.5 will increase the size by 50%.
   ///
-  /// Default value:
+  /// Default value: 1.05 (feedback widget grows by 5%)
   final double feedbackScaleFactor;
 
   /// [BoxDecoration] for the child that is dragged around.

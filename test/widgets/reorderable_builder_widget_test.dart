@@ -77,7 +77,8 @@ void main() {
               widget.fadeInDuration == const Duration(milliseconds: 500) &&
               widget.releasedChildDuration ==
                   const Duration(milliseconds: 150) &&
-              widget.positionDuration == const Duration(milliseconds: 200)),
+              widget.positionDuration == const Duration(milliseconds: 200) &&
+              widget.feedbackScaleFactor == 1.05),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
