@@ -13,6 +13,7 @@ void main() {
   const givenChild = Text('Source');
   final givenReorderableEntity = reorderableBuilder.getEntity();
   const givenLongPressDelay = Duration(milliseconds: 300);
+  const givenFeedbackScaleFactor = 1.43;
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -33,6 +34,7 @@ void main() {
               currentDraggedEntity: currentDraggedEntity,
               enableLongPress: enableLongPress,
               longPressDelay: givenLongPressDelay,
+              feedbackScaleFactor: givenFeedbackScaleFactor,
               dragChildBoxDecoration: null,
               onDragStarted: onDragStarted ?? () {},
               onDragEnd: onDragEnd ?? (_) {},
@@ -84,6 +86,8 @@ void main() {
                 givenReorderableEntity.size &&
             (widget.feedback as DraggableFeedback).decoration.value ==
                 const BoxDecoration() &&
+            (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
+                givenFeedbackScaleFactor &&
             (widget.childWhenDragging as Visibility).visible &&
             (widget.childWhenDragging as Visibility).maintainAnimation &&
             (widget.childWhenDragging as Visibility).maintainSize &&
@@ -117,7 +121,6 @@ void main() {
     );
 
     // then
-    expect(find.byType(LongPressDraggable), findsNothing);
     expect(
         find.byWidgetPredicate((widget) =>
             widget is LongPressDraggable && widget.delay == Duration.zero),
