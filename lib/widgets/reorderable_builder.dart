@@ -540,6 +540,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
 
+    // For example, in cases where there are nested scrollable widgets
+    // like GridViews inside a parent scrollable widget,
+    // the widget assigned to the controller will be used for scroll calculations
     if (scrollController != null && scrollController.hasClients) {
       scrollPosition = scrollController.position;
     }
