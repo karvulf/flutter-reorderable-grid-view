@@ -35,7 +35,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 20;
+  static const _startCounter = 200;
 
   final lockedIndices = <int>[0, 4];
   final nonDraggableIndices = [0, 2, 3];
