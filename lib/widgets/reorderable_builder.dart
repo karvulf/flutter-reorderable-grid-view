@@ -542,7 +542,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     if (scrollController != null && scrollController.hasClients) {
       scrollPosition = scrollController.position;
-    } else if (scrollPosition != null) {
+    }
+
+    if (scrollPosition != null) {
       final pixels = scrollPosition.pixels;
       final isScrollingVertical = scrollPosition.axis == Axis.vertical;
       return Offset(
