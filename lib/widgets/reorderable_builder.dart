@@ -540,13 +540,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var scrollPosition = Scrollable.maybeOf(context)?.position;
     final scrollController = widget.scrollController;
 
-    if (scrollPosition == null &&
-        scrollController != null &&
-        scrollController.hasClients) {
+    if (scrollController != null && scrollController.hasClients) {
       scrollPosition = scrollController.position;
-    }
-
-    if (scrollPosition != null) {
+    } else if (scrollPosition != null) {
       final pixels = scrollPosition.pixels;
       final isScrollingVertical = scrollPosition.axis == Axis.vertical;
       return Offset(
