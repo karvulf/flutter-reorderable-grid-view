@@ -69,7 +69,6 @@ void main() {
               widget.children == null &&
               widget.lockedIndices.isEmpty &&
               widget.nonDraggableIndices.isEmpty &&
-              widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.enableDraggable &&
               widget.automaticScrollExtent == 80.0 &&
@@ -77,7 +76,8 @@ void main() {
               widget.fadeInDuration == const Duration(milliseconds: 500) &&
               widget.releasedChildDuration ==
                   const Duration(milliseconds: 150) &&
-              widget.positionDuration == const Duration(milliseconds: 200)),
+              widget.positionDuration == const Duration(milliseconds: 200) &&
+              widget.feedbackScaleFactor == 1.05),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
@@ -186,7 +186,6 @@ void main() {
               widget.childBuilder == null &&
               widget.lockedIndices == const [2] &&
               widget.nonDraggableIndices == const [1] &&
-              widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.enableDraggable &&
               widget.automaticScrollExtent == 80.0 &&

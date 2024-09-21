@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const givenSize = Size(100.0, 200.5);
   const givenChild = Placeholder();
+  const givenFeedbackScaleFactor = 1.5;
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -16,6 +17,7 @@ void main() {
             body: _TestAnimatedDraggableFeedback(
               onDeactivate: onDeactivate,
               size: givenSize,
+              feedbackScaleFactor: givenFeedbackScaleFactor,
               child: givenChild,
             ),
           ),
@@ -41,15 +43,47 @@ void main() {
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is SizedBox &&
-            widget.height == givenSize.height &&
-            widget.width == givenSize.width),
+            widget is Container &&
+            widget.constraints == BoxConstraints.tight(givenSize) &&
+            widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0)),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
             widget is DecoratedBoxTransition &&
             widget.position == DecorationPosition.background &&
             widget.child == givenChild),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN [_TestAnimatedDraggableFeedback] '
+      'WHEN waiting until animation of size was done  '
+      'THEN should update offset and size of widget',
+      (WidgetTester tester) async {
+    // given
+    await pumpWidget(
+      tester,
+      onDeactivate: () {},
+    );
+
+    // when
+    await tester.pumpAndSettle();
+
+    // then
+    final expectedOffsetToCenterFeedback = Offset(
+      -((givenSize.width * 1.5) - givenSize.width) / 2,
+      -((givenSize.height * 1.5) - givenSize.height) / 2,
+    );
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is Container &&
+            widget.constraints == BoxConstraints.tight(givenSize * 1.5) &&
+            widget.transform ==
+                Matrix4.translationValues(
+                  expectedOffsetToCenterFeedback.dx,
+                  expectedOffsetToCenterFeedback.dy,
+                  0.0,
+                )),
         findsOneWidget);
   });
 
@@ -78,11 +112,13 @@ void main() {
 class _TestAnimatedDraggableFeedback extends StatefulWidget {
   final Widget child;
   final Size size;
+  final double feedbackScaleFactor;
   final VoidCallback onDeactivate;
 
   const _TestAnimatedDraggableFeedback({
     required this.child,
     required this.size,
+    required this.feedbackScaleFactor,
     required this.onDeactivate,
     Key? key,
   }) : super(key: key);
@@ -118,6 +154,7 @@ class _TestAnimatedDraggableFeedbackState
     return DraggableFeedback(
       onDeactivate: widget.onDeactivate,
       size: widget.size,
+      feedbackScaleFactor: widget.feedbackScaleFactor,
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),

@@ -30,6 +30,7 @@ void main() {
   const givenEnableLongPress = false;
   const givenLongPressDelay = Duration(milliseconds: 600);
   const givenDragChildBoxDecoration = BoxDecoration();
+  const givenFeedbackScaleFactor = 1.31;
   const givenChild = Placeholder();
 
   // functions
@@ -91,10 +92,11 @@ void main() {
             enableDraggable: givenEnableDraggable,
             enableLongPress: givenEnableLongPress,
             longPressDelay: givenLongPressDelay,
+            dragChildBoxDecoration: givenDragChildBoxDecoration,
+            feedbackScaleFactor: givenFeedbackScaleFactor,
             onDragStarted: onDragStarted ?? givenOnDragStarted,
             onDragEnd: onDragEnd ?? givenOnDragEnd,
             onDragCanceled: onDragCanceled ?? givenOnDragCanceled,
-            dragChildBoxDecoration: givenDragChildBoxDecoration,
             child: givenChild,
           ),
         ),
@@ -153,6 +155,7 @@ void main() {
             widget.currentDraggedEntity == null &&
             widget.enableLongPress == givenEnableLongPress &&
             widget.longPressDelay == givenLongPressDelay &&
+            widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
             widget.child == givenChild),
         findsOneWidget);
@@ -470,6 +473,7 @@ class _TestReorderableBuilderItemState
         enableLongPress: true,
         longPressDelay: const Duration(milliseconds: 200),
         dragChildBoxDecoration: null,
+        feedbackScaleFactor: 1.5,
         onDragStarted: (_) {},
         onDragEnd: (_, __) {},
         onDragCanceled: (_) {},

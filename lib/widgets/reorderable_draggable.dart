@@ -18,6 +18,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
+  final double feedbackScaleFactor;
   final BoxDecoration? dragChildBoxDecoration;
 
   final VoidCallback onDragStarted;
@@ -32,6 +33,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.enableLongPress,
     required this.longPressDelay,
     required this.enableDraggable,
+    required this.feedbackScaleFactor,
     required this.onDragStarted,
     required this.onDragEnd,
     required this.onDragCanceled,
@@ -97,6 +99,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
+      feedbackScaleFactor: widget.feedbackScaleFactor,
       onDeactivate: widget.onDragCanceled,
       child: child,
     );
@@ -116,20 +119,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     if (!widget.enableDraggable) {
       return child;
-    } else if (widget.enableLongPress) {
-      return LongPressDraggable(
-        delay: widget.longPressDelay,
-        onDragStarted: _handleDragStarted,
-        onDraggableCanceled: (Velocity velocity, Offset offset) {
-          _handleDragEnd(offset);
-        },
-        feedback: feedback,
-        childWhenDragging: childWhenDragging,
-        data: data,
-        child: child,
-      );
     } else {
-      return Draggable(
+      return LongPressDraggable(
+        delay: widget.enableLongPress ? widget.longPressDelay : Duration.zero,
         onDragStarted: _handleDragStarted,
         onDraggableCanceled: (Velocity velocity, Offset offset) {
           _handleDragEnd(offset);

@@ -1,3 +1,15 @@
+## 5.2.0
+⭐️ **New Features**
+* enhanced the visual appearance of the feedback widget when starting a drag
+* improved behavior when `enableLongPress` is set to `false`:
+  * previously, the feedback widget only appeared after moving the dragged widget
+  * now, the feedback starts immediately when pressing the widget, as `LongPressDraggable` is consistently used whether `enableLongPress` is `true` or `false`
+  * this change also deprecates `enableLongPress`, as it's no longer needed. To achieve the same effect as `enableLongPress = false`, simply set `longPressDelay` to `Duration.zero`
+
+🐛 **Bug Fixes**
+* Fixed an issue where dragging didn't work correctly with `CarouselSlider` (thanks to `charmosz` – Issue [#118](https://github.com/karvulf/flutter-reorderable-grid-view/issues/118)).
+  * The solution ensures the scroll position of the `ScrollController` is always used when it's added to `ReorderableBuilder` and linked to a scrollable widget.
+
 ## 5.1.0
 * there were performance issues (Issue [#107](https://github.com/karvulf/flutter-reorderable-grid-view/issues/107))
   * because `setState` was called many times, it rerendered all children

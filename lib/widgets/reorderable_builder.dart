@@ -31,6 +31,7 @@ class ReorderableBuilder extends StatefulWidget {
   static const _defaultFadeInDuration = Duration(milliseconds: 500);
   static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
   static const _defaultPositionDuration = Duration(milliseconds: 200);
+  static const _defaultFeedbackScaleFactor = 1.05;
 
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
@@ -66,6 +67,9 @@ class ReorderableBuilder extends StatefulWidget {
   /// The drag of a child will be started with a long press.
   ///
   /// Default value: true
+  @Deprecated("This parameter is no longer needed.\n"
+      "To disable the long press and initiate the drag immediately, "
+      "set [longPressDelay] to [Duration.zero].")
   final bool enableLongPress;
 
   /// Specify the [Duration] for the pressed child before starting the dragging.
@@ -113,6 +117,17 @@ class ReorderableBuilder extends StatefulWidget {
   ///
   /// Default value: const Duration(milliseconds: 200)
   final Duration positionDuration;
+
+  /// The scale factor applied to the feedback widget during a drag operation.
+  ///
+  /// This determines how much the feedback widget (the visual representation
+  /// of the widget being dragged) will grow or shrink when the drag starts.
+  /// A value of 1.0 means no scaling, while a value greater than 1.0 enlarges
+  /// the feedback widget.
+  /// For example, a value of 1.5 will increase the size by 50%.
+  ///
+  /// Default value: 1.05 (feedback widget grows by 5%)
+  final double feedbackScaleFactor;
 
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
@@ -178,6 +193,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.fadeInDuration = _defaultFadeInDuration,
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
+    this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -201,6 +217,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.fadeInDuration = _defaultFadeInDuration,
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
+    this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -358,9 +375,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
       currentDraggedEntity: currentDraggedEntity,
+      // ignore: deprecated_member_use_from_same_package
       enableLongPress: widget.enableLongPress,
       longPressDelay: widget.longPressDelay,
       dragChildBoxDecoration: widget.dragChildBoxDecoration,
+      feedbackScaleFactor: widget.feedbackScaleFactor,
       onDragStarted: _handleDragStarted,
       onDragEnd: _handleDragEnd,
       onDragCanceled: _handleDragCanceled,
