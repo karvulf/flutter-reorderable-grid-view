@@ -18,6 +18,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
+  final double feedbackScaleFactor;
   final BoxDecoration? dragChildBoxDecoration;
 
   final VoidCallback onDragStarted;
@@ -32,6 +33,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.enableLongPress,
     required this.longPressDelay,
     required this.enableDraggable,
+    required this.feedbackScaleFactor,
     required this.onDragStarted,
     required this.onDragEnd,
     required this.onDragCanceled,
@@ -49,7 +51,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   late final AnimationController _decoratedBoxAnimationController;
   late final DecorationTween _decorationTween;
   late DraggableDetails lastDraggedDetails;
-  bool _hasStartedMoving = true;
 
   /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
@@ -98,6 +99,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
+      feedbackScaleFactor: widget.feedbackScaleFactor,
       onDeactivate: widget.onDragCanceled,
       child: child,
     );
@@ -121,7 +123,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       return LongPressDraggable(
         delay: widget.enableLongPress ? widget.longPressDelay : Duration.zero,
         onDragStarted: _handleDragStarted,
-        onDragUpdate: _handleDragUpdate,
         onDraggableCanceled: (Velocity velocity, Offset offset) {
           _handleDragEnd(offset);
         },
@@ -139,14 +140,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _decoratedBoxAnimationController.forward();
   }
 
-  void _handleDragUpdate(DragUpdateDetails details) {
-    if (!_hasStartedMoving) {
-      setState(() {
-        _hasStartedMoving = true;
-      });
-    }
-  }
-
   /// Called after dragging ends.
   ///
   /// Important: This can also be called after the widget was disposed but
@@ -154,7 +147,6 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   void _handleDragEnd(Offset offset) {
     if (mounted) {
       _decoratedBoxAnimationController.reset();
-      _hasStartedMoving = false;
     }
 
     widget.onDragEnd(offset);

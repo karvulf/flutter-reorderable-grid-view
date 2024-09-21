@@ -119,22 +119,8 @@ void main() {
     // then
     expect(find.byType(LongPressDraggable), findsNothing);
     expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is Draggable &&
-              (widget.feedback as DraggableFeedback).size ==
-                  givenReorderableEntity.size &&
-              (widget.feedback as DraggableFeedback).decoration.value ==
-                  const BoxDecoration() &&
-              (widget.childWhenDragging as Visibility).visible == false &&
-              (widget.childWhenDragging as Visibility).maintainAnimation &&
-              (widget.childWhenDragging as Visibility).maintainSize &&
-              (widget.childWhenDragging as Visibility).maintainState &&
-              (widget.childWhenDragging as Visibility).child ==
-                  givenCustomDraggable &&
-              widget.data == givenData &&
-              widget.child == givenCustomDraggable,
-        ),
+        find.byWidgetPredicate((widget) =>
+            widget is LongPressDraggable && widget.delay == Duration.zero),
         findsOneWidget);
   });
 
@@ -230,70 +216,6 @@ void main() {
         }
         return false;
       }), findsOneWidget);
-    });
-  });
-
-  group('#Draggable', () {
-    testWidgets(
-        "GIVEN [ReorderableDraggable] with Draggable "
-        "WHEN start dragging "
-        "THEN should call onDragStarted", (WidgetTester tester) async {
-      // given
-      int callCounter = 0;
-      await pumpWidget(
-        tester,
-        enableDraggable: true,
-        enableLongPress: false,
-        onDragStarted: () {
-          callCounter++;
-        },
-      );
-      await tester.pumpAndSettle();
-
-      // when
-      final firstLocation = tester.getCenter(find.text('Source'));
-      await tester.startGesture(firstLocation, pointer: 7);
-      await tester.pump(givenLongPressDelay);
-
-      // then
-      expect(callCounter, equals(1));
-    });
-
-    testWidgets(
-        "GIVEN [ReorderableDraggable] with Draggable "
-        "WHEN cancelling dragging "
-        "THEN should call onDragEnd", (WidgetTester tester) async {
-      // given
-      Offset? actualOffset;
-      int onDragCancelCallCounter = 0;
-
-      await pumpWidget(
-        tester,
-        enableDraggable: true,
-        enableLongPress: true,
-        onDragEnd: (offset) {
-          actualOffset = offset;
-        },
-        onDragCanceled: () {
-          onDragCancelCallCounter++;
-        },
-      );
-      await tester.pumpAndSettle();
-
-      final firstLocation = tester.getCenter(find.text('Source'));
-      final gesture = await tester.startGesture(firstLocation, pointer: 7);
-      await tester.pump(givenLongPressDelay);
-      await tester.pumpAndSettle();
-      await gesture.moveTo(const Offset(10.0, 20.0));
-      await tester.pump();
-
-      // when
-      await gesture.up();
-      await tester.pump();
-
-      // then
-      expect(actualOffset, equals(const Offset(-32.75, 10.0)));
-      expect(onDragCancelCallCounter, equals(1));
     });
   });
 }

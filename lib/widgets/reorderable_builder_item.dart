@@ -73,6 +73,9 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
+  /// The scale factor applied to the feedback widget during a drag operation.
+  final double feedbackScaleFactor;
+
   /// Callback when dragging starts.
   final ReorderableEntityCallback onDragStarted;
 
@@ -100,6 +103,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.enableLongPress,
     required this.longPressDelay,
     required this.dragChildBoxDecoration,
+    required this.feedbackScaleFactor,
     required this.onDragStarted,
     required this.onDragEnd,
     required this.onDragCanceled,
@@ -181,6 +185,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               enableLongPress: widget.enableLongPress,
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
+              feedbackScaleFactor: widget.feedbackScaleFactor,
               // all three dragging functions will trigger a setState for all children
               // that's why the single entity won't be updated here because
               // the drag and drop effects much more children
