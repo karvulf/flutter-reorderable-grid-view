@@ -23,6 +23,9 @@ class ReorderableScrollingListener extends StatefulWidget {
   /// Callback when the offset of the tapped area is changing.
   final PointerMoveEventListener onDragUpdate;
 
+  ///
+  final bool reverse;
+
   /// Called when the current scrolling position changes.
   final void Function(Offset scrollOffset) onScrollUpdate;
 
@@ -39,6 +42,7 @@ class ReorderableScrollingListener extends StatefulWidget {
     required this.isDragging,
     required this.enableScrollingWhileDragging,
     required this.automaticScrollExtent,
+    required this.reverse,
     required this.onDragUpdate,
     required this.onScrollUpdate,
     required this.getScrollOffset,
@@ -110,7 +114,7 @@ class _ReorderableScrollingListenerState
     if (widget.enableScrollingWhileDragging &&
         widget.reorderableChildKey != null &&
         widget.scrollController != null) {
-      final position = details.position;
+      final position = details.localPosition;
 
       _scrollCheckTimer?.cancel();
       _scrollCheckTimer = Timer.periodic(
@@ -143,79 +147,58 @@ class _ReorderableScrollingListenerState
     final childSize = _childSize;
     final childOffset = _childOffset;
 
-    if (childSize != null && childOffset != null) {
-      final allowedRange = widget.automaticScrollExtent;
-      late Offset minOffset;
-      final maxOffset = Offset(
-        childOffset.dx + childSize.width - allowedRange,
-        childOffset.dy + childSize.height - allowedRange,
-      );
+    if (childSize == null || childOffset == null) return;
 
-      // minDy can be different when having the scrollable outside ReorderableBuilder
-      // at the beginning the childOffset dy would be the correct minDy
-      // but while scrolling this would lead to 0 and is important to trigger the automatic scroll at the right moment
-      if (_isScrollableOutside) {
-        minOffset = childOffset - _scrollOffset;
-        if (_compareOffsets(
-            bigger: Offset.zero,
-            smaller: minOffset,
-            scrollDirection: scrollDirection)) {
-          minOffset = Offset.zero;
-        }
-        minOffset = Offset(
-          minOffset.dx != 0.0 ? minOffset.dx + allowedRange : 0.0,
-          minOffset.dy != 0.0 ? minOffset.dy + allowedRange : 0.0,
-        );
-      } else {
-        minOffset = Offset(
-          childOffset.dx + allowedRange,
-          childOffset.dy + allowedRange,
-        );
+    final absoluteDragPosition = dragPosition + childOffset;
+
+    final automaticScrollExtent = widget.automaticScrollExtent;
+
+    final minOffset = Offset(
+      automaticScrollExtent,
+      automaticScrollExtent,
+    );
+    final maxOffset = Offset(
+      childSize.width - automaticScrollExtent,
+      childSize.height - automaticScrollExtent,
+    );
+
+    // todo gridviewbuilder macht probleme beim scrollen und reordern
+    if (scrollDirection == Axis.vertical) {
+      if (absoluteDragPosition.dy < minOffset.dy) {
+        _scrollTo(scrollToTop: true);
+      } else if (absoluteDragPosition.dy > maxOffset.dy) {
+        _scrollTo(scrollToTop: false);
       }
-
-      const variance = 5.0;
-
-      final maxScrollExtent = widget.scrollController!.position.maxScrollExtent;
-
-      // scroll to top/left
-      if (_compareOffsets(
-              bigger: minOffset,
-              smaller: dragPosition,
-              scrollDirection: scrollDirection) &&
-          _compareOffsets(
-              bigger: _scrollOffset,
-              smaller: Offset.zero,
-              scrollDirection: scrollDirection)) {
-        _scrollOffset = _updateScrollOffset(
-          variance: -variance,
-          scrollDirection: scrollDirection,
-        );
-        _scrollTo(scrollOffset: _scrollOffset);
-      } else if (_compareOffsets(
-              bigger: dragPosition,
-              smaller: maxOffset,
-              scrollDirection: scrollDirection) &&
-          _compareOffsets(
-              bigger: Offset(maxScrollExtent, maxScrollExtent),
-              smaller: _scrollOffset,
-              scrollDirection: scrollDirection)) {
-        _scrollOffset = _updateScrollOffset(
-          variance: variance,
-          scrollDirection: scrollDirection,
-        );
-        _scrollTo(scrollOffset: _scrollOffset);
+    } else {
+      if (absoluteDragPosition.dx < minOffset.dx) {
+        _scrollTo(scrollToTop: true);
+      } else if (absoluteDragPosition.dx > maxOffset.dx) {
+        _scrollTo(scrollToTop: false);
       }
     }
   }
 
   /// Scrolling vertical or horizontal using [widget.scrollController].
-  void _scrollTo({required Offset scrollOffset}) {
+  void _scrollTo({required bool scrollToTop}) {
+    if (widget.reverse) {
+      scrollToTop = !scrollToTop;
+    }
+
     final scrollController = widget.scrollController;
 
     if (scrollController != null && scrollController.hasClients) {
-      final value = scrollOffset.dx > 0 ? scrollOffset.dx : scrollOffset.dy;
-      scrollController.jumpTo(value);
-      widget.onScrollUpdate(scrollOffset);
+      late final double value;
+
+      if (scrollToTop) {
+        value = scrollController.offset - 10;
+      } else {
+        value = scrollController.offset + 10;
+      }
+
+      if (value > 0 && value < scrollController.position.maxScrollExtent + 10) {
+        scrollController.jumpTo(value);
+        // widget.onScrollUpdate(Offset(value, value));
+      }
     }
   }
 
@@ -230,73 +213,19 @@ class _ReorderableScrollingListenerState
   /// height of the screen and the current offset.dy of the [GridView].
   void _updateChildSizeAndOffset() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final scrollDirection = widget.scrollController?.position.axis;
-
-      // scrolling while dragging won't be possible
-      if (scrollDirection == null) return;
-
       final currentContext = widget.reorderableChildKey?.currentContext;
-      final reorderableChildRenderBox =
-          currentContext?.findRenderObject() as RenderBox?;
-      final screenSize = MediaQuery.of(context).size;
+      final renderBox = currentContext?.findRenderObject() as RenderBox?;
 
-      if (reorderableChildRenderBox != null) {
-        var reorderableChildOffset =
-            reorderableChildRenderBox.localToGlobal(Offset.zero);
-
-        // a scrollable widget is outside when there was found one, probably not the best solution to detect that
-        _isScrollableOutside =
-            Scrollable.maybeOf(context)?.position.pixels != null;
-
-        if (_isScrollableOutside) {
-          reorderableChildOffset += widget.getScrollOffset();
-        }
-
-        final reorderableChildSize = reorderableChildRenderBox.size;
-
-        if (_compareOffsets(
-            bigger: Offset(
-                reorderableChildOffset.dx + reorderableChildSize.width,
-                reorderableChildOffset.dy + reorderableChildSize.height),
-            smaller: Offset(screenSize.width, screenSize.height),
-            scrollDirection: scrollDirection)) {
-          _childSize = Size(
-            screenSize.width - reorderableChildOffset.dx,
-            screenSize.height - reorderableChildOffset.dy,
-          );
+      if (renderBox != null) {
+        if (renderBox.constraints.biggest.isInfinite) {
+          final dimension = Scrollable.of(context).position.viewportDimension;
+          _childSize = Size(dimension, dimension);
+          _childOffset = renderBox.localToGlobal(Offset.zero);
         } else {
-          _childSize = reorderableChildSize;
+          _childSize = renderBox.size;
+          _childOffset = Offset.zero;
         }
-        _childOffset = reorderableChildOffset;
       }
     });
-  }
-
-  /// Depending on [scrollDirection], [_scrollOffset] will be updated in x- or y-direction.
-  Offset _updateScrollOffset({
-    required double variance,
-    required Axis scrollDirection,
-  }) {
-    late final Offset updatedOffset;
-
-    if (scrollDirection == Axis.horizontal) {
-      updatedOffset = _scrollOffset + Offset(variance, 0.0);
-    } else {
-      updatedOffset = _scrollOffset + Offset(0.0, variance);
-    }
-
-    return updatedOffset;
-  }
-
-  bool _compareOffsets({
-    required Offset bigger,
-    required Offset smaller,
-    required Axis scrollDirection,
-  }) {
-    if (scrollDirection == Axis.vertical) {
-      return bigger.dy > smaller.dy;
-    } else {
-      return bigger.dx > smaller.dx;
-    }
   }
 }

@@ -32,6 +32,7 @@ class ReorderableBuilder extends StatefulWidget {
   static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
   static const _defaultPositionDuration = Duration(milliseconds: 200);
   static const _defaultFeedbackScaleFactor = 1.05;
+  static const _defaultReverse = false;
 
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
@@ -129,6 +130,9 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: 1.05 (feedback widget grows by 5%)
   final double feedbackScaleFactor;
 
+  ///
+  final bool reverse;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -194,6 +198,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -218,6 +223,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -299,6 +305,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       scrollController: widget.scrollController,
       automaticScrollExtent: widget.automaticScrollExtent,
       enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+      reverse: widget.reverse,
       onDragUpdate: _handleDragUpdate,
       onScrollUpdate: _handleScrollUpdate,
       getScrollOffset: _getScrollOffset,
@@ -569,10 +576,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (scrollPosition != null) {
       final pixels = scrollPosition.pixels;
       final isScrollingVertical = scrollPosition.axis == Axis.vertical;
-      return Offset(
+      final offset = Offset(
         isScrollingVertical ? 0.0 : pixels,
         isScrollingVertical ? pixels : 0.0,
       );
+      return widget.reverse ? -offset : offset;
     }
 
     return Offset.zero;
