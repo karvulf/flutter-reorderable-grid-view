@@ -23,13 +23,8 @@ class ReorderableScrollingListener extends StatefulWidget {
   /// Callback when the offset of the tapped area is changing.
   final PointerMoveEventListener onDragUpdate;
 
-  ///
+  /// Manages the case where the order of children is reversed.
   final bool reverse;
-
-  /// Called when the current scrolling position changes.
-  final void Function(Offset scrollOffset) onScrollUpdate;
-
-  final Offset Function() getScrollOffset;
 
   /// Should be the key of the added [GridView].
   final GlobalKey? reorderableChildKey;
@@ -44,8 +39,6 @@ class ReorderableScrollingListener extends StatefulWidget {
     required this.automaticScrollExtent,
     required this.reverse,
     required this.onDragUpdate,
-    required this.onScrollUpdate,
-    required this.getScrollOffset,
     required this.reorderableChildKey,
     required this.scrollController,
     Key? key,
@@ -58,14 +51,6 @@ class ReorderableScrollingListener extends StatefulWidget {
 
 class _ReorderableScrollingListenerState
     extends State<ReorderableScrollingListener> {
-  /// If true, the widget outside of [ReorderableBuilder] is scrollable and not the widget inside ([GridView])
-  bool _isScrollableOutside = false;
-
-  /// Describes current scroll offset.
-  ///
-  /// Either dx or dy has a scroll position.
-  Offset _scrollOffset = Offset.zero;
-
   /// Repeating timer to ensure that autoscroll also works when the user doesn't the dragged child.
   Timer? _scrollCheckTimer;
 
@@ -80,9 +65,6 @@ class _ReorderableScrollingListenerState
     super.didUpdateWidget(oldWidget);
     if (widget.isDragging != oldWidget.isDragging && widget.isDragging) {
       _updateChildSizeAndOffset();
-      setState(() {
-        _scrollOffset = widget.getScrollOffset();
-      });
     }
   }
 
@@ -135,11 +117,10 @@ class _ReorderableScrollingListenerState
     widget.onDragUpdate(details);
   }
 
-  /// Checks if [widget.scrollController] can scrolling up or down depending on [widget.automaticScrollExtent].
+  /// Depending on [dragPosition] a scroll will be triggered.
   ///
-  /// This only works if [widget.reorderableChildKey] is not null. By defining
-  /// a range ([widget.automaticScrollExtent]) that should trigger the autoscroll,
-  /// it is checked whether to scroll down or up depending on the current [dragPosition].
+  /// Scrolls if [dragPosition] is within the area which is allowed to start
+  /// the scroll.
   void _checkToScrollWhileDragging({
     required Offset dragPosition,
     required Axis scrollDirection,
@@ -162,7 +143,6 @@ class _ReorderableScrollingListenerState
       childSize.height - automaticScrollExtent,
     );
 
-    // todo gridviewbuilder macht probleme beim scrollen und reordern
     if (scrollDirection == Axis.vertical) {
       if (absoluteDragPosition.dy < minOffset.dy) {
         _scrollTo(scrollToTop: true);
@@ -179,6 +159,10 @@ class _ReorderableScrollingListenerState
   }
 
   /// Scrolling vertical or horizontal using [widget.scrollController].
+  ///
+  /// [scrollToTop] scrolls into the current scroll direction to the right
+  /// or top, otherwise it goes to left or bottom.
+  /// If [widget.reverse] is true, then the scrolling direction is reversed.
   void _scrollTo({required bool scrollToTop}) {
     if (widget.reverse) {
       scrollToTop = !scrollToTop;
@@ -195,9 +179,9 @@ class _ReorderableScrollingListenerState
         value = scrollController.offset + 10;
       }
 
+      // only scroll in the viewport of scrollable widget
       if (value > 0 && value < scrollController.position.maxScrollExtent + 10) {
         scrollController.jumpTo(value);
-        // widget.onScrollUpdate(Offset(value, value));
       }
     }
   }

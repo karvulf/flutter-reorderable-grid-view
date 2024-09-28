@@ -130,7 +130,13 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: 1.05 (feedback widget grows by 5%)
   final double feedbackScaleFactor;
 
+  /// Manages the case where the order of [children] is reversed.
   ///
+  /// If the [children] list is in reverse order, set this flag to true to ensure
+  /// the widget behaves as expected. Failing to update this flag when the
+  /// order is reversed will result in incorrect behavior.
+  ///
+  /// Default value: `false`
   final bool reverse;
 
   /// [BoxDecoration] for the child that is dragged around.
@@ -307,8 +313,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
       reverse: widget.reverse,
       onDragUpdate: _handleDragUpdate,
-      onScrollUpdate: _handleScrollUpdate,
-      getScrollOffset: _getScrollOffset,
       child: child,
     );
   }
@@ -465,10 +469,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// Finishes dragging without doing any animation for the dragged entity.
   void _handleDragCanceled(ReorderableEntity reorderableEntity) {
     _finishDragging();
-  }
-
-  void _handleScrollUpdate(Offset scrollOffset) {
-    _reorderableController.scrollOffset = scrollOffset;
   }
 
   void _finishDragging() {
