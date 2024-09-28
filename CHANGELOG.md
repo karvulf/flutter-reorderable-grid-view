@@ -1,3 +1,9 @@
+## 5.3.0
+⭐️ **New Features**
+* added parameter `reverse`
+  * if your `GridView` uses the flag `reverse`, ensure to also use it for `ReorderableBuilder`
+* improved the scrolling behavior while dragging
+
 ## 5.2.0
 ⭐️ **New Features**
 * enhanced the visual appearance of the feedback widget when starting a drag
