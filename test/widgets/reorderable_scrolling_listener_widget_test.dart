@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,16 +44,17 @@ void main() {
         ),
       );
 
-  Future<void> move({
+  Future<TestGesture> move({
     required WidgetTester tester,
-    Offset moveOffset = const Offset(20.0, 30.0),
-    Offset? startGestureLocation,
+    required Finder startGestureFinder,
+    required Offset moveOffset,
   }) async {
-    final Offset center = tester.getCenter(find.byKey(givenKey));
-    final gesture = await tester.startGesture(startGestureLocation ?? center);
-    await gesture.moveBy(moveOffset);
-    await gesture.up();
-    await tester.pumpAndSettle();
+    final firstLocation = tester.getCenter(startGestureFinder);
+    final gesture = await tester.startGesture(firstLocation, pointer: 7);
+    await tester.pump(kLongPressTimeout);
+    await gesture.moveTo(moveOffset);
+
+    return gesture;
   }
 
   testWidgets(
@@ -72,159 +75,329 @@ void main() {
         findsOneWidget);
   });
 
-  // todo add new tests
+  group('scrollable inner widget', () {
+    late ScrollController scrollController;
+
+    setUp(() {
+      scrollController = ScrollController();
+    });
+
+    group('#reverse = false', () {
+      testWidgets(
+          'GIVEN inner scrollable widget and dragged item '
+          'WHEN moving dragged item down '
+          'THEN should scroll down', (WidgetTester tester) async {
+        // given
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestInnerScrollable(
+              scrollController: scrollController,
+              reverse: false,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // when
+        final gesture = await move(
+          tester: tester,
+          startGestureFinder: find.byKey(const Key('0')),
+          moveOffset: const Offset(0.0, 600.0),
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        // then
+        final scrollPositionAfter = scrollController.position.pixels;
+        expect(scrollPositionAfter, equals(100.0));
+      });
+
+      testWidgets(
+          'GIVEN inner scrollable widget and dragged item down '
+          'WHEN moving dragged item up '
+          'THEN should scroll up', (WidgetTester tester) async {
+        // given
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestInnerScrollable(
+              scrollController: scrollController,
+              reverse: false,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final gesture = await move(
+          tester: tester,
+          startGestureFinder: find.byKey(const Key('0')),
+          moveOffset: const Offset(0.0, 600.0),
+        );
+
+        // when
+        await gesture.moveTo(const Offset(0.0, -600.0));
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        // then
+        final scrollPositionAfter = scrollController.position.pixels;
+        expect(scrollPositionAfter, equals(0.0));
+      });
+    });
+
+    group('#reverse = true', () {
+      testWidgets(
+          'GIVEN inner scrollable widget and dragged item '
+          'WHEN moving dragged item up '
+          'THEN should scroll up', (WidgetTester tester) async {
+        // given
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestInnerScrollable(
+              scrollController: scrollController,
+              reverse: true,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // when
+        final gesture = await move(
+          tester: tester,
+          startGestureFinder: find.byKey(const Key('0')),
+          moveOffset: const Offset(0.0, -600.0),
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        // then
+        final scrollPositionAfter = scrollController.position.pixels;
+        expect(scrollPositionAfter, equals(100.0));
+      });
+
+      testWidgets(
+          'GIVEN inner scrollable widget and dragged item up '
+          'WHEN moving dragged item down '
+          'THEN should scroll down', (WidgetTester tester) async {
+        // given
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _TestInnerScrollable(
+              scrollController: scrollController,
+              reverse: true,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final gesture = await move(
+          tester: tester,
+          startGestureFinder: find.byKey(const Key('0')),
+          moveOffset: const Offset(0.0, -600.0),
+        );
+
+        // when
+        await gesture.moveTo(const Offset(0.0, 600.0));
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        // then
+        final scrollPositionAfter = scrollController.position.pixels;
+        expect(scrollPositionAfter, equals(0.0));
+      });
+    });
+  });
+
+  group('scrollable outer widget', () {
+    testWidgets(
+        'GIVEN outer scrollable widget and dragged item '
+        'WHEN moving dragged item down '
+        'THEN should scroll down', (WidgetTester tester) async {
+      // given
+      late BuildContext actualContext;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _TestOuterScrollable(
+            onBuilt: (context) {
+              actualContext = context;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      final gesture = await move(
+        tester: tester,
+        startGestureFinder: find.byKey(const Key('0')),
+        moveOffset: const Offset(0.0, 600.0),
+      );
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      final scrollPositionAfter = Scrollable.of(actualContext).position.pixels;
+      expect(scrollPositionAfter, equals(100.0));
+    });
+
+    testWidgets(
+        'GIVEN outer scrollable widget and dragged item down '
+        'WHEN moving dragged item up '
+        'THEN should scroll up', (WidgetTester tester) async {
+      // given
+      late BuildContext actualContext;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: _TestOuterScrollable(
+            onBuilt: (context) {
+              actualContext = context;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final gesture = await move(
+        tester: tester,
+        startGestureFinder: find.byKey(const Key('0')),
+        moveOffset: const Offset(0.0, 600.0),
+      );
+
+      // when
+      await gesture.moveTo(const Offset(0.0, -600.0));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      final scrollPositionAfter = Scrollable.of(actualContext).position.pixels;
+      expect(scrollPositionAfter, equals(0.0));
+    });
+  });
 }
 
-class _UpdateReorderableScrollingListener extends StatefulWidget {
-  final bool isDragging;
-  final bool enableScrollingWhileDragging;
-  final Axis scrollDirection;
-  final ScrollController? scrollController;
-  final Function(Offset scrollValue)? onScrollUpdate;
-  final GlobalKey? reorderableContentKey;
+class _TestInnerScrollable extends StatefulWidget {
+  final ScrollController scrollController;
+  final bool reverse;
 
-  const _UpdateReorderableScrollingListener({
-    required this.isDragging,
-    required this.scrollDirection,
-    this.enableScrollingWhileDragging = true,
-    this.scrollController,
-    this.onScrollUpdate,
-    this.reorderableContentKey,
-    Key? key,
-  }) : super(key: key);
+  const _TestInnerScrollable({
+    required this.scrollController,
+    required this.reverse,
+    // ignore: unused_element
+    super.key,
+  });
 
   @override
-  State<_UpdateReorderableScrollingListener> createState() =>
-      _UpdateReorderableScrollingListenerState();
+  State<_TestInnerScrollable> createState() => _TestInnerScrollableState();
 }
 
-class _UpdateReorderableScrollingListenerState
-    extends State<_UpdateReorderableScrollingListener> {
-  late bool isDragging;
+class _TestInnerScrollableState extends State<_TestInnerScrollable> {
+  final _gridViewKey = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
-
-    isDragging = widget.isDragging;
-  }
+  List<int> children = List.generate(200, (index) => index);
 
   @override
   Widget build(BuildContext context) {
-    final isVerticalDirection = widget.scrollDirection == Axis.vertical;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Updates'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isDragging = !isDragging;
-              });
-            },
-            child: const Text('update isDragging'),
+    return ReorderableBuilder.builder(
+      scrollController: widget.scrollController,
+      enableLongPress: false,
+      reverse: widget.reverse,
+      onReorder: (ReorderedListFunction reorderedListFunction) {
+        setState(() {
+          children = reorderedListFunction(children) as List<int>;
+        });
+      },
+      childBuilder: (itemBuilder) {
+        return GridView.builder(
+          key: _gridViewKey,
+          controller: widget.scrollController,
+          itemCount: children.length,
+          reverse: widget.reverse,
+          itemBuilder: (context, index) {
+            return itemBuilder(
+              ColoredBox(
+                key: Key(children.elementAt(index).toString()),
+                color: Colors.lightBlue,
+                child: Text(
+                  children.elementAt(index).toString(),
+                ),
+              ),
+              index,
+            );
+          },
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 8,
           ),
-        ],
-      ),
-      body: ReorderableScrollingListener(
-        enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
-        scrollController: widget.scrollController,
-        isDragging: isDragging,
-        onDragUpdate: (_) {},
-        automaticScrollExtent: 80.0,
-        reverse: false,
-        reorderableChildKey: widget.reorderableContentKey ?? GlobalKey(),
-        child: SizedBox.square(
-          key: widget.reorderableContentKey ?? GlobalKey(),
-          dimension: 300.0,
-          child: SingleChildScrollView(
-            controller: widget.scrollController,
-            scrollDirection: widget.scrollDirection,
-            child: Container(
-              color: Colors.red,
-              height: isVerticalDirection ? 2000 : 100,
-              width: isVerticalDirection ? 100 : 2000,
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
-class _UpdateReorderableOutsideScrollingListener extends StatefulWidget {
-  final bool isDragging;
-  final ScrollController scrollController;
-  final GlobalKey reorderableContentKey;
+class _TestOuterScrollable extends StatefulWidget {
+  final void Function(BuildContext context) onBuilt;
 
-  const _UpdateReorderableOutsideScrollingListener({
-    required this.isDragging,
-    required this.scrollController,
-    required this.reorderableContentKey,
-    Key? key,
-  }) : super(key: key);
+  const _TestOuterScrollable({
+    required this.onBuilt,
+    // ignore: unused_element
+    super.key,
+  });
 
   @override
-  State<_UpdateReorderableOutsideScrollingListener> createState() =>
-      _UpdateReorderableOutsideScrollingListenerState();
+  State<_TestOuterScrollable> createState() => _TestOuterScrollableState();
 }
 
-class _UpdateReorderableOutsideScrollingListenerState
-    extends State<_UpdateReorderableOutsideScrollingListener> {
-  late bool isDragging;
+class _TestOuterScrollableState extends State<_TestOuterScrollable> {
+  final _gridViewKey = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
-
-    isDragging = widget.isDragging;
-  }
+  List<int> children = List.generate(200, (index) => index);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Updates'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isDragging = !isDragging;
-              });
-            },
-            child: const Text('update isDragging'),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            height: 100,
-            width: 100,
-            color: Colors.red,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: widget.scrollController,
-              child: ReorderableScrollingListener(
-                enableScrollingWhileDragging: true,
-                scrollController: widget.scrollController,
-                isDragging: isDragging,
-                onDragUpdate: (_) {},
-                automaticScrollExtent: 80.0,
-                reverse: false,
-                reorderableChildKey: widget.reorderableContentKey,
-                child: Container(
-                  key: widget.reorderableContentKey,
-                  color: Colors.red,
-                  height: 2000,
-                  width: 400,
-                ),
+      body: SingleChildScrollView(
+        child: Builder(builder: (context) {
+          widget.onBuilt(context);
+          return Column(
+            children: [
+              const SizedBox(
+                height: 200.0,
+                width: double.infinity,
+                child: ColoredBox(color: Colors.green),
               ),
-            ),
-          ),
-        ],
+              ReorderableBuilder.builder(
+                onReorder: (ReorderedListFunction reorderedListFunction) {
+                  setState(() {
+                    children = reorderedListFunction(children) as List<int>;
+                  });
+                },
+                childBuilder: (itemBuilder) {
+                  return GridView.builder(
+                    key: _gridViewKey,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: children.length,
+                    itemBuilder: (context, index) {
+                      return itemBuilder(
+                        ColoredBox(
+                          key: Key(children.elementAt(index).toString()),
+                          color: Colors.lightBlue,
+                          child: Text(
+                            children.elementAt(index).toString(),
+                          ),
+                        ),
+                        index,
+                      );
+                    },
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 8,
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        }),
       ),
     );
   }

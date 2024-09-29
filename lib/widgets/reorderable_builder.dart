@@ -281,7 +281,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       final orientationAfter = MediaQuery.of(context).orientation;
 
       if (orientationBefore != orientationAfter) {
-        // Todo: Dieser Aufruf geschieht gleich 3 Mal!
         _reorderableController.handleDeviceOrientationChanged();
         setState(() {});
       }

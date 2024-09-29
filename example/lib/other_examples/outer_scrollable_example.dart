@@ -13,7 +13,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _scrollController = ScrollController();
   final _gridViewKey = GlobalKey();
 
   List<int> children = List.generate(200, (index) => index);
@@ -22,7 +21,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        controller: _scrollController,
         child: Column(
           children: [
             const SizedBox(
@@ -31,15 +29,16 @@ class _MyAppState extends State<MyApp> {
               child: ColoredBox(color: Colors.green),
             ),
             ReorderableBuilder.builder(
-              scrollController: _scrollController,
               onReorder: (ReorderedListFunction reorderedListFunction) {
                 setState(() {
                   children = reorderedListFunction(children) as List<int>;
                 });
               },
+              reverse: true,
               childBuilder: (itemBuilder) {
                 return GridView.builder(
                   key: _gridViewKey,
+                  reverse: true,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: children.length,
