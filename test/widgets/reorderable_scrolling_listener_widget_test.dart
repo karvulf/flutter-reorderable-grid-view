@@ -207,7 +207,7 @@ void main() {
 
   group('scrollable outer widget', () {
     testWidgets(
-        'GIVEN outer scrollable widget and dragged item '
+        'GIVEN outer scrollable widget with reverse = true and dragged item '
         'WHEN moving dragged item down '
         'THEN should scroll down', (WidgetTester tester) async {
       // given
@@ -227,7 +227,7 @@ void main() {
       final gesture = await move(
         tester: tester,
         startGestureFinder: find.byKey(const Key('0')),
-        moveOffset: const Offset(0.0, 600.0),
+        moveOffset: const Offset(0.0, -600.0),
       );
       await gesture.up();
       await tester.pumpAndSettle();
@@ -238,7 +238,7 @@ void main() {
     });
 
     testWidgets(
-        'GIVEN outer scrollable widget and dragged item down '
+        'GIVEN outer scrollable widget with reverse = true and dragged item down '
         'WHEN moving dragged item up '
         'THEN should scroll up', (WidgetTester tester) async {
       // given
@@ -256,11 +256,11 @@ void main() {
       final gesture = await move(
         tester: tester,
         startGestureFinder: find.byKey(const Key('0')),
-        moveOffset: const Offset(0.0, 600.0),
+        moveOffset: const Offset(0.0, -600.0),
       );
 
       // when
-      await gesture.moveTo(const Offset(0.0, -600.0));
+      await gesture.moveTo(const Offset(0.0, 600.0));
       await gesture.up();
       await tester.pumpAndSettle();
 
@@ -353,6 +353,7 @@ class _TestOuterScrollableState extends State<_TestOuterScrollable> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        reverse: true,
         child: Builder(builder: (context) {
           widget.onBuilt(context);
           return Column(
@@ -368,9 +369,11 @@ class _TestOuterScrollableState extends State<_TestOuterScrollable> {
                     children = reorderedListFunction(children) as List<int>;
                   });
                 },
+                reverse: true,
                 childBuilder: (itemBuilder) {
                   return GridView.builder(
                     key: _gridViewKey,
+                    reverse: true,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: children.length,

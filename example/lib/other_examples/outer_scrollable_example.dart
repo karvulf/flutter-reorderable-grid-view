@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        reverse: true,
         child: Column(
           children: [
             const SizedBox(

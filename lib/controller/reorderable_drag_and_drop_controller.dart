@@ -4,7 +4,7 @@ import 'package:flutter_reorderable_grid_view/entities/released_reorderable_enti
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-/// TODO: add comment
+// TODO(karvulf): add comment
 class ReorderableDragAndDropController extends ReorderableController {
   /// Instance of dragged entity when dragging starts.
   ReorderableEntity? _draggedEntity;

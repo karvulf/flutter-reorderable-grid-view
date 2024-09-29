@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-/// TODO: add comment
+// TODO(karvulf): add comment
 abstract class ReorderableController {
   // TODO(karvulf): nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
   final childrenOrderMap = <int, ReorderableEntity>{};
