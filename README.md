@@ -146,27 +146,28 @@ For example, adding or removing a child at the beginning of the list affects the
 
 ### Parameters
 
-| **Parameter**                  | **Description**                                                                                                                                         | **Default Value** |
-|:-------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------:|
-| `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.                                        |       **-**       |
-| `childBuilder`                 | Enable support for [GridView.builder] using this function. Don't forget a unique key for every child.                                                   |       **-**       |
-| `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.                                              |    **<int>[]**    |
-| `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                                                  |    **<int>[]**    |
-| `enableLongPress`              | If true, you need to long press the widget to start the dragging.                                                                                       |     **true**      |
-| `longPressDelay`               | Specify the duration before dragging starts after long-pressing the widget.                                                                             |    **500 ms**     |
-| `enableDraggable`              | Enables the drag and drop functionality.                                                                                                                |     **true**      |
-| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                                                        |     **true**      |
-| `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                                                 |     **80.0**      |
-| `fadeInDuration`               | [Duration] for the fade in animation when a new child was added.                                                                                        |     **500ms**     |
-| `releasedChildDuration`        | [Duration] for the position animation when a dragged child was released and is moving to his new position.                                              |     **150ms**     |
-| `positionDuration `            | [Duration] when the child is changing his position (not working while using drag and drop).                                                             |     **200ms**     |
-| `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                                               |       **-**       |
-| `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                                                 |       **-**       |
-| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all the items.                               |       **-**       |
-| `onDragStarted`                | Callback when dragging starts with the index where it started.                                                                                          |       **-**       |
-| `onDragEnd`                    | Callback when the dragged child was released with the index.                                                                                            |       **-**       |
-| `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                                                  |       **-**       |
-| `scrollController`             | `ScrollController` which should be also assigned to the scrollable widget. Don't forget this to prevent animation issues.                               |       **-**       |
+| **Parameter**                  | **Description**                                                                                                           | **Default Value** |
+|:-------------------------------|:--------------------------------------------------------------------------------------------------------------------------|:-----------------:|
+| `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.          |       **-**       |
+| `childBuilder`                 | Enable support for [GridView.builder] using this function. Don't forget a unique key for every child.                     |       **-**       |
+| `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.                |    **<int>[]**    |
+| `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                    |    **<int>[]**    |
+| `enableLongPress`              | If true, you need to long press the widget to start the dragging.                                                         |     **true**      |
+| `longPressDelay`               | Specify the duration before dragging starts after long-pressing the widget.                                               |    **500 ms**     |
+| `enableDraggable`              | Enables the drag and drop functionality.                                                                                  |     **true**      |
+| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                          |     **true**      |
+| `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                   |     **80.0**      |
+| `fadeInDuration`               | [Duration] for the fade in animation when a new child was added.                                                          |     **500ms**     |
+| `releasedChildDuration`        | [Duration] for the position animation when a dragged child was released and is moving to his new position.                |     **150ms**     |
+| `positionDuration `            | [Duration] when the child is changing his position (not working while using drag and drop).                               |     **200ms**     |
+| `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                 |       **-**       |
+| `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                  |     **false**     |
+| `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                   |       **-**       |
+| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all the items. |       **-**       |
+| `onDragStarted`                | Callback when dragging starts with the index where it started.                                                            |       **-**       |
+| `onDragEnd`                    | Callback when the dragged child was released with the index.                                                              |       **-**       |
+| `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                    |       **-**       |
+| `scrollController`             | `ScrollController` which should be also assigned to the scrollable widget. Don't forget this to prevent animation issues. |       **-**       |
 
 ### `CustomDraggable`
 
