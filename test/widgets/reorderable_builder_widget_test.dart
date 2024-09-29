@@ -64,20 +64,23 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableBuilder &&
-              widget.children == null &&
-              widget.lockedIndices.isEmpty &&
-              widget.nonDraggableIndices.isEmpty &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.enableDraggable &&
-              widget.automaticScrollExtent == 80.0 &&
-              widget.enableScrollingWhileDragging &&
-              widget.fadeInDuration == const Duration(milliseconds: 500) &&
-              widget.releasedChildDuration ==
-                  const Duration(milliseconds: 150) &&
-              widget.positionDuration == const Duration(milliseconds: 200) &&
-              widget.feedbackScaleFactor == 1.05),
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ReorderableBuilder &&
+                widget.children == null &&
+                widget.lockedIndices.isEmpty &&
+                widget.nonDraggableIndices.isEmpty &&
+                widget.longPressDelay == const Duration(milliseconds: 500) &&
+                widget.enableDraggable &&
+                widget.automaticScrollExtent == 80.0 &&
+                widget.enableScrollingWhileDragging &&
+                widget.fadeInDuration == const Duration(milliseconds: 500) &&
+                widget.releasedChildDuration ==
+                    const Duration(milliseconds: 150) &&
+                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.feedbackScaleFactor == 1.05 &&
+                !widget.reverse,
+          ),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
@@ -87,6 +90,7 @@ void main() {
               widget.scrollController == null &&
               widget.automaticScrollExtent == 80.0 &&
               widget.enableScrollingWhileDragging &&
+              !widget.reverse &&
               widget.child is SingleChildScrollView),
           findsOneWidget);
       expect(
@@ -181,19 +185,22 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
-              widget is ReorderableBuilder &&
-              widget.childBuilder == null &&
-              widget.lockedIndices == const [2] &&
-              widget.nonDraggableIndices == const [1] &&
-              widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.enableDraggable &&
-              widget.automaticScrollExtent == 80.0 &&
-              widget.enableScrollingWhileDragging &&
-              widget.fadeInDuration == const Duration(milliseconds: 500) &&
-              widget.releasedChildDuration ==
-                  const Duration(milliseconds: 150) &&
-              widget.positionDuration == const Duration(milliseconds: 200)),
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is ReorderableBuilder &&
+                widget.childBuilder == null &&
+                widget.lockedIndices == const [2] &&
+                widget.nonDraggableIndices == const [1] &&
+                widget.longPressDelay == const Duration(milliseconds: 500) &&
+                widget.enableDraggable &&
+                widget.automaticScrollExtent == 80.0 &&
+                widget.enableScrollingWhileDragging &&
+                widget.fadeInDuration == const Duration(milliseconds: 500) &&
+                widget.releasedChildDuration ==
+                    const Duration(milliseconds: 150) &&
+                widget.positionDuration == const Duration(milliseconds: 200) &&
+                !widget.reverse,
+          ),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
@@ -203,6 +210,7 @@ void main() {
               widget.scrollController == null &&
               widget.automaticScrollExtent == 80.0 &&
               widget.enableScrollingWhileDragging &&
+              !widget.reverse &&
               widget.child is SingleChildScrollView),
           findsOneWidget);
 

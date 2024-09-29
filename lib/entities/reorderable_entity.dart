@@ -94,7 +94,7 @@ class ReorderableEntity {
       updatedOffset: offset ?? updatedOffset,
       size: size,
       isBuildingOffset: false,
-      hasSwappedOrder: false, // todo false wirklich richtig?
+      hasSwappedOrder: false, // TODO(karvulf): false wirklich richtig?
     );
   }
 

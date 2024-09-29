@@ -35,7 +35,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 200;
+  static const _startCounter = 80;
 
   final lockedIndices = <int>[0, 4];
   final nonDraggableIndices = [0, 2, 3];
@@ -131,11 +131,13 @@ class _MyAppState extends State<MyApp> {
           onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
+          reverse: true,
           children: generatedChildren,
           builder: (children) {
             return GridView(
               key: _gridViewKey,
               controller: _scrollController,
+              reverse: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 mainAxisSpacing: 4,

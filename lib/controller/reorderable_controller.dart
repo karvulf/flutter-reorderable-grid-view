@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
-/// TODO: add comment
+// TODO(karvulf): add comment
 abstract class ReorderableController {
-// todo nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
+  // TODO(karvulf): nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
   final childrenOrderMap = <int, ReorderableEntity>{};
 
   final childrenKeyMap = <String, ReorderableEntity>{};
@@ -20,7 +20,7 @@ abstract class ReorderableController {
   }) {
     final childInKeyMap = childrenKeyMap[key.value];
     final offset = offsetMap[index];
-    // todo warum child aus der anderen map genommen?
+    // TODO(karvulf): warum child aus der anderen map genommen?
     final size = childrenOrderMap[index]?.size;
     late final ReorderableEntity reorderableEntity;
 
@@ -68,20 +68,22 @@ abstract class ReorderableController {
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
-  ReorderableEntity handleOpacityFinished(
-      {required ReorderableEntity reorderableEntity}) {
+  ReorderableEntity handleOpacityFinished({
+    required ReorderableEntity reorderableEntity,
+  }) {
     final updatedEntity = reorderableEntity.fadedIn();
     _updateMaps(reorderableEntity: updatedEntity);
     return updatedEntity;
   }
 
-  /// TODO das fadedIn und positionUpdated scheint identisch zu sein, ergo ist diese methode mit der obigen gleich und kann vielleicht zusammengeführt werden
+  // TODO(karvulf): das fadedIn und positionUpdated scheint identisch zu sein, ergo ist diese methode mit der obigen gleich und kann vielleicht zusammengeführt werdend
   /// Updates offset and order id of [reorderableEntity] faded in.
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
-  ReorderableEntity handleMovingFinished(
-      {required ReorderableEntity reorderableEntity}) {
+  ReorderableEntity handleMovingFinished({
+    required ReorderableEntity reorderableEntity,
+  }) {
     final updatedEntity = reorderableEntity.positionUpdated();
     _updateMaps(reorderableEntity: updatedEntity);
 
