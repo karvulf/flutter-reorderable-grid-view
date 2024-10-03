@@ -56,7 +56,7 @@ abstract class ReorderableController {
     required Offset? offset,
     required ReorderableEntity reorderableEntity,
   }) {
-    final existingReorderableEntity = _handleDraggingWithExistingEntity(
+    final existingReorderableEntity = _getExistingEntityWhileDragging(
       reorderableEntity: reorderableEntity,
       isBuildingOffset: true,
     );
@@ -80,7 +80,7 @@ abstract class ReorderableController {
   ReorderableEntity handleOpacityFinished({
     required ReorderableEntity reorderableEntity,
   }) {
-    final existingReorderableEntity = _handleDraggingWithExistingEntity(
+    final existingReorderableEntity = _getExistingEntityWhileDragging(
       reorderableEntity: reorderableEntity,
       isBuildingOffset: false,
     );
@@ -168,9 +168,7 @@ abstract class ReorderableController {
     required ReorderableEntity reorderableEntity,
   }) {
     final updatedOrderId = reorderableEntity.updatedOrderId;
-    if (draggedEntity != null && childrenOrderMap.containsKey(updatedOrderId)) {
-      return;
-    }
+
     // removes deprecated values in maps
     childrenKeyMap.removeWhere(
       (key, value) => value.updatedOrderId == updatedOrderId,
@@ -191,7 +189,7 @@ abstract class ReorderableController {
   /// If this happens, these children would revert to their original position.
   /// To maintain their updated position, the existing [ReorderableEntity] is
   /// returned. This ensures the state of these children remains unchanged.
-  ReorderableEntity? _handleDraggingWithExistingEntity({
+  ReorderableEntity? _getExistingEntityWhileDragging({
     required ReorderableEntity reorderableEntity,
     required bool isBuildingOffset,
   }) {
