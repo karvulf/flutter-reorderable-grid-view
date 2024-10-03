@@ -182,6 +182,15 @@ abstract class ReorderableController {
     childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
   }
 
+  /// Ensures the return of an already existing [ReorderableEntity] while dragging.
+  ///
+  /// When a user drags an item and automatic scrolling begins (e.g. scrolling
+  /// to the top), children can be recreated if the user then scrolls back to the
+  /// bottom.
+  ///
+  /// If this happens, these children would revert to their original position.
+  /// To maintain their updated position, the existing [ReorderableEntity] is
+  /// returned. This ensures the state of these children remains unchanged.
   ReorderableEntity? _handleDraggingWithExistingEntity({
     required ReorderableEntity reorderableEntity,
     required bool isBuildingOffset,
