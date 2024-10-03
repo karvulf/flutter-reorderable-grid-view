@@ -32,6 +32,7 @@ class ReorderableBuilder extends StatefulWidget {
   static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
   static const _defaultPositionDuration = Duration(milliseconds: 200);
   static const _defaultFeedbackScaleFactor = 1.05;
+  static const _defaultReverse = false;
 
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
@@ -129,6 +130,15 @@ class ReorderableBuilder extends StatefulWidget {
   /// Default value: 1.05 (feedback widget grows by 5%)
   final double feedbackScaleFactor;
 
+  /// Manages the case where the order of [children] is reversed.
+  ///
+  /// If the [children] list is in reverse order, set this flag to true to ensure
+  /// the widget behaves as expected. Failing to update this flag when the
+  /// order is reversed will result in incorrect behavior.
+  ///
+  /// Default value: `false`
+  final bool reverse;
+
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
@@ -194,6 +204,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -218,6 +229,7 @@ class ReorderableBuilder extends StatefulWidget {
     this.releasedChildDuration = _defaultReleasedChildDuration,
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
     this.onDragEnd,
@@ -269,7 +281,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       final orientationAfter = MediaQuery.of(context).orientation;
 
       if (orientationBefore != orientationAfter) {
-        // Todo: Dieser Aufruf geschieht gleich 3 Mal!
         _reorderableController.handleDeviceOrientationChanged();
         setState(() {});
       }
@@ -299,9 +310,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       scrollController: widget.scrollController,
       automaticScrollExtent: widget.automaticScrollExtent,
       enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+      reverse: widget.reverse,
       onDragUpdate: _handleDragUpdate,
-      onScrollUpdate: _handleScrollUpdate,
-      getScrollOffset: _getScrollOffset,
       child: child,
     );
   }
@@ -460,10 +470,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     _finishDragging();
   }
 
-  void _handleScrollUpdate(Offset scrollOffset) {
-    _reorderableController.scrollOffset = scrollOffset;
-  }
-
   void _finishDragging() {
     final draggedEntity = _reorderableController.draggedEntity;
     if (draggedEntity == null) return;
@@ -569,10 +575,11 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     if (scrollPosition != null) {
       final pixels = scrollPosition.pixels;
       final isScrollingVertical = scrollPosition.axis == Axis.vertical;
-      return Offset(
+      final offset = Offset(
         isScrollingVertical ? 0.0 : pixels,
         isScrollingVertical ? pixels : 0.0,
       );
+      return widget.reverse ? -offset : offset;
     }
 
     return Offset.zero;

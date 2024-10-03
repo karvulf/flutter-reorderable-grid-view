@@ -53,7 +53,7 @@ class _ReorderableAnimatedReleasedContainerState
   void initState() {
     super.initState();
 
-    // Todo: add duration to parameter of this package
+    // TODO(karvulf): add duration to parameter of this package
     _offsetAnimationController = AnimationController(
       duration: widget.releasedChildDuration,
       vsync: this,
@@ -134,7 +134,6 @@ class _ReorderableAnimatedReleasedContainerState
   ///
   /// The calculated offset depends on the scroll position and should describe
   /// the position when the dragged [widget.child] was released.
-  /// Todo: Add support for horizontal scrolling.
   Offset getBeginOffset({
     required ReleasedReorderableEntity releasedReorderableEntity,
   }) {
