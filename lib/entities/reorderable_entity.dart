@@ -151,14 +151,18 @@ class ReorderableEntity {
         hasSwappedOrder: true,
       );
 
-  ReorderableEntity copyWith({Size? size}) => ReorderableEntity(
+  ReorderableEntity copyWith({
+    Size? size,
+    bool? isBuildingOffset,
+  }) =>
+      ReorderableEntity(
         key: key,
         originalOrderId: originalOrderId,
         updatedOrderId: updatedOrderId,
         originalOffset: originalOffset,
         updatedOffset: updatedOffset,
         size: size ?? this.size,
-        isBuildingOffset: isBuildingOffset,
+        isBuildingOffset: isBuildingOffset ?? this.isBuildingOffset,
         hasSwappedOrder: hasSwappedOrder,
       );
 
