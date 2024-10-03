@@ -3,6 +3,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 // TODO(karvulf): add comment
 class ReorderableDragAndDropController extends ReorderableController {
@@ -32,7 +33,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// Saves the state of scroll [Offset] when the drag and drop is starting.
   ///
   /// This is need to calculate with correct values later when doing
-  /// drag and drop while scrolling.
+  /// drag and drop while scrolling and the scrolling is outside of
+  /// [ReorderableBuilder].
   @visibleForTesting
   Offset startDraggingScrollOffset = Offset.zero;
 
@@ -63,9 +65,9 @@ class ReorderableDragAndDropController extends ReorderableController {
     late final Offset offset;
 
     if (isScrollableOutside) {
-      offset = localOffset + scrollOffset;
-    } else {
       offset = localOffset + (scrollOffset - startDraggingScrollOffset);
+    } else {
+      offset = localOffset + scrollOffset;
     }
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(
