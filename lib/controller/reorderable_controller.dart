@@ -194,11 +194,10 @@ abstract class ReorderableController {
     required bool isBuildingOffset,
   }) {
     if (draggedEntity != null) {
-      return childrenOrderMap[reorderableEntity.updatedOrderId]?.copyWith(
-        isBuildingOffset: isBuildingOffset,
-      );
-    } else {
-      return null;
+      final existingEntity = childrenOrderMap[reorderableEntity.updatedOrderId];
+      return existingEntity?.copyWith(isBuildingOffset: isBuildingOffset);
     }
+
+    return null;
   }
 }
