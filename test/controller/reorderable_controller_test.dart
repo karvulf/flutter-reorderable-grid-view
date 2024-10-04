@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,8 @@ void main() {
   late ReorderableController controller;
 
   final reorderableBuilder = ReorderableBuilder();
+
+  final givenDraggedEntity = reorderableBuilder.getEntity(key: 'dragged');
 
   setUp(() {
     controller = _TestReorderableController();
@@ -128,10 +131,46 @@ void main() {
     );
 
     test(
-        'GIVEN offset != null and reorderableEntity '
+        'GIVEN dragging is true and existing reorderableEntity '
+        'WHEN calling #handleCreatedChild '
+        'THEN should return existing reorderableEntity', () {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        isBuildingOffset: false,
+      );
+
+      controller.draggedEntity = givenDraggedEntity;
+      controller.childrenOrderMap[givenReorderableEntity.updatedOrderId] =
+          givenReorderableEntity;
+
+      // when
+      final actual = controller.handleCreatedChild(
+        offset: givenOffset,
+        reorderableEntity: givenReorderableEntity,
+      );
+
+      // then
+      final expectedReorderableEntity = givenReorderableEntity.copyWith(
+        isBuildingOffset: true,
+      );
+      expect(actual, equals(expectedReorderableEntity));
+
+      expect(controller.offsetMap, isEmpty);
+      expect(
+        mapEquals(controller.childrenOrderMap, {
+          givenReorderableEntity.updatedOrderId: givenReorderableEntity,
+        }),
+        isTrue,
+      );
+      expect(controller.childrenKeyMap, isEmpty);
+    });
+
+    test(
+        'GIVEN draggedEntity, offset != null and reorderableEntity '
         'WHEN calling #handleCreatedChild '
         'THEN should update maps as expected', () {
       // given
+      controller.draggedEntity = givenDraggedEntity;
 
       // when
       final actual = controller.handleCreatedChild(
@@ -175,6 +214,40 @@ void main() {
       key: const ValueKey('hello'),
       updatedOrderId: 12,
     );
+
+    test(
+        'GIVEN dragging is true and existing reorderableEntity '
+        'WHEN calling #handleOpacityFinished '
+        'THEN should return existing reorderableEntity', () {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        isBuildingOffset: true,
+      );
+
+      controller.draggedEntity = givenDraggedEntity;
+      controller.childrenOrderMap[givenReorderableEntity.updatedOrderId] =
+          givenReorderableEntity;
+
+      // when
+      final actual = controller.handleOpacityFinished(
+        reorderableEntity: givenReorderableEntity,
+      );
+
+      // then
+      final expectedReorderableEntity = givenReorderableEntity.copyWith(
+        isBuildingOffset: false,
+      );
+      expect(actual, equals(expectedReorderableEntity));
+
+      expect(controller.offsetMap, isEmpty);
+      expect(
+        mapEquals(controller.childrenOrderMap, {
+          givenReorderableEntity.updatedOrderId: givenReorderableEntity,
+        }),
+        isTrue,
+      );
+      expect(controller.childrenKeyMap, isEmpty);
+    });
 
     test(
         'GIVEN reorderableEntity '

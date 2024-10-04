@@ -3,6 +3,9 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 // TODO(karvulf): add comment
 abstract class ReorderableController {
+  /// Instance of dragged entity when dragging starts.
+  ReorderableEntity? draggedEntity;
+
   // TODO(karvulf): nochmal prüfen, ob die orderId hier immer über die updated oder originalOrderId gesetzt wird, falls nicht riecht das nach fehleranfälligkeit
   final childrenOrderMap = <int, ReorderableEntity>{};
 
@@ -53,6 +56,12 @@ abstract class ReorderableController {
     required Offset? offset,
     required ReorderableEntity reorderableEntity,
   }) {
+    final existingReorderableEntity = _getExistingEntityWhileDragging(
+      reorderableEntity: reorderableEntity,
+      isBuildingOffset: true,
+    );
+    if (existingReorderableEntity != null) return existingReorderableEntity;
+
     if (offset != null) {
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
@@ -71,6 +80,12 @@ abstract class ReorderableController {
   ReorderableEntity handleOpacityFinished({
     required ReorderableEntity reorderableEntity,
   }) {
+    final existingReorderableEntity = _getExistingEntityWhileDragging(
+      reorderableEntity: reorderableEntity,
+      isBuildingOffset: false,
+    );
+    if (existingReorderableEntity != null) return existingReorderableEntity;
+
     final updatedEntity = reorderableEntity.fadedIn();
     _updateMaps(reorderableEntity: updatedEntity);
     return updatedEntity;
@@ -149,15 +164,40 @@ abstract class ReorderableController {
     childrenKeyMap.addAll(updatedChildrenKeyMap);
   }
 
-  void _updateMaps({required ReorderableEntity reorderableEntity}) {
+  void _updateMaps({
+    required ReorderableEntity reorderableEntity,
+  }) {
+    final updatedOrderId = reorderableEntity.updatedOrderId;
+
     // removes deprecated values in maps
     childrenKeyMap.removeWhere(
-      (key, value) => value.updatedOrderId == reorderableEntity.updatedOrderId,
+      (key, value) => value.updatedOrderId == updatedOrderId,
     );
     childrenOrderMap.removeWhere(
-      (key, value) => value.updatedOrderId == reorderableEntity.updatedOrderId,
+      (key, value) => value.updatedOrderId == updatedOrderId,
     );
     childrenOrderMap[reorderableEntity.originalOrderId] = reorderableEntity;
     childrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
+  }
+
+  /// Ensures the return of an already existing [ReorderableEntity] while dragging.
+  ///
+  /// When a user drags an item and automatic scrolling begins (e.g. scrolling
+  /// to the top), children can be recreated if the user then scrolls back to the
+  /// bottom.
+  ///
+  /// If this happens, these children would revert to their original position.
+  /// To maintain their updated position, the existing [ReorderableEntity] is
+  /// returned. This ensures the state of these children remains unchanged.
+  ReorderableEntity? _getExistingEntityWhileDragging({
+    required ReorderableEntity reorderableEntity,
+    required bool isBuildingOffset,
+  }) {
+    if (draggedEntity != null) {
+      final existingEntity = childrenOrderMap[reorderableEntity.updatedOrderId];
+      return existingEntity?.copyWith(isBuildingOffset: isBuildingOffset);
+    }
+
+    return null;
   }
 }

@@ -79,28 +79,39 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is LongPressDraggable &&
-            widget.delay == givenLongPressDelay &&
-            (widget.feedback as DraggableFeedback).size ==
-                givenReorderableEntity.size &&
-            (widget.feedback as DraggableFeedback).decoration.value ==
-                const BoxDecoration() &&
-            (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
-                givenFeedbackScaleFactor &&
-            (widget.childWhenDragging as Visibility).visible &&
-            (widget.childWhenDragging as Visibility).maintainAnimation &&
-            (widget.childWhenDragging as Visibility).maintainSize &&
-            (widget.childWhenDragging as Visibility).maintainState &&
-            (widget.childWhenDragging as Visibility).child == givenChild &&
-            widget.data == null &&
-            widget.child == givenChild),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Visibility &&
+            widget.visible &&
+            widget.maintainAnimation &&
+            widget.maintainSize &&
+            widget.maintainState &&
+            widget.child is LongPressDraggable,
+      ),
+      findsOneWidget,
+    );
+    expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is LongPressDraggable &&
+              widget.delay == givenLongPressDelay &&
+              (widget.feedback as DraggableFeedback).size ==
+                  givenReorderableEntity.size &&
+              (widget.feedback as DraggableFeedback).decoration.value ==
+                  const BoxDecoration() &&
+              (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
+                  givenFeedbackScaleFactor &&
+              widget.childWhenDragging == null &&
+              widget.data == null &&
+              widget.child == givenChild,
+        ),
         findsOneWidget);
     expect(find.byType(Draggable), findsNothing);
   });
 
   testWidgets(
-      "GIVEN enableDraggable = true and enableLongPress = false "
+      "GIVEN dragged and reorderableEntity have same updatedOrderId "
+      "and enableDraggable = true and enableLongPress = false "
       "WHEN pumping [ReorderableDraggable] "
       "THEN should show expected widgets", (WidgetTester tester) async {
     // given
@@ -121,6 +132,18 @@ void main() {
     );
 
     // then
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Visibility &&
+            !widget.visible &&
+            widget.maintainAnimation &&
+            widget.maintainSize &&
+            widget.maintainState &&
+            widget.child is LongPressDraggable,
+      ),
+      findsOneWidget,
+    );
     expect(
         find.byWidgetPredicate((widget) =>
             widget is LongPressDraggable && widget.delay == Duration.zero),
