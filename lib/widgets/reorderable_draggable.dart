@@ -51,6 +51,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   late final AnimationController _decoratedBoxAnimationController;
   late final DecorationTween _decorationTween;
   late DraggableDetails lastDraggedDetails;
+  bool isDragging = false;
 
   /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
@@ -104,38 +105,37 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       child: child,
     );
 
-    final draggedKey = widget.currentDraggedEntity?.key;
-    final key = reorderableEntity.key;
-    final visible = key != draggedKey;
+    final currentDraggedEntity = widget.currentDraggedEntity;
+    final updatedOrderId = reorderableEntity.updatedOrderId;
+    final visible = currentDraggedEntity?.updatedOrderId != updatedOrderId;
 
-    final childWhenDragging = Visibility(
-      visible: visible,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainState: true,
-      child: child,
-    );
     final data = _getData();
 
     if (!widget.enableDraggable) {
       return child;
     } else {
-      return LongPressDraggable(
-        delay: widget.enableLongPress ? widget.longPressDelay : Duration.zero,
-        onDragStarted: _handleDragStarted,
-        onDraggableCanceled: (Velocity velocity, Offset offset) {
-          _handleDragEnd(offset);
-        },
-        feedback: feedback,
-        childWhenDragging: childWhenDragging,
-        data: data,
-        child: child,
+      return Visibility(
+        visible: visible,
+        maintainAnimation: true,
+        maintainSize: true,
+        maintainState: true,
+        child: LongPressDraggable(
+          delay: widget.enableLongPress ? widget.longPressDelay : Duration.zero,
+          onDragStarted: _handleDragStarted,
+          onDraggableCanceled: (Velocity velocity, Offset offset) {
+            _handleDragEnd(offset);
+          },
+          feedback: feedback,
+          data: data,
+          child: child,
+        ),
       );
     }
   }
 
   /// Called after dragging started.
   void _handleDragStarted() {
+    isDragging = true;
     widget.onDragStarted();
     _decoratedBoxAnimationController.forward();
   }
@@ -146,6 +146,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   /// is still dragged. This has to be done to finish the drag and drop.
   void _handleDragEnd(Offset offset) {
     if (mounted) {
+      isDragging = false;
       _decoratedBoxAnimationController.reset();
     }
 

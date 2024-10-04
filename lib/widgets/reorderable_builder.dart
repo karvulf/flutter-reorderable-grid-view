@@ -184,8 +184,12 @@ class ReorderableBuilder extends StatefulWidget {
   /// This controller has to be assigned if the returned widget of [builder] is
   /// scrollable. Every [GridView] is scrollable by default.
   ///
-  /// So usually, you should assign the controller to the [ReorderableBuilder]
+  /// You have assign the controller to the [ReorderableBuilder]
   /// and to your [GridView].
+  ///
+  /// If the scrollable widget is outside [ReorderableBuilder], then you don't
+  /// add [scrollController] to this widget because the calculations also works
+  /// by using the scroll value in the context.
   final ScrollController? scrollController;
 
   const ReorderableBuilder({
@@ -406,7 +410,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       reorderableEntity: reorderableEntity,
       currentScrollOffset: _getScrollOffset(),
       lockedIndices: widget.lockedIndices,
-      isScrollableOutside: Scrollable.maybeOf(context)?.position == null,
+      isScrollableOutside: _isScrollOutside,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
@@ -444,8 +448,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     var offset = globalRenderObject.globalToLocal(globalOffset);
 
     // scrollable part is outside this widget
-    if (Scrollable.maybeOf(context)?.position != null) {
-      offset -= _reorderableController.scrollOffset;
+    if (_isScrollOutside) {
+      offset -= _getScrollOffset();
     }
 
     // call to ensure animation to dropped item
@@ -512,7 +516,9 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   /// At this way the offset will always be correct for calculations even though
   /// this widget is appearing in animated way (e.g. within a BottomModalSheet).
   ReorderableEntity _handleCreatedChild(
-      ReorderableEntity reorderableEntity, GlobalKey key) {
+    ReorderableEntity reorderableEntity,
+    GlobalKey key,
+  ) {
     final reorderableController = _reorderableController;
     final offsetMap = reorderableController.offsetMap;
 
@@ -584,4 +590,10 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
 
     return Offset.zero;
   }
+
+  /// No [ScrollController] means that this widget is already in a scrollable widget.
+  ///
+  /// [widget.scrollController] should be assigned if the scrollable widget
+  /// is rendered inside this widget e.g. in a [GridView].
+  bool get _isScrollOutside => widget.scrollController == null;
 }

@@ -3,12 +3,10 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 // TODO(karvulf): add comment
 class ReorderableDragAndDropController extends ReorderableController {
-  /// Instance of dragged entity when dragging starts.
-  ReorderableEntity? _draggedEntity;
-
   /// Indices of children that cannot move while drag and drop.
   @visibleForTesting
   var lockedIndices = <int>[];
@@ -32,7 +30,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// Saves the state of scroll [Offset] when the drag and drop is starting.
   ///
   /// This is need to calculate with correct values later when doing
-  /// drag and drop while scrolling.
+  /// drag and drop while scrolling and the scrolling is outside of
+  /// [ReorderableBuilder].
   @visibleForTesting
   Offset startDraggingScrollOffset = Offset.zero;
 
@@ -49,7 +48,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   }) {
     _releasedReorderableEntity = null;
     this.lockedIndices = lockedIndices;
-    _draggedEntity = childrenKeyMap[reorderableEntity.key.value];
+    super.draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
@@ -63,9 +62,9 @@ class ReorderableDragAndDropController extends ReorderableController {
     late final Offset offset;
 
     if (isScrollableOutside) {
-      offset = localOffset + scrollOffset;
-    } else {
       offset = localOffset + (scrollOffset - startDraggingScrollOffset);
+    } else {
+      offset = localOffset + scrollOffset;
     }
 
     final collisionReorderableEntity = _getCollisionReorderableEntity(
@@ -75,7 +74,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
-      final draggedOrderId = _draggedEntity!.updatedOrderId;
+      final draggedOrderId = super.draggedEntity!.updatedOrderId;
       final difference = draggedOrderId - collisionOrderId;
 
       if (difference > 1 || difference < -1) {
@@ -109,12 +108,12 @@ class ReorderableDragAndDropController extends ReorderableController {
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {
-    if (_draggedEntity == null) return null;
+    if (super.draggedEntity == null) return null;
 
-    final oldIndex = _draggedEntity!.originalOrderId;
-    final newIndex = _draggedEntity!.updatedOrderId;
+    final oldIndex = super.draggedEntity!.originalOrderId;
+    final newIndex = super.draggedEntity!.updatedOrderId;
 
-    _draggedEntity = null;
+    super.draggedEntity = null;
 
     if (oldIndex == newIndex) return null;
 
@@ -136,8 +135,6 @@ class ReorderableDragAndDropController extends ReorderableController {
   ReleasedReorderableEntity? get releasedReorderableEntity =>
       _releasedReorderableEntity;
 
-  ReorderableEntity? get draggedEntity => _draggedEntity;
-
   /// private
 
   /// Updates all children that were between the collision and dragged child position.
@@ -149,7 +146,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   }) {
     final summands = isBackwards ? -1 : 1;
     final collisionOrderId = collisionReorderableEntity.updatedOrderId;
-    var currentCollisionOrderId = _draggedEntity!.updatedOrderId;
+    var currentCollisionOrderId = super.draggedEntity!.updatedOrderId;
 
     while (currentCollisionOrderId != collisionOrderId) {
       currentCollisionOrderId += summands;
@@ -183,11 +180,11 @@ class ReorderableDragAndDropController extends ReorderableController {
     required ReorderableEntity collisionReorderableEntity,
     required List<int> lockedIndices,
   }) {
-    final draggedEntity = _draggedEntity;
+    final draggedEntity = super.draggedEntity;
     if (draggedEntity == null) return;
 
     if (collisionReorderableEntity.updatedOrderId ==
-        _draggedEntity!.updatedOrderId) {
+        draggedEntity.updatedOrderId) {
       return;
     }
 
@@ -203,7 +200,7 @@ class ReorderableDragAndDropController extends ReorderableController {
       updatedOrderId: collisionReorderableEntity.updatedOrderId,
     );
 
-    _draggedEntity = updatedDraggedEntity;
+    super.draggedEntity = updatedDraggedEntity;
 
     final collisionKeyValue = updatedCollisionEntity.key.value;
     final collisionUpdatedOrderId = updatedCollisionEntity.updatedOrderId;
