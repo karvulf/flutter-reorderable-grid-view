@@ -54,6 +54,7 @@ abstract class ReorderableController {
   /// In the end, the [childrenOrderMap] and [childrenKeyMap] are updated.
   ReorderableEntity handleCreatedChild({
     required Offset? offset,
+    required Size size,
     required ReorderableEntity reorderableEntity,
   }) {
     final existingReorderableEntity = _getExistingEntityWhileDragging(
@@ -67,6 +68,7 @@ abstract class ReorderableController {
     }
     final updatedEntity = reorderableEntity.creationFinished(
       offset: offset,
+      size: size,
     );
     _updateMaps(reorderableEntity: updatedEntity);
 
@@ -113,21 +115,30 @@ abstract class ReorderableController {
   void handleDeviceOrientationChanged() {
     offsetMap.clear();
 
+    final updatedChildrenOrderMap = <int, ReorderableEntity>{};
+
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
-      childrenOrderMap[entry.key] = ReorderableEntity.create(
+      updatedChildrenOrderMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
       );
     }
 
+    final updatedChildrenKeyMap = <String, ReorderableEntity>{};
+
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
-      childrenKeyMap[entry.key] = ReorderableEntity.create(
+      updatedChildrenKeyMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
       );
     }
+
+    childrenOrderMap.clear();
+    childrenOrderMap.addAll(updatedChildrenOrderMap);
+    childrenKeyMap.clear();
+    childrenKeyMap.addAll(updatedChildrenKeyMap);
   }
 
   /// Iterates through [childrenKeyMap] and updates [ReorderableEntity].

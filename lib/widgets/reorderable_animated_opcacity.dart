@@ -12,7 +12,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Called when the fade in animation was finished.
   ///
   /// [size] is calculated after the fade in and is related to the built [child].
-  final void Function(Size? size) onOpacityFinished;
+  final void Function() onOpacityFinished;
 
   /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
@@ -73,16 +73,9 @@ class _ReorderableAnimatedOpacityState
   void _handleAnimationFinished() {
     if (_opacity == 1.0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _callOnOpacityFinished();
+        widget.onOpacityFinished();
       });
     }
-  }
-
-  void _callOnOpacityFinished() {
-    final renderObject = _globalKey.currentContext?.findRenderObject();
-    final renderBox = renderObject as RenderBox?;
-    final size = renderBox?.size;
-    widget.onOpacityFinished(size);
   }
 
   /// [Duration] used for the opacity animation.

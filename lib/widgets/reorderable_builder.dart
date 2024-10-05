@@ -290,6 +290,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       if (orientationBefore != orientationAfter ||
           screenSizeBefore != screenSizeAfter) {
         _reorderableController.handleDeviceOrientationChanged();
+        _reorderableController.scrollOffset == _getScrollOffset();
         setState(() {});
       }
     });
@@ -527,12 +528,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final offsetMap = reorderableController.offsetMap;
 
     Offset? offset;
+    Size size = reorderableEntity.size;
 
     var index = reorderableEntity.updatedOrderId;
-    final renderObject = key.currentContext?.findRenderObject();
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
-    if (renderObject != null) {
-      final renderBox = renderObject as RenderBox;
+    if (renderBox != null) {
+      size = renderBox.size;
 
       // should only add offset if it is not existing to prevent wrong animations
       if (offsetMap[index] == null) {
@@ -545,9 +547,12 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       }
     }
 
+    print('Created [${reorderableEntity.key}]: size $size');
+
     return reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,
+      size: size,
     );
   }
 
