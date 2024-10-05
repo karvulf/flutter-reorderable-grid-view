@@ -115,8 +115,6 @@ abstract class ReorderableController {
   void handleDeviceOrientationChanged() {
     offsetMap.clear();
 
-    final updatedChildrenOrderMap = <int, ReorderableEntity>{};
-
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
       childrenOrderMap[entry.key] = ReorderableEntity.create(
@@ -124,8 +122,6 @@ abstract class ReorderableController {
         updatedOrderId: value.updatedOrderId,
       );
     }
-
-    final updatedChildrenKeyMap = <String, ReorderableEntity>{};
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
@@ -199,7 +195,7 @@ abstract class ReorderableController {
     required ReorderableEntity reorderableEntity,
     required bool isBuildingOffset,
   }) {
-    if (draggedEntity != null && reorderableEntity.originalOrderId != -1) {
+    if (draggedEntity != null && !reorderableEntity.isNew) {
       final existingEntity = childrenOrderMap[reorderableEntity.updatedOrderId];
       return existingEntity?.copyWith(isBuildingOffset: isBuildingOffset);
     }
