@@ -119,7 +119,7 @@ abstract class ReorderableController {
 
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
-      updatedChildrenOrderMap[entry.key] = ReorderableEntity.create(
+      childrenOrderMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
       );
@@ -129,16 +129,11 @@ abstract class ReorderableController {
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
-      updatedChildrenKeyMap[entry.key] = ReorderableEntity.create(
+      childrenKeyMap[entry.key] = ReorderableEntity.create(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
       );
     }
-
-    childrenOrderMap.clear();
-    childrenOrderMap.addAll(updatedChildrenOrderMap);
-    childrenKeyMap.clear();
-    childrenKeyMap.addAll(updatedChildrenKeyMap);
   }
 
   /// Iterates through [childrenKeyMap] and updates [ReorderableEntity].
@@ -204,7 +199,7 @@ abstract class ReorderableController {
     required ReorderableEntity reorderableEntity,
     required bool isBuildingOffset,
   }) {
-    if (draggedEntity != null) {
+    if (draggedEntity != null && reorderableEntity.originalOrderId != -1) {
       final existingEntity = childrenOrderMap[reorderableEntity.updatedOrderId];
       return existingEntity?.copyWith(isBuildingOffset: isBuildingOffset);
     }
