@@ -280,12 +280,17 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   @override
   void didChangeMetrics() {
     final orientationBefore = MediaQuery.of(context).orientation;
+    final screenSizeBefore = MediaQuery.of(context).size;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final orientationAfter = MediaQuery.of(context).orientation;
+      final screenSizeAfter = MediaQuery.of(context).size;
 
-      if (orientationBefore != orientationAfter) {
+      if (orientationBefore != orientationAfter ||
+          screenSizeBefore != screenSizeAfter) {
         _reorderableController.handleDeviceOrientationChanged();
+        _reorderableController.scrollOffset == _getScrollOffset();
         setState(() {});
       }
     });
@@ -523,12 +528,13 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     final offsetMap = reorderableController.offsetMap;
 
     Offset? offset;
+    Size size = reorderableEntity.size;
 
     var index = reorderableEntity.updatedOrderId;
-    final renderObject = key.currentContext?.findRenderObject();
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
 
-    if (renderObject != null) {
-      final renderBox = renderObject as RenderBox;
+    if (renderBox != null) {
+      size = renderBox.size;
 
       // should only add offset if it is not existing to prevent wrong animations
       if (offsetMap[index] == null) {
@@ -544,6 +550,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     return reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,
+      size: size,
     );
   }
 

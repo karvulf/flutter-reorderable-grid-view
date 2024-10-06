@@ -194,8 +194,10 @@ void main() {
   });
 
   group('#creationFinished', () {
+    const givenUpdatedSize = Size(12.3, 4.56);
+
     test(
-        'GIVEN entity and offset = null '
+        'GIVEN entity, size and offset = null '
         'WHEN calling creationFinished '
         'THEN should return expected entity', () {
       // given
@@ -211,7 +213,10 @@ void main() {
       );
 
       // when
-      final actual = givenEntity.creationFinished(offset: null);
+      final actual = givenEntity.creationFinished(
+        offset: null,
+        size: givenUpdatedSize,
+      );
 
       // then
       const expectedEntity = ReorderableEntity(
@@ -220,7 +225,7 @@ void main() {
         updatedOrderId: givenUpdatedOrderId,
         originalOffset: givenOriginalOffset,
         updatedOffset: givenUpdatedOffset,
-        size: givenSize,
+        size: givenUpdatedSize,
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );
@@ -228,7 +233,7 @@ void main() {
     });
 
     test(
-        'GIVEN entity and offset != null'
+        'GIVEN entity, size and offset != null'
         'WHEN calling creationFinished '
         'THEN should return expected entity', () {
       // given
@@ -245,7 +250,10 @@ void main() {
       );
 
       // when
-      final actual = givenEntity.creationFinished(offset: givenNewOffset);
+      final actual = givenEntity.creationFinished(
+        offset: givenNewOffset,
+        size: givenUpdatedSize,
+      );
 
       // then
       const expectedEntity = ReorderableEntity(
@@ -254,7 +262,7 @@ void main() {
         updatedOrderId: givenUpdatedOrderId,
         originalOffset: givenOriginalOffset,
         updatedOffset: givenNewOffset,
-        size: givenSize,
+        size: givenUpdatedSize,
         isBuildingOffset: false,
         hasSwappedOrder: false,
       );

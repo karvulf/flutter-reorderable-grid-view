@@ -85,7 +85,10 @@ class ReorderableEntity {
         hasSwappedOrder: false,
       );
 
-  ReorderableEntity creationFinished({required Offset? offset}) {
+  ReorderableEntity creationFinished({
+    required Offset? offset,
+    required Size size,
+  }) {
     return ReorderableEntity(
       key: key,
       originalOrderId: originalOrderId,

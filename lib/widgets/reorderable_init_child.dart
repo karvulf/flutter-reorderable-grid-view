@@ -36,9 +36,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      widget.onCreated(_globalKey);
-    });
+    _handleCreatedChild();
   }
 
   @override
@@ -50,9 +48,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     // this case can happen if the orientation changed
     if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
         newEntity.isBuildingOffset) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onCreated(_globalKey);
-      });
+      _handleCreatedChild();
     }
   }
 
@@ -72,5 +68,11 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
   bool get visible {
     final reorderableEntity = widget.reorderableEntity;
     return !reorderableEntity.isBuildingOffset;
+  }
+
+  void _handleCreatedChild() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onCreated(_globalKey);
+    });
   }
 }

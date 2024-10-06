@@ -123,6 +123,7 @@ void main() {
 
   group('#handleCreatedChild', () {
     const givenOffset = Offset(0.0, 1.0);
+    const givenSize = Size(100.5, 200.10);
     const givenKey = ValueKey('child1');
     const givenUpdatedOrderId = 11;
     final givenReorderableEntity = ReorderableEntity.create(
@@ -131,12 +132,13 @@ void main() {
     );
 
     test(
-        'GIVEN dragging is true and existing reorderableEntity '
+        'GIVEN originalOrderId = 0, dragging is true and existing reorderableEntity '
         'WHEN calling #handleCreatedChild '
         'THEN should return existing reorderableEntity', () {
       // given
       final givenReorderableEntity = reorderableBuilder.getEntity(
         isBuildingOffset: false,
+        originalOrderId: 0,
       );
 
       controller.draggedEntity = givenDraggedEntity;
@@ -147,6 +149,7 @@ void main() {
       final actual = controller.handleCreatedChild(
         offset: givenOffset,
         reorderableEntity: givenReorderableEntity,
+        size: givenSize,
       );
 
       // then
@@ -166,21 +169,29 @@ void main() {
     });
 
     test(
-        'GIVEN draggedEntity, offset != null and reorderableEntity '
+        'GIVEN draggedEntity, originalOrderId = -1, offset != null, '
+        'size and reorderableEntity '
         'WHEN calling #handleCreatedChild '
         'THEN should update maps as expected', () {
       // given
       controller.draggedEntity = givenDraggedEntity;
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        key: givenKey.value,
+        updatedOrderId: givenUpdatedOrderId,
+        originalOrderId: -1,
+      );
 
       // when
       final actual = controller.handleCreatedChild(
         offset: givenOffset,
         reorderableEntity: givenReorderableEntity,
+        size: givenSize,
       );
 
       // then
       final expectedUpdatedEntity = givenReorderableEntity.creationFinished(
         offset: givenOffset,
+        size: givenSize,
       );
       expect(actual, equals(expectedUpdatedEntity));
       expect(controller.offsetMap[givenUpdatedOrderId], equals(givenOffset));
@@ -188,7 +199,7 @@ void main() {
     });
 
     test(
-        'GIVEN size = null and reorderableEntity '
+        'GIVEN offset = null, size and reorderableEntity '
         'WHEN calling #handleCreatedChild '
         'THEN should update maps as expected', () {
       // given
@@ -197,11 +208,13 @@ void main() {
       final actual = controller.handleCreatedChild(
         offset: null,
         reorderableEntity: givenReorderableEntity,
+        size: givenSize,
       );
 
       // then
       final expectedUpdatedEntity = givenReorderableEntity.creationFinished(
         offset: null,
+        size: givenSize,
       );
       expect(actual, equals(expectedUpdatedEntity));
       expect(controller.offsetMap[givenUpdatedOrderId], isNull);

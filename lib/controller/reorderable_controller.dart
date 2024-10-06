@@ -54,6 +54,7 @@ abstract class ReorderableController {
   /// In the end, the [childrenOrderMap] and [childrenKeyMap] are updated.
   ReorderableEntity handleCreatedChild({
     required Offset? offset,
+    required Size size,
     required ReorderableEntity reorderableEntity,
   }) {
     final existingReorderableEntity = _getExistingEntityWhileDragging(
@@ -67,6 +68,7 @@ abstract class ReorderableController {
     }
     final updatedEntity = reorderableEntity.creationFinished(
       offset: offset,
+      size: size,
     );
     _updateMaps(reorderableEntity: updatedEntity);
 
@@ -193,7 +195,7 @@ abstract class ReorderableController {
     required ReorderableEntity reorderableEntity,
     required bool isBuildingOffset,
   }) {
-    if (draggedEntity != null) {
+    if (draggedEntity != null && !reorderableEntity.isNew) {
       final existingEntity = childrenOrderMap[reorderableEntity.updatedOrderId];
       return existingEntity?.copyWith(isBuildingOffset: isBuildingOffset);
     }
