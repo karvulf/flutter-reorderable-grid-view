@@ -1,3 +1,17 @@
+## 5.3.1
+🐛 **Bug Fixes**
+- **fixed `PageView.builder` issues**:
+  - resolved problems when using `PageView.builder`, improving stability during reordering
+  - special thanks to `FanYuanBo888` ([#121](https://github.com/karvulf/flutter-reorderable-grid-view/issues/121)) and `billizzard2` ([#113](https://github.com/karvulf/flutter-reorderable-grid-view/issues/113)) for reporting and contributing
+
+- **resolved reordering issue with scrolling**:
+  - fixed a bug where scrolling to the top while dragging and then back to the bottom caused issues with reordering children
+  - thanks to `davidmartos96` for identifying this issue ([#127](https://github.com/karvulf/flutter-reorderable-grid-view/issues/127))
+
+- **fixed drag and drop after resizing**:
+  - addressed an issue where drag and drop would stop working correctly after resizing the grid
+  - acknowledgements to `khjde1207` for the report ([#91](https://github.com/karvulf/flutter-reorderable-grid-view/issues/91))
+
 ## 5.3.0
 ⭐️ **New Features**
 * added parameter `reverse`
