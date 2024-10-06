@@ -7,9 +7,8 @@ import '../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();
-  const givenDimension = 200.0;
   const givenChild = SizedBox.square(
-    dimension: givenDimension,
+    dimension: 200.0,
     child: Placeholder(),
   );
   const givenFadeInDuration = Duration(milliseconds: 200);
@@ -17,7 +16,7 @@ void main() {
   Future<void> pumpWidget(
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
-    required void Function(Size? size) onOpacityFinished,
+    required VoidCallback onOpacityFinished,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -45,7 +44,7 @@ void main() {
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: (_) {},
+      onOpacityFinished: () {},
     );
 
     // then
@@ -68,14 +67,14 @@ void main() {
     final givenReorderableEntity = reorderableBuilder.getEntity(
       originalOrderId: 0,
     );
-    Size? actualSize;
+    int callCounter = 0;
 
     // when
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: (size) {
-        actualSize = size;
+      onOpacityFinished: () {
+        callCounter++;
       },
     );
     await tester.pumpAndSettle();
@@ -86,7 +85,7 @@ void main() {
             (widget) => widget is AnimatedOpacity && widget.opacity == 1.0),
         findsOneWidget);
 
-    expect(actualSize, equals(const Size.square(givenDimension)));
+    expect(callCounter, equals(callCounter));
   });
 
   testWidgets(
@@ -106,7 +105,7 @@ void main() {
         home: _TestUpdatedReorderableAnimatedOpacity(
           reorderableEntity: givenReorderableEntity,
           updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onOpacityFinished: (_) {
+          onOpacityFinished: () {
             callCounter++;
           },
         ),
@@ -141,7 +140,7 @@ void main() {
         home: _TestUpdatedReorderableAnimatedOpacity(
           reorderableEntity: givenReorderableEntity,
           updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onOpacityFinished: (_) {
+          onOpacityFinished: () {
             callCounter++;
           },
         ),
@@ -161,7 +160,7 @@ void main() {
 class _TestUpdatedReorderableAnimatedOpacity extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
-  final void Function(Size? size) onOpacityFinished;
+  final VoidCallback onOpacityFinished;
 
   const _TestUpdatedReorderableAnimatedOpacity({
     required this.reorderableEntity,

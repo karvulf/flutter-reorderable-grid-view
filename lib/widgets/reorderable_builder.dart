@@ -547,8 +547,6 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       }
     }
 
-    print('Created [${reorderableEntity.key}]: size $size');
-
     return reorderableController.handleCreatedChild(
       offset: offset,
       reorderableEntity: reorderableEntity,

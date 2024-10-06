@@ -137,7 +137,7 @@ class _ReorderableAnimatedPositionedState
         if (newEntity.hasSwappedOrder) {
           // important to prevent flickering for calculating new offsets
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            if(!mounted) return;
+            if (!mounted) return;
             _animationController.reset();
             _updateOffsetAnimation();
           });

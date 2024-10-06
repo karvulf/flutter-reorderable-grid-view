@@ -187,7 +187,6 @@ void main() {
         "THEN should update reorderableEntity and call onOpacityFinished",
         (tester) async {
       // given
-      const givenSize = Size(12.34, 56.78);
       ReorderableEntity? actualReorderableEntity;
 
       await pumpWidget(
@@ -199,15 +198,12 @@ void main() {
       );
 
       // when
-      findWidget<ReorderableAnimatedOpacity>().onOpacityFinished(givenSize);
-      await tester
-          .pump(); // calling pumpAndSettle would init the normal fade in
+      findWidget<ReorderableAnimatedOpacity>().onOpacityFinished();
+      // calling pumpAndSettle would init the normal fade in
+      await tester.pump();
 
       // then
-      final expectedReorderableEntity = givenReorderableEntity.copyWith(
-        size: givenSize,
-      );
-      expect(actualReorderableEntity, equals(expectedReorderableEntity));
+      expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(
           find.byWidgetPredicate((widget) =>
               widget is ReorderableDraggable &&
