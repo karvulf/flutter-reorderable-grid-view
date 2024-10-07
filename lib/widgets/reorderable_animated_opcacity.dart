@@ -30,15 +30,26 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
       _ReorderableAnimatedOpacityState();
 }
 
-class _ReorderableAnimatedOpacityState
-    extends State<ReorderableAnimatedOpacity> {
-  /// Value that will be used for the opacity animation.
-  double _opacity = 1.0;
+class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _updateOpacity();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: _duration,
+    );
+    _controller.addStatusListener((status) {
+      if (status.isCompleted) {
+        _handleAnimationCompleted();
+      }
+    });
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _controller.forward();
   }
 
   @override
@@ -49,61 +60,34 @@ class _ReorderableAnimatedOpacityState
 
     // that means that the [child] is new and will have a fade in animation
     if (oldEntity.key != entity.key && entity.isNew) {
-      _updateOpacity();
+      _restartAnimation();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      opacity: _opacity,
-      duration: _duration,
-      onEnd: _handleAnimationFinished,
+    return FadeTransition(
+      opacity: _animation,
       child: widget.child,
     );
   }
 
-  /// Will call [widget.onOpacityFinished] only when opacity changed to 1.0.
-  ///
-  /// 1.0 means that the widget appeared. When the animation ends because it
-  /// was set to 0.0, then the call shouldn't happen because that would be a
-  /// fade out which is not supported currently.
-  void _handleAnimationFinished() {
+  void _handleAnimationCompleted() {
     if (widget.reorderableEntity.isNew) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onOpacityFinished();
       });
-      print('finished opacity ${widget.reorderableEntity.key}');
     }
   }
 
-  /// [Duration] used for the opacity animation.
+  void _restartAnimation() {
+    _controller.reset();
+    _controller.duration = _duration;
+    _controller.forward();
+  }
+
   Duration get _duration {
-    if (widget.reorderableEntity.isNew) {
-      return widget.fadeInDuration;
-    } else {
-      return Duration.zero;
-    }
-  }
-
-  /// Does the fade in animation with a short delay (two frame callbacks) before starting.
-  void _updateOpacity() {
-    if (!widget.reorderableEntity.isNew) return;
-
-    print('start opacity ${widget.reorderableEntity.key}');
-    setState(() {
-      _opacity = 0.0;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // this prevents the flickering before updating the position
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _opacity = 1.0;
-          });
-        }
-      });
-    });
+    final isNew = widget.reorderableEntity.isNew;
+    return isNew ? widget.fadeInDuration : Duration.zero;
   }
 }
