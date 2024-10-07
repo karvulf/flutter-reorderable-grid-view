@@ -151,7 +151,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     return ReorderableAnimatedOpacity(
       reorderableEntity: widget.reorderableEntity,
       fadeInDuration: widget.fadeInDuration,
-      onOpacityFinished: () {
+      onAnimationStarted: () {
         final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
       },

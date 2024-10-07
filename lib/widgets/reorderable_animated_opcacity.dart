@@ -12,7 +12,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Called when the fade in animation was finished.
   ///
   /// [size] is calculated after the fade in and is related to the built [child].
-  final void Function() onOpacityFinished;
+  final void Function() onAnimationStarted;
 
   /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
@@ -20,7 +20,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   const ReorderableAnimatedOpacity({
     required this.reorderableEntity,
     required this.child,
-    required this.onOpacityFinished,
+    required this.onAnimationStarted,
     required this.fadeInDuration,
     Key? key,
   }) : super(key: key);
@@ -44,12 +44,11 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       duration: _duration,
     );
     _controller.addStatusListener((status) {
-      if (status.isCompleted) {
-        _handleAnimationCompleted();
-      }
+      if (status.isCompleted) {}
     });
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     _controller.forward();
+    _handleAnimationStarted();
   }
 
   @override
@@ -65,6 +64,12 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _animation,
@@ -72,18 +77,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
     );
   }
 
-  void _handleAnimationCompleted() {
-    if (widget.reorderableEntity.isNew) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onOpacityFinished();
-      });
-    }
-  }
-
   void _restartAnimation() {
     _controller.reset();
     _controller.duration = _duration;
     _controller.forward();
+    _handleAnimationStarted();
+  }
+
+  void _handleAnimationStarted() {
+    if (widget.reorderableEntity.isNew) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onAnimationStarted();
+      });
+    }
   }
 
   Duration get _duration {
