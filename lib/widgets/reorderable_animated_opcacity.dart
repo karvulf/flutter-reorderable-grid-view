@@ -33,8 +33,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
 class _ReorderableAnimatedOpacityState
     extends State<ReorderableAnimatedOpacity> {
   /// Value that will be used for the opacity animation.
-  late double _opacity;
-  late final _globalKey = GlobalKey();
+  double _opacity = 1.0;
 
   @override
   void initState() {
@@ -49,7 +48,7 @@ class _ReorderableAnimatedOpacityState
     final entity = widget.reorderableEntity;
 
     // that means that the [child] is new and will have a fade in animation
-    if (oldEntity.originalOrderId != entity.originalOrderId && entity.isNew) {
+    if (oldEntity.key != entity.key && entity.isNew) {
       _updateOpacity();
     }
   }
@@ -57,7 +56,6 @@ class _ReorderableAnimatedOpacityState
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
-      key: _globalKey,
       opacity: _opacity,
       duration: _duration,
       onEnd: _handleAnimationFinished,
@@ -71,10 +69,11 @@ class _ReorderableAnimatedOpacityState
   /// was set to 0.0, then the call shouldn't happen because that would be a
   /// fade out which is not supported currently.
   void _handleAnimationFinished() {
-    if (_opacity == 1.0) {
+    if (widget.reorderableEntity.isNew) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onOpacityFinished();
       });
+      print('finished opacity ${widget.reorderableEntity.key}');
     }
   }
 
@@ -89,7 +88,13 @@ class _ReorderableAnimatedOpacityState
 
   /// Does the fade in animation with a short delay (two frame callbacks) before starting.
   void _updateOpacity() {
-    _opacity = 0.0;
+    if (!widget.reorderableEntity.isNew) return;
+
+    print('start opacity ${widget.reorderableEntity.key}');
+    setState(() {
+      _opacity = 0.0;
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // this prevents the flickering before updating the position
       WidgetsBinding.instance.addPostFrameCallback((_) {
