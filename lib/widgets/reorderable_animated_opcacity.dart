@@ -42,12 +42,16 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       vsync: this,
       duration: _duration,
     );
-    _controller.addStatusListener((status) {
-      if (status.isCompleted) {}
-    });
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _controller.forward();
+
     _handleAnimationStarted();
+
+    // This post frame callback ensures the child stays invisible while its
+    // position is calculated. This prevents flickering when the child appears
+    // and moves to its new position.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.forward();
+    });
   }
 
   @override

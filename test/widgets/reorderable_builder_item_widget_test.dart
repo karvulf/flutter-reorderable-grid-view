@@ -183,7 +183,7 @@ void main() {
   group('#calling functions', () {
     testWidgets(
         "GIVEN [ReorderableBuilderItem] "
-        "WHEN calling onOpacityFinished "
+        "WHEN calling onAnimationStarted "
         "THEN should update reorderableEntity and call onOpacityFinished",
         (tester) async {
       // given
@@ -198,7 +198,7 @@ void main() {
       );
 
       // when
-      findWidget<ReorderableAnimatedOpacity>().onOpacityFinished();
+      findWidget<ReorderableAnimatedOpacity>().onAnimationStarted();
       // calling pumpAndSettle would init the normal fade in
       await tester.pump();
 
