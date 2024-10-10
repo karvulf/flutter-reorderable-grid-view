@@ -49,6 +49,7 @@ void main() {
         callCounter++;
       },
     );
+    await tester.pump();
     await tester.pump(givenFadeInDuration);
 
     // then
