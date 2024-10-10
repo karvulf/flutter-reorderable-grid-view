@@ -1,3 +1,11 @@
+## 5.3.2
+🐛 **Bug Fixes**
+- **fixed reordering issue**:
+  - reordering didn't work correctly after adding a new item
+  - special thanks to `OICQ469` ([#135](https://github.com/karvulf/flutter-reorderable-grid-view/issues/135))
+- **fixed fade in**
+  - the fade in didn't appear when a new child was added
+
 ## 5.3.1
 🐛 **Bug Fixes**
 - **fixed `PageView.builder` issues**:
