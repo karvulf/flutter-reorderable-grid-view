@@ -35,14 +35,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const _startCounter = 80;
+  static const _startCounter = 200;
 
   final lockedIndices = <int>[0, 4];
   final nonDraggableIndices = [0, 2, 3];
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridView;
+  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -197,7 +197,6 @@ class _MyAppState extends State<MyApp> {
       case ReorderableType.gridViewBuilder:
         return ReorderableBuilder.builder(
           key: Key(_gridViewKey.toString()),
-          positionDuration: const Duration(seconds: 1),
           onReorder: _handleReorder,
           lockedIndices: lockedIndices,
           nonDraggableIndices: nonDraggableIndices,
@@ -208,7 +207,6 @@ class _MyAppState extends State<MyApp> {
           childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,
-              scrollDirection: Axis.horizontal,
               controller: _scrollController,
               itemCount: children.length,
               itemBuilder: (context, index) {

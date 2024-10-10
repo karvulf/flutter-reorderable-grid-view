@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 
 /// Responsible for the fade in animation when [child] is created.
 class ReorderableAnimatedOpacity extends StatefulWidget {
@@ -9,10 +10,8 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// [child] that could get the fade in animation.
   final Widget child;
 
-  /// Called when the fade in animation was finished.
-  ///
-  /// [size] is calculated after the fade in and is related to the built [child].
-  final void Function() onOpacityFinished;
+  /// Called when the fade in animation has started for a new child.
+  final void Function() onAnimationStarted;
 
   /// Duration for the fade in animation when [child] appears for the first time.
   final Duration fadeInDuration;
@@ -20,7 +19,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   const ReorderableAnimatedOpacity({
     required this.reorderableEntity,
     required this.child,
-    required this.onOpacityFinished,
+    required this.onAnimationStarted,
     required this.fadeInDuration,
     Key? key,
   }) : super(key: key);
@@ -30,16 +29,29 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
       _ReorderableAnimatedOpacityState();
 }
 
-class _ReorderableAnimatedOpacityState
-    extends State<ReorderableAnimatedOpacity> {
-  /// Value that will be used for the opacity animation.
-  late double _opacity;
-  late final _globalKey = GlobalKey();
+class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _updateOpacity();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: _duration,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+
+    _handleAnimationStarted();
+
+    // This post frame callback ensures the child stays invisible while its
+    // position is calculated. This prevents flickering when the child appears
+    // and moves to its new position.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.forward();
+    });
   }
 
   @override
@@ -49,56 +61,63 @@ class _ReorderableAnimatedOpacityState
     final entity = widget.reorderableEntity;
 
     // that means that the [child] is new and will have a fade in animation
-    if (oldEntity.originalOrderId != entity.originalOrderId && entity.isNew) {
-      _updateOpacity();
+    if (oldEntity.key != entity.key && entity.isNew) {
+      _restartAnimation();
     }
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      key: _globalKey,
-      opacity: _opacity,
-      duration: _duration,
-      onEnd: _handleAnimationFinished,
+    return FadeTransition(
+      opacity: _animation,
       child: widget.child,
     );
   }
 
-  /// Will call [widget.onOpacityFinished] only when opacity changed to 1.0.
+  void _restartAnimation() {
+    _controller.reset();
+    _controller.duration = _duration;
+    _controller.forward();
+    _handleAnimationStarted();
+  }
+
+  /// Called after the animation has started.
   ///
-  /// 1.0 means that the widget appeared. When the animation ends because it
-  /// was set to 0.0, then the call shouldn't happen because that would be a
-  /// fade out which is not supported currently.
-  void _handleAnimationFinished() {
-    if (_opacity == 1.0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onOpacityFinished();
-      });
-    }
-  }
-
-  /// [Duration] used for the opacity animation.
-  Duration get _duration {
+  /// The [widget.onAnimationStarted] callback is only triggered for newly
+  /// added children. Since a new child may appear in the position previously
+  /// occupied by a different child, it is crucial to verify the `.isNew` flag
+  /// to ensure correct behavior.
+  ///
+  /// Two frame callbacks are utilized to guarantee that the "onCreated"
+  /// callback from [ReorderableInitChild] is invoked before
+  /// [widget.onAnimationStarted]. However, this approach is not optimal and
+  /// should be refined in the future.
+  void _handleAnimationStarted() {
     if (widget.reorderableEntity.isNew) {
-      return widget.fadeInDuration;
-    } else {
-      return Duration.zero;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onAnimationStarted();
+        });
+      });
     }
   }
 
-  /// Does the fade in animation with a short delay (two frame callbacks) before starting.
-  void _updateOpacity() {
-    _opacity = 0.0;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // this prevents the flickering before updating the position
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _opacity = 1.0;
-          });
-        }
-      });
-    });
+  /// Returns the animation duration for [widget.child].
+  ///
+  /// Only newly added children should have a non-zero duration to show the
+  /// animation. All other children are still "animated," but since the
+  /// animation shouldn't be visible to the user, the duration is set to zero.
+  ///
+  /// The duration remains important because, without it, [widget.child] would
+  /// never appear, as the opacity would stay at 0.
+  Duration get _duration {
+    final isNew = widget.reorderableEntity.isNew;
+    return isNew ? widget.fadeInDuration : Duration.zero;
   }
 }

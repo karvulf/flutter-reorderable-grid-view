@@ -54,20 +54,10 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
+    return SizedBox(
       key: _globalKey,
-      visible: visible,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainState: true,
       child: widget.child,
     );
-  }
-
-  /// Returns true if "isBuildingOffset" of [widget.reorderableEntity] is false.
-  bool get visible {
-    final reorderableEntity = widget.reorderableEntity;
-    return !reorderableEntity.isBuildingOffset;
   }
 
   void _handleCreatedChild() {

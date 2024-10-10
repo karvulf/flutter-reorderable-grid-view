@@ -52,46 +52,8 @@ void main() {
     expect(actualGlobalKey, isNotNull);
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is Visibility &&
-            widget.key != null &&
-            !widget.visible &&
-            widget.maintainAnimation &&
-            widget.maintainSize &&
-            widget.maintainState &&
-            widget.child == givenChild),
-        findsOneWidget);
-  });
-
-  testWidgets(
-      "GIVEN reorderableEntity with isBuildingOffset = false "
-      "WHEN pumping [ReorderableInitChild] "
-      "THEN should show expected widgets", (WidgetTester tester) async {
-    // given
-    final givenReorderableEntity = reorderableBuilder.getEntity(
-      isBuildingOffset: false,
-    );
-    GlobalKey? actualGlobalKey;
-
-    // when
-    await pumpWidget(
-      tester,
-      reorderableEntity: givenReorderableEntity,
-      onCreated: (globalKey) {
-        actualGlobalKey = globalKey;
-      },
-    );
-    await tester.pump();
-
-    // then
-    expect(actualGlobalKey, isNotNull);
-    expect(
-        find.byWidgetPredicate((widget) =>
-            widget is Visibility &&
-            widget.key != null &&
-            widget.visible &&
-            widget.maintainAnimation &&
-            widget.maintainSize &&
-            widget.maintainState &&
+            widget is SizedBox &&
+            widget.key is GlobalKey &&
             widget.child == givenChild),
         findsOneWidget);
   });

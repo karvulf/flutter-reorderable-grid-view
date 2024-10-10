@@ -11,19 +11,19 @@ void main() {
     dimension: 200.0,
     child: Placeholder(),
   );
-  const givenFadeInDuration = Duration(milliseconds: 200);
+  const givenFadeInDuration = Duration(milliseconds: 1000);
 
   Future<void> pumpWidget(
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
-    required VoidCallback onOpacityFinished,
+    required VoidCallback onAnimationStarted,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ReorderableAnimatedOpacity(
               fadeInDuration: givenFadeInDuration,
-              onOpacityFinished: onOpacityFinished,
+              onAnimationStarted: onAnimationStarted,
               reorderableEntity: reorderableEntity,
               child: givenChild,
             ),
@@ -32,37 +32,40 @@ void main() {
       );
 
   testWidgets(
-      'GIVEN fadeInDuration and reorderableEntity which is new '
+      'GIVEN fadeInDuration and reorderableEntity is new '
       'WHEN pumping [ReorderableAnimatedOpacity] '
       'THEN should show expected AnimatedOpacity', (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
       originalOrderId: -1,
     );
+    int callCounter = 0;
 
     // when
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: () {},
+      onAnimationStarted: () {
+        callCounter++;
+      },
     );
+    await tester.pump();
+    await tester.pump(givenFadeInDuration);
 
     // then
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is AnimatedOpacity &&
-            widget.key is GlobalKey &&
-            widget.opacity == 0.0 &&
-            widget.duration == givenFadeInDuration &&
+            widget is FadeTransition &&
+            widget.opacity.value == 1.0 &&
             widget.child == givenChild),
         findsOneWidget);
+    expect(callCounter, equals(1));
   });
 
   testWidgets(
-      'GIVEN reorderableEntity which is NOT new and pumped [ReorderableAnimatedOpacity] '
-      'WHEN animation ends '
-      'THEN should call onOpacityFinished with expected size',
-      (WidgetTester tester) async {
+      'GIVEN reorderableEntity which is NOT new  '
+      'WHEN pumping [ReorderableAnimatedOpacity] '
+      'THEN should NOT call onAnimationStarted', (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
       originalOrderId: 0,
@@ -73,7 +76,7 @@ void main() {
     await pumpWidget(
       tester,
       reorderableEntity: givenReorderableEntity,
-      onOpacityFinished: () {
+      onAnimationStarted: () {
         callCounter++;
       },
     );
@@ -81,11 +84,11 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is AnimatedOpacity && widget.opacity == 1.0),
+        find.byWidgetPredicate((widget) =>
+            widget is FadeTransition && widget.opacity.value == 1.0),
         findsOneWidget);
 
-    expect(callCounter, equals(callCounter));
+    expect(callCounter, equals(0));
   });
 
   testWidgets(
@@ -94,9 +97,12 @@ void main() {
       'THEN should call onOpacityFinished only one time (from initState)',
       (WidgetTester tester) async {
     // given
-    final givenReorderableEntity = reorderableBuilder.getEntity();
+    final givenReorderableEntity = reorderableBuilder.getEntity(
+      key: '0',
+      originalOrderId: -1,
+    );
     final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
-      originalOrderId: 123,
+      key: '1',
     );
     int callCounter = 0;
 
@@ -105,7 +111,7 @@ void main() {
         home: _TestUpdatedReorderableAnimatedOpacity(
           reorderableEntity: givenReorderableEntity,
           updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onOpacityFinished: () {
+          onAnimationStarted: () {
             callCounter++;
           },
         ),
@@ -128,9 +134,11 @@ void main() {
       (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
-      originalOrderId: 0,
+      key: '0',
+      originalOrderId: -1,
     );
     final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+      key: '1',
       originalOrderId: -1,
     );
     int callCounter = 0;
@@ -140,17 +148,18 @@ void main() {
         home: _TestUpdatedReorderableAnimatedOpacity(
           reorderableEntity: givenReorderableEntity,
           updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onOpacityFinished: () {
+          onAnimationStarted: () {
             callCounter++;
           },
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump(givenFadeInDuration);
 
     // when
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
+    await tester.pump();
 
     // then
     expect(callCounter, equals(2));
@@ -160,12 +169,12 @@ void main() {
 class _TestUpdatedReorderableAnimatedOpacity extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
-  final VoidCallback onOpacityFinished;
+  final VoidCallback onAnimationStarted;
 
   const _TestUpdatedReorderableAnimatedOpacity({
     required this.reorderableEntity,
     required this.updatedReorderableEntity,
-    required this.onOpacityFinished,
+    required this.onAnimationStarted,
   });
 
   @override
@@ -199,7 +208,7 @@ class _TestUpdatedReorderableAnimatedOpacityState
           ),
           ReorderableAnimatedOpacity(
             fadeInDuration: Duration.zero,
-            onOpacityFinished: widget.onOpacityFinished,
+            onAnimationStarted: widget.onAnimationStarted,
             reorderableEntity: reorderableEntity,
             child: const Placeholder(),
           ),
