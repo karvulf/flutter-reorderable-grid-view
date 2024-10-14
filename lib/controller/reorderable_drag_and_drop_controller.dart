@@ -40,11 +40,14 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// After dragging a child, [scrollOffset] is always updated.
   Offset scrollOffset = Offset.zero;
 
+  Axis _scrollDirection = Axis.vertical;
+
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
     required bool isScrollableOutside,
+    required Axis scrollDirection,
   }) {
     _releasedReorderableEntity = null;
     this.lockedIndices = lockedIndices;
@@ -52,6 +55,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
+    _scrollDirection = scrollDirection;
   }
 
   bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {
@@ -76,7 +80,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
       final draggedOrderId = super.draggedEntity!.updatedOrderId;
       final difference = draggedOrderId - collisionOrderId;
-
+      print('difference $difference');
       if (difference > 1 || difference < -1) {
         // print('_draggedEntity $_draggedEntity');
       }
@@ -221,19 +225,32 @@ class ReorderableDragAndDropController extends ReorderableController {
     required Offset draggedOffset,
   }) {
     for (final entry in childrenKeyMap.entries) {
-      final localPosition = entry.value.updatedOffset;
-      final size = entry.value.size;
+      final reorderableEntity = entry.value;
+      final localPosition = reorderableEntity.updatedOffset;
+      final updatedOrderId = reorderableEntity.updatedOrderId;
+      final size = reorderableEntity.size;
 
       if (entry.key == keyValue) {
         continue;
       }
 
-      // checking collision with full item size and local position
       if (draggedOffset.dx >= localPosition.dx &&
           draggedOffset.dy >= localPosition.dy &&
           draggedOffset.dx <= localPosition.dx + size.width &&
           draggedOffset.dy <= localPosition.dy + size.height) {
-        return entry.value;
+        return reorderableEntity;
+      }
+
+      // todo: reverse macht definitiv noch probleme
+      final isVertical = _scrollDirection == Axis.vertical;
+      final dragPosition = isVertical ? draggedOffset.dy : draggedOffset.dx;
+      final maxPosition = isVertical
+          ? localPosition.dy + size.height
+          : localPosition.dx + size.width;
+      final isLastItem = updatedOrderId == childrenKeyMap.length - 1;
+
+      if (isLastItem && (draggedOffset.dy > maxPosition || dragPosition < 0)) {
+        return reorderableEntity;
       }
     }
     return null;
