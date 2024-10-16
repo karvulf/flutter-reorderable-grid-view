@@ -40,11 +40,19 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// After dragging a child, [scrollOffset] is always updated.
   Offset scrollOffset = Offset.zero;
 
+  ///
+  Axis _scrollDirection = Axis.vertical;
+
+  ///
+  bool _reverse = false;
+
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
     required bool isScrollableOutside,
+    required Axis scrollDirection,
+    required bool reverse,
   }) {
     _releasedReorderableEntity = null;
     this.lockedIndices = lockedIndices;
@@ -52,6 +60,8 @@ class ReorderableDragAndDropController extends ReorderableController {
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
+    _scrollDirection = scrollDirection;
+    _reverse = reverse;
   }
 
   bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {
@@ -76,7 +86,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
       final draggedOrderId = super.draggedEntity!.updatedOrderId;
       final difference = draggedOrderId - collisionOrderId;
-
+      print('difference $difference');
       if (difference > 1 || difference < -1) {
         // print('_draggedEntity $_draggedEntity');
       }
@@ -220,23 +230,56 @@ class ReorderableDragAndDropController extends ReorderableController {
     required dynamic keyValue,
     required Offset draggedOffset,
   }) {
+    final result = _isDraggingOutOfArea(draggedOffset: draggedOffset);
+
+    if (result != null) return result;
+
     for (final entry in childrenKeyMap.entries) {
-      final localPosition = entry.value.updatedOffset;
-      final size = entry.value.size;
+      if (entry.key == keyValue) continue;
 
-      if (entry.key == keyValue) {
-        continue;
-      }
+      final reorderableEntity = entry.value;
 
-      // checking collision with full item size and local position
-      if (draggedOffset.dx >= localPosition.dx &&
-          draggedOffset.dy >= localPosition.dy &&
-          draggedOffset.dx <= localPosition.dx + size.width &&
-          draggedOffset.dy <= localPosition.dy + size.height) {
-        return entry.value;
+      if (draggedOffset.dx >= reorderableEntity.minDx &&
+          draggedOffset.dy >= reorderableEntity.minDy &&
+          draggedOffset.dx <= reorderableEntity.maxDx &&
+          draggedOffset.dy <= reorderableEntity.maxDy) {
+        return reorderableEntity;
       }
     }
     return null;
+  }
+
+  // todo muss noch geprüft werden auf horizontales scrolling
+  /// Checks if the dragged item is outside the reorderable area.
+  ///
+  /// This method determines if the dragged item, based on its `draggedOffset`,
+  /// is outside the valid reorderable bounds. It accounts for the scroll
+  /// direction and list order (reversed or not).
+  ///
+  /// Returns the `lastItem` if the item is out of bounds, otherwise returns
+  /// `null`.
+  ReorderableEntity? _isDraggingOutOfArea({
+    required Offset draggedOffset,
+  }) {
+    final isVertical = _scrollDirection == Axis.vertical;
+
+    final firstItem = childrenOrderMap[0]!;
+    final lastItem = childrenOrderMap[childrenKeyMap.length - 1]!;
+
+    final firstPosition = isVertical
+        ? (_reverse ? firstItem.maxDy : firstItem.minDy)
+        : (_reverse ? firstItem.maxDx : firstItem.minDx);
+    final lastPosition = isVertical
+        ? (_reverse ? lastItem.minDy : lastItem.maxDy)
+        : (_reverse ? lastItem.minDx : lastItem.maxDx);
+
+    final dragPosition = isVertical ? draggedOffset.dy : draggedOffset.dx;
+
+    final isOutOfArea = _reverse
+        ? (dragPosition < lastPosition || dragPosition > firstPosition)
+        : (dragPosition > lastPosition || dragPosition < firstPosition);
+
+    return isOutOfArea ? lastItem : null;
   }
 
   /// Returns a list of all updated positions containing old and new index.
