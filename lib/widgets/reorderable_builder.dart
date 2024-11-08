@@ -14,7 +14,7 @@ typedef DraggableBuilder = Widget Function(
 
 typedef ReorderedListFunction = List Function(List);
 typedef OnReorderCallback = void Function(ReorderedListFunction);
-typedef ItemCallback = void Function(int intdex);
+typedef ItemCallback = void Function(int index);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
