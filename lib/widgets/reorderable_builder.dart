@@ -12,15 +12,15 @@ typedef DraggableBuilder = Widget Function(
   List<Widget> children,
 );
 
-typedef ReorderedListFunction = List Function(List);
-typedef OnReorderCallback = void Function(ReorderedListFunction);
+typedef ReorderedListFunction<T> = List<T> Function(List<T>);
+typedef OnReorderCallback<T> = void Function(ReorderedListFunction<T>);
 typedef ItemCallback = void Function(int index);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
-class ReorderableBuilder extends StatefulWidget {
+class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultLockedIndices = <int>[];
   static const _defaultNonDraggableIndices = <int>[];
   static const _defaultEnableLongPress = true;
@@ -157,7 +157,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// and cast it afterward to your specific list type.
   /// This mechanism ensures that your list is correctly updated. You can then
   /// use the updated items returned by this function.
-  final OnReorderCallback? onReorder;
+  final OnReorderCallback<T>? onReorder;
 
   /// Callback when dragging starts with the index where it started.
   ///
@@ -248,8 +248,7 @@ class ReorderableBuilder extends StatefulWidget {
   State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState extends State<ReorderableBuilder>
-    with WidgetsBindingObserver {
+class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
@@ -287,8 +286,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       final orientationAfter = MediaQuery.of(context).orientation;
       final screenSizeAfter = MediaQuery.of(context).size;
 
-      if (orientationBefore != orientationAfter ||
-          screenSizeBefore != screenSizeAfter) {
+      if (orientationBefore != orientationAfter || screenSizeBefore != screenSizeAfter) {
         _reorderableController.handleDeviceOrientationChanged();
         _reorderableController.scrollOffset == _getScrollOffset();
         setState(() {});
@@ -378,8 +376,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
     required ReorderableEntity? currentDraggedEntity,
     required int index,
   }) {
-    bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
-        !widget.lockedIndices.contains(index);
+    bool isDraggable = !widget.nonDraggableIndices.contains(index) && !widget.lockedIndices.contains(index);
 
     return ReorderableBuilderItem(
       reorderableEntity: reorderableEntity,
@@ -388,8 +385,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
       positionDuration: widget.positionDuration,
       onMovingFinished: _handleMovingFinished,
       onCreated: _handleCreatedChild,
-      releasedReorderableEntity:
-          _reorderableController.releasedReorderableEntity,
+      releasedReorderableEntity: _reorderableController.releasedReorderableEntity,
       scrollOffset: _getScrollOffset(),
       releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
