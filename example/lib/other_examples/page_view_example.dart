@@ -92,9 +92,8 @@ class _RecorderableItemState extends State<RecorderableItem> {
       data: index,
       child: Container(
         decoration: BoxDecoration(
-          color: lockedIndices.contains(index)
-              ? Theme.of(context).disabledColor
-              : Theme.of(context).colorScheme.primary,
+          color:
+              lockedIndices.contains(index) ? Theme.of(context).disabledColor : Theme.of(context).colorScheme.primary,
         ),
         height: 100.0,
         width: 100.0,
@@ -119,9 +118,9 @@ class _RecorderableItemState extends State<RecorderableItem> {
     _showSnackbar(text: 'Dragged child updated position to $index');
   }
 
-  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+  void _handleReorder(ReorderedListFunction<int> reorderedListFunction) {
     setState(() {
-      children = reorderedListFunction(children) as List<int>;
+      children = reorderedListFunction(children);
     });
   }
 
