@@ -20,6 +20,9 @@ typedef ItemCallback = void Function(int index);
 ///
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
+///
+/// The generic type <T> defines the list type after reordering with
+/// [ReorderedListFunction] in [onReorder].
 class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultLockedIndices = <int>[];
   static const _defaultNonDraggableIndices = <int>[];

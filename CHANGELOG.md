@@ -6,8 +6,8 @@
   - special thanks to `wuhangandroid` and `Gloomy699` ([#57](https://github.com/karvulf/flutter-reorderable-grid-view/issues/57))
 
 ⭐️ **New Features**
-- added generic type for `ReorderableBuilder`
-  - that removes the cast of `reorderListFunction` in `onReorder`
+- added a generic type for `ReorderableBuilder`
+  - eliminates the need to cast `reorderListFunction` in `onReorder`
   - special thanks to `KevenMelo` ([#142](https://github.com/karvulf/flutter-reorderable-grid-view/issues/142))
 
 ## 5.3.2
