@@ -1,3 +1,10 @@
+## 5.4.0
+🐛 **Bug Fixes**
+- dragging is now restricted to a single contact at a time
+  - previously, initiating a drag with multiple contacts was possible, but only one contact would be dragged
+  - this issue has been resolved to prevent confusion
+  - special thanks to `wuhangandroid` and `Gloomy699` ([#57](https://github.com/karvulf/flutter-reorderable-grid-view/issues/57))
+
 ## 5.3.2
 🐛 **Bug Fixes**
 - **fixed reordering issue**:
