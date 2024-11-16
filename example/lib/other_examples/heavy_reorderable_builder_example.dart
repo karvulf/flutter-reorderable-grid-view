@@ -31,9 +31,9 @@ class _MyAppState extends State<MyApp> {
       ),
       body: ReorderableBuilder.builder(
         scrollController: _scrollController,
-        onReorder: (ReorderedListFunction reorderedListFunction) {
+        onReorder: (ReorderedListFunction<String> reorderedListFunction) {
           setState(() {
-            _children = reorderedListFunction(_children) as List<String>;
+            _children = reorderedListFunction(_children);
           });
         },
         childBuilder: (itemBuilder) {

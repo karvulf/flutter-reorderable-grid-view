@@ -12,15 +12,18 @@ typedef DraggableBuilder = Widget Function(
   List<Widget> children,
 );
 
-typedef ReorderedListFunction = List Function(List);
-typedef OnReorderCallback = void Function(ReorderedListFunction);
+typedef ReorderedListFunction<T> = List<T> Function(List<T>);
+typedef OnReorderCallback<T> = void Function(ReorderedListFunction<T>);
 typedef ItemCallback = void Function(int index);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
-class ReorderableBuilder extends StatefulWidget {
+///
+/// The generic type <T> defines the list type after reordering with
+/// [ReorderedListFunction] in [onReorder].
+class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultLockedIndices = <int>[];
   static const _defaultNonDraggableIndices = <int>[];
   static const _defaultEnableLongPress = true;
@@ -157,7 +160,7 @@ class ReorderableBuilder extends StatefulWidget {
   /// and cast it afterward to your specific list type.
   /// This mechanism ensures that your list is correctly updated. You can then
   /// use the updated items returned by this function.
-  final OnReorderCallback? onReorder;
+  final OnReorderCallback<T>? onReorder;
 
   /// Callback when dragging starts with the index where it started.
   ///
