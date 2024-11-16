@@ -92,8 +92,9 @@ class _RecorderableItemState extends State<RecorderableItem> {
       data: index,
       child: Container(
         decoration: BoxDecoration(
-          color:
-              lockedIndices.contains(index) ? Theme.of(context).disabledColor : Theme.of(context).colorScheme.primary,
+          color: lockedIndices.contains(index)
+              ? Theme.of(context).disabledColor
+              : Theme.of(context).colorScheme.primary,
         ),
         height: 100.0,
         width: 100.0,

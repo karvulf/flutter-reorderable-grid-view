@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import './widgets/change_children_bar.dart  ';
+import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
 
 enum ReorderableType {
   gridView,
@@ -239,8 +239,9 @@ class _MyAppState extends State<MyApp> {
       data: index,
       child: Container(
         decoration: BoxDecoration(
-          color:
-              lockedIndices.contains(index) ? Theme.of(context).disabledColor : Theme.of(context).colorScheme.primary,
+          color: lockedIndices.contains(index)
+              ? Theme.of(context).disabledColor
+              : Theme.of(context).colorScheme.primary,
         ),
         height: 100.0,
         width: 100.0,
@@ -265,9 +266,9 @@ class _MyAppState extends State<MyApp> {
     _showSnackbar(text: 'Dragged child updated position to $index');
   }
 
-  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+  void _handleReorder(ReorderedListFunction<int> reorderedListFunction) {
     setState(() {
-      children = reorderedListFunction(children) as List<int>;
+      children = reorderedListFunction(children);
     });
   }
 

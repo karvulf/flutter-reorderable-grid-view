@@ -248,7 +248,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
   State<ReorderableBuilder> createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBindingObserver {
+class _ReorderableBuilderState extends State<ReorderableBuilder>
+    with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
@@ -286,7 +287,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
       final orientationAfter = MediaQuery.of(context).orientation;
       final screenSizeAfter = MediaQuery.of(context).size;
 
-      if (orientationBefore != orientationAfter || screenSizeBefore != screenSizeAfter) {
+      if (orientationBefore != orientationAfter ||
+          screenSizeBefore != screenSizeAfter) {
         _reorderableController.handleDeviceOrientationChanged();
         _reorderableController.scrollOffset == _getScrollOffset();
         setState(() {});
@@ -376,7 +378,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
     required ReorderableEntity? currentDraggedEntity,
     required int index,
   }) {
-    bool isDraggable = !widget.nonDraggableIndices.contains(index) && !widget.lockedIndices.contains(index);
+    bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
+        !widget.lockedIndices.contains(index);
 
     return ReorderableBuilderItem(
       reorderableEntity: reorderableEntity,
@@ -385,7 +388,8 @@ class _ReorderableBuilderState extends State<ReorderableBuilder> with WidgetsBin
       positionDuration: widget.positionDuration,
       onMovingFinished: _handleMovingFinished,
       onCreated: _handleCreatedChild,
-      releasedReorderableEntity: _reorderableController.releasedReorderableEntity,
+      releasedReorderableEntity:
+          _reorderableController.releasedReorderableEntity,
       scrollOffset: _getScrollOffset(),
       releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
