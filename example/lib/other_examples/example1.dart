@@ -22,11 +22,16 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final generatedChildren = List.generate(
       _fruits.length,
-      (index) => Container(
+      (index) => InkWell(
         key: Key(_fruits.elementAt(index)),
-        color: Colors.lightBlue,
-        child: Text(
-          _fruits.elementAt(index),
+        onTap: () {
+          debugPrint('hello');
+        },
+        child: ColoredBox(
+          color: Colors.lightBlue,
+          child: Text(
+            _fruits.elementAt(index),
+          ),
         ),
       ),
     );

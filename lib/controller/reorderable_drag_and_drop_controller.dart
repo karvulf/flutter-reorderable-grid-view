@@ -379,8 +379,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// items on position 2 and 3 by creating a sublist containing [2, 3] and
   /// changing them to [3, 2] and inserting this sublist afterwards to the list
   /// and getting [0, 1, 3, 2, 4].
-  List reorderList({
-    required List items,
+  List<T> reorderList<T>({
+    required List<T> items,
     required List<ReorderUpdateEntity> reorderUpdateEntities,
   }) {
     final updatedItems = items.toList();

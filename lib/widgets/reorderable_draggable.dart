@@ -111,28 +111,41 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     if (!widget.enableDraggable) {
       return child;
+    }
+
+    late final Widget draggable;
+
+    // if delay is Duration.zero, LongPressDraggable breaks onTap for child
+    if (!widget.enableLongPress || widget.longPressDelay == Duration.zero) {
+      draggable = Draggable(
+        onDragStarted: _handleDragStarted,
+        onDraggableCanceled: (Velocity velocity, Offset offset) {
+          _handleDragEnd(offset);
+        },
+        feedback: feedback,
+        data: data,
+        child: child,
+      );
     } else {
-      return Visibility(
-        visible: visible,
-        maintainAnimation: true,
-        maintainSize: true,
-        maintainState: true,
-        child: widget.currentDraggedEntity != null
-            ? child
-            : LongPressDraggable(
-                delay: widget.enableLongPress
-                    ? widget.longPressDelay
-                    : Duration.zero,
-                onDragStarted: _handleDragStarted,
-                onDraggableCanceled: (Velocity velocity, Offset offset) {
-                  _handleDragEnd(offset);
-                },
-                feedback: feedback,
-                data: data,
-                child: child,
-              ),
+      draggable = LongPressDraggable(
+        delay: widget.longPressDelay,
+        onDragStarted: _handleDragStarted,
+        onDraggableCanceled: (Velocity velocity, Offset offset) {
+          _handleDragEnd(offset);
+        },
+        feedback: feedback,
+        data: data,
+        child: child,
       );
     }
+
+    return Visibility(
+      visible: visible,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainState: true,
+      child: widget.currentDraggedEntity != null ? child : draggable,
+    );
   }
 
   /// Called after dragging started.
