@@ -34,9 +34,9 @@ class _MyAppState extends State<MyApp> {
     return Scaffold(
       body: ReorderableBuilder(
         scrollController: _scrollController,
-        onReorder: (ReorderedListFunction reorderedListFunction) {
+        onReorder: (ReorderedListFunction<String> reorderedListFunction) {
           setState(() {
-            _fruits = reorderedListFunction(_fruits) as List<String>;
+            _fruits = reorderedListFunction(_fruits);
           });
         },
         children: generatedChildren,

@@ -54,10 +54,8 @@ class _MyAppState extends State<MyApp> {
         fadeInDuration: const Duration(milliseconds: 1000),
         dragChildBoxDecoration:
             const BoxDecoration(color: CupertinoColors.transparent),
-        onReorder: (ReorderedListFunction reorderedListFunction) {
-          final updatedFruits = reorderedListFunction(
-            <String>[..._fruits, 'button'],
-          ) as List<String>;
+        onReorder: (ReorderedListFunction<String> reorderedListFunction) {
+          final updatedFruits = reorderedListFunction([..._fruits, 'button']);
           setState(() {
             _fruits = updatedFruits..removeLast();
           });

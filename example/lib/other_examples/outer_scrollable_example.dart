@@ -30,9 +30,9 @@ class _MyAppState extends State<MyApp> {
               child: ColoredBox(color: Colors.green),
             ),
             ReorderableBuilder.builder(
-              onReorder: (ReorderedListFunction reorderedListFunction) {
+              onReorder: (ReorderedListFunction<int> reorderedListFunction) {
                 setState(() {
-                  children = reorderedListFunction(children) as List<int>;
+                  children = reorderedListFunction(children);
                 });
               },
               reverse: true,
