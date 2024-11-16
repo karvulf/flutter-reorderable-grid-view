@@ -10,6 +10,11 @@
   - eliminates the need to cast `reorderListFunction` in `onReorder`
   - special thanks to `KevenMelo` ([#142](https://github.com/karvulf/flutter-reorderable-grid-view/issues/142))
 
+ℹ️ **Information**
+- added a new example for `DefaultTabController`
+  - it was unclear how the `ReorderableBuilder` works with `DefaultTabController` and `TabBarView`
+  - special thanks to `isenbj` and `emavgl` ([#78](https://github.com/karvulf/flutter-reorderable-grid-view/issues/78))
+
 ## 5.3.2
 🐛 **Bug Fixes**
 - **fixed reordering issue**:
