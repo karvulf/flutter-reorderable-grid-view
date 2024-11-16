@@ -248,10 +248,10 @@ class ReorderableBuilder<T> extends StatefulWidget {
         super(key: key);
 
   @override
-  State<ReorderableBuilder> createState() => _ReorderableBuilderState();
+  State<ReorderableBuilder<T>> createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState extends State<ReorderableBuilder>
+class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
     with WidgetsBindingObserver {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
@@ -270,7 +270,7 @@ class _ReorderableBuilderState extends State<ReorderableBuilder>
   }
 
   @override
-  void didUpdateWidget(covariant ReorderableBuilder oldWidget) {
+  void didUpdateWidget(covariant ReorderableBuilder<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final children = widget.children;

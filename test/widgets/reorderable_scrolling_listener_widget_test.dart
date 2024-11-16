@@ -48,10 +48,17 @@ void main() {
     required WidgetTester tester,
     required Finder startGestureFinder,
     required Offset moveOffset,
+    bool isScrollableInside = false,
   }) async {
     final firstLocation = tester.getCenter(startGestureFinder);
     final gesture = await tester.startGesture(firstLocation, pointer: 7);
     await tester.pump(kLongPressTimeout);
+
+    // won't trigger onDragStarted to the right time if the move is not started
+    if (isScrollableInside) {
+      await gesture.moveTo(Offset.zero);
+      await tester.pumpAndSettle();
+    }
     await gesture.moveTo(moveOffset);
 
     return gesture;
@@ -103,6 +110,7 @@ void main() {
           tester: tester,
           startGestureFinder: find.byKey(const Key('0')),
           moveOffset: const Offset(0.0, 600.0),
+          isScrollableInside: true,
         );
         await gesture.up();
         await tester.pumpAndSettle();
@@ -130,6 +138,7 @@ void main() {
           tester: tester,
           startGestureFinder: find.byKey(const Key('0')),
           moveOffset: const Offset(0.0, 600.0),
+          isScrollableInside: true,
         );
 
         // when
@@ -164,6 +173,7 @@ void main() {
           tester: tester,
           startGestureFinder: find.byKey(const Key('0')),
           moveOffset: const Offset(0.0, -600.0),
+          isScrollableInside: true,
         );
         await gesture.up();
         await tester.pumpAndSettle();

@@ -4,6 +4,9 @@
   - previously, initiating a drag with multiple contacts was possible, but only one contact would be dragged
   - this issue has been resolved to prevent confusion
   - special thanks to `wuhangandroid` and `Gloomy699` ([#57](https://github.com/karvulf/flutter-reorderable-grid-view/issues/57))
+- Fixed issue with `longPressDelay` set to `Duration.zero` or `enableLongPress` set to `false` ([#141](https://github.com/karvulf/flutter-reorderable-grid-view/issues/141))
+  - Previously, child widgets with an `onTap` function wouldn't respond
+  - This should now work correctly, but note that using a delay of less than 55ms may still cause the issue
 
 ⭐️ **New Features**
 - added a generic type for `ReorderableBuilder`
