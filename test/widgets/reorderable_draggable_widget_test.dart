@@ -110,8 +110,7 @@ void main() {
   });
 
   testWidgets(
-      "GIVEN dragged and reorderableEntity have same updatedOrderId "
-      "and enableDraggable = true and enableLongPress = false "
+      "GIVEN enableLongPress = false "
       "WHEN pumping [ReorderableDraggable] "
       "THEN should show expected widgets", (WidgetTester tester) async {
     // given
@@ -127,8 +126,30 @@ void main() {
       tester,
       enableDraggable: true,
       enableLongPress: false,
-      currentDraggedEntity: givenReorderableEntity,
       child: givenCustomDraggable,
+    );
+
+    // then
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is LongPressDraggable && widget.delay == Duration.zero),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      "GIVEN reorderableEntity and dragged entity with same updatedOrderId "
+      "and enableDraggable = true "
+      "WHEN pumping [ReorderableDraggable] "
+      "THEN should show expected widgets", (WidgetTester tester) async {
+    // given
+
+    // when
+    await pumpWidget(
+      tester,
+      enableDraggable: true,
+      enableLongPress: true,
+      currentDraggedEntity: givenReorderableEntity,
+      child: givenChild,
     );
 
     // then
@@ -140,14 +161,10 @@ void main() {
             widget.maintainAnimation &&
             widget.maintainSize &&
             widget.maintainState &&
-            widget.child is LongPressDraggable,
+            widget.child == givenChild,
       ),
       findsOneWidget,
     );
-    expect(
-        find.byWidgetPredicate((widget) =>
-            widget is LongPressDraggable && widget.delay == Duration.zero),
-        findsOneWidget);
   });
 
   group('#LongPressDraggable', () {

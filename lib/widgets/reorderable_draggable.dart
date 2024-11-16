@@ -97,9 +97,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     final feedback = DraggableFeedback(
       size: reorderableEntity.size,
-      decoration: _decorationTween.animate(
-        _decoratedBoxAnimationController,
-      ),
+      decoration: _decorationTween.animate(_decoratedBoxAnimationController),
       feedbackScaleFactor: widget.feedbackScaleFactor,
       onDeactivate: widget.onDragCanceled,
       child: child,
@@ -119,16 +117,20 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         maintainAnimation: true,
         maintainSize: true,
         maintainState: true,
-        child: LongPressDraggable(
-          delay: widget.enableLongPress ? widget.longPressDelay : Duration.zero,
-          onDragStarted: _handleDragStarted,
-          onDraggableCanceled: (Velocity velocity, Offset offset) {
-            _handleDragEnd(offset);
-          },
-          feedback: feedback,
-          data: data,
-          child: child,
-        ),
+        child: widget.currentDraggedEntity != null
+            ? child
+            : LongPressDraggable(
+                delay: widget.enableLongPress
+                    ? widget.longPressDelay
+                    : Duration.zero,
+                onDragStarted: _handleDragStarted,
+                onDraggableCanceled: (Velocity velocity, Offset offset) {
+                  _handleDragEnd(offset);
+                },
+                feedback: feedback,
+                data: data,
+                child: child,
+              ),
       );
     }
   }
