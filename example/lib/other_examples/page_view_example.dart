@@ -119,9 +119,9 @@ class _RecorderableItemState extends State<RecorderableItem> {
     _showSnackbar(text: 'Dragged child updated position to $index');
   }
 
-  void _handleReorder(ReorderedListFunction reorderedListFunction) {
+  void _handleReorder(ReorderedListFunction<int> reorderedListFunction) {
     setState(() {
-      children = reorderedListFunction(children) as List<int>;
+      children = reorderedListFunction(children);
     });
   }
 
