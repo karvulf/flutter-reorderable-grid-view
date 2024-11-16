@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +18,7 @@ void main() {
     WidgetTester tester, {
     required bool enableLongPress,
     required bool enableDraggable,
+    Duration longPressDelay = givenLongPressDelay,
     ReorderableEntity? currentDraggedEntity,
     Widget? child,
     VoidCallback? onDragStarted,
@@ -33,7 +33,7 @@ void main() {
               reorderableEntity: givenReorderableEntity,
               currentDraggedEntity: currentDraggedEntity,
               enableLongPress: enableLongPress,
-              longPressDelay: givenLongPressDelay,
+              longPressDelay: longPressDelay,
               feedbackScaleFactor: givenFeedbackScaleFactor,
               dragChildBoxDecoration: null,
               onDragStarted: onDragStarted ?? () {},
@@ -114,26 +114,52 @@ void main() {
       "WHEN pumping [ReorderableDraggable] "
       "THEN should show expected widgets", (WidgetTester tester) async {
     // given
-    const givenData = 'data123';
-    const givenCustomDraggable = CustomDraggable(
-      key: Key('key'),
-      data: givenData,
-      child: givenChild,
-    );
 
     // when
     await pumpWidget(
       tester,
       enableDraggable: true,
       enableLongPress: false,
-      child: givenCustomDraggable,
     );
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is LongPressDraggable && widget.delay == Duration.zero),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Draggable &&
+              (widget.feedback as DraggableFeedback).size ==
+                  givenReorderableEntity.size &&
+              (widget.feedback as DraggableFeedback).decoration.value ==
+                  const BoxDecoration() &&
+              (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
+                  givenFeedbackScaleFactor &&
+              widget.childWhenDragging == null &&
+              widget.data == null &&
+              widget.child == givenChild,
+        ),
         findsOneWidget);
+    expect(find.byType(LongPressDraggable), findsNothing);
+  });
+
+  testWidgets(
+      "GIVEN reorderableEntity and dragged entity with same updatedOrderId, "
+      "enableDraggable = true, enableLongPress = true but longPressDelay = Duration.zero "
+      "WHEN pumping [ReorderableDraggable] "
+      "THEN should show expected widgets", (WidgetTester tester) async {
+    // given
+
+    // when
+    await pumpWidget(
+      tester,
+      enableDraggable: true,
+      enableLongPress: true,
+      longPressDelay: Duration.zero,
+      child: givenChild,
+    );
+
+    // then
+    expect(find.byType(Draggable), findsOneWidget);
+    expect(find.byType(LongPressDraggable), findsNothing);
   });
 
   testWidgets(
