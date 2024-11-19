@@ -170,4 +170,12 @@ class ReorderableEntity {
       );
 
   bool get isNew => originalOrderId == _isNewChildId;
+
+  double get minDx => updatedOffset.dx;
+
+  double get minDy => updatedOffset.dy;
+
+  double get maxDx => updatedOffset.dx + size.width;
+
+  double get maxDy => updatedOffset.dy + size.height;
 }
