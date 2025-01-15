@@ -22,7 +22,7 @@ class ReorderableDraggable extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   final VoidCallback onDragStarted;
-  final void Function(Offset globalOffset) onDragEnd;
+  final void Function(Offset? globalOffset) onDragEnd;
   final VoidCallback onDragCanceled;
 
   final ReorderableEntity? currentDraggedEntity;
@@ -50,8 +50,9 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
   late final AnimationController _decoratedBoxAnimationController;
   late final DecorationTween _decorationTween;
-  late DraggableDetails lastDraggedDetails;
+
   bool isDragging = false;
+  final _draggableFeedbackGlobalKey = GlobalKey();
 
   /// Default [BoxDecoration] for dragged child.
   final _defaultBoxDecoration = BoxDecoration(
@@ -96,6 +97,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     var child = widget.child;
 
     final feedback = DraggableFeedback(
+      key: _draggableFeedbackGlobalKey,
       size: reorderableEntity.size,
       decoration: _decorationTween.animate(_decoratedBoxAnimationController),
       feedbackScaleFactor: widget.feedbackScaleFactor,
@@ -115,13 +117,14 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     late final Widget draggable;
 
-    // if delay is Duration.zero, LongPressDraggable breaks onTap for child
+    // if delay is Duration.zero, LongPressDraggable breaks onTap for [child]
     if (!widget.enableLongPress || widget.longPressDelay == Duration.zero) {
       draggable = Draggable(
         onDragStarted: _handleDragStarted,
         onDraggableCanceled: (Velocity velocity, Offset offset) {
           _handleDragEnd(offset);
         },
+        onDragCompleted: _handleDragCompleted,
         feedback: feedback,
         data: data,
         child: child,
@@ -133,6 +136,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
         onDraggableCanceled: (Velocity velocity, Offset offset) {
           _handleDragEnd(offset);
         },
+        onDragCompleted: _handleDragCompleted,
         feedback: feedback,
         data: data,
         child: child,
@@ -155,11 +159,27 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     _decoratedBoxAnimationController.forward();
   }
 
+  /// Called when the draggable is dropped and accepted by a [DragTarget].
+  ///
+  /// This callback doesn't receive any positions which means that the position
+  /// will be calculated throughout the [DraggableFeedback].
+  void _handleDragCompleted() {
+    Offset? offset;
+
+    final currentContext = _draggableFeedbackGlobalKey.currentContext;
+    final renderBox = currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      offset = renderBox.localToGlobal(Offset.zero);
+    }
+
+    _handleDragEnd(offset);
+  }
+
   /// Called after dragging ends.
   ///
   /// Important: This can also be called after the widget was disposed but
   /// is still dragged. This has to be done to finish the drag and drop.
-  void _handleDragEnd(Offset offset) {
+  void _handleDragEnd(Offset? offset) {
     if (mounted) {
       isDragging = false;
       _decoratedBoxAnimationController.reset();

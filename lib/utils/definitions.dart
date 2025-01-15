@@ -47,5 +47,5 @@ typedef OnDragUpdateFunction = void Function(
 /// Called after the dragged child was released.
 typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
-  Offset globalOffset,
+  Offset? globalOffset,
 );
