@@ -246,6 +246,7 @@ void main() {
               .value as BoxDecoration);
           expect(boxDecoration.boxShadow?.length, equals(1));
           final shadow = boxDecoration.boxShadow![0];
+          // ignore: deprecated_member_use
           expect(shadow.color, equals(Colors.black.withOpacity(0.2)));
           expect(shadow.spreadRadius, equals(5));
           expect(shadow.blurRadius, equals(6));

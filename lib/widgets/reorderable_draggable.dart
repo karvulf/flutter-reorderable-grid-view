@@ -58,6 +58,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   final _defaultBoxDecoration = BoxDecoration(
     boxShadow: <BoxShadow>[
       BoxShadow(
+        // ignore: deprecated_member_use
         color: Colors.black.withOpacity(0.2),
         spreadRadius: 5,
         blurRadius: 6,
