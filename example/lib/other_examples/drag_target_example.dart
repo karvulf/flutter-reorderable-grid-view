@@ -25,7 +25,6 @@ class _MyAppState extends State<MyApp> {
         children: [
           DragTarget(
             onAcceptWithDetails: (details) {
-              return;
               setState(() {
                 children.removeAt(details.data as int);
               });
