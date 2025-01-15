@@ -22,24 +22,42 @@ void main() {
     ReorderableEntity? currentDraggedEntity,
     Widget? child,
     VoidCallback? onDragStarted,
-    void Function(Offset globalOffset)? onDragEnd,
+    void Function(Offset? globalOffset)? onDragEnd,
     VoidCallback? onDragCanceled,
+    bool showDragTarget = false,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReorderableDraggable(
-              enableDraggable: enableDraggable,
-              reorderableEntity: givenReorderableEntity,
-              currentDraggedEntity: currentDraggedEntity,
-              enableLongPress: enableLongPress,
-              longPressDelay: longPressDelay,
-              feedbackScaleFactor: givenFeedbackScaleFactor,
-              dragChildBoxDecoration: null,
-              onDragStarted: onDragStarted ?? () {},
-              onDragEnd: onDragEnd ?? (_) {},
-              onDragCanceled: onDragCanceled ?? () {},
-              child: child ?? givenChild,
+            body: Column(
+              children: [
+                if (showDragTarget)
+                  DragTarget(
+                    onAcceptWithDetails: (details) {
+                      //
+                    },
+                    builder: (context, candidateData, rejectedData) {
+                      return const SizedBox(
+                        height: 200.0,
+                        width: double.infinity,
+                        child: ColoredBox(color: Colors.green),
+                      );
+                    },
+                  ),
+                ReorderableDraggable(
+                  enableDraggable: enableDraggable,
+                  reorderableEntity: givenReorderableEntity,
+                  currentDraggedEntity: currentDraggedEntity,
+                  enableLongPress: enableLongPress,
+                  longPressDelay: longPressDelay,
+                  feedbackScaleFactor: givenFeedbackScaleFactor,
+                  dragChildBoxDecoration: null,
+                  onDragStarted: onDragStarted ?? () {},
+                  onDragEnd: onDragEnd ?? (_) {},
+                  onDragCanceled: onDragCanceled ?? () {},
+                  child: child ?? givenChild,
+                ),
+              ],
             ),
           ),
         ),
@@ -228,6 +246,7 @@ void main() {
               .value as BoxDecoration);
           expect(boxDecoration.boxShadow?.length, equals(1));
           final shadow = boxDecoration.boxShadow![0];
+          // ignore: deprecated_member_use
           expect(shadow.color, equals(Colors.black.withOpacity(0.2)));
           expect(shadow.spreadRadius, equals(5));
           expect(shadow.blurRadius, equals(6));
@@ -273,6 +292,56 @@ void main() {
 
       // then
       expect(actualOffset, equals(const Offset(-32.75, 10.0)));
+      expect(onDragCanceledCallCounter, equals(1));
+
+      expect(find.byWidgetPredicate((widget) {
+        if (widget is LongPressDraggable) {
+          final boxDecoration = ((widget.feedback as DraggableFeedback)
+              .decoration
+              .value as BoxDecoration);
+          expect(boxDecoration.boxShadow, isNull);
+          return true;
+        }
+        return false;
+      }), findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN [ReorderableDraggable] with LongPressDraggable "
+        "WHEN dragging to DragTarget and release the drag there "
+        "THEN should call onDragEnd and reset feedback",
+        (WidgetTester tester) async {
+      // given
+      Offset? actualOffset;
+      int onDragCanceledCallCounter = 0;
+
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: true,
+        showDragTarget: true,
+        onDragEnd: (offset) {
+          actualOffset = offset;
+        },
+        onDragCanceled: () {
+          onDragCanceledCallCounter++;
+        },
+      );
+      await tester.pumpAndSettle();
+
+      final firstLocation = tester.getCenter(find.text('Source'));
+      final gesture = await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(givenLongPressDelay);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(const Offset(0.0, 0.0));
+      await tester.pump();
+
+      // when
+      await gesture.up();
+      await tester.pump();
+
+      // then
+      expect(actualOffset, equals(const Offset(-42.75, -10.0)));
       expect(onDragCanceledCallCounter, equals(1));
 
       expect(find.byWidgetPredicate((widget) {

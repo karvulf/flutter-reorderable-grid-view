@@ -1,3 +1,8 @@
+## 5.4.1
+🐛 **Bug Fixes**
+- when dragging an item to a `DragTarget` widget, then `onDragEnd` wasn't called which was necessary to finish the reorder process
+  - added a new example `drag_target_example.dart` 
+
 ## 5.4.0
 🐛 **Bug Fixes**
 - dragging is now restricted to a single contact at a time

@@ -450,23 +450,25 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   /// has to be subtracted to get the correct position.
   void _handleDragEnd(
     ReorderableEntity reorderableEntity,
-    Offset globalOffset,
+    Offset? globalOffset,
   ) {
-    var globalRenderObject = context.findRenderObject() as RenderBox;
-    var offset = globalRenderObject.globalToLocal(globalOffset);
+    if (globalOffset != null) {
+      var globalRenderObject = context.findRenderObject() as RenderBox;
+      var offset = globalRenderObject.globalToLocal(globalOffset);
 
-    // scrollable part is outside this widget
-    if (_isScrollOutside) {
-      offset -= _getScrollOffset();
+      // scrollable part is outside this widget
+      if (_isScrollOutside) {
+        offset -= _getScrollOffset();
+      }
+
+      // call to ensure animation to dropped item
+      _reorderableController.updateReleasedReorderableEntity(
+        releasedReorderableEntity: ReleasedReorderableEntity(
+          dropOffset: offset,
+          reorderableEntity: reorderableEntity,
+        ),
+      );
     }
-
-    // call to ensure animation to dropped item
-    _reorderableController.updateReleasedReorderableEntity(
-      releasedReorderableEntity: ReleasedReorderableEntity(
-        dropOffset: offset,
-        reorderableEntity: reorderableEntity,
-      ),
-    );
     setState(() {});
 
     _finishDragging();

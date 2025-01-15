@@ -59,7 +59,7 @@ void main() {
 
   void givenOnDragEnd(
     ReorderableEntity reorderableEntity,
-    Offset globalOffset,
+    Offset? globalOffset,
   ) {}
 
   void givenOnDragCanceled(
