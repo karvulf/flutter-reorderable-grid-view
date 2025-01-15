@@ -78,7 +78,8 @@ class _MyAppState extends State<MyApp> {
                         index,
                       );
                     },
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
                       mainAxisSpacing: 4,
                       crossAxisSpacing: 8,
