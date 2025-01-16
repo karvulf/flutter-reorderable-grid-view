@@ -1,3 +1,9 @@
+## 5.4.1
+🐛 **Bug Fixes**
+- when dragging an item to a `DragTarget` widget, the `onDragEnd` callback was not being called, causing the reorder process to remain incomplete
+  - fixed it by using the `onDragCompleted` callback of `Draggable` 
+  - added a new example file: `drag_target_example.dart` 
+
 ## 5.4.0
 🐛 **Bug Fixes**
 - dragging is now restricted to a single contact at a time
