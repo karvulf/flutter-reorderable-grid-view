@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_dr
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 
@@ -293,7 +294,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       if (orientationBefore != orientationAfter ||
           screenSizeBefore != screenSizeAfter) {
         _reorderableController.handleDeviceOrientationChanged();
-        _reorderableController.scrollOffset == _getScrollOffset();
+        _reorderableController.scrollOffset == _scrollOffset;
         setState(() {});
       }
     });
@@ -393,7 +394,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       onCreated: _handleCreatedChild,
       releasedReorderableEntity:
           _reorderableController.releasedReorderableEntity,
-      scrollOffset: _getScrollOffset(),
+      scrollOffset: _scrollOffset,
       releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
       currentDraggedEntity: currentDraggedEntity,
@@ -416,7 +417,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   void _handleDragStarted(ReorderableEntity reorderableEntity) {
     _reorderableController.handleDragStarted(
       reorderableEntity: reorderableEntity,
-      currentScrollOffset: _getScrollOffset(),
+      currentScrollOffset: _scrollOffset,
       lockedIndices: widget.lockedIndices,
       isScrollableOutside: _isScrollOutside,
     );
@@ -432,7 +433,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
     if (hasUpdated) {
       // this fixes the issue when the user scrolls while dragging to get the updated scroll value
-      _reorderableController.scrollOffset = _getScrollOffset();
+      _reorderableController.scrollOffset = _scrollOffset;
 
       // notifying about the new position of the dragged child
       final orderId = _reorderableController.draggedEntity!.updatedOrderId;
@@ -458,7 +459,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
       // scrollable part is outside this widget
       if (_isScrollOutside) {
-        offset -= _getScrollOffset();
+        offset -= _scrollOffset;
       }
 
       // call to ensure animation to dropped item
@@ -548,7 +549,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
         offset = parentRenderObject.globalToLocal(
           renderBox.localToGlobal(Offset.zero),
         );
-        offset += _getScrollOffset();
+        offset += _scrollOffset;
       }
     }
 
@@ -567,45 +568,18 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
     }
   }
 
-  /// Returning the current scroll position.
-  ///
-  /// There are two possibilities to get the scroll position.
-  ///
-  /// First one is, the returned child of [widget.builder] is a scrollable widget.
-  /// In this case, it is important that the [widget.scrollController] is added
-  /// to the scrollable widget to get the current scroll position.
-  ///
-  /// Another possibility is that one of the parents is scrollable.
-  /// In that case, the position of the scroll is accessible inside [context].
-  ///
-  /// Otherwise, 0.0 will be returned.
-  Offset _getScrollOffset() {
-    var scrollPosition = Scrollable.maybeOf(context)?.position;
-    final scrollController = widget.scrollController;
-
-    // For example, in cases where there are nested scrollable widgets
-    // like GridViews inside a parent scrollable widget,
-    // the widget assigned to the controller will be used for scroll calculations
-    if (scrollController != null && scrollController.hasClients) {
-      scrollPosition = scrollController.position;
-    }
-
-    if (scrollPosition != null) {
-      final pixels = scrollPosition.pixels;
-      final isScrollingVertical = scrollPosition.axis == Axis.vertical;
-      final offset = Offset(
-        isScrollingVertical ? 0.0 : pixels,
-        isScrollingVertical ? pixels : 0.0,
-      );
-      return widget.reverse ? -offset : offset;
-    }
-
-    return Offset.zero;
+  Offset get _scrollOffset {
+    return _reorderableScrollable.getScrollOffset(
+      reverse: widget.reverse,
+    );
   }
 
-  /// No [ScrollController] means that this widget is already in a scrollable widget.
-  ///
-  /// [widget.scrollController] should be assigned if the scrollable widget
-  /// is rendered inside this widget e.g. in a [GridView].
-  bool get _isScrollOutside => widget.scrollController == null;
+  bool get _isScrollOutside {
+    return _reorderableScrollable.isScrollOutside;
+  }
+
+  ReorderableScrollable get _reorderableScrollable => ReorderableScrollable.of(
+        context,
+        scrollController: widget.scrollController,
+      );
 }
