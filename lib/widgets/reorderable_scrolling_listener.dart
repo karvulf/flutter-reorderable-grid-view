@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
+import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 
 /// Uses [Listener] to indicate position updates while dragging a child and enables an autoscroll functionality.
 class ReorderableScrollingListener extends StatefulWidget {
@@ -61,15 +61,6 @@ class _ReorderableScrollingListenerState
   /// [Offset] of the child that was found in [widget.reorderableChildKey].
   Offset? _childOffset;
 
-  /// Indicator to know if the widget is scrollable and where it is.
-  ///
-  /// If this is null, then it means that any widget isn't scrollable.
-  /// If this is true, then it means a widget outside of [ReorderableBuilder]
-  /// is scrollable.
-  /// If this is false, then it means a widget inside [ReorderableBuilder]
-  /// is scrollable.
-  bool? _isScrollableOutside;
-
   @override
   void didUpdateWidget(covariant ReorderableScrollingListener oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -103,7 +94,8 @@ class _ReorderableScrollingListenerState
   /// no timer is ongoing when the [widget.isDragging] stopped, it checks also himself
   /// if it has to be canceled.
   void _handleDragUpdate(PointerMoveEvent details) {
-    final scrollDirection = _scrollDirection;
+    final scrollDirection = _reorderableScrollable.scrollDirection;
+
     if (widget.enableScrollingWhileDragging &&
         widget.reorderableChildKey != null &&
         scrollDirection != null) {
@@ -179,15 +171,15 @@ class _ReorderableScrollingListenerState
       scrollToTop = !scrollToTop;
     }
 
-    final scrollOffset = _scrollOffset;
-    final maxScrollExtent = _maxScrollExtent;
+    final scrollOffset = _reorderableScrollable.pixels;
+    final maxScrollExtent = _reorderableScrollable.maxScrollExtent;
 
     if (scrollOffset != null && maxScrollExtent != null) {
       final value = scrollToTop ? scrollOffset - 10 : scrollOffset + 10;
 
       // only scroll in the viewport of scrollable widget
       if (value > 0 && value < maxScrollExtent + 10) {
-        _jumpTo(value: value);
+        _reorderableScrollable.jumpTo(value: value);
       }
     }
   }
@@ -209,45 +201,16 @@ class _ReorderableScrollingListenerState
           final dimension = Scrollable.of(context).position.viewportDimension;
           _childSize = Size(dimension, dimension);
           _childOffset = renderBox.localToGlobal(Offset.zero);
-          _isScrollableOutside = true;
         } else {
           _childSize = renderBox.size;
           _childOffset = Offset.zero;
-          _isScrollableOutside = false;
         }
       }
     });
   }
 
-  Axis? get _scrollDirection {
-    if (_isScrollableOutside == true) {
-      return Scrollable.of(context).position.axis;
-    } else {
-      return widget.scrollController?.position.axis;
-    }
-  }
-
-  double? get _scrollOffset {
-    if (_isScrollableOutside == true) {
-      return Scrollable.of(context).position.pixels;
-    } else {
-      return widget.scrollController?.offset;
-    }
-  }
-
-  double? get _maxScrollExtent {
-    if (_isScrollableOutside == true) {
-      return Scrollable.of(context).position.maxScrollExtent;
-    } else {
-      return widget.scrollController?.position.maxScrollExtent;
-    }
-  }
-
-  void _jumpTo({required double value}) {
-    if (_isScrollableOutside == true) {
-      Scrollable.of(context).position.moveTo(value);
-    } else {
-      widget.scrollController?.jumpTo(value);
-    }
-  }
+  ReorderableScrollable get _reorderableScrollable => ReorderableScrollable.of(
+        context,
+        scrollController: widget.scrollController,
+      );
 }

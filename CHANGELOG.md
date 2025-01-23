@@ -1,3 +1,9 @@
+## 5.5.0
+🏄‍♂️ **Improvements**
+- updated the default value of `automaticScrollExtent` to `150.0` (was `80.0` before)
+- updated `README` to explain when to use a `ScrollController` (related to the issue ([#152](https://github.com/karvulf/flutter-reorderable-grid-view/issues/152)))
+- some code refactoring
+
 ## 5.4.1
 🐛 **Bug Fixes**
 - when dragging an item to a `DragTarget` widget, the `onDragEnd` callback was not being called, causing the reorder process to remain incomplete
