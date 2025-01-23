@@ -226,7 +226,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragEnd,
     this.onUpdatedDraggedChild,
     Key? key,
-  })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+  })  : assert((enableDraggable &&
+                (onReorder != null || onReorderPositions != null)) ||
+            !enableDraggable),
         childBuilder = null,
         super(key: key);
 
@@ -503,10 +505,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
     final reorderUpdateEntities = _reorderableController.handleDragEnd();
 
     if (reorderUpdateEntities != null) {
-      if ((widget.onReorder != null) ^ (widget.onReorderPositions != null)) {
-        throw Exception(
-            'One of either onReorder or onReorderPositions must be provided');
-      }
+      assert((widget.onReorder != null) ^ (widget.onReorderPositions != null),
+          'One of either onReorder or onReorderPositions must be provided');
 
       widget.onReorderPositions?.call(reorderUpdateEntities);
 
