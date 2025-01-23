@@ -107,9 +107,17 @@ To use this widget, wrap `ReorderableBuilder` around your `GridView`. For more d
 When using a scrollable `GridView`, `ReorderableBuilder` requires a `ScrollController`. 
 This means you must assign the `ScrollController` to both the scrollable widget and `ReorderableBuilder`. 
 
+*For more details, check out the example in `inner_scrollable_example.dart`.*
+
 If the parent is a scrollable widget, you should not assign a `ScrollController`.
 In this case, the widget automatically looks up the `ScrollController`.
 Assigning one manually can cause issues with drag-and-drop functionality.
+
+*For more details, check out the example in `outer_scrollable_example.dart`.*
+
+If no `ScrollController` is assigned and no `ScrollController` is found within the context, it indicates that the `GridView` is not scrollable.
+
+*For more details, check out the example in `no_scrollable_example.dart`.*
 
 ### Drag and Drop
 The drag-and-drop functionality is enabled by default.

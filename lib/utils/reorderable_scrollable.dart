@@ -79,7 +79,7 @@ class ReorderableScrollable {
   /// - If a `ScrollController` is assigned, its direction is returned.
   Axis? get scrollDirection {
     if (isScrollOutside) {
-      return Scrollable.of(_context).position.axis;
+      return Scrollable.maybeOf(_context)?.position.axis;
     } else {
       return _scrollController?.position.axis;
     }
@@ -92,7 +92,7 @@ class ReorderableScrollable {
   /// - If a `ScrollController` is assigned, its offset is returned.
   double? get pixels {
     if (isScrollOutside) {
-      return Scrollable.of(_context).position.pixels;
+      return Scrollable.maybeOf(_context)?.position.pixels;
     } else {
       return _scrollController?.offset;
     }
@@ -105,7 +105,7 @@ class ReorderableScrollable {
   /// - If a `ScrollController` is assigned, its maximum scroll extent is returned.
   double? get maxScrollExtent {
     if (isScrollOutside) {
-      return Scrollable.of(_context).position.maxScrollExtent;
+      return Scrollable.maybeOf(_context)?.position.maxScrollExtent;
     } else {
       return _scrollController?.position.maxScrollExtent;
     }
@@ -121,7 +121,7 @@ class ReorderableScrollable {
   ///   update the scroll position.
   void jumpTo({required double value}) {
     if (isScrollOutside == true) {
-      Scrollable.of(_context).position.moveTo(value);
+      Scrollable.maybeOf(_context)?.position.moveTo(value);
     } else {
       _scrollController?.jumpTo(value);
     }

@@ -72,7 +72,7 @@ void main() {
                 widget.nonDraggableIndices.isEmpty &&
                 widget.longPressDelay == const Duration(milliseconds: 500) &&
                 widget.enableDraggable &&
-                widget.automaticScrollExtent == 80.0 &&
+                widget.automaticScrollExtent == 150.0 &&
                 widget.enableScrollingWhileDragging &&
                 widget.fadeInDuration == const Duration(milliseconds: 500) &&
                 widget.releasedChildDuration ==
@@ -88,7 +88,7 @@ void main() {
               !widget.isDragging &&
               widget.reorderableChildKey == null &&
               widget.scrollController == null &&
-              widget.automaticScrollExtent == 80.0 &&
+              widget.automaticScrollExtent == 150.0 &&
               widget.enableScrollingWhileDragging &&
               !widget.reverse &&
               widget.child is SingleChildScrollView),
@@ -193,7 +193,7 @@ void main() {
                 widget.nonDraggableIndices == const [1] &&
                 widget.longPressDelay == const Duration(milliseconds: 500) &&
                 widget.enableDraggable &&
-                widget.automaticScrollExtent == 80.0 &&
+                widget.automaticScrollExtent == 150.0 &&
                 widget.enableScrollingWhileDragging &&
                 widget.fadeInDuration == const Duration(milliseconds: 500) &&
                 widget.releasedChildDuration ==
@@ -208,7 +208,7 @@ void main() {
               !widget.isDragging &&
               widget.reorderableChildKey == null &&
               widget.scrollController == null &&
-              widget.automaticScrollExtent == 80.0 &&
+              widget.automaticScrollExtent == 150.0 &&
               widget.enableScrollingWhileDragging &&
               !widget.reverse &&
               widget.child is SingleChildScrollView),
