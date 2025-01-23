@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _gridViewKey = GlobalKey();
+  final bool reverse = false;
 
   List<int> children = List.generate(200, (index) => index);
 
@@ -21,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        reverse: true,
+        reverse: reverse,
         child: Column(
           children: [
             const SizedBox(
@@ -35,11 +36,11 @@ class _MyAppState extends State<MyApp> {
                   children = reorderedListFunction(children);
                 });
               },
-              reverse: true,
+              reverse: reverse,
               childBuilder: (itemBuilder) {
                 return GridView.builder(
                   key: _gridViewKey,
-                  reverse: true,
+                  reverse: reverse,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: children.length,

@@ -30,7 +30,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultEnableLongPress = true;
   static const _defaultLongPressDelay = kLongPressTimeout;
   static const _defaultEnableDraggable = true;
-  static const _defaultAutomaticScrollExtent = 80.0;
+  static const _defaultAutomaticScrollExtent = 150.0;
   static const _defaultEnableScrollingWhileDragging = true;
   static const _defaultFadeInDuration = Duration(milliseconds: 500);
   static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
