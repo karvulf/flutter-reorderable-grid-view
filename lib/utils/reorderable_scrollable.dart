@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 
+/// A utility class to manage scrolling behavior for scrollable widgets.
 ///
+/// The [ReorderableScrollable] class allows you to retrieve and control the
+/// scroll position, direction, and offsets in both parent and child scrollable
+/// contexts. It is particularly useful in scenarios involving nested
+/// scrollable widgets or drag-and-drop operations.
 class ReorderableScrollable {
+  /// The build context associated with the widget using this class.
   static late BuildContext _context;
+
+  /// The optional ScrollController for managing child scrollable widgets.
   static late ScrollController? _scrollController;
 
+  /// Private constructor to prevent direct instantiation.
   const ReorderableScrollable._();
 
+  /// Factory method to create a `ReorderableScrollable` instance.
   static ReorderableScrollable of(
     BuildContext context, {
     required ScrollController? scrollController,
@@ -17,25 +27,25 @@ class ReorderableScrollable {
     return const ReorderableScrollable._();
   }
 
-  /// Returning the current scroll position.
+  /// Returns the current scroll offset as an `Offset`.
   ///
-  /// There are two possibilities to get the scroll position.
+  /// This method determines the scroll offset by checking if the scrollable
+  /// widget is managed by a parent or has its own `ScrollController`.
   ///
-  /// First one is, the returned child of [widget.builder] is a scrollable widget.
-  /// In this case, it is important that the [widget.scrollController] is added
-  /// to the scrollable widget to get the current scroll position.
+  /// - If a `ScrollController` is provided, it uses the controller to fetch the
+  ///   scroll position.
+  /// - If no controller is provided, it attempts to retrieve the scroll position
+  ///   from the parent scrollable widget using the context.
   ///
-  /// Another possibility is that one of the parents is scrollable.
-  /// In that case, the position of the scroll is accessible inside [context].
+  /// - [reverse]: Whether to reverse the direction of the offset.
   ///
-  /// Otherwise, 0.0 will be returned.
+  /// Returns an `Offset` representing the scroll position or `Offset.zero` if
+  /// no position is available.
   Offset getScrollOffset({required bool reverse}) {
     var scrollPosition = Scrollable.maybeOf(_context)?.position;
     final scrollController = _scrollController;
 
-    // For example, in cases where there are nested scrollable widgets
-    // like GridViews inside a parent scrollable widget,
-    // the widget assigned to the controller will be used for scroll calculations
+    // Use the provided ScrollController's position if it has clients.
     if (scrollController != null && scrollController.hasClients) {
       scrollPosition = scrollController.position;
     }
@@ -43,6 +53,7 @@ class ReorderableScrollable {
     if (scrollPosition != null) {
       final pixels = scrollPosition.pixels;
       final isScrollingVertical = scrollPosition.axis == Axis.vertical;
+
       final offset = Offset(
         isScrollingVertical ? 0.0 : pixels,
         isScrollingVertical ? pixels : 0.0,
@@ -53,14 +64,19 @@ class ReorderableScrollable {
     return Offset.zero;
   }
 
-  /// No [ScrollController] means that this widget is already in a scrollable widget.
+  /// Indicates whether the widget relies on a parent scrollable widget.
   ///
-  /// [widget.scrollController] should be assigned if the scrollable widget
-  /// is rendered inside this widget e.g. in a [GridView].
+  /// If no [ScrollController] is assigned, it is assumed that the widget is
+  /// already inside a scrollable parent widget.
   bool get isScrollOutside {
     return _scrollController == null;
   }
 
+  /// Retrieves the scroll direction of the associated scrollable widget.
+  ///
+  /// - If no `ScrollController` is assigned, the scroll direction of the parent
+  ///   scrollable widget is returned.
+  /// - If a `ScrollController` is assigned, its direction is returned.
   Axis? get scrollDirection {
     if (isScrollOutside) {
       return Scrollable.of(_context).position.axis;
@@ -69,6 +85,11 @@ class ReorderableScrollable {
     }
   }
 
+  /// Retrieves the current scroll position in pixels.
+  ///
+  /// - If no `ScrollController` is assigned, the scroll position of the parent
+  ///   scrollable widget is returned.
+  /// - If a `ScrollController` is assigned, its offset is returned.
   double? get pixels {
     if (isScrollOutside) {
       return Scrollable.of(_context).position.pixels;
@@ -77,6 +98,11 @@ class ReorderableScrollable {
     }
   }
 
+  /// Retrieves the maximum scrollable extent.
+  ///
+  /// - If no `ScrollController` is assigned, the maximum scroll extent of the
+  ///   parent scrollable widget is returned.
+  /// - If a `ScrollController` is assigned, its maximum scroll extent is returned.
   double? get maxScrollExtent {
     if (isScrollOutside) {
       return Scrollable.of(_context).position.maxScrollExtent;
@@ -85,6 +111,14 @@ class ReorderableScrollable {
     }
   }
 
+  /// Jumps to a specific scroll position.
+  ///
+  /// - [value]: The target scroll position in pixels.
+  ///
+  /// - If no `ScrollController` is assigned, the scroll position of the parent
+  ///   scrollable widget is updated.
+  /// - If a `ScrollController` is assigned, its `jumpTo` method is used to
+  ///   update the scroll position.
   void jumpTo({required double value}) {
     if (isScrollOutside == true) {
       Scrollable.of(_context).position.moveTo(value);
