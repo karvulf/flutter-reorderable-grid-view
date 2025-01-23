@@ -4,6 +4,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_con
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
@@ -14,6 +15,7 @@ typedef DraggableBuilder = Widget Function(
 
 typedef ReorderedListFunction<T> = List<T> Function(List<T>);
 typedef OnReorderCallback<T> = void Function(ReorderedListFunction<T>);
+typedef OnReorderPositions = void Function(List<ReorderUpdateEntity>);
 typedef ItemCallback = void Function(int index);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
@@ -152,7 +154,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// returned by this function for proper integration.
   final DraggableBuilder? builder;
 
-  /// After releasing the dragged child, [onReorder] is called.
+  /// After releasing the dragged child, [onReorder] or [onReorderPositions] is called.
   ///
   /// Ensure [enableDraggable] is set to true for this callback to trigger.
   /// This function takes a [ReorderedListFunction] as a parameter, which will
@@ -161,6 +163,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// This mechanism ensures that your list is correctly updated. You can then
   /// use the updated items returned by this function.
   final OnReorderCallback<T>? onReorder;
+
+  /// After releasing the dragged child, [onReorderPositions] is called.
+  ///
+  /// Ensure [enableDraggable] is set to true for this callback to trigger.
+  /// This function returns a list of updated positions
+  final OnReorderPositions? onReorderPositions;
 
   /// Callback when dragging starts with the index where it started.
   ///
@@ -200,6 +208,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     required this.builder,
     this.scrollController,
     this.onReorder,
+    this.onReorderPositions,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
     this.enableLongPress = _defaultEnableLongPress,
@@ -225,6 +234,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     required this.childBuilder,
     this.scrollController,
     this.onReorder,
+    this.onReorderPositions,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
     this.enableLongPress = _defaultEnableLongPress,
@@ -493,7 +503,14 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
     final reorderUpdateEntities = _reorderableController.handleDragEnd();
 
     if (reorderUpdateEntities != null) {
-      widget.onReorder!((items) => _reorderableController.reorderList(
+      if ((widget.onReorder != null) ^ (widget.onReorderPositions != null)) {
+        throw Exception(
+            'One of either onReorder or onReorderPositions must be provided');
+      }
+
+      widget.onReorderPositions?.call(reorderUpdateEntities);
+
+      widget.onReorder?.call((items) => _reorderableController.reorderList(
             items: items,
             reorderUpdateEntities: reorderUpdateEntities,
           ));
