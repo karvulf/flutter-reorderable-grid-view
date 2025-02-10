@@ -432,10 +432,23 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       currentScrollOffset: _scrollOffset,
       lockedIndices: widget.lockedIndices,
       isScrollableOutside: _isScrollOutside,
+      scrollDirection: _scrollDirection,
+      reverse: widget.reverse,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
     setState(() {});
+  }
+
+  // todo: diese nützlichen zugriffe sollten iwo zentral gelagert werden, z.B. ein ScrollControllerHelper
+  Axis get _scrollDirection {
+    final axis = widget.scrollController?.position.axis;
+
+    if (axis == null) {
+      return Scrollable.of(context).position.axis;
+    } else {
+      return axis;
+    }
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
