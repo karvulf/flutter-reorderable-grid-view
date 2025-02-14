@@ -27,7 +27,7 @@ typedef ChildBuilderFunction = Widget Function(
 /// Be sure not to replace, add or remove your children while you are dragging
 /// because this can lead to an unexpected behavior.
 ///
-/// The generic type <T> defines the list type after reordering with
+/// The generic type [T] defines the list type after reordering with
 /// [ReorderedListFunction] in [onReorder].
 class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultLockedIndices = <int>[];
@@ -65,7 +65,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// first, second and third position cannot be dragged. Furthermore if
   /// you drag and drop, they won't change their position.
   ///
-  /// Default value: <int>[]
+  /// Default value: &lt;int&gt;&#91;&#93;
   final List<int> lockedIndices;
 
   /// Specify indices for [children] that are not draggable.
@@ -75,7 +75,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// Compared to [lockedIndices], these [children] can change their position
   /// while dragging.
   ///
-  /// Default value: <int>[]
+  /// Default value: &lt;int&gt;&#91;&#93;
   final List<int> nonDraggableIndices;
 
   /// The drag of a child will be started with a long press.
