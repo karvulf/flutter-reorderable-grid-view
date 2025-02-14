@@ -312,6 +312,7 @@ class _TestInnerScrollableState extends State<_TestInnerScrollable> {
           children = reorderedListFunction(children) as List<int>;
         });
       },
+      itemCount: children.length,
       childBuilder: (itemBuilder) {
         return GridView.builder(
           key: _gridViewKey,
@@ -380,6 +381,7 @@ class _TestOuterScrollableState extends State<_TestOuterScrollable> {
                   });
                 },
                 reverse: true,
+                itemCount: children.length,
                 childBuilder: (itemBuilder) {
                   return GridView.builder(
                     key: _gridViewKey,

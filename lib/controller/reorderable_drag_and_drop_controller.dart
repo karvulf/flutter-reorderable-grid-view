@@ -53,7 +53,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
-    if(itemCount != null) super.shortenMapsToItemCount(itemCount: itemCount);
+    if (itemCount != null) super.shortenMapsToItemCount(itemCount: itemCount);
   }
 
   bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {

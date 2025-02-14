@@ -25,6 +25,7 @@ void main() {
       currentScrollOffset: currentScrollOffset,
       lockedIndices: lockedIndices,
       isScrollableOutside: isScrollableOutside,
+      itemCount: null,
     );
   }
 
