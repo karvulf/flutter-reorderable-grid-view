@@ -36,6 +36,7 @@ class _MyAppState extends State<MyApp> {
                   children = reorderedListFunction(children);
                 });
               },
+              itemCount: children.length,
               childBuilder: (itemBuilder) {
                 return GridView.builder(
                   key: _gridViewKey,

@@ -37,6 +37,7 @@ class _MyAppState extends State<MyApp> {
                 });
               },
               reverse: reverse,
+              itemCount: children.length,
               childBuilder: (itemBuilder) {
                 return GridView.builder(
                   key: _gridViewKey,

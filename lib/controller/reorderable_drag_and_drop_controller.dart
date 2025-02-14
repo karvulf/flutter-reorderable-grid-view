@@ -45,6 +45,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
     required bool isScrollableOutside,
+    required int? itemCount,
   }) {
     _releasedReorderableEntity = null;
     this.lockedIndices = lockedIndices;
@@ -52,6 +53,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
+    if(itemCount != null) super.shortenMapsToItemCount(itemCount: itemCount);
   }
 
   bool handleDragUpdate({required PointerMoveEvent pointerMoveEvent}) {

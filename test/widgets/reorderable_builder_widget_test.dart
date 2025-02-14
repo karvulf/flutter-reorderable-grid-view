@@ -16,6 +16,7 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: ReorderableBuilder.builder(
+                itemCount: 1,
                 childBuilder: (itemBuilder) {
                   return itemBuilder(const Placeholder(), 0);
                 },
@@ -51,6 +52,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableBuilder.builder(
+              itemCount: 1,
               childBuilder: (itemBuilder) {
                 return SingleChildScrollView(
                   child: itemBuilder(givenChild, 0),
@@ -143,9 +145,6 @@ void main() {
       final gesture = await tester.startGesture(lastLocation, pointer: 7);
       await tester.pump(kLongPressTimeout);
       await tester.pumpAndSettle();
-
-      await gesture.moveTo(Offset(lastLocation.dx + 80.0, lastLocation.dy));
-      await tester.pump();
 
       await gesture.moveTo(Offset(lastLocation.dx + 80.0, lastLocation.dy));
       await tester.pump();
@@ -414,6 +413,7 @@ class _TestReorderableBuilderBuilder1State
       ),
       body: ReorderableBuilder.builder(
         scrollController: _scrollController,
+        itemCount: items.length,
         onReorder: (ReorderedListFunction<String> reorderedListFunction) {
           widget.onCalledReorder();
           setState(() {
