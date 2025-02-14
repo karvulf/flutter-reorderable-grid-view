@@ -342,6 +342,10 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   }
 
   Widget _buildItem(Widget child, int index) {
+    assert(
+      child.key is ValueKey,
+      'You have to provide a unique ValueKey to every child!',
+    );
     final reorderableEntity = reorderableItemBuilderController.buildItem(
       key: child.key as ValueKey,
       index: index,
