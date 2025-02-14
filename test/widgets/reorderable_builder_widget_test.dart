@@ -382,8 +382,6 @@ class _TestReorderableBuilderBuilder1 extends StatefulWidget {
   const _TestReorderableBuilderBuilder1({
     required this.items,
     required this.onCalledReorder,
-    // ignore: unused_element
-    super.key,
   });
 
   @override

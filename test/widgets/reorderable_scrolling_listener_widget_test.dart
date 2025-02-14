@@ -288,8 +288,6 @@ class _TestInnerScrollable extends StatefulWidget {
   const _TestInnerScrollable({
     required this.scrollController,
     required this.reverse,
-    // ignore: unused_element
-    super.key,
   });
 
   @override
@@ -347,8 +345,6 @@ class _TestOuterScrollable extends StatefulWidget {
 
   const _TestOuterScrollable({
     required this.onBuilt,
-    // ignore: unused_element
-    super.key,
   });
 
   @override
