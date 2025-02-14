@@ -1,19 +1,22 @@
 ## 5.5.0
+
 🏄‍♂️ **Improvements**
-- updated the default value of `automaticScrollExtent` to `150.0` (was `80.0` before)
-- updated `README` to explain when to use a `ScrollController` (related to the issue ([#152](https://github.com/karvulf/flutter-reorderable-grid-view/issues/152)))
-- some code refactoring
-- added a new parameter `onReorderedPositions`
-  - this callback is similar to `onReorder`
-  - but in this case you can handle the reorder logic by yourself
+
+- default value of `automaticScrollExtent` updated to `150.0` (was previously `80.0`)
+- updated `README` to clarify when to use a `ScrollController` (see [#152](https://github.com/karvulf/flutter-reorderable-grid-view/issues/152))
+- general code refactoring
+- added new parameter `onReorderedPositions`
+  - similar to `onReorder`, but allows you to handle reordering logic yourself
   - thanks to `FaFre` for the PR ([#153](https://github.com/karvulf/flutter-reorderable-grid-view/pull/153))
 
 🐛 **Bug Fixes**
-- `Reorderable.builder` had an issue when removing children and starting drag and drop
-  - the issue happened because the reorder was started with items out of the index
-  - this is fixed by adding a new parameter `itemCount` to `ReorderableBuilder.builder`
-  - this value is required to ensure that only the children which are rendered by the widget will used also for reordering
-  - thanks to `yoyoNTNU` for finding the issue ([#155](https://github.com/karvulf/flutter-reorderable-grid-view/issues/155))
+
+- fixed an issue in `Reorderable.builder` when removing children
+  - the error occurred because reordering finished with items outside the index
+  - fixed by adding a new parameter `itemCount` to `ReorderableBuilder.builder`
+  - this value ensures only rendered children are used for reordering
+  - thanks to `yoyoNTNU` for identifying the issue ([#155](https://github.com/karvulf/flutter-reorderable-grid-view/issues/155))
+
 
 ## 5.4.1
 🐛 **Bug Fixes**
