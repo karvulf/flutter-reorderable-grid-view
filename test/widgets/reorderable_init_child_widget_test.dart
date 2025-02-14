@@ -5,8 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../reorderable_builder.dart';
 
-// ignore_for_file: unused_element
-
 void main() {
   final reorderableBuilder = ReorderableBuilder();
 
@@ -175,7 +173,6 @@ class _TestUpdateReorderableInitChild extends StatefulWidget {
     required this.reorderableEntity,
     required this.updatedReorderableEntity,
     required this.onCreated,
-    super.key,
   });
 
   @override

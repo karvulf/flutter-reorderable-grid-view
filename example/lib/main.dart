@@ -204,6 +204,7 @@ class _MyAppState extends State<MyApp> {
           onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
+          itemCount: children.length,
           childBuilder: (itemBuilder) {
             return GridView.builder(
               key: _gridViewKey,

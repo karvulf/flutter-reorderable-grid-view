@@ -288,8 +288,6 @@ class _TestInnerScrollable extends StatefulWidget {
   const _TestInnerScrollable({
     required this.scrollController,
     required this.reverse,
-    // ignore: unused_element
-    super.key,
   });
 
   @override
@@ -312,6 +310,7 @@ class _TestInnerScrollableState extends State<_TestInnerScrollable> {
           children = reorderedListFunction(children) as List<int>;
         });
       },
+      itemCount: children.length,
       childBuilder: (itemBuilder) {
         return GridView.builder(
           key: _gridViewKey,
@@ -346,8 +345,6 @@ class _TestOuterScrollable extends StatefulWidget {
 
   const _TestOuterScrollable({
     required this.onBuilt,
-    // ignore: unused_element
-    super.key,
   });
 
   @override
@@ -380,6 +377,7 @@ class _TestOuterScrollableState extends State<_TestOuterScrollable> {
                   });
                 },
                 reverse: true,
+                itemCount: children.length,
                 childBuilder: (itemBuilder) {
                   return GridView.builder(
                     key: _gridViewKey,

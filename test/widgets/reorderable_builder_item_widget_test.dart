@@ -426,8 +426,6 @@ class _TestReorderableBuilderItem extends StatefulWidget {
     required this.reorderableEntity,
     required this.onUpdate,
     this.onMovingFinished,
-    // ignore: unused_element
-    super.key,
   });
 
   @override

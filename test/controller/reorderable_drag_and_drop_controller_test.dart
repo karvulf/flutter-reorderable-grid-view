@@ -20,28 +20,49 @@ void main() {
     Offset currentScrollOffset = Offset.zero,
     List<int> lockedIndices = const [],
     bool isScrollableOutside = false,
+    int? itemCount,
   }) {
     controller.handleDragStarted(
       reorderableEntity: reorderableEntity ?? reorderableBuilder.getEntity(),
       currentScrollOffset: currentScrollOffset,
       lockedIndices: lockedIndices,
       isScrollableOutside: isScrollableOutside,
+      itemCount: itemCount,
     );
   }
 
   group('#handleDragStarted', () {
     test(
-        'GIVEN dragged entity, offset, lockedIndices, isScrollableOutside and '
-        'childrenKeyMap has givenDraggedEntity '
+        'GIVEN dragged entity, offset, lockedIndices, isScrollableOutside, '
+        'childrenKeyMap has givenDraggedEntity and itemCount '
         'WHEN calling handleDragStarted '
-        'THEN should assign given values to expected values of controller', () {
+        'THEN should assign given values to expected values of controller and'
+        'should remove the children which have a higher position than the itemCount',
+        () {
       // given
-      final givenDraggedEntity = reorderableBuilder.getEntity();
+      const givenItemCount = 1;
+      const givenDraggedKeyValue = 'dragged_key';
+      const givenRemoveKeyValue1 = 'remove1';
+      const givenRemoveKeyValue2 = 'remove2';
+      final givenDraggedEntity = reorderableBuilder.getEntity(
+        originalOrderId: givenItemCount - 1,
+        key: givenDraggedKeyValue,
+      );
+      final givenChildToRemove1 = reorderableBuilder.getEntity(
+        originalOrderId: givenItemCount,
+        key: givenRemoveKeyValue1,
+      );
+      final givenChildToRemove2 = reorderableBuilder.getEntity(
+        originalOrderId: givenItemCount + 1,
+        key: givenRemoveKeyValue2,
+      );
       const givenOffset = Offset(100.0, 200.0);
       const givenLockedIndices = [0, 1, 2, 3];
       const givenIsScrollableOutside = true;
-      final givenDraggedKeyValue = givenDraggedEntity.key.value;
+
       controller.childrenKeyMap[givenDraggedKeyValue] = givenDraggedEntity;
+      controller.childrenKeyMap[givenRemoveKeyValue1] = givenChildToRemove1;
+      controller.childrenKeyMap[givenRemoveKeyValue2] = givenChildToRemove2;
 
       // when
       controller.handleDragStarted(
@@ -49,6 +70,7 @@ void main() {
         currentScrollOffset: givenOffset,
         lockedIndices: givenLockedIndices,
         isScrollableOutside: givenIsScrollableOutside,
+        itemCount: givenItemCount,
       );
 
       // then
@@ -58,6 +80,8 @@ void main() {
       expect(controller.scrollOffset, equals(givenOffset));
       expect(controller.isScrollableOutside, equals(givenIsScrollableOutside));
       expect(controller.startDraggingScrollOffset, equals(givenOffset));
+      final expectedMap = {givenDraggedKeyValue: givenDraggedEntity};
+      expect(controller.childrenKeyMap, equals(expectedMap));
     });
   });
 

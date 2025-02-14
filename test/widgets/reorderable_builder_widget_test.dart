@@ -16,6 +16,7 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: ReorderableBuilder.builder(
+                itemCount: 1,
                 childBuilder: (itemBuilder) {
                   return itemBuilder(const Placeholder(), 0);
                 },
@@ -51,6 +52,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableBuilder.builder(
+              itemCount: 1,
               childBuilder: (itemBuilder) {
                 return SingleChildScrollView(
                   child: itemBuilder(givenChild, 0),
@@ -111,6 +113,48 @@ void main() {
                 widget.child == givenChild,
           ),
           findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN [ReorderableBuilder.builder], three children, "
+        "then removing third child "
+        "WHEN moving last (second) child to the right "
+        "THEN should not call onReorder", (WidgetTester tester) async {
+      // given
+      const givenItems = ['item1', 'item2', 'item3'];
+      var onReorderCallCounter = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: _TestReorderableBuilderBuilder1(
+              items: givenItems,
+              onCalledReorder: () {
+                onReorderCallCounter++;
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.remove));
+      await tester.pumpAndSettle();
+
+      // when
+      final lastLocation = tester.getCenter(find.text(givenItems[1]));
+      final gesture = await tester.startGesture(lastLocation, pointer: 7);
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+
+      await gesture.moveTo(Offset(lastLocation.dx + 80.0, lastLocation.dy));
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      // then
+      expect(onReorderCallCounter, equals(0));
     });
   });
 
@@ -320,4 +364,83 @@ void main() {
       expect(updatedChildren, equals(expectedUpdatedChildren));
     });
   });
+}
+
+/// This test widget is testing [ReorderableBuilder.builder].
+///
+/// This widget is built for the following test case:
+/// - add three children
+/// - remove last child
+/// - drag now the second child to the right where nothing is
+/// - [onCalledReorder] shouldn't get called because there is no last item
+///
+/// The issue was first discovered here: https://github.com/karvulf/flutter-reorderable-grid-view/issues/155.
+class _TestReorderableBuilderBuilder1 extends StatefulWidget {
+  final List<String> items;
+  final VoidCallback onCalledReorder;
+
+  const _TestReorderableBuilderBuilder1({
+    required this.items,
+    required this.onCalledReorder,
+  });
+
+  @override
+  State<_TestReorderableBuilderBuilder1> createState() =>
+      _TestReorderableBuilderBuilder1State();
+}
+
+class _TestReorderableBuilderBuilder1State
+    extends State<_TestReorderableBuilderBuilder1> {
+  final _scrollController = ScrollController();
+  final _gridViewKey = GlobalKey();
+  late var items = widget.items.toList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.remove),
+            onPressed: () {
+              setState(() {
+                items = items..removeLast();
+              });
+            },
+          ),
+        ],
+      ),
+      body: ReorderableBuilder.builder(
+        scrollController: _scrollController,
+        itemCount: items.length,
+        onReorder: (ReorderedListFunction<String> reorderedListFunction) {
+          widget.onCalledReorder();
+          setState(() {
+            items = reorderedListFunction(items);
+          });
+        },
+        childBuilder: (itemBuilder) {
+          return GridView.builder(
+            key: _gridViewKey,
+            controller: _scrollController,
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return itemBuilder(
+                Card(
+                  key: ValueKey(items[index]),
+                  child: Text(items[index]),
+                ),
+                index,
+              );
+            },
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 90,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

@@ -107,6 +107,13 @@ abstract class ReorderableController {
     return updatedEntity;
   }
 
+  /// Removes all children that have a higher position the [itemCount].
+  void shortenMapsToItemCount({required int itemCount}) {
+    childrenKeyMap.removeWhere(
+      (key, value) => value.originalOrderId >= itemCount,
+    );
+  }
+
   /// Resets all entities in [childrenOrderMap] and [childrenKeyMap].
   ///
   /// Clears [offsetMap] and rebuilds all entities in [childrenOrderMap] and

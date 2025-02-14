@@ -18,6 +18,9 @@ typedef ReorderedListFunction<T> = List<T> Function(List<T>);
 typedef OnReorderCallback<T> = void Function(ReorderedListFunction<T>);
 typedef OnReorderPositions = void Function(List<ReorderUpdateEntity>);
 typedef ItemCallback = void Function(int index);
+typedef ChildBuilderFunction = Widget Function(
+  Widget Function(Widget child, int index) itemBuilder,
+);
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
@@ -48,9 +51,13 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// This function allows rendering all children using a builder.
   /// Make sure your [GridView.builder] calls [childBuilder] to return
   /// widgets that support animations and drag-and-drop functionality.
-  final Widget Function(
-    Widget Function(Widget child, int index) itemBuilder,
-  )? childBuilder;
+  final ChildBuilderFunction? childBuilder;
+
+  /// The length of items that are rendered through [ReorderableBuilder.builder].
+  ///
+  /// This count ensures that the drag and drop only happens the items in a
+  /// valid range and ignores any other item out of this range.
+  final int? itemCount;
 
   /// Specify indices for [children] that should not be draggable or movable.
   ///
@@ -231,10 +238,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
                 (onReorder != null || onReorderPositions != null)) ||
             !enableDraggable),
         childBuilder = null,
+        itemCount = null,
         super(key: key);
 
   const ReorderableBuilder.builder({
-    required this.childBuilder,
+    required ChildBuilderFunction this.childBuilder,
+    required int this.itemCount,
     this.scrollController,
     this.onReorder,
     this.onReorderPositions,
@@ -342,6 +351,10 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   }
 
   Widget _buildItem(Widget child, int index) {
+    assert(
+      child.key is ValueKey,
+      'You have to provide a unique ValueKey to every child!',
+    );
     final reorderableEntity = reorderableItemBuilderController.buildItem(
       key: child.key as ValueKey,
       index: index,
@@ -432,6 +445,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       currentScrollOffset: _scrollOffset,
       lockedIndices: widget.lockedIndices,
       isScrollableOutside: _isScrollOutside,
+      itemCount: widget.itemCount,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
