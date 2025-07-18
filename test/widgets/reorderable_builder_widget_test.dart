@@ -11,6 +11,7 @@ void main() {
       WidgetTester tester, {
       bool enableDraggable = true,
       OnReorderCallback? onReorder,
+      OnReorderPositions? onReorderPositions,
     }) async =>
         tester.pumpWidget(
           MaterialApp(
@@ -18,10 +19,15 @@ void main() {
               body: ReorderableBuilder.builder(
                 itemCount: 1,
                 childBuilder: (itemBuilder) {
-                  return itemBuilder(const Placeholder(), 0);
+                  return itemBuilder(
+                      const Placeholder(
+                        key: ValueKey('0'),
+                      ),
+                      0);
                 },
                 enableDraggable: enableDraggable,
                 onReorder: onReorder,
+                onReorderPositions: onReorderPositions,
               ),
             ),
           ),
@@ -34,6 +40,20 @@ void main() {
       expect(
         () => pumpWidget(tester, enableDraggable: true, onReorder: null),
         throwsAssertionError,
+      );
+    });
+
+    testWidgets(
+        "GIVEN enableDraggable = true and onReorder = null and onReorderPositions != null "
+        "WHEN pumping [ReorderableBuilder.builder] "
+        "THEN should return normally", (WidgetTester tester) async {
+      expect(
+        () => pumpWidget(
+          tester,
+          enableDraggable: true,
+          onReorderPositions: (p0) {},
+        ),
+        returnsNormally,
       );
     });
 
