@@ -264,7 +264,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragEnd,
     this.onUpdatedDraggedChild,
     Key? key,
-  })  : assert((enableDraggable && onReorder != null) || !enableDraggable),
+  })  : assert((enableDraggable &&
+                (onReorder != null || onReorderPositions != null)) ||
+            !enableDraggable),
         children = null,
         builder = null,
         super(key: key);
