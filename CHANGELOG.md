@@ -1,3 +1,8 @@
+## 5.5.1
+🐛 **Bug Fixes**
+- forgotten assert in the `builder` constructor was added (thanks to `FaFre`, see [#159](https://github.com/karvulf/flutter-reorderable-grid-view/pull/159))
+
+
 ## 5.5.0
 
 🏄‍♂️ **Improvements**
