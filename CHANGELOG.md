@@ -1,3 +1,9 @@
+## 5.5.1
+🐛 **Bug Fixes**
+- forgotten assert in the `builder` constructor was added (thanks to `FaFre`, see [#159](https://github.com/karvulf/flutter-reorderable-grid-view/pull/159))
+- added `mounted` check before calling `.forward()` to prevent AssertionError (thanks `hajajmaor`, see [#158](https://github.com/karvulf/flutter-reorderable-grid-view/issues/158))
+
+
 ## 5.5.0
 
 🏄‍♂️ **Improvements**
