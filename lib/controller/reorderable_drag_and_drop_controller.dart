@@ -320,8 +320,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   ///
   /// Now the ordering is correct. The number 2 is still at the locked index 2.
   List<ReorderUpdateEntity> _getOrderUpdateEntities({
-    required oldIndex,
-    required newIndex,
+    required int oldIndex,
+    required int newIndex,
   }) {
     final orderUpdateEntities = [
       ReorderUpdateEntity(
