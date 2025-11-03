@@ -331,7 +331,6 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
   @override
   Widget build(BuildContext context) {
-    print('Building ...');
     late Widget child;
 
     final builder = widget.builder;
