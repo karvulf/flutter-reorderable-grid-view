@@ -327,9 +327,10 @@ void main() {
       final expectedChildrenKeyMap = <String, ReorderableEntity>{};
       final expectedChildrenOrderMap = <int, ReorderableEntity>{};
       for (final entity in givenEntities) {
-        final expectedEntity = ReorderableEntity.create(
+        final expectedEntity = ReorderableEntity.orientationChanged(
           key: entity.key,
           updatedOrderId: entity.updatedOrderId,
+          originalOrderId: entity.originalOrderId,
         );
         expectedChildrenKeyMap[entity.key.value] = expectedEntity;
         expectedChildrenOrderMap[entity.originalOrderId] = expectedEntity;

@@ -68,6 +68,35 @@ void main() {
     });
   });
 
+  group('#orientationChanged', () {
+    test(
+        'GIVEN required values '
+        'WHEN calling orientationChanged '
+        'THEN should return expected ReorderableEntity', () {
+      // given
+
+      // when
+      final actual = ReorderableEntity.orientationChanged(
+        key: givenKey,
+        updatedOrderId: givenUpdatedOrderId,
+        originalOrderId: givenOriginalOrderId,
+      );
+
+      // then
+      const expectedReorderableEntity = ReorderableEntity(
+        key: givenKey,
+        originalOrderId: givenOriginalOrderId,
+        updatedOrderId: givenUpdatedOrderId,
+        originalOffset: Offset.zero,
+        updatedOffset: Offset.zero,
+        size: Size.zero,
+        isBuildingOffset: true,
+        hasSwappedOrder: false,
+      );
+      expect(actual, equals(expectedReorderableEntity));
+    });
+  });
+
   group('#operator', () {
     test(
         'GIVEN two entities '

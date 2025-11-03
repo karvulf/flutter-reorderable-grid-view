@@ -383,6 +383,65 @@ void main() {
       expect(actualOnUpdatedDraggedChildIndex, equals(2));
       expect(updatedChildren, equals(expectedUpdatedChildren));
     });
+
+    testWidgets(
+        "GIVEN [ReorderableBuilder] and three children and rotated screen "
+        "WHEN moving first child to the third child "
+        "THEN should order children and call onUpdatedDraggedChildIndex ",
+        (WidgetTester tester) async {
+      // given
+      const givenChildren = [
+        Text('child1', key: Key('child1')),
+        Text('child2', key: Key('child2')),
+        Text('child3', key: Key('child3')),
+      ];
+      late List<Widget> updatedChildren;
+
+      await pumpWidget(
+        tester,
+        children: givenChildren,
+        onReorder: (reorderFunction) {
+          updatedChildren = reorderFunction(givenChildren) as List<Widget>;
+        },
+        builder: (children) {
+          return GridView(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 8,
+            ),
+            children: children,
+          );
+        },
+      );
+      await tester.pumpAndSettle();
+
+      // to landscape
+      tester.view.physicalSize = const Size(1200.0, 800.0);
+      tester.view.devicePixelRatio = 1.0;
+      await tester.pumpAndSettle();
+
+      // when
+      final firstLocation = tester.getCenter(find.byWidget(givenChildren[0]));
+      final gesture = await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+
+      final secondLocation = tester.getCenter(find.byWidget(givenChildren[2]));
+      await gesture.moveTo(secondLocation);
+      await tester.pump();
+
+      await gesture.up();
+      await tester.pump();
+
+      // then
+      final expectedUpdatedChildren = [
+        givenChildren[1],
+        givenChildren[2],
+        givenChildren[0],
+      ];
+      expect(updatedChildren, equals(expectedUpdatedChildren));
+    });
   });
 }
 
