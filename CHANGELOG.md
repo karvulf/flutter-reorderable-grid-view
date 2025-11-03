@@ -1,3 +1,13 @@
+## 5.5.2
+🐛 **Bug Fixes**
+- after changing the orientation, the reorder didn't work anymore, is now fixed
+
+🏄‍♂️ **Improvements**
+- updated the calls
+  - `MediaQuery.of(context).size` -> `MediaQuery.sizeOf(context)`
+  - `MediaQuery.of(context).orientation` -> `MediaQuery.orientationOf(context)`
+  - thanks to `hajajmaor` for finding this (see [#163](https://github.com/karvulf/flutter-reorderable-grid-view/issues/163))
+  
 ## 5.5.1
 🐛 **Bug Fixes**
 - forgotten assert in the `builder` constructor was added (thanks to `FaFre`, see [#159](https://github.com/karvulf/flutter-reorderable-grid-view/pull/159))

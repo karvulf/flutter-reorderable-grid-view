@@ -306,13 +306,13 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
   @override
   void didChangeMetrics() {
-    final orientationBefore = MediaQuery.of(context).orientation;
-    final screenSizeBefore = MediaQuery.of(context).size;
+    final orientationBefore = MediaQuery.orientationOf(context);
+    final screenSizeBefore = MediaQuery.sizeOf(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final orientationAfter = MediaQuery.of(context).orientation;
-      final screenSizeAfter = MediaQuery.of(context).size;
+      final orientationAfter = MediaQuery.orientationOf(context);
+      final screenSizeAfter = MediaQuery.sizeOf(context);
 
       if (orientationBefore != orientationAfter ||
           screenSizeBefore != screenSizeAfter) {
@@ -331,6 +331,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
   @override
   Widget build(BuildContext context) {
+    print('Building ...');
     late Widget child;
 
     final builder = widget.builder;

@@ -124,17 +124,19 @@ abstract class ReorderableController {
 
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
-      childrenOrderMap[entry.key] = ReorderableEntity.create(
+      childrenOrderMap[entry.key] = ReorderableEntity.orientationChanged(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
+        originalOrderId: value.originalOrderId,
       );
     }
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
-      childrenKeyMap[entry.key] = ReorderableEntity.create(
+      childrenKeyMap[entry.key] = ReorderableEntity.orientationChanged(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
+        originalOrderId: value.originalOrderId,
       );
     }
   }
