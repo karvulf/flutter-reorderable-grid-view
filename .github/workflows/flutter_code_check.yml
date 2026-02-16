@@ -36,12 +36,6 @@ jobs:
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
         run: flutter analyze
-
-      - name: Install very good cli
-        run: dart pub global activate very_good_cli
-
-      # Your project will need to have tests in test/ and a dependency on
-      # package:test for this step to succeed. Note that Flutter projects will
-      # want to change this to 'flutter test'.
-      - name: Run tests with very good cli and min coverage of 90 percent
-        run: very_good test
+        
+      - name: Run flutter tests
+        run: flutter test
