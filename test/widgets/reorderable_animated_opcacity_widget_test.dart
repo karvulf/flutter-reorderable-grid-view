@@ -85,7 +85,9 @@ void main() {
     // then
     expect(
         find.byWidgetPredicate((widget) =>
-            widget is FadeTransition && widget.opacity.value == 1.0),
+            widget is FadeTransition &&
+            widget.opacity.value == 1.0 &&
+            widget.child == givenChild),
         findsOneWidget);
 
     expect(callCounter, equals(0));

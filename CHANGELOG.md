@@ -1,3 +1,11 @@
+## 5.5.3
+🐛 **Bug Fixes**
+- performance issue fixed while scrolling (thanks to `stanbav` for the PR, see [#166](https://github.com/karvulf/flutter-reorderable-grid-view/pull/166))
+
+🏄‍♂️ **Improvements**
+- updated `android` folder in example project to the flutter version `3.38.9`
+
+
 ## 5.5.2
 🐛 **Bug Fixes**
 - fixed an issue where reordering stopped working after changing device orientation
