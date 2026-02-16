@@ -61,12 +61,26 @@ class _ReorderableScrollingListenerState
   /// [Offset] of the child that was found in [widget.reorderableChildKey].
   Offset? _childOffset;
 
+  Offset? _lastDragPosition;
+
   @override
   void didUpdateWidget(covariant ReorderableScrollingListener oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isDragging != oldWidget.isDragging && widget.isDragging) {
-      _updateChildSizeAndOffset();
+    if (widget.isDragging != oldWidget.isDragging) {
+      if (widget.isDragging) {
+        _updateChildSizeAndOffset();
+      } else {
+        _scrollCheckTimer?.cancel();
+        _scrollCheckTimer = null;
+        _lastDragPosition = null;
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollCheckTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -90,31 +104,36 @@ class _ReorderableScrollingListenerState
   /// himself every 10 ms to check if widget of [widget.reorderableChildKey]
   /// can be scrolled up or down.
   ///
-  /// The timer cancels himself before recreating a new one and to ensure that
-  /// no timer is ongoing when the [widget.isDragging] stopped, it checks also himself
-  /// if it has to be canceled.
+  /// The timer is now created once and kept alive while dragging, instead
+  /// of being cancelled and recreated on every pointer move. This prevents
+  /// timer starvation on high-refresh-rate devices where pointer events fire
+  /// faster than the 10ms timer interval.
   void _handleDragUpdate(PointerMoveEvent details) {
     final scrollDirection = _reorderableScrollable.scrollDirection;
 
     if (widget.enableScrollingWhileDragging &&
         widget.reorderableChildKey != null &&
         scrollDirection != null) {
-      final position = details.localPosition;
+      _lastDragPosition = details.localPosition;
 
-      _scrollCheckTimer?.cancel();
-      _scrollCheckTimer = Timer.periodic(
-        const Duration(milliseconds: 10),
-        (timer) {
-          if (widget.isDragging) {
-            _checkToScrollWhileDragging(
-              dragPosition: position,
-              scrollDirection: scrollDirection,
-            );
-          } else {
-            timer.cancel();
-          }
-        },
-      );
+      if (_scrollCheckTimer == null || !_scrollCheckTimer!.isActive) {
+        _scrollCheckTimer = Timer.periodic(
+          const Duration(milliseconds: 10),
+          (timer) {
+            if (widget.isDragging) {
+              final position = _lastDragPosition;
+              if (position != null) {
+                _checkToScrollWhileDragging(
+                  dragPosition: position,
+                  scrollDirection: scrollDirection,
+                );
+              }
+            } else {
+              timer.cancel();
+            }
+          },
+        );
+      }
     }
 
     widget.onDragUpdate(details);
