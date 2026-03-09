@@ -10,9 +10,19 @@ void main() {
   Future<void> pumpWidget(
     WidgetTester tester, {
     required VoidCallback onDeactivate,
+    bool disableAnimations = false,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: _TestAnimatedDraggableFeedback(
               onDeactivate: onDeactivate,
@@ -52,6 +62,41 @@ void main() {
             widget is DecoratedBoxTransition &&
             widget.position == DecorationPosition.background &&
             widget.child == givenChild),
+        findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN disableAnimations is true '
+      'WHEN pumping [_TestAnimatedDraggableFeedback] '
+      'THEN should show the scaled feedback immediately',
+      (WidgetTester tester) async {
+    await pumpWidget(
+      tester,
+      onDeactivate: () {},
+      disableAnimations: true,
+    );
+
+    final expectedOffsetToCenterFeedback = Offset(
+      -((givenSize.width * givenFeedbackScaleFactor) - givenSize.width) / 2,
+      -((givenSize.height * givenFeedbackScaleFactor) - givenSize.height) / 2,
+    );
+
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is AnimatedContainer &&
+            widget.duration == Duration.zero &&
+            widget.transform ==
+                Matrix4.translationValues(
+                  expectedOffsetToCenterFeedback.dx,
+                  expectedOffsetToCenterFeedback.dy,
+                  0.0,
+                )),
+        findsOneWidget);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is Container &&
+            widget.constraints ==
+                BoxConstraints.tight(givenSize * givenFeedbackScaleFactor)),
         findsOneWidget);
   });
 

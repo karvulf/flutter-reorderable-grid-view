@@ -48,6 +48,7 @@ class _ReorderableAnimatedReleasedContainerState
 
   /// Animation value to show the offset animation.
   Animation<Offset>? _offsetAnimation;
+  bool _disableAnimations = false;
 
   @override
   void initState() {
@@ -55,9 +56,16 @@ class _ReorderableAnimatedReleasedContainerState
 
     // TODO(karvulf): add duration to parameter of this package
     _offsetAnimationController = AnimationController(
-      duration: widget.releasedChildDuration,
+      duration: Duration.zero,
       vsync: this,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _disableAnimations = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    _offsetAnimationController.duration = _releasedChildDuration;
   }
 
   @override
@@ -81,6 +89,10 @@ class _ReorderableAnimatedReleasedContainerState
   @override
   Widget build(BuildContext context) {
     var child = widget.child;
+
+    if (_disableAnimations) {
+      return child;
+    }
 
     final offset = _offsetAnimation?.value;
 
@@ -115,6 +127,12 @@ class _ReorderableAnimatedReleasedContainerState
   Future<void> _handleReleasedReorderableEntity({
     required ReleasedReorderableEntity releasedReorderableEntity,
   }) async {
+    if (_disableAnimations) {
+      _offsetAnimationController.reset();
+      _offsetAnimation = null;
+      return;
+    }
+
     final begin = getBeginOffset(
       releasedReorderableEntity: releasedReorderableEntity,
     );
@@ -140,5 +158,12 @@ class _ReorderableAnimatedReleasedContainerState
     return releasedReorderableEntity.dropOffset -
         widget.reorderableEntity.updatedOffset +
         widget.scrollOffset;
+  }
+
+  Duration get _releasedChildDuration {
+    if (_disableAnimations) {
+      return Duration.zero;
+    }
+    return widget.releasedChildDuration;
   }
 }

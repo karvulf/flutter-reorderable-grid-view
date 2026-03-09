@@ -60,20 +60,48 @@ class _ReorderableAnimatedPositionedState
 
   /// Animation value for the position change.
   late Animation<Offset> _offsetAnimation;
+  bool _disableAnimations = false;
+  bool _hasInitializedAnimation = false;
 
   @override
   void initState() {
     super.initState();
 
     _animationController = AnimationController(
-      duration: _defaultAnimationDuration,
+      duration: Duration.zero,
       vsync: this,
     );
+    _offsetAnimation = const AlwaysStoppedAnimation(Offset.zero);
+  }
 
-    if (widget.isDragging) {
-      _updateDragOffsetAnimation();
-    } else {
-      _updateOffsetAnimation();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final disableAnimations =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final didDisableAnimations = !_disableAnimations && disableAnimations;
+    _disableAnimations = disableAnimations;
+
+    if (didDisableAnimations) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_disableAnimations) return;
+        if (_animationController.isAnimating) {
+          _animationController.stop(canceled: false);
+        }
+        if (_animationController.value != 1.0) {
+          _animationController.value = 1.0;
+        }
+      });
+    }
+
+    if (!_hasInitializedAnimation) {
+      _hasInitializedAnimation = true;
+      if (widget.isDragging) {
+        _updateDragOffsetAnimation();
+      } else {
+        _updateOffsetAnimation();
+      }
     }
   }
 
@@ -95,10 +123,12 @@ class _ReorderableAnimatedPositionedState
 
   @override
   Widget build(BuildContext context) {
+    final offset = _offsetAnimation.value;
+
     return Container(
       transform: Matrix4.translationValues(
-        _offsetAnimation.value.dx,
-        _offsetAnimation.value.dy,
+        offset.dx,
+        offset.dy,
         0.0,
       ),
       child: widget.child,
@@ -155,7 +185,7 @@ class _ReorderableAnimatedPositionedState
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
   }) async {
-    _animationController.duration = _defaultAnimationDuration;
+    _animationController.duration = _dragAnimationDuration;
     final tween = Tween<Offset>(begin: begin, end: end);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
@@ -184,7 +214,7 @@ class _ReorderableAnimatedPositionedState
   /// Important, this function is only added when [widget.child] updates his
   /// position, not while dragging.
   Future<void> _animateOffset({required Offset begin}) async {
-    _animationController.duration = widget.positionDuration;
+    _animationController.duration = _positionAnimationDuration;
 
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)
@@ -197,5 +227,19 @@ class _ReorderableAnimatedPositionedState
     if (begin != Offset.zero) {
       widget.onMovingFinished();
     }
+  }
+
+  Duration get _dragAnimationDuration {
+    if (_disableAnimations) {
+      return Duration.zero;
+    }
+    return _defaultAnimationDuration;
+  }
+
+  Duration get _positionAnimationDuration {
+    if (_disableAnimations) {
+      return Duration.zero;
+    }
+    return widget.positionDuration;
   }
 }

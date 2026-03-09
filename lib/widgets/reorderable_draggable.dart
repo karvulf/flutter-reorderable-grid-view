@@ -50,6 +50,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     with TickerProviderStateMixin {
   late final AnimationController _decoratedBoxAnimationController;
   late final DecorationTween _decorationTween;
+  bool _disableAnimations = false;
 
   bool isDragging = false;
   final _draggableFeedbackGlobalKey = GlobalKey();
@@ -73,7 +74,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
 
     _decoratedBoxAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: Duration.zero,
     );
 
     final beginDragBoxDecoration = widget.dragChildBoxDecoration?.copyWith(
@@ -84,6 +85,28 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       begin: beginDragBoxDecoration ?? const BoxDecoration(),
       end: widget.dragChildBoxDecoration ?? _defaultBoxDecoration,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disableAnimations =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final didDisableAnimations = !_disableAnimations && disableAnimations;
+    _disableAnimations = disableAnimations;
+    _decoratedBoxAnimationController.duration = _dragDecorationDuration;
+
+    if (didDisableAnimations && isDragging) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_disableAnimations || !isDragging) return;
+        if (_decoratedBoxAnimationController.isAnimating) {
+          _decoratedBoxAnimationController.stop(canceled: false);
+        }
+        if (_decoratedBoxAnimationController.value != 1.0) {
+          _decoratedBoxAnimationController.value = 1.0;
+        }
+      });
+    }
   }
 
   @override
@@ -157,7 +180,11 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   void _handleDragStarted() {
     isDragging = true;
     widget.onDragStarted();
-    _decoratedBoxAnimationController.forward();
+    if (_disableAnimations) {
+      _decoratedBoxAnimationController.value = 1.0;
+    } else {
+      _decoratedBoxAnimationController.forward();
+    }
   }
 
   /// Called when the draggable is dropped and accepted by a [DragTarget].
@@ -197,5 +224,12 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     } else {
       return null;
     }
+  }
+
+  Duration get _dragDecorationDuration {
+    if (_disableAnimations) {
+      return Duration.zero;
+    }
+    return const Duration(milliseconds: 250);
   }
 }

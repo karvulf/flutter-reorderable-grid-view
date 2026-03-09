@@ -33,6 +33,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
+  bool _disableAnimations = false;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
 
     _controller = AnimationController(
       vsync: this,
-      duration: _duration,
+      duration: Duration.zero,
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
 
@@ -54,6 +55,13 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
         _controller.forward();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _disableAnimations = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    _controller.duration = _duration;
   }
 
   @override
@@ -77,7 +85,8 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
-      opacity: _animation,
+      opacity:
+          _disableAnimations ? const AlwaysStoppedAnimation(1.0) : _animation,
       child: widget.child,
     );
   }
@@ -120,6 +129,9 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   /// never appear, as the opacity would stay at 0.
   Duration get _duration {
     final isNew = widget.reorderableEntity.isNew;
-    return isNew ? widget.fadeInDuration : Duration.zero;
+    if (!isNew || _disableAnimations) {
+      return Duration.zero;
+    }
+    return widget.fadeInDuration;
   }
 }

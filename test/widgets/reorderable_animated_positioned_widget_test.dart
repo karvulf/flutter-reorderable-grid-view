@@ -17,9 +17,19 @@ void main() {
     required ReorderableEntity reorderableEntity,
     required bool isDragging,
     required VoidCallback onMovingFinished,
+    bool disableAnimations = false,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: ReorderableAnimatedPositioned(
               reorderableEntity: reorderableEntity,
@@ -151,6 +161,75 @@ void main() {
       // then
       expect(callCounter, equals(1));
     });
+
+    testWidgets(
+        'GIVEN disableAnimations is true and reorderableEntity changed position '
+        'WHEN pumping [ReorderableAnimatedPositioned] '
+        'THEN should jump to the final position and call onMovingFinished',
+        (WidgetTester tester) async {
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+      );
+      int callCounter = 0;
+
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        isDragging: false,
+        disableAnimations: true,
+        onMovingFinished: () {
+          callCounter++;
+        },
+      );
+      await tester.pump();
+
+      findContainerWithMatrix(x: 0.0, y: 0.0);
+      expect(callCounter, equals(1));
+    });
+
+    testWidgets(
+        'GIVEN active position animation and disableAnimations changes to true '
+        'WHEN rebuilding [ReorderableAnimatedPositioned] '
+        'THEN should jump to final position and call onMovingFinished',
+        (WidgetTester tester) async {
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+      );
+      int callCounter = 0;
+
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        isDragging: false,
+        disableAnimations: false,
+        onMovingFinished: () {
+          callCounter++;
+        },
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is Container &&
+              widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0)),
+          findsNothing);
+
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        isDragging: false,
+        disableAnimations: true,
+        onMovingFinished: () {
+          callCounter++;
+        },
+      );
+      await tester.pump();
+
+      findContainerWithMatrix(x: 0.0, y: 0.0);
+      expect(callCounter, equals(1));
+    });
   });
 
   group('#didUpdateWidget', () {
@@ -160,9 +239,19 @@ void main() {
       required ReorderableEntity updatedReorderableEntity,
       required bool isDragging,
       required VoidCallback onMovingFinished,
+      bool disableAnimations = false,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: _TestUpdateReorderableAnimatedPositioned(
               reorderableEntity: reorderableEntity,
@@ -323,6 +412,40 @@ void main() {
       );
 
       // then
+      findContainerWithMatrix(x: 100.0, y: 200.0);
+      expect(callCounter, equals(0));
+    });
+
+    testWidgets(
+        'GIVEN disableAnimations is true and drag preview position changes '
+        'WHEN updating [ReorderableAnimatedPositioned] while dragging '
+        'THEN should keep the translated preview offset',
+        (WidgetTester tester) async {
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: Offset.zero,
+        originalOrderId: 0,
+        key: 'original',
+      );
+      final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+        originalOrderId: 1,
+        key: 'updated',
+      );
+      int callCounter = 0;
+
+      await pumpWidgetAndUpdate(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        updatedReorderableEntity: givenUpdatedReorderableEntity,
+        isDragging: true,
+        disableAnimations: true,
+        onMovingFinished: () {
+          callCounter++;
+        },
+      );
+
       findContainerWithMatrix(x: 100.0, y: 200.0);
       expect(callCounter, equals(0));
     });

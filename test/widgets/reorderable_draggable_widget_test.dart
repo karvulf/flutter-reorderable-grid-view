@@ -19,6 +19,7 @@ void main() {
     required bool enableLongPress,
     required bool enableDraggable,
     Duration longPressDelay = givenLongPressDelay,
+    bool disableAnimations = false,
     ReorderableEntity? currentDraggedEntity,
     Widget? child,
     VoidCallback? onDragStarted,
@@ -28,6 +29,15 @@ void main() {
   }) async =>
       tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: Column(
               children: [
@@ -354,6 +364,86 @@ void main() {
         }
         return false;
       }), findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN disableAnimations is true "
+        "WHEN start dragging "
+        "THEN the feedback decoration should be applied immediately",
+        (WidgetTester tester) async {
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: true,
+        disableAnimations: true,
+      );
+      await tester.pumpAndSettle();
+
+      final firstLocation = tester.getCenter(find.text('Source'));
+      await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(givenLongPressDelay);
+      await tester.pump();
+
+      expect(find.byWidgetPredicate((widget) {
+        if (widget is LongPressDraggable) {
+          final boxDecoration = ((widget.feedback as DraggableFeedback)
+              .decoration
+              .value as BoxDecoration);
+          return boxDecoration.boxShadow?.length == 1;
+        }
+        return false;
+      }), findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN active drag feedback animation and disableAnimations changes to true "
+        "WHEN rebuilding [ReorderableDraggable] "
+        "THEN should apply final feedback decoration immediately",
+        (WidgetTester tester) async {
+      bool hasFinalDecoration(Widget widget) {
+        if (widget is LongPressDraggable) {
+          final boxDecoration = ((widget.feedback as DraggableFeedback)
+              .decoration
+              .value as BoxDecoration);
+          if (boxDecoration.boxShadow?.length != 1) {
+            return false;
+          }
+
+          final shadow = boxDecoration.boxShadow![0];
+          return shadow.spreadRadius == 5 &&
+              shadow.blurRadius == 6 &&
+              shadow.offset == const Offset(0, 3);
+        }
+        return false;
+      }
+
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: true,
+        disableAnimations: false,
+      );
+      await tester.pumpAndSettle();
+
+      final firstLocation = tester.getCenter(find.text('Source'));
+      final gesture = await tester.startGesture(firstLocation, pointer: 7);
+      await tester.pump(givenLongPressDelay);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byWidgetPredicate(hasFinalDecoration), findsNothing);
+
+      await pumpWidget(
+        tester,
+        enableDraggable: true,
+        enableLongPress: true,
+        disableAnimations: true,
+      );
+      await tester.pump();
+
+      expect(find.byWidgetPredicate(hasFinalDecoration), findsOneWidget);
+
+      await gesture.up();
+      await tester.pump();
     });
   });
 }

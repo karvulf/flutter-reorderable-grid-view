@@ -17,8 +17,21 @@ void main() {
   const givenScrollOffset = Offset(1.0, 2.0);
   const givenChild = Placeholder();
 
-  Future<void> pumpWidget(WidgetTester tester) async => tester.pumpWidget(
+  Future<void> pumpWidget(
+    WidgetTester tester, {
+    bool disableAnimations = false,
+  }) async =>
+      tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: ReorderableAnimatedReleasedContainer(
               releasedChildDuration: givenReleasedChildDuration,
@@ -181,6 +194,50 @@ void main() {
                       expectedOffset.dx, expectedOffset.dy, 0.0) &&
               widget.child == givenChild),
           findsOneWidget);
+    });
+
+    testWidgets(
+        "GIVEN disableAnimations is true and ReleasedReorderableEntity changed "
+        "WHEN pumping [ReorderableAnimatedReleasedContainer] "
+        "THEN should skip the release animation", (WidgetTester tester) async {
+      final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
+        dropOffset: const Offset(100.0, 200.0),
+        reorderableEntity: givenReorderableEntity,
+      );
+      final givenUpdatedReleasedEntity = reorderableBuilder.getReleasedEntity(
+        dropOffset: const Offset(111.0, 222.0),
+        reorderableEntity: givenReorderableEntity,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(disableAnimations: true),
+              child: child!,
+            );
+          },
+          home: Scaffold(
+            body: _TestUpdateReorderableAnimatedReleasedContainer(
+              releasedChildDuration: givenReleasedChildDuration,
+              releasedEntity: givenReleasedEntity,
+              updatedReleasedEntity: givenUpdatedReleasedEntity,
+              reorderableEntity: givenReorderableEntity,
+              scrollOffset: givenScrollOffset,
+              child: givenChild,
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byType(TextButton));
+      await tester.pump();
+
+      expect(find.byWidget(givenChild), findsOneWidget);
+      expect(
+          find.byWidgetPredicate(
+              (widget) => widget is Transform && widget.child == givenChild),
+          findsNothing);
     });
   });
 }

@@ -17,9 +17,19 @@ void main() {
     WidgetTester tester, {
     required ReorderableEntity reorderableEntity,
     required VoidCallback onAnimationStarted,
+    bool disableAnimations = false,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                disableAnimations: disableAnimations,
+              ),
+              child: child!,
+            );
+          },
           home: Scaffold(
             body: ReorderableAnimatedOpacity(
               fadeInDuration: givenFadeInDuration,
@@ -165,6 +175,29 @@ void main() {
 
     // then
     expect(callCounter, equals(2));
+  });
+
+  testWidgets(
+      'GIVEN disableAnimations is true and reorderableEntity is new '
+      'WHEN pumping [ReorderableAnimatedOpacity] '
+      'THEN should show the child immediately', (WidgetTester tester) async {
+    final givenReorderableEntity = reorderableBuilder.getEntity(
+      originalOrderId: -1,
+    );
+
+    await pumpWidget(
+      tester,
+      reorderableEntity: givenReorderableEntity,
+      onAnimationStarted: () {},
+      disableAnimations: true,
+    );
+
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is FadeTransition &&
+            widget.opacity.value == 1.0 &&
+            widget.child == givenChild),
+        findsOneWidget);
   });
 }
 

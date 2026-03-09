@@ -28,6 +28,7 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
 
   /// The offset ensures that the feedback widget, when scaled, remains centered.
   Offset _offset = Offset.zero;
+  bool _disableAnimations = false;
 
   @override
   void initState() {
@@ -39,6 +40,12 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _disableAnimations = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  }
+
+  @override
   void deactivate() {
     widget.onDeactivate();
     super.deactivate();
@@ -46,13 +53,16 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
 
   @override
   Widget build(BuildContext context) {
+    final size = _disableAnimations ? _feedbackSize : _size;
+    final offset = _disableAnimations ? _feedbackOffset : _offset;
+
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        height: _size.height,
-        width: _size.width,
-        transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0.0),
+        duration: _animationDuration,
+        height: size.height,
+        width: size.width,
+        transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
         child: DecoratedBoxTransition(
           position: DecorationPosition.background,
           decoration: widget.decoration,
@@ -68,15 +78,30 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
   /// has started. Because the size change, also the offset has to be changed
   /// to ensure that the widget is still centered.
   void _scaleAndCenterFeedback() {
-    final feedbackSize = _size * widget.feedbackScaleFactor;
-    final offsetToCenterFeedback = Offset(
-      -(feedbackSize.width - _size.width) / 2,
-      -(feedbackSize.height - _size.height) / 2,
-    );
+    if (_disableAnimations) {
+      return;
+    }
 
     setState(() {
-      _size = feedbackSize;
-      _offset = offsetToCenterFeedback;
+      _size = _feedbackSize;
+      _offset = _feedbackOffset;
     });
+  }
+
+  Size get _feedbackSize => widget.size * widget.feedbackScaleFactor;
+
+  Offset get _feedbackOffset {
+    final feedbackSize = _feedbackSize;
+    return Offset(
+      -(feedbackSize.width - widget.size.width) / 2,
+      -(feedbackSize.height - widget.size.height) / 2,
+    );
+  }
+
+  Duration get _animationDuration {
+    if (_disableAnimations) {
+      return Duration.zero;
+    }
+    return const Duration(milliseconds: 150);
   }
 }
