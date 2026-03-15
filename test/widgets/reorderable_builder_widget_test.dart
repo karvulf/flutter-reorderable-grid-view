@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
@@ -96,10 +97,7 @@ void main() {
                 widget.enableDraggable &&
                 widget.automaticScrollExtent == 150.0 &&
                 widget.enableScrollingWhileDragging &&
-                widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.releasedChildDuration ==
-                    const Duration(milliseconds: 150) &&
-                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.animationConfig == const ReorderableAnimationConfig() &&
                 widget.feedbackScaleFactor == 1.05 &&
                 !widget.reverse,
           ),
@@ -119,11 +117,13 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is ReorderableBuilderItem &&
-                widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.positionChangeDuration == const Duration(milliseconds: 200) &&
+                widget.animationConfig.fadeInDuration ==
+                    const Duration(milliseconds: 500) &&
+                widget.animationConfig.positionChangeDuration ==
+                    const Duration(milliseconds: 200) &&
                 widget.releasedReorderableEntity == null &&
                 widget.scrollOffset == Offset.zero &&
-                widget.releasedItemDuration ==
+                widget.animationConfig.releasedItemDuration ==
                     const Duration(milliseconds: 150) &&
                 widget.enableDraggable &&
                 widget.currentDraggedEntity == null &&
@@ -259,10 +259,7 @@ void main() {
                 widget.enableDraggable &&
                 widget.automaticScrollExtent == 150.0 &&
                 widget.enableScrollingWhileDragging &&
-                widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.releasedChildDuration ==
-                    const Duration(milliseconds: 150) &&
-                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.animationConfig == const ReorderableAnimationConfig() &&
                 !widget.reverse,
           ),
           findsOneWidget);
@@ -282,11 +279,13 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is ReorderableBuilderItem &&
-                widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.positionChangeDuration == const Duration(milliseconds: 200) &&
+                widget.animationConfig.fadeInDuration ==
+                    const Duration(milliseconds: 500) &&
+                widget.animationConfig.positionChangeDuration ==
+                    const Duration(milliseconds: 200) &&
                 widget.releasedReorderableEntity == null &&
                 widget.scrollOffset == Offset.zero &&
-                widget.releasedItemDuration ==
+                widget.animationConfig.releasedItemDuration ==
                     const Duration(milliseconds: 150) &&
                 widget.currentDraggedEntity == null &&
                 widget.enableLongPress &&

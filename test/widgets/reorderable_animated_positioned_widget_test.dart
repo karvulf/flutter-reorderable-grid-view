@@ -364,6 +364,99 @@ void main() {
       expect(callCounter, equals(0));
     });
   });
+
+  group('#animationDuration', () {
+    testWidgets(
+        'GIVEN positionChangeDuration = 500ms '
+        'WHEN pumping before and after the duration '
+        'THEN onMovingFinished is called only after 500ms',
+        (WidgetTester tester) async {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+      );
+      int callCounter = 0;
+
+      // when
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        isDragging: false,
+        onMovingFinished: () {
+          callCounter++;
+        },
+      );
+
+      // start first animation frame before measuring elapsed duration
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 499));
+
+      // then
+      expect(callCounter, equals(0));
+
+      // when
+      await tester.pump(const Duration(milliseconds: 2));
+      await tester.pump();
+
+      // then
+      expect(callCounter, equals(1));
+    });
+
+    testWidgets(
+        'GIVEN draggingPositionChangeDuration = 400ms '
+        'WHEN updating position while dragging '
+        'THEN translation reaches end offset after 400ms',
+        (WidgetTester tester) async {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(0.0, 0.0),
+        originalOrderId: 0,
+      );
+      final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+        originalOrderId: 1,
+        isBuildingOffset: false,
+        key: 'updated',
+      );
+      int callCounter = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: _TestUpdateReorderableAnimatedPositioned(
+              reorderableEntity: givenReorderableEntity,
+              updatedReorderableEntity: givenUpdatedReorderableEntity,
+              isDragging: true,
+              positionChangeDuration: givenPositionDuration,
+              draggingPositionChangeDuration: givenDraggingPositionDuration,
+              onMovingFinished: () {
+                callCounter++;
+              },
+            ),
+          ),
+        ),
+      );
+
+      // when
+      await tester.tap(find.byType(TextButton));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 399));
+
+      // then
+      findContainerWithMatrix(x: 99.75, y: 199.5);
+      expect(callCounter, equals(0));
+
+      // when
+      await tester.pump(const Duration(milliseconds: 1));
+
+      // then
+      findContainerWithMatrix(x: 100.0, y: 200.0);
+      expect(callCounter, equals(0));
+    });
+  });
 }
 
 class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
@@ -371,12 +464,16 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
   final ReorderableEntity updatedReorderableEntity;
   final bool isDragging;
   final VoidCallback onMovingFinished;
+  final Duration positionChangeDuration;
+  final Duration draggingPositionChangeDuration;
 
   const _TestUpdateReorderableAnimatedPositioned({
     required this.reorderableEntity,
     required this.updatedReorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
+    this.positionChangeDuration = const Duration(milliseconds: 200),
+    this.draggingPositionChangeDuration = const Duration(milliseconds: 300),
   });
 
   @override
@@ -404,8 +501,9 @@ class _TestUpdateReorderableAnimatedPositionedState
           ReorderableAnimatedPositioned(
             reorderableEntity: reorderableEntity,
             isDragging: widget.isDragging,
-            positionChangeDuration: const Duration(milliseconds: 200),
-            draggingPositionChangeDuration: const Duration(milliseconds: 300),
+            positionChangeDuration: widget.positionChangeDuration,
+            draggingPositionChangeDuration:
+                widget.draggingPositionChangeDuration,
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
@@ -23,9 +24,14 @@ void main() {
   );
   const givenFadeInDuration = Duration(milliseconds: 300);
   const givenPositionDuration = Duration(milliseconds: 400);
+  const givenReleasedChildDuration = Duration(milliseconds: 500);
+  const givenAnimationConfig = ReorderableAnimationConfig(
+    fadeInDuration: givenFadeInDuration,
+    positionChangeDuration: givenPositionDuration,
+    releasedItemDuration: givenReleasedChildDuration,
+  );
   final givenReleasedReorderableEntity = reorderableBuilder.getReleasedEntity();
   const givenScrollOffset = Offset(11.1, 12.2);
-  const givenReleasedChildDuration = Duration(milliseconds: 500);
   const givenEnableDraggable = true;
   const givenEnableLongPress = false;
   const givenLongPressDelay = Duration(milliseconds: 600);
@@ -80,15 +86,13 @@ void main() {
         MaterialApp(
           home: ReorderableBuilderItem(
             reorderableEntity: givenReorderableEntity,
-            fadeInDuration: givenFadeInDuration,
+            animationConfig: givenAnimationConfig,
             onOpacityFinished: onOpacityFinished ?? givenOnOpacityFinished,
             currentDraggedEntity: currentDraggedEntity,
-            positionChangeDuration: givenPositionDuration,
             onMovingFinished: onMovingFinished ?? givenOnMovingFinished,
             onCreated: onCreated ?? givenOnCreated,
             releasedReorderableEntity: givenReleasedReorderableEntity,
             scrollOffset: givenScrollOffset,
-            releasedItemDuration: givenReleasedChildDuration,
             enableDraggable: givenEnableDraggable,
             enableLongPress: givenEnableLongPress,
             longPressDelay: givenLongPressDelay,
@@ -129,6 +133,8 @@ void main() {
             widget.reorderableEntity == givenReorderableEntity &&
             !widget.isDragging &&
             widget.positionChangeDuration == givenPositionDuration &&
+            widget.draggingPositionChangeDuration ==
+                givenAnimationConfig.draggingPositionChangeDuration &&
             widget.child is ReorderableInitChild),
         findsOneWidget);
     expect(
@@ -157,6 +163,8 @@ void main() {
             widget.longPressDelay == givenLongPressDelay &&
             widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
+            widget.feedbackDuration ==
+                givenAnimationConfig.dragFeedbackDuration &&
             widget.child == givenChild),
         findsOneWidget);
   });
@@ -454,15 +462,17 @@ class _TestReorderableBuilderItemState
       ),
       body: ReorderableBuilderItem(
         reorderableEntity: _reorderableEntity,
-        fadeInDuration: const Duration(milliseconds: 200),
+        animationConfig: const ReorderableAnimationConfig(
+          fadeInDuration: Duration(milliseconds: 200),
+          positionChangeDuration: Duration(milliseconds: 200),
+          releasedItemDuration: Duration(milliseconds: 200),
+        ),
         onOpacityFinished: (_) => _reorderableEntity,
         currentDraggedEntity: null,
-        positionChangeDuration: const Duration(milliseconds: 200),
         onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
         onCreated: (_, __) => _reorderableEntity,
         releasedReorderableEntity: null,
         scrollOffset: Offset.zero,
-        releasedItemDuration: const Duration(milliseconds: 200),
         enableDraggable: true,
         enableLongPress: true,
         longPressDelay: const Duration(milliseconds: 200),
