@@ -9,6 +9,7 @@ void main() {
   final reorderableBuilder = ReorderableBuilder();
 
   const givenPositionDuration = Duration(milliseconds: 500);
+  const givenDraggingPositionDuration = Duration(milliseconds: 400);
   const givenChild = Placeholder();
   final givenReorderableEntity = reorderableBuilder.getEntity();
 
@@ -25,6 +26,7 @@ void main() {
               reorderableEntity: reorderableEntity,
               isDragging: isDragging,
               positionChangeDuration: givenPositionDuration,
+              draggingPositionChangeDuration: givenDraggingPositionDuration,
               onMovingFinished: onMovingFinished,
               child: givenChild,
             ),
@@ -403,6 +405,7 @@ class _TestUpdateReorderableAnimatedPositionedState
             reorderableEntity: reorderableEntity,
             isDragging: widget.isDragging,
             positionChangeDuration: const Duration(milliseconds: 200),
+            draggingPositionChangeDuration: const Duration(milliseconds: 300),
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),
           ),

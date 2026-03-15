@@ -6,6 +6,7 @@ void main() {
   const givenSize = Size(100.0, 200.5);
   const givenChild = Placeholder();
   const givenFeedbackScaleFactor = 1.5;
+  const givenAnimationDuration = Duration(milliseconds: 250);
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -18,6 +19,7 @@ void main() {
               onDeactivate: onDeactivate,
               size: givenSize,
               feedbackScaleFactor: givenFeedbackScaleFactor,
+              animationDuration: givenAnimationDuration,
               child: givenChild,
             ),
           ),
@@ -40,6 +42,11 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is Material && widget.color == Colors.transparent),
+        findsOneWidget);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is AnimatedContainer &&
+            widget.duration == givenAnimationDuration),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -113,12 +120,14 @@ class _TestAnimatedDraggableFeedback extends StatefulWidget {
   final Widget child;
   final Size size;
   final double feedbackScaleFactor;
+  final Duration animationDuration;
   final VoidCallback onDeactivate;
 
   const _TestAnimatedDraggableFeedback({
     required this.child,
     required this.size,
     required this.feedbackScaleFactor,
+    required this.animationDuration,
     required this.onDeactivate,
     Key? key,
   }) : super(key: key);
@@ -158,6 +167,7 @@ class _TestAnimatedDraggableFeedbackState
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
+      animationDuration: widget.animationDuration,
       child: widget.child,
     );
   }
