@@ -154,6 +154,8 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
         reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
         positionDuration: animationConfig.positionDuration,
+        positionDurationWhileDragging:
+            animationConfig.positionDurationWhileDragging,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);
           _updateReorderableEntity(updatedEntity);

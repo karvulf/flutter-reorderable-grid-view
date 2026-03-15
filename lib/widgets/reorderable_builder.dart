@@ -638,6 +638,9 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   /// This getter is not necessary anymore when the deprecated parameters
   /// are removed.
   ReorderableAnimationConfig get animationConfig {
+    return ReorderableAnimationConfig(
+      enableAnimations: false,
+    );
     if (widget.animationConfig == ReorderableBuilder._defaultAnimationConfig) {
       return ReorderableAnimationConfig(
         // ignore: deprecated_member_use_from_same_package

@@ -32,12 +32,18 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// Duration for the position change of [child] (won't be used while dragging!).
   final Duration positionDuration;
 
+  /// Default duration when an item changes his position.
+  ///
+  /// This duration will be used for position changes while dragging.
+  final Duration positionDurationWhileDragging;
+
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
     required this.positionDuration,
+    required this.positionDurationWhileDragging,
     Key? key,
   }) : super(key: key);
 
@@ -49,12 +55,6 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
 class _ReorderableAnimatedPositionedState
     extends State<ReorderableAnimatedPositioned>
     with SingleTickerProviderStateMixin {
-  /// Default duration when an item changes his position.
-  ///
-  /// This duration will be used for position changes while draggong or not
-  /// dragging.
-  final _defaultAnimationDuration = const Duration(milliseconds: 200);
-
   /// This controller will be used for the animation when the position changes.
   late AnimationController _animationController;
 
@@ -66,7 +66,7 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
-      duration: _defaultAnimationDuration,
+      duration: widget.positionDurationWhileDragging,
       vsync: this,
     );
 
@@ -155,7 +155,7 @@ class _ReorderableAnimatedPositionedState
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
   }) async {
-    _animationController.duration = _defaultAnimationDuration;
+    _animationController.duration = widget.positionDurationWhileDragging;
     final tween = Tween<Offset>(begin: begin, end: end);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
