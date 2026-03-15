@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 void main() {
@@ -51,7 +52,9 @@ class _MyAppState extends State<MyApp> {
         scrollController: _scrollController,
         longPressDelay: const Duration(milliseconds: 300),
         lockedIndices: [_fruits.length],
-        fadeInDuration: const Duration(milliseconds: 1000),
+        animationConfig: const ReorderableAnimationConfig(
+          fadeInDuration: Duration(milliseconds: 1000),
+        ),
         dragChildBoxDecoration:
             const BoxDecoration(color: CupertinoColors.transparent),
         onReorder: (ReorderedListFunction<String> reorderedListFunction) {

@@ -1,3 +1,22 @@
+## 5.6.0
+⭐️ **New Features**
+- added new `animationConfig` parameter to `ReorderableBuilder` and `ReorderableBuilder.builder`
+- added `ReorderableAnimationConfig` to centralize animation-related configuration
+- `ReorderableAnimationConfig` now contains the animation durations:
+  - `positionChangeDuration`
+  - `draggingPositionChangeDuration`
+  - `releasedItemDuration`
+  - `fadeInDuration`
+  - `dragFeedbackDuration`
+
+⚠️ **Deprecations**
+- deprecated direct animation duration parameters in `ReorderableBuilder` in favor of `animationConfig`:
+  - `positionDuration` -> `animationConfig.positionChangeDuration`
+  - `releasedChildDuration` -> `animationConfig.releasedItemDuration`
+  - `fadeInDuration` -> `animationConfig.fadeInDuration`
+- deprecated `enableLongPress`
+  - to start dragging immediately, set `longPressDelay` to `Duration.zero`
+
 ## 5.5.3
 🐛 **Bug Fixes**
 - performance issue fixed while scrolling (thanks to `stanbav` for the PR, see [#166](https://github.com/karvulf/flutter-reorderable-grid-view/pull/166))

@@ -18,7 +18,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   final Offset scrollOffset;
 
   /// [Duration] for the position animation when a dragged child was released.
-  final Duration releasedChildDuration;
+  final Duration releasedItemDuration;
 
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
@@ -30,7 +30,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.child,
     required this.reorderableEntity,
     required this.scrollOffset,
-    required this.releasedChildDuration,
+    required this.releasedItemDuration,
     required this.releasedReorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -55,7 +55,7 @@ class _ReorderableAnimatedReleasedContainerState
 
     // TODO(karvulf): add duration to parameter of this package
     _offsetAnimationController = AnimationController(
-      duration: widget.releasedChildDuration,
+      duration: widget.releasedItemDuration,
       vsync: this,
     );
   }

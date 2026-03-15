@@ -6,6 +6,7 @@ class DraggableFeedback extends StatefulWidget {
   final Animation<Decoration> decoration;
   final double feedbackScaleFactor;
   final VoidCallback onDeactivate;
+  final Duration animationDuration;
 
   const DraggableFeedback({
     required this.child,
@@ -13,6 +14,7 @@ class DraggableFeedback extends StatefulWidget {
     required this.decoration,
     required this.feedbackScaleFactor,
     required this.onDeactivate,
+    required this.animationDuration,
     Key? key,
   }) : super(key: key);
 
@@ -49,7 +51,7 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: widget.animationDuration,
         height: _size.height,
         width: _size.width,
         transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0.0),

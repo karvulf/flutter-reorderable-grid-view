@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_dr
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
@@ -42,6 +43,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultPositionDuration = Duration(milliseconds: 200);
   static const _defaultFeedbackScaleFactor = 1.05;
   static const _defaultReverse = false;
+  static const _defaultAnimationConfig = ReorderableAnimationConfig();
 
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
@@ -52,6 +54,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// Make sure your [GridView.builder] calls [childBuilder] to return
   /// widgets that support animations and drag-and-drop functionality.
   final ChildBuilderFunction? childBuilder;
+
+  /// Configuration for animations related the children.
+  ///
+  /// These animations contains all kind of animations for the children,
+  /// e.g. fade in or position animation.
+  final ReorderableAnimationConfig animationConfig;
 
   /// The length of items that are rendered through [ReorderableBuilder.builder].
   ///
@@ -81,9 +89,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// The drag of a child will be started with a long press.
   ///
   /// Default value: true
-  @Deprecated("This parameter is no longer needed.\n"
-      "To disable the long press and initiate the drag immediately, "
-      "set [longPressDelay] to [Duration.zero].")
   final bool enableLongPress;
 
   /// Specify the [Duration] for the pressed child before starting the dragging.
@@ -217,15 +222,25 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.onReorderPositions,
+    this.animationConfig = _defaultAnimationConfig,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
+    @Deprecated("This parameter is no longer needed.\n"
+        "To disable the long press and initiate the drag immediately, "
+        "set [longPressDelay] to [Duration.zero].")
     this.enableLongPress = _defaultEnableLongPress,
     this.longPressDelay = _defaultLongPressDelay,
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.fadeInDuration = _defaultFadeInDuration,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.releasedChildDuration = _defaultReleasedChildDuration,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
@@ -247,15 +262,25 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.onReorderPositions,
+    this.animationConfig = _defaultAnimationConfig,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
+    @Deprecated("This parameter is no longer needed.\n"
+        "To disable the long press and initiate the drag immediately, "
+        "set [longPressDelay] to [Duration.zero].")
     this.enableLongPress = _defaultEnableLongPress,
     this.longPressDelay = _defaultLongPressDelay,
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.fadeInDuration = _defaultFadeInDuration,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.releasedChildDuration = _defaultReleasedChildDuration,
+    @Deprecated(
+        "This parameter is no longer needed. The duration can be set in the animationConfig.")
     this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
@@ -414,18 +439,15 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
     return ReorderableBuilderItem(
       reorderableEntity: reorderableEntity,
-      fadeInDuration: widget.fadeInDuration,
+      animationConfig: animationConfig,
       onOpacityFinished: _handleOpacityFinished,
-      positionDuration: widget.positionDuration,
       onMovingFinished: _handleMovingFinished,
       onCreated: _handleCreatedChild,
       releasedReorderableEntity:
           _reorderableController.releasedReorderableEntity,
       scrollOffset: _scrollOffset,
-      releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
       currentDraggedEntity: currentDraggedEntity,
-      // ignore: deprecated_member_use_from_same_package
       enableLongPress: widget.enableLongPress,
       longPressDelay: widget.longPressDelay,
       dragChildBoxDecoration: widget.dragChildBoxDecoration,
@@ -615,4 +637,26 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
         context,
         scrollController: widget.scrollController,
       );
+
+  /// Returns the config based on the provided configuration in the widget.
+  ///
+  /// If the animation config is the same as the default one,
+  /// it will create a new config based on the provided deprecated parameters.
+  ///
+  /// This getter is not necessary anymore when the deprecated parameters
+  /// are removed.
+  ReorderableAnimationConfig get animationConfig {
+    if (widget.animationConfig == ReorderableBuilder._defaultAnimationConfig) {
+      return ReorderableAnimationConfig(
+        // ignore: deprecated_member_use_from_same_package
+        fadeInDuration: widget.fadeInDuration,
+        // ignore: deprecated_member_use_from_same_package
+        positionChangeDuration: widget.positionDuration,
+        // ignore: deprecated_member_use_from_same_package
+        releasedItemDuration: widget.releasedChildDuration,
+      );
+    }
+
+    return widget.animationConfig;
+  }
 }

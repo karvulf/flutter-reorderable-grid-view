@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
@@ -16,8 +17,8 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// Contains all info to enable animations and drag and drop.
   final ReorderableEntity reorderableEntity;
 
-  /// Duration for the fade in animation when [child] appears for the first time.
-  final Duration fadeInDuration;
+  /// Contains all [Duration] for the different animations.
+  final ReorderableAnimationConfig animationConfig;
 
   /// Called when the fade in animation was finished.
   ///
@@ -27,9 +28,6 @@ class ReorderableBuilderItem extends StatefulWidget {
   ///
   /// For [ReorderableAnimatedPositioned]
   ///
-
-  /// Duration for the position change of [child] (won't be used while dragging!).
-  final Duration positionDuration;
 
   /// Callback for the animation after moving the [child].
   final ReturnReorderableEntityCallback onMovingFinished;
@@ -50,9 +48,6 @@ class ReorderableBuilderItem extends StatefulWidget {
 
   /// Current scrolling offset for vertical and horizontal scrolling.
   final Offset scrollOffset;
-
-  /// [Duration] for the position animation when a dragged child was released.
-  final Duration releasedChildDuration;
 
   ///
   /// For [ReorderableDraggable]
@@ -90,15 +85,13 @@ class ReorderableBuilderItem extends StatefulWidget {
 
   const ReorderableBuilderItem({
     required this.reorderableEntity,
-    required this.fadeInDuration,
+    required this.animationConfig,
     required this.onOpacityFinished,
     required this.currentDraggedEntity,
-    required this.positionDuration,
     required this.onMovingFinished,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,
-    required this.releasedChildDuration,
     required this.enableDraggable,
     required this.enableLongPress,
     required this.longPressDelay,
@@ -148,9 +141,11 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
 
   @override
   Widget build(BuildContext context) {
+    final animationConfig = widget.animationConfig;
+
     return ReorderableAnimatedOpacity(
       reorderableEntity: widget.reorderableEntity,
-      fadeInDuration: widget.fadeInDuration,
+      fadeInDuration: animationConfig.fadeInDuration,
       onAnimationStarted: () {
         final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
@@ -158,7 +153,9 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
       child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
-        positionDuration: widget.positionDuration,
+        positionChangeDuration: animationConfig.positionChangeDuration,
+        draggingPositionChangeDuration:
+            animationConfig.draggingPositionChangeDuration,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);
           _updateReorderableEntity(updatedEntity);
@@ -176,7 +173,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
             reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
             scrollOffset: widget.scrollOffset,
-            releasedChildDuration: widget.releasedChildDuration,
+            releasedItemDuration: animationConfig.releasedItemDuration,
             child: ReorderableDraggable(
               reorderableEntity: _reorderableEntity,
               enableDraggable: widget.enableDraggable,
@@ -185,6 +182,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               feedbackScaleFactor: widget.feedbackScaleFactor,
+              feedbackDuration: animationConfig.dragFeedbackDuration,
               // all three dragging functions will trigger a setState for all children
               // that's why the single entity won't be updated here because
               // the drag and drop effects much more children

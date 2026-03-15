@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
@@ -156,8 +157,8 @@ class _MyAppState extends State<MyApp> {
           lockedIndices: lockedIndices,
           nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
-          fadeInDuration: Duration.zero,
-          enableLongPress: true,
+          animationConfig:
+              const ReorderableAnimationConfig(fadeInDuration: Duration.zero),
           children: generatedChildren,
           builder: (children) {
             return GridView.count(

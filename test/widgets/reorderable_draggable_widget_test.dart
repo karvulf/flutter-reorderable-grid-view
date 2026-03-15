@@ -13,6 +13,7 @@ void main() {
   final givenReorderableEntity = reorderableBuilder.getEntity();
   const givenLongPressDelay = Duration(milliseconds: 300);
   const givenFeedbackScaleFactor = 1.43;
+  const givenFeedbackDuration = Duration(milliseconds: 111);
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -52,6 +53,7 @@ void main() {
                   longPressDelay: longPressDelay,
                   feedbackScaleFactor: givenFeedbackScaleFactor,
                   dragChildBoxDecoration: null,
+                  feedbackDuration: givenFeedbackDuration,
                   onDragStarted: onDragStarted ?? () {},
                   onDragEnd: onDragEnd ?? (_) {},
                   onDragCanceled: onDragCanceled ?? () {},
@@ -119,6 +121,8 @@ void main() {
                   const BoxDecoration() &&
               (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
                   givenFeedbackScaleFactor &&
+              (widget.feedback as DraggableFeedback).animationDuration ==
+                  givenFeedbackDuration &&
               widget.childWhenDragging == null &&
               widget.data == null &&
               widget.child == givenChild,
