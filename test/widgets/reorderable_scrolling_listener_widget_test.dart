@@ -303,7 +303,7 @@ class _TestInnerScrollableState extends State<_TestInnerScrollable> {
   Widget build(BuildContext context) {
     return ReorderableBuilder.builder(
       scrollController: widget.scrollController,
-      enableLongPress: false,
+      longPressDelay: Duration.zero,
       reverse: widget.reverse,
       onReorder: (ReorderedListFunction reorderedListFunction) {
         setState(() {

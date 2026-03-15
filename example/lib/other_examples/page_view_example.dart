@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 void main() {
@@ -54,7 +55,9 @@ class _RecorderableItemState extends State<RecorderableItem> {
       padding: const EdgeInsets.symmetric(vertical: 100),
       child: ReorderableBuilder.builder(
         key: Key(_gridViewKey.toString()),
-        positionDuration: const Duration(seconds: 1),
+        animationConfig: const ReorderableAnimationConfig(
+          positionChangeDuration: Duration(seconds: 1),
+        ),
         onReorder: _handleReorder,
         lockedIndices: lockedIndices,
         nonDraggableIndices: nonDraggableIndices,
