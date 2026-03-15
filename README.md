@@ -135,14 +135,14 @@ You can disable this behavior by setting `enableScrollingWhileDragging` to `fals
 
 There are two types of animations:
 
-**Drag and Drop**: 
+**Drag and Drop**:
 
-This animation ensures smooth positioning of the dragged child to any position (unless the position is locked). 
+This animation ensures smooth positioning of the dragged child to any position (unless the position is locked).
 While dragging, the movement of the other children is also animated.
 
-**List Updates**: 
+**List Updates**:
 
-These animations occur when updating your list of children by adding, removing, or modifying items. 
+These animations occur when updating your list of children by adding, removing, or modifying items.
 For example, adding or removing a child at the beginning of the list affects the positions of all subsequent children (See the GIFs at the top of the page for examples).
 
 ### Supported Widgets
@@ -160,26 +160,24 @@ For example, adding or removing a child at the beginning of the list affects the
 
 | **Parameter**                  | **Description**                                                                                                           | **Default Value** |
 |:-------------------------------|:--------------------------------------------------------------------------------------------------------------------------|:-----------------:|
-| `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.          |       **-**       |
-| `childBuilder`                 | Enable support for [GridView.builder] using this function. Don't forget a unique key for every child.                     |       **-**       |
-| `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.                |    **<int>[]**    |
-| `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                    |    **<int>[]**    |
-| `enableLongPress`              | If true, you need to long press the widget to start the dragging.                                                         |     **true**      |
-| `longPressDelay`               | Specify the duration before dragging starts after long-pressing the widget.                                               |    **500 ms**     |
-| `enableDraggable`              | Enables the drag and drop functionality.                                                                                  |     **true**      |
-| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                          |     **true**      |
-| `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                   |     **80.0**      |
-| `fadeInDuration`               | [Duration] for the fade in animation when a new child was added.                                                          |     **500ms**     |
-| `releasedChildDuration`        | [Duration] for the position animation when a dragged child was released and is moving to his new position.                |     **150ms**     |
-| `positionDuration `            | [Duration] when the child is changing his position (not working while using drag and drop).                               |     **200ms**     |
-| `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                 |       **-**       |
-| `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                  |     **false**     |
-| `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                   |       **-**       |
-| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all the items. |       **-**       |
-| `onDragStarted`                | Callback when dragging starts with the index where it started.                                                            |       **-**       |
-| `onDragEnd`                    | Callback when the dragged child was released with the index.                                                              |       **-**       |
-| `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                    |       **-**       |
-| `scrollController`             | `ScrollController` which should be also assigned to the scrollable widget. Don't forget this to prevent animation issues. |       **-**       |
+| `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.       |       **-**       |
+| `childBuilder`                 | Enable support for [GridView.builder] using this function. Don't forget a unique key for every child.                   |       **-**       |
+| `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.              |    **<int>[]**    |
+| `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                   |    **<int>[]**    |
+| `animationConfig`              | Configuration for all child animations (fade in, position changes, drag feedback, release animation).                   | `const ReorderableAnimationConfig()` |
+| `enableLongPress`              | Deprecated. Use `longPressDelay`; for immediate drag set `Duration.zero`.                                                |     **true**      |
+| `longPressDelay`               | Specify the duration before dragging starts after long-pressing the widget.                                              |    **500 ms**     |
+| `enableDraggable`              | Enables the drag and drop functionality.                                                                                 |     **true**      |
+| `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                         |     **true**      |
+| `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
+| `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
+| `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
+| `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
+| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all items.   |       **-**       |
+| `onDragStarted`                | Callback when dragging starts with the index where it started.                                                           |       **-**       |
+| `onDragEnd`                    | Callback when the dragged child was released with the index.                                                             |       **-**       |
+| `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                   |       **-**       |
+| `scrollController`             | `ScrollController` which should be also assigned to the scrollable widget. Don't forget this to prevent animation issues.|       **-**       |
 
 ### `CustomDraggable`
 
