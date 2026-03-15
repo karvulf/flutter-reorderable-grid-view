@@ -1,12 +1,19 @@
 ## 5.6.0
 ⭐️ **New Features**
+- added new `animationConfig` parameter to `ReorderableBuilder` and `ReorderableBuilder.builder`
 - added `ReorderableAnimationConfig` to centralize animation-related configuration
+- `ReorderableAnimationConfig` now contains the animation durations:
+  - `positionChangeDuration`
+  - `draggingPositionChangeDuration`
+  - `releasedItemDuration`
+  - `fadeInDuration`
+  - `dragFeedbackDuration`
 
 ⚠️ **Deprecations**
-- deprecated old animation parameters in favor of clearer names:
-  - `positionDuration` -> `positionChangeDuration`
-  - `releasedChildDuration` -> `releasedItemDuration`
-- `fadeInDuration` keeps the same name and is now configured via `ReorderableAnimationConfig`
+- deprecated direct animation duration parameters in `ReorderableBuilder` in favor of `animationConfig`:
+  - `positionDuration` -> `animationConfig.positionChangeDuration`
+  - `releasedChildDuration` -> `animationConfig.releasedItemDuration`
+  - `fadeInDuration` -> `animationConfig.fadeInDuration`
 
 ## 5.5.3
 🐛 **Bug Fixes**
