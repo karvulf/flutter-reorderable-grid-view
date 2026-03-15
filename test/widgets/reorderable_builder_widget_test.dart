@@ -120,10 +120,10 @@ void main() {
             (widget) =>
                 widget is ReorderableBuilderItem &&
                 widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.positionChangeDuration == const Duration(milliseconds: 200) &&
                 widget.releasedReorderableEntity == null &&
                 widget.scrollOffset == Offset.zero &&
-                widget.releasedChildDuration ==
+                widget.releasedItemDuration ==
                     const Duration(milliseconds: 150) &&
                 widget.enableDraggable &&
                 widget.currentDraggedEntity == null &&
@@ -283,10 +283,10 @@ void main() {
             (widget) =>
                 widget is ReorderableBuilderItem &&
                 widget.fadeInDuration == const Duration(milliseconds: 500) &&
-                widget.positionDuration == const Duration(milliseconds: 200) &&
+                widget.positionChangeDuration == const Duration(milliseconds: 200) &&
                 widget.releasedReorderableEntity == null &&
                 widget.scrollOffset == Offset.zero &&
-                widget.releasedChildDuration ==
+                widget.releasedItemDuration ==
                     const Duration(milliseconds: 150) &&
                 widget.currentDraggedEntity == null &&
                 widget.enableLongPress &&

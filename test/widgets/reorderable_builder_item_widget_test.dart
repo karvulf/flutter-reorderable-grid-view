@@ -83,12 +83,12 @@ void main() {
             fadeInDuration: givenFadeInDuration,
             onOpacityFinished: onOpacityFinished ?? givenOnOpacityFinished,
             currentDraggedEntity: currentDraggedEntity,
-            positionDuration: givenPositionDuration,
+            positionChangeDuration: givenPositionDuration,
             onMovingFinished: onMovingFinished ?? givenOnMovingFinished,
             onCreated: onCreated ?? givenOnCreated,
             releasedReorderableEntity: givenReleasedReorderableEntity,
             scrollOffset: givenScrollOffset,
-            releasedChildDuration: givenReleasedChildDuration,
+            releasedItemDuration: givenReleasedChildDuration,
             enableDraggable: givenEnableDraggable,
             enableLongPress: givenEnableLongPress,
             longPressDelay: givenLongPressDelay,
@@ -128,7 +128,7 @@ void main() {
             widget is ReorderableAnimatedPositioned &&
             widget.reorderableEntity == givenReorderableEntity &&
             !widget.isDragging &&
-            widget.positionDuration == givenPositionDuration &&
+            widget.positionChangeDuration == givenPositionDuration &&
             widget.child is ReorderableInitChild),
         findsOneWidget);
     expect(
@@ -144,7 +144,7 @@ void main() {
             widget.releasedReorderableEntity ==
                 givenReleasedReorderableEntity &&
             widget.scrollOffset == givenScrollOffset &&
-            widget.releasedChildDuration == givenReleasedChildDuration &&
+            widget.releasedItemDuration == givenReleasedChildDuration &&
             widget.child is ReorderableDraggable),
         findsOneWidget);
     expect(
@@ -457,12 +457,12 @@ class _TestReorderableBuilderItemState
         fadeInDuration: const Duration(milliseconds: 200),
         onOpacityFinished: (_) => _reorderableEntity,
         currentDraggedEntity: null,
-        positionDuration: const Duration(milliseconds: 200),
+        positionChangeDuration: const Duration(milliseconds: 200),
         onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
         onCreated: (_, __) => _reorderableEntity,
         releasedReorderableEntity: null,
         scrollOffset: Offset.zero,
-        releasedChildDuration: const Duration(milliseconds: 200),
+        releasedItemDuration: const Duration(milliseconds: 200),
         enableDraggable: true,
         enableLongPress: true,
         longPressDelay: const Duration(milliseconds: 200),

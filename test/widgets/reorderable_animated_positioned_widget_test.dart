@@ -24,7 +24,7 @@ void main() {
             body: ReorderableAnimatedPositioned(
               reorderableEntity: reorderableEntity,
               isDragging: isDragging,
-              positionDuration: givenPositionDuration,
+              positionChangeDuration: givenPositionDuration,
               onMovingFinished: onMovingFinished,
               child: givenChild,
             ),
@@ -402,7 +402,7 @@ class _TestUpdateReorderableAnimatedPositionedState
           ReorderableAnimatedPositioned(
             reorderableEntity: reorderableEntity,
             isDragging: widget.isDragging,
-            positionDuration: const Duration(milliseconds: 200),
+            positionChangeDuration: const Duration(milliseconds: 200),
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),
           ),

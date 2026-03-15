@@ -30,20 +30,20 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   final VoidCallback onMovingFinished;
 
   /// Duration for the position change of [child] (won't be used while dragging!).
-  final Duration positionDuration;
+  final Duration positionChangeDuration;
 
   /// Default duration when an item changes his position.
   ///
   /// This duration will be used for position changes while dragging.
-  final Duration positionDurationWhileDragging;
+  final Duration draggingPositionChangeDuration;
 
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
-    required this.positionDuration,
-    required this.positionDurationWhileDragging,
+    required this.positionChangeDuration,
+    required this.draggingPositionChangeDuration,
     Key? key,
   }) : super(key: key);
 
@@ -66,7 +66,7 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
-      duration: widget.positionDurationWhileDragging,
+      duration: widget.draggingPositionChangeDuration,
       vsync: this,
     );
 
@@ -155,7 +155,7 @@ class _ReorderableAnimatedPositionedState
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
   }) async {
-    _animationController.duration = widget.positionDurationWhileDragging;
+    _animationController.duration = widget.draggingPositionChangeDuration;
     final tween = Tween<Offset>(begin: begin, end: end);
     _offsetAnimation = tween.animate(_animationController)
       ..addListener(() {
@@ -184,7 +184,7 @@ class _ReorderableAnimatedPositionedState
   /// Important, this function is only added when [widget.child] updates his
   /// position, not while dragging.
   Future<void> _animateOffset({required Offset begin}) async {
-    _animationController.duration = widget.positionDuration;
+    _animationController.duration = widget.positionChangeDuration;
 
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
     _offsetAnimation = tween.animate(_animationController)

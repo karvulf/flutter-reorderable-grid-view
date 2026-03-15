@@ -17,7 +17,7 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// Contains all info to enable animations and drag and drop.
   final ReorderableEntity reorderableEntity;
 
-  ///
+  /// Contains all [Duration] for the different animations.
   final ReorderableAnimationConfig animationConfig;
 
   /// Called when the fade in animation was finished.
@@ -153,9 +153,9 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
       child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
-        positionDuration: animationConfig.positionDuration,
-        positionDurationWhileDragging:
-            animationConfig.positionDurationWhileDragging,
+        positionChangeDuration: animationConfig.positionChangeDuration,
+        draggingPositionChangeDuration:
+            animationConfig.draggingPositionChangeDuration,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);
           _updateReorderableEntity(updatedEntity);
@@ -173,7 +173,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
             reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
             scrollOffset: widget.scrollOffset,
-            releasedChildDuration: animationConfig.releasedChildDuration,
+            releasedItemDuration: animationConfig.releasedItemDuration,
             child: ReorderableDraggable(
               reorderableEntity: _reorderableEntity,
               enableDraggable: widget.enableDraggable,
@@ -182,8 +182,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               feedbackScaleFactor: widget.feedbackScaleFactor,
-              feedbackAnimationDuration:
-                  animationConfig.feedbackAnimationDuration,
+              feedbackDuration: animationConfig.feedbackDuration,
               // all three dragging functions will trigger a setState for all children
               // that's why the single entity won't be updated here because
               // the drag and drop effects much more children

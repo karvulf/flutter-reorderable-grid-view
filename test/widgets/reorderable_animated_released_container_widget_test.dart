@@ -21,7 +21,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableAnimatedReleasedContainer(
-              releasedChildDuration: givenReleasedChildDuration,
+              releasedItemDuration: givenReleasedChildDuration,
               releasedReorderableEntity: givenReleasedReorderableEntity,
               reorderableEntity: givenReorderableEntity,
               scrollOffset: givenScrollOffset,
@@ -227,7 +227,7 @@ class _TestUpdateReorderableAnimatedReleasedContainerState
             child: const Text('Update'),
           ),
           ReorderableAnimatedReleasedContainer(
-            releasedChildDuration: widget.releasedChildDuration,
+            releasedItemDuration: widget.releasedChildDuration,
             releasedReorderableEntity: releasedEntity,
             reorderableEntity: widget.reorderableEntity,
             scrollOffset: widget.scrollOffset,
