@@ -14,6 +14,8 @@
   - `positionDuration` -> `animationConfig.positionChangeDuration`
   - `releasedChildDuration` -> `animationConfig.releasedItemDuration`
   - `fadeInDuration` -> `animationConfig.fadeInDuration`
+- deprecated `enableLongPress`
+  - to start dragging immediately, set `longPressDelay` to `Duration.zero`
 
 ## 5.5.3
 🐛 **Bug Fixes**
