@@ -5,6 +5,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_dr
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
@@ -37,11 +38,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultEnableDraggable = true;
   static const _defaultAutomaticScrollExtent = 150.0;
   static const _defaultEnableScrollingWhileDragging = true;
-  static const _defaultFadeInDuration = Duration(milliseconds: 500);
-  static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
-  static const _defaultPositionDuration = Duration(milliseconds: 200);
   static const _defaultFeedbackScaleFactor = 1.05;
   static const _defaultReverse = false;
+  static const _defaultAnimationConfig = ReorderableAnimationConfig();
 
   /// Defines the children that will be displayed for drag and drop.
   final List<Widget>? children;
@@ -52,6 +51,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// Make sure your [GridView.builder] calls [childBuilder] to return
   /// widgets that support animations and drag-and-drop functionality.
   final ChildBuilderFunction? childBuilder;
+
+  final ReorderableAnimationConfig animationConfig;
 
   /// The length of items that are rendered through [ReorderableBuilder.builder].
   ///
@@ -110,27 +111,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
   ///
   /// Default value: 80.0
   final double automaticScrollExtent;
-
-  /// [Duration] for the fade in animation when a new child was added.
-  ///
-  /// Default value: const Duration(milliseconds: 500)
-  final Duration fadeInDuration;
-
-  /// [Duration] for the position animation when a dragged child was released.
-  ///
-  /// The duration influence the time of the released dragged child going back
-  /// to his new position.
-  ///
-  /// Default value: const Duration(milliseconds: 150)
-  final Duration releasedChildDuration;
-
-  /// Duration for the position change of a child.
-  ///
-  /// The position can be updated if a child was removed or added.
-  /// This duration won't be used for the position changes while dragging.
-  ///
-  /// Default value: const Duration(milliseconds: 200)
-  final Duration positionDuration;
 
   /// The scale factor applied to the feedback widget during a drag operation.
   ///
@@ -217,6 +197,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.onReorderPositions,
+    this.animationConfig = _defaultAnimationConfig,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
     this.enableLongPress = _defaultEnableLongPress,
@@ -224,9 +205,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
-    this.fadeInDuration = _defaultFadeInDuration,
-    this.releasedChildDuration = _defaultReleasedChildDuration,
-    this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
@@ -247,6 +225,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.scrollController,
     this.onReorder,
     this.onReorderPositions,
+    this.animationConfig = _defaultAnimationConfig,
     this.lockedIndices = _defaultLockedIndices,
     this.nonDraggableIndices = _defaultNonDraggableIndices,
     this.enableLongPress = _defaultEnableLongPress,
@@ -254,9 +233,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
-    this.fadeInDuration = _defaultFadeInDuration,
-    this.releasedChildDuration = _defaultReleasedChildDuration,
-    this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
@@ -430,6 +406,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       longPressDelay: widget.longPressDelay,
       dragChildBoxDecoration: widget.dragChildBoxDecoration,
       feedbackScaleFactor: widget.feedbackScaleFactor,
+      enableAnimations: widget.enableAnimations,
       onDragStarted: _handleDragStarted,
       onDragEnd: _handleDragEnd,
       onDragCanceled: _handleDragCanceled,

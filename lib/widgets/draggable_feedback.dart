@@ -6,6 +6,7 @@ class DraggableFeedback extends StatefulWidget {
   final Animation<Decoration> decoration;
   final double feedbackScaleFactor;
   final VoidCallback onDeactivate;
+  final Duration animationDuration;
 
   const DraggableFeedback({
     required this.child,
@@ -13,6 +14,7 @@ class DraggableFeedback extends StatefulWidget {
     required this.decoration,
     required this.feedbackScaleFactor,
     required this.onDeactivate,
+    required this.animationDuration,
     Key? key,
   }) : super(key: key);
 
