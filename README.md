@@ -170,6 +170,9 @@ For example, adding or removing a child at the beginning of the list affects the
 | `enableDraggable`              | Enables the drag and drop functionality.                                                                                 |     **true**      |
 | `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                         |     **true**      |
 | `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
+| `fadeInDuration`               | Deprecated. Use `animationConfig.fadeInDuration`.                                                                        |     **500ms**     |
+| `releasedChildDuration`        | Deprecated. Use `animationConfig.releasedItemDuration`.                                                                  |     **150ms**     |
+| `positionDuration`             | Deprecated. Use `animationConfig.positionChangeDuration`.                                                                |     **200ms**     |
 | `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
 | `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
 | `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
