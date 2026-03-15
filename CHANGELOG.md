@@ -1,3 +1,13 @@
+## 5.6.0
+⭐️ **New Features**
+- added `ReorderableAnimationConfig` to centralize animation-related configuration
+
+⚠️ **Deprecations**
+- deprecated old animation parameters in favor of clearer names:
+  - `positionDuration` -> `positionChangeDuration`
+  - `releasedChildDuration` -> `releasedItemDuration`
+- `fadeInDuration` keeps the same name and is now configured via `ReorderableAnimationConfig`
+
 ## 5.5.3
 🐛 **Bug Fixes**
 - performance issue fixed while scrolling (thanks to `stanbav` for the PR, see [#166](https://github.com/karvulf/flutter-reorderable-grid-view/pull/166))

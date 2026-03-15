@@ -7,12 +7,10 @@ class ReorderableAnimationConfig {
   /// Default value: const Duration(milliseconds: 200)
   final Duration _positionChangeDuration;
 
-  /// Duration for the position change of a child while dragging.
+  /// Duration for item position changes while reordering during a drag.
   ///
-  /// When a child is dragged, the other children will change their position
-  /// and this duration can be changed here.
-  /// This duration won't be used for the position changes
-  /// if a child was removed or added.
+  /// When a child is dragged, the other children animate to their temporary
+  /// positions using this duration.
   ///
   /// Default value: const Duration(milliseconds: 200)
   final Duration _draggingPositionChangeDuration;
@@ -30,10 +28,10 @@ class ReorderableAnimationConfig {
   /// Default value: const Duration(milliseconds: 500)
   final Duration _fadeInDuration;
 
-  /// Duration of the feedback when it's being focused and changing its size.
+  /// Duration of the drag feedback scale animation.
   ///
   /// Default value: const Duration(milliseconds: 150)
-  final Duration _feedbackDuration;
+  final Duration _dragFeedbackDuration;
 
   /// Whether animations are enabled.
   final bool enableAnimations;
@@ -43,13 +41,13 @@ class ReorderableAnimationConfig {
     Duration draggingPositionChangeDuration = const Duration(milliseconds: 200),
     Duration releasedItemDuration = const Duration(milliseconds: 150),
     Duration fadeInDuration = const Duration(milliseconds: 500),
-    Duration feedbackDuration = const Duration(milliseconds: 150),
+    Duration dragFeedbackDuration = const Duration(milliseconds: 150),
     this.enableAnimations = true,
   })  : _positionChangeDuration = positionChangeDuration,
         _draggingPositionChangeDuration = draggingPositionChangeDuration,
         _releasedItemDuration = releasedItemDuration,
         _fadeInDuration = fadeInDuration,
-        _feedbackDuration = feedbackDuration;
+        _dragFeedbackDuration = dragFeedbackDuration;
 
   Duration get positionChangeDuration =>
       enableAnimations ? _positionChangeDuration : Duration.zero;
@@ -63,6 +61,6 @@ class ReorderableAnimationConfig {
   Duration get fadeInDuration =>
       enableAnimations ? _fadeInDuration : Duration.zero;
 
-  Duration get feedbackDuration =>
-      enableAnimations ? _feedbackDuration : Duration.zero;
+  Duration get dragFeedbackDuration =>
+      enableAnimations ? _dragFeedbackDuration : Duration.zero;
 }

@@ -182,7 +182,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               feedbackScaleFactor: widget.feedbackScaleFactor,
-              feedbackDuration: animationConfig.feedbackDuration,
+              feedbackDuration: animationConfig.dragFeedbackDuration,
               // all three dragging functions will trigger a setState for all children
               // that's why the single entity won't be updated here because
               // the drag and drop effects much more children
