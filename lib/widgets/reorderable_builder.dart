@@ -38,6 +38,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultEnableDraggable = true;
   static const _defaultAutomaticScrollExtent = 150.0;
   static const _defaultEnableScrollingWhileDragging = true;
+  static const _defaultFadeInDuration = Duration(milliseconds: 500);
+  static const _defaultReleasedChildDuration = Duration(milliseconds: 150);
+  static const _defaultPositionDuration = Duration(milliseconds: 200);
   static const _defaultFeedbackScaleFactor = 1.05;
   static const _defaultReverse = false;
   static const _defaultAnimationConfig = ReorderableAnimationConfig();
@@ -52,6 +55,10 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// widgets that support animations and drag-and-drop functionality.
   final ChildBuilderFunction? childBuilder;
 
+  /// Configuration for animations related the children.
+  ///
+  /// These animations contains all kind of animations for the children,
+  /// e.g. fade in or position animation.
   final ReorderableAnimationConfig animationConfig;
 
   /// The length of items that are rendered through [ReorderableBuilder.builder].
@@ -111,6 +118,33 @@ class ReorderableBuilder<T> extends StatefulWidget {
   ///
   /// Default value: 80.0
   final double automaticScrollExtent;
+
+  /// [Duration] for the fade in animation when a new child was added.
+  ///
+  /// Default value: const Duration(milliseconds: 500)
+  @Deprecated(
+      "This parameter is no longer needed. The position duration can be set in the animationConfig.")
+  final Duration fadeInDuration;
+
+  /// [Duration] for the position animation when a dragged child was released.
+  ///
+  /// The duration influence the time of the released dragged child going back
+  /// to his new position.
+  ///
+  /// Default value: const Duration(milliseconds: 150)
+  @Deprecated(
+      "This parameter is no longer needed. The position duration can be set in the animationConfig.")
+  final Duration releasedChildDuration;
+
+  /// Duration for the position change of a child.
+  ///
+  /// The position can be updated if a child was removed or added.
+  /// This duration won't be used for the position changes while dragging.
+  ///
+  /// Default value: const Duration(milliseconds: 200)
+  @Deprecated(
+      "This parameter is no longer needed. The position duration can be set in the animationConfig.")
+  final Duration positionDuration;
 
   /// The scale factor applied to the feedback widget during a drag operation.
   ///
@@ -205,6 +239,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    this.fadeInDuration = _defaultFadeInDuration,
+    this.releasedChildDuration = _defaultReleasedChildDuration,
+    this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
@@ -233,6 +270,9 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
+    this.fadeInDuration = _defaultFadeInDuration,
+    this.releasedChildDuration = _defaultReleasedChildDuration,
+    this.positionDuration = _defaultPositionDuration,
     this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
@@ -390,15 +430,13 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
 
     return ReorderableBuilderItem(
       reorderableEntity: reorderableEntity,
-      fadeInDuration: widget.fadeInDuration,
+      animationConfig: animationConfig,
       onOpacityFinished: _handleOpacityFinished,
-      positionDuration: widget.positionDuration,
       onMovingFinished: _handleMovingFinished,
       onCreated: _handleCreatedChild,
       releasedReorderableEntity:
           _reorderableController.releasedReorderableEntity,
       scrollOffset: _scrollOffset,
-      releasedChildDuration: widget.releasedChildDuration,
       enableDraggable: widget.enableDraggable && isDraggable,
       currentDraggedEntity: currentDraggedEntity,
       // ignore: deprecated_member_use_from_same_package
@@ -406,7 +444,6 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       longPressDelay: widget.longPressDelay,
       dragChildBoxDecoration: widget.dragChildBoxDecoration,
       feedbackScaleFactor: widget.feedbackScaleFactor,
-      enableAnimations: widget.enableAnimations,
       onDragStarted: _handleDragStarted,
       onDragEnd: _handleDragEnd,
       onDragCanceled: _handleDragCanceled,
@@ -592,4 +629,26 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
         context,
         scrollController: widget.scrollController,
       );
+
+  /// Returns the config based on the provided configuration in the widget.
+  ///
+  /// If the animation config is the same as the default one,
+  /// it will create a new config based on the provided deprecated parameters.
+  ///
+  /// This getter is not necessary anymore when the deprecated parameters
+  /// are removed.
+  ReorderableAnimationConfig get animationConfig {
+    if (widget.animationConfig == ReorderableBuilder._defaultAnimationConfig) {
+      return ReorderableAnimationConfig(
+        // ignore: deprecated_member_use_from_same_package
+        fadeInDuration: widget.fadeInDuration,
+        // ignore: deprecated_member_use_from_same_package
+        positionDuration: widget.positionDuration,
+        // ignore: deprecated_member_use_from_same_package
+        releasedChildDuration: widget.releasedChildDuration,
+      );
+    }
+
+    return widget.animationConfig;
+  }
 }
