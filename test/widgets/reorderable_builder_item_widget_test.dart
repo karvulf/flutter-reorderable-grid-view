@@ -123,7 +123,7 @@ void main() {
       find.byWidgetPredicate((widget) =>
           widget is ReorderableAnimatedOpacity &&
           widget.reorderableEntity == givenReorderableEntity &&
-          widget.fadeInDuration == givenFadeInDuration &&
+          widget.animationConfig == givenAnimationConfig &&
           widget.child is ReorderableAnimatedPositioned),
       findsOneWidget,
     );
@@ -132,9 +132,7 @@ void main() {
             widget is ReorderableAnimatedPositioned &&
             widget.reorderableEntity == givenReorderableEntity &&
             !widget.isDragging &&
-            widget.positionChangeDuration == givenPositionDuration &&
-            widget.draggingPositionChangeDuration ==
-                givenAnimationConfig.draggingPositionChangeDuration &&
+            widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableInitChild),
         findsOneWidget);
     expect(
@@ -150,7 +148,7 @@ void main() {
             widget.releasedReorderableEntity ==
                 givenReleasedReorderableEntity &&
             widget.scrollOffset == givenScrollOffset &&
-            widget.releasedItemDuration == givenReleasedChildDuration &&
+            widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableDraggable),
         findsOneWidget);
     expect(
@@ -163,8 +161,7 @@ void main() {
             widget.longPressDelay == givenLongPressDelay &&
             widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
-            widget.feedbackDuration ==
-                givenAnimationConfig.dragFeedbackDuration &&
+            widget.animationConfig == givenAnimationConfig &&
             widget.child == givenChild),
         findsOneWidget);
   });

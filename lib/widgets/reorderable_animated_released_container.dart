@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 /// Responsible for the animation when releasing [child] after drag and drop.
@@ -17,8 +18,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   /// Current scrolling offset for vertical and horizontal scrolling.
   final Offset scrollOffset;
 
-  /// [Duration] for the position animation when a dragged child was released.
-  final Duration releasedItemDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
@@ -30,7 +30,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.child,
     required this.reorderableEntity,
     required this.scrollOffset,
-    required this.releasedItemDuration,
+    required this.animationConfig,
     required this.releasedReorderableEntity,
     Key? key,
   }) : super(key: key);
@@ -53,9 +53,8 @@ class _ReorderableAnimatedReleasedContainerState
   void initState() {
     super.initState();
 
-    // TODO(karvulf): add duration to parameter of this package
     _offsetAnimationController = AnimationController(
-      duration: widget.releasedItemDuration,
+      duration: widget.animationConfig.releasedItemDuration,
       vsync: this,
     );
   }
@@ -119,7 +118,7 @@ class _ReorderableAnimatedReleasedContainerState
       releasedReorderableEntity: releasedReorderableEntity,
     );
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
-    _offsetAnimation = tween.animate(_offsetAnimationController)
+    _offsetAnimation = tween.animate(_curveAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -140,5 +139,18 @@ class _ReorderableAnimatedReleasedContainerState
     return releasedReorderableEntity.dropOffset -
         widget.reorderableEntity.updatedOffset +
         widget.scrollOffset;
+  }
+
+  Animation<double> get _curveAnimation {
+    final releasedItemCurve = widget.animationConfig.releasedItemCurve;
+
+    if (releasedItemCurve == null) {
+      return _offsetAnimationController;
+    }
+
+    return CurvedAnimation(
+      parent: _offsetAnimationController,
+      curve: releasedItemCurve,
+    );
   }
 }

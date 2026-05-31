@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
@@ -53,7 +54,9 @@ void main() {
                   longPressDelay: longPressDelay,
                   feedbackScaleFactor: givenFeedbackScaleFactor,
                   dragChildBoxDecoration: null,
-                  feedbackDuration: givenFeedbackDuration,
+                  animationConfig: const ReorderableAnimationConfig(
+                    dragFeedbackDuration: givenFeedbackDuration,
+                  ),
                   onDragStarted: onDragStarted ?? () {},
                   onDragEnd: onDragEnd ?? (_) {},
                   onDragCanceled: onDragCanceled ?? () {},
@@ -121,7 +124,9 @@ void main() {
                   const BoxDecoration() &&
               (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
                   givenFeedbackScaleFactor &&
-              (widget.feedback as DraggableFeedback).animationDuration ==
+              (widget.feedback as DraggableFeedback)
+                      .animationConfig
+                      .dragFeedbackDuration ==
                   givenFeedbackDuration &&
               widget.childWhenDragging == null &&
               widget.data == null &&

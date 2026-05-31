@@ -1,221 +1,402 @@
+import 'package:flutter/animation.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const givenDuration = Duration(milliseconds: 123);
+  const givenDefaultCurve = Curves.easeInCubic;
+  const givenCurve = Curves.bounceInOut;
 
-  group('ReorderableAnimationConfig', () {
+  test(
+      'GIVEN no params '
+      'WHEN creating config '
+      'THEN should have givenDuration default values', () {
+    // given
+
+    // when
+    const actual = ReorderableAnimationConfig();
+
+    // then
+    expect(actual.enableAnimations, isTrue);
+    expect(
+      actual.positionChangeDuration,
+      equals(const Duration(milliseconds: 200)),
+    );
+    expect(
+      actual.draggingPositionChangeDuration,
+      equals(const Duration(milliseconds: 200)),
+    );
+    expect(
+      actual.releasedItemDuration,
+      equals(const Duration(milliseconds: 150)),
+    );
+    expect(actual.fadeInDuration, equals(const Duration(milliseconds: 500)));
+    expect(
+      actual.dragFeedbackDuration,
+      equals(const Duration(milliseconds: 150)),
+    );
+  });
+
+  group('#positionChangeDuration', () {
     test(
-        'GIVEN no params '
-        'WHEN creating config '
-        'THEN should have givenDuration default values', () {
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
       // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        positionChangeDuration: givenDuration,
+      );
 
       // when
-      const actual = ReorderableAnimationConfig();
+      final actual = config.positionChangeDuration;
 
       // then
-      expect(actual.enableAnimations, isTrue);
-      expect(
-        actual.positionChangeDuration,
-        equals(const Duration(milliseconds: 200)),
+      expect(actual, equals(givenDuration));
+    });
+
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        positionChangeDuration: Duration(milliseconds: 123),
       );
-      expect(
-        actual.draggingPositionChangeDuration,
-        equals(const Duration(milliseconds: 200)),
+
+      // when
+      final actual = config.positionChangeDuration;
+
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
+
+  group('#draggingPositionChangeDuration', () {
+    test(
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        draggingPositionChangeDuration: givenDuration,
       );
-      expect(
-        actual.releasedItemDuration,
-        equals(const Duration(milliseconds: 150)),
+
+      // when
+      final actual = config.draggingPositionChangeDuration;
+
+      // then
+      expect(actual, equals(givenDuration));
+    });
+
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        draggingPositionChangeDuration: Duration(milliseconds: 234),
       );
-      expect(actual.fadeInDuration, equals(const Duration(milliseconds: 500)));
-      expect(
-        actual.dragFeedbackDuration,
-        equals(const Duration(milliseconds: 150)),
+
+      // when
+      final actual = config.draggingPositionChangeDuration;
+
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
+
+  group('#releasedItemDuration', () {
+    test(
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
+      // given
+      const givenDuration = Duration(milliseconds: 345);
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        releasedItemDuration: givenDuration,
       );
+
+      // when
+      final actual = config.releasedItemDuration;
+
+      // then
+      expect(actual, equals(givenDuration));
     });
 
-    group('#positionChangeDuration', () {
-      test(
-          'GIVEN enableAnimations true '
-          'WHEN getting value '
-          'THEN should return configured duration', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: true,
-          positionChangeDuration: givenDuration,
-        );
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        releasedItemDuration: Duration(milliseconds: 345),
+      );
 
-        // when
-        final actual = config.positionChangeDuration;
+      // when
+      final actual = config.releasedItemDuration;
 
-        // then
-        expect(actual, equals(givenDuration));
-      });
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
 
-      test(
-          'GIVEN enableAnimations false '
-          'WHEN getting value '
-          'THEN should return Duration.zero', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: false,
-          positionChangeDuration: Duration(milliseconds: 123),
-        );
+  group('#fadeInDuration', () {
+    test(
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
+      // given
+      const givenDuration = Duration(milliseconds: 456);
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        fadeInDuration: givenDuration,
+      );
 
-        // when
-        final actual = config.positionChangeDuration;
+      // when
+      final actual = config.fadeInDuration;
 
-        // then
-        expect(actual, equals(Duration.zero));
-      });
+      // then
+      expect(actual, equals(givenDuration));
     });
 
-    group('#draggingPositionChangeDuration', () {
-      test(
-          'GIVEN enableAnimations true '
-          'WHEN getting value '
-          'THEN should return configured duration', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: true,
-          draggingPositionChangeDuration: givenDuration,
-        );
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        fadeInDuration: Duration(milliseconds: 456),
+      );
 
-        // when
-        final actual = config.draggingPositionChangeDuration;
+      // when
+      final actual = config.fadeInDuration;
 
-        // then
-        expect(actual, equals(givenDuration));
-      });
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
 
-      test(
-          'GIVEN enableAnimations false '
-          'WHEN getting value '
-          'THEN should return Duration.zero', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: false,
-          draggingPositionChangeDuration: Duration(milliseconds: 234),
-        );
+  group('#dragFeedbackDuration', () {
+    test(
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
+      // given
+      const givenDuration = Duration(milliseconds: 567);
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        dragFeedbackDuration: givenDuration,
+      );
 
-        // when
-        final actual = config.draggingPositionChangeDuration;
+      // when
+      final actual = config.dragFeedbackDuration;
 
-        // then
-        expect(actual, equals(Duration.zero));
-      });
+      // then
+      expect(actual, equals(givenDuration));
     });
 
-    group('#releasedItemDuration', () {
-      test(
-          'GIVEN enableAnimations true '
-          'WHEN getting value '
-          'THEN should return configured duration', () {
-        // given
-        const givenDuration = Duration(milliseconds: 345);
-        const config = ReorderableAnimationConfig(
-          enableAnimations: true,
-          releasedItemDuration: givenDuration,
-        );
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        dragFeedbackDuration: Duration(milliseconds: 567),
+      );
 
-        // when
-        final actual = config.releasedItemDuration;
+      // when
+      final actual = config.dragFeedbackDuration;
 
-        // then
-        expect(actual, equals(givenDuration));
-      });
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
 
-      test(
-          'GIVEN enableAnimations false '
-          'WHEN getting value '
-          'THEN should return Duration.zero', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: false,
-          releasedItemDuration: Duration(milliseconds: 345),
-        );
+  group('#positionChangeCurve', () {
+    test(
+        'GIVEN positionChangeCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        positionChangeCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
 
-        // when
-        final actual = config.releasedItemDuration;
+      // when
+      final actual = config.positionChangeCurve;
 
-        // then
-        expect(actual, equals(Duration.zero));
-      });
+      // then
+      expect(actual, equals(givenCurve));
     });
 
-    group('#fadeInDuration', () {
-      test(
-          'GIVEN enableAnimations true '
-          'WHEN getting value '
-          'THEN should return configured duration', () {
-        // given
-        const givenDuration = Duration(milliseconds: 456);
-        const config = ReorderableAnimationConfig(
-          enableAnimations: true,
-          fadeInDuration: givenDuration,
-        );
+    test(
+        'GIVEN positionChangeCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        positionChangeCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
 
-        // when
-        final actual = config.fadeInDuration;
+      // when
+      final actual = config.positionChangeCurve;
 
-        // then
-        expect(actual, equals(givenDuration));
-      });
+      // then
+      expect(actual, equals(givenDefaultCurve));
+    });
+  });
 
-      test(
-          'GIVEN enableAnimations false '
-          'WHEN getting value '
-          'THEN should return Duration.zero', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: false,
-          fadeInDuration: Duration(milliseconds: 456),
-        );
+  group('#draggingPositionChangeCurve', () {
+    test(
+        'GIVEN draggingPositionChangeCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        draggingPositionChangeCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
 
-        // when
-        final actual = config.fadeInDuration;
+      // when
+      final actual = config.draggingPositionChangeCurve;
 
-        // then
-        expect(actual, equals(Duration.zero));
-      });
+      // then
+      expect(actual, equals(givenCurve));
     });
 
-    group('#dragFeedbackDuration', () {
-      test(
-          'GIVEN enableAnimations true '
-          'WHEN getting value '
-          'THEN should return configured duration', () {
-        // given
-        const givenDuration = Duration(milliseconds: 567);
-        const config = ReorderableAnimationConfig(
-          enableAnimations: true,
-          dragFeedbackDuration: givenDuration,
-        );
+    test(
+        'GIVEN draggingPositionChangeCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        draggingPositionChangeCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
 
-        // when
-        final actual = config.dragFeedbackDuration;
+      // when
+      final actual = config.draggingPositionChangeCurve;
 
-        // then
-        expect(actual, equals(givenDuration));
-      });
+      // then
+      expect(actual, equals(givenDefaultCurve));
+    });
+  });
 
-      test(
-          'GIVEN enableAnimations false '
-          'WHEN getting value '
-          'THEN should return Duration.zero', () {
-        // given
-        const config = ReorderableAnimationConfig(
-          enableAnimations: false,
-          dragFeedbackDuration: Duration(milliseconds: 567),
-        );
+  group('#releasedItemCurve', () {
+    test(
+        'GIVEN releasedItemCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        releasedItemCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
 
-        // when
-        final actual = config.dragFeedbackDuration;
+      // when
+      final actual = config.releasedItemCurve;
 
-        // then
-        expect(actual, equals(Duration.zero));
-      });
+      // then
+      expect(actual, equals(givenCurve));
+    });
+
+    test(
+        'GIVEN releasedItemCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        releasedItemCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.releasedItemCurve;
+
+      // then
+      expect(actual, equals(givenDefaultCurve));
+    });
+  });
+
+  group('#fadeInCurve', () {
+    test(
+        'GIVEN fadeInCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        fadeInCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.fadeInCurve;
+
+      // then
+      expect(actual, equals(givenCurve));
+    });
+
+    test(
+        'GIVEN fadeInCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        fadeInCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.fadeInCurve;
+
+      // then
+      expect(actual, equals(givenDefaultCurve));
+    });
+  });
+
+  group('#dragFeedbackCurve', () {
+    test(
+        'GIVEN dragFeedbackCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        dragFeedbackCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.dragFeedbackCurve;
+
+      // then
+      expect(actual, equals(givenCurve));
+    });
+
+    test(
+        'GIVEN dragFeedbackCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        dragFeedbackCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.dragFeedbackCurve;
+
+      // then
+      expect(actual, equals(givenDefaultCurve));
     });
   });
 }

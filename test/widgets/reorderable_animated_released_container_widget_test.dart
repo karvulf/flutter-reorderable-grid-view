@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +22,10 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableAnimatedReleasedContainer(
-              releasedItemDuration: givenReleasedChildDuration,
+              animationConfig: const ReorderableAnimationConfig(
+                releasedItemDuration: givenReleasedChildDuration,
+                releasedItemCurve: Curves.elasticIn,
+              ),
               releasedReorderableEntity: givenReleasedReorderableEntity,
               reorderableEntity: givenReorderableEntity,
               scrollOffset: givenScrollOffset,
@@ -227,7 +231,9 @@ class _TestUpdateReorderableAnimatedReleasedContainerState
             child: const Text('Update'),
           ),
           ReorderableAnimatedReleasedContainer(
-            releasedItemDuration: widget.releasedChildDuration,
+            animationConfig: ReorderableAnimationConfig(
+              releasedItemDuration: widget.releasedChildDuration,
+            ),
             releasedReorderableEntity: releasedEntity,
             reorderableEntity: widget.reorderableEntity,
             scrollOffset: widget.scrollOffset,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,8 +26,10 @@ void main() {
             body: ReorderableAnimatedPositioned(
               reorderableEntity: reorderableEntity,
               isDragging: isDragging,
-              positionChangeDuration: givenPositionDuration,
-              draggingPositionChangeDuration: givenDraggingPositionDuration,
+              animationConfig: const ReorderableAnimationConfig(
+                positionChangeDuration: givenPositionDuration,
+                draggingPositionChangeDuration: givenDraggingPositionDuration,
+              ),
               onMovingFinished: onMovingFinished,
               child: givenChild,
             ),
@@ -430,8 +433,10 @@ void main() {
               reorderableEntity: givenReorderableEntity,
               updatedReorderableEntity: givenUpdatedReorderableEntity,
               isDragging: true,
-              positionChangeDuration: givenPositionDuration,
-              draggingPositionChangeDuration: givenDraggingPositionDuration,
+              animationConfig: const ReorderableAnimationConfig(
+                positionChangeDuration: givenPositionDuration,
+                draggingPositionChangeDuration: givenDraggingPositionDuration,
+              ),
               onMovingFinished: () {
                 callCounter++;
               },
@@ -464,16 +469,17 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
   final ReorderableEntity updatedReorderableEntity;
   final bool isDragging;
   final VoidCallback onMovingFinished;
-  final Duration positionChangeDuration;
-  final Duration draggingPositionChangeDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   const _TestUpdateReorderableAnimatedPositioned({
     required this.reorderableEntity,
     required this.updatedReorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
-    this.positionChangeDuration = const Duration(milliseconds: 200),
-    this.draggingPositionChangeDuration = const Duration(milliseconds: 300),
+    this.animationConfig = const ReorderableAnimationConfig(
+      positionChangeDuration: Duration(milliseconds: 200),
+      draggingPositionChangeDuration: Duration(milliseconds: 300),
+    ),
   });
 
   @override
@@ -501,9 +507,7 @@ class _TestUpdateReorderableAnimatedPositionedState
           ReorderableAnimatedPositioned(
             reorderableEntity: reorderableEntity,
             isDragging: widget.isDragging,
-            positionChangeDuration: widget.positionChangeDuration,
-            draggingPositionChangeDuration:
-                widget.draggingPositionChangeDuration,
+            animationConfig: widget.animationConfig,
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +23,11 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: ReorderableAnimatedOpacity(
-              fadeInDuration: givenFadeInDuration,
+              animationConfig: const ReorderableAnimationConfig(
+                fadeInDuration: givenFadeInDuration,
+                draggingPositionChangeCurve: Curves.easeInCubic,
+                positionChangeCurve: Curves.elasticIn,
+              ),
               onAnimationStarted: onAnimationStarted,
               reorderableEntity: reorderableEntity,
               child: givenChild,
@@ -209,7 +214,9 @@ class _TestUpdatedReorderableAnimatedOpacityState
             child: const Text('press me'),
           ),
           ReorderableAnimatedOpacity(
-            fadeInDuration: Duration.zero,
+            animationConfig: const ReorderableAnimationConfig(
+              fadeInDuration: Duration.zero,
+            ),
             onAnimationStarted: widget.onAnimationStarted,
             reorderableEntity: reorderableEntity,
             child: const Placeholder(),

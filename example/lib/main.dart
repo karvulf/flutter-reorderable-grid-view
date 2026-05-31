@@ -157,8 +157,6 @@ class _MyAppState extends State<MyApp> {
           lockedIndices: lockedIndices,
           nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
-          animationConfig:
-              const ReorderableAnimationConfig(fadeInDuration: Duration.zero),
           children: generatedChildren,
           builder: (children) {
             return GridView.count(
@@ -205,6 +203,10 @@ class _MyAppState extends State<MyApp> {
           onUpdatedDraggedChild: _handleUpdatedDraggedChild,
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
+          animationConfig: const ReorderableAnimationConfig(
+            fadeInDuration: Duration(milliseconds: 800),
+            defaultAnimationCurve: Curves.easeInCubic,
+          ),
           itemCount: children.length,
           childBuilder: (itemBuilder) {
             return GridView.builder(
@@ -290,4 +292,11 @@ class _MyAppState extends State<MyApp> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+}
+
+class TestEaseInCurve extends Curve {
+  const TestEaseInCurve();
+
+  @override
+  double transform(double t) => t * t;
 }

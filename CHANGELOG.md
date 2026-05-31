@@ -1,3 +1,24 @@
+## 5.7.0
+⭐️ **New Features**
+- added animation curve support to `ReorderableAnimationConfig` (thanks for the request to `WD-J`, see [#171](https://github.com/karvulf/flutter-reorderable-grid-view/issues/171))
+- added new curve parameters:
+  - `positionChangeCurve`
+  - `draggingPositionChangeCurve`
+  - `releasedItemCurve`
+  - `fadeInCurve`
+  - `dragFeedbackCurve`
+  - `defaultAnimationCurve`
+- all animations now support curve fallback behavior:
+  - use specific curve if set
+  - otherwise use `defaultAnimationCurve`
+
+⚡️ **Breaking Changes**
+- removed direct duration parameters from `ReorderableBuilder` and `ReorderableBuilder.builder`
+- use `animationConfig` instead:
+  - `positionDuration` -> `animationConfig.positionChangeDuration`
+  - `releasedChildDuration` -> `animationConfig.releasedItemDuration`
+  - `fadeInDuration` -> `animationConfig.fadeInDuration`
+
 ## 5.6.0
 ⭐️ **New Features**
 - added new `animationConfig` parameter to `ReorderableBuilder` and `ReorderableBuilder.builder`

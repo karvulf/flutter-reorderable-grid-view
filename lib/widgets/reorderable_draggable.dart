@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
@@ -20,7 +21,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableDraggable;
   final double feedbackScaleFactor;
   final BoxDecoration? dragChildBoxDecoration;
-  final Duration feedbackDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   final VoidCallback onDragStarted;
   final void Function(Offset? globalOffset) onDragEnd;
@@ -39,7 +40,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.onDragEnd,
     required this.onDragCanceled,
     required this.currentDraggedEntity,
-    required this.feedbackDuration,
+    required this.animationConfig,
     this.dragChildBoxDecoration,
     Key? key,
   }) : super(key: key);
@@ -104,7 +105,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       size: reorderableEntity.size,
       decoration: _decorationTween.animate(_decoratedBoxAnimationController),
       feedbackScaleFactor: widget.feedbackScaleFactor,
-      animationDuration: widget.feedbackDuration,
+      animationConfig: widget.animationConfig,
       onDeactivate: widget.onDragCanceled,
       child: child,
     );

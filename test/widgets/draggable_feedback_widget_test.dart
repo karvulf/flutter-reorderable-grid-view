@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,7 +7,10 @@ void main() {
   const givenSize = Size(100.0, 200.5);
   const givenChild = Placeholder();
   const givenFeedbackScaleFactor = 1.5;
-  const givenAnimationDuration = Duration(milliseconds: 250);
+  const givenAnimationConfig = ReorderableAnimationConfig(
+    dragFeedbackDuration: Duration(milliseconds: 250),
+    dragFeedbackCurve: Curves.linear,
+  );
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -19,7 +23,7 @@ void main() {
               onDeactivate: onDeactivate,
               size: givenSize,
               feedbackScaleFactor: givenFeedbackScaleFactor,
-              animationDuration: givenAnimationDuration,
+              animationConfig: givenAnimationConfig,
               child: givenChild,
             ),
           ),
@@ -46,7 +50,8 @@ void main() {
     expect(
         find.byWidgetPredicate((widget) =>
             widget is AnimatedContainer &&
-            widget.duration == givenAnimationDuration),
+            widget.duration == givenAnimationConfig.dragFeedbackDuration &&
+            widget.curve == givenAnimationConfig.dragFeedbackCurve),
         findsOneWidget);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -120,14 +125,14 @@ class _TestAnimatedDraggableFeedback extends StatefulWidget {
   final Widget child;
   final Size size;
   final double feedbackScaleFactor;
-  final Duration animationDuration;
+  final ReorderableAnimationConfig animationConfig;
   final VoidCallback onDeactivate;
 
   const _TestAnimatedDraggableFeedback({
     required this.child,
     required this.size,
     required this.feedbackScaleFactor,
-    required this.animationDuration,
+    required this.animationConfig,
     required this.onDeactivate,
     Key? key,
   }) : super(key: key);
@@ -167,7 +172,7 @@ class _TestAnimatedDraggableFeedbackState
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
-      animationDuration: widget.animationDuration,
+      animationConfig: widget.animationConfig,
       child: widget.child,
     );
   }

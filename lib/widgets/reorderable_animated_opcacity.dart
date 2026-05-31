@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 
@@ -13,14 +14,13 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Called when the fade in animation has started for a new child.
   final void Function() onAnimationStarted;
 
-  /// Duration for the fade in animation when [child] appears for the first time.
-  final Duration fadeInDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   const ReorderableAnimatedOpacity({
     required this.reorderableEntity,
     required this.child,
     required this.onAnimationStarted,
-    required this.fadeInDuration,
+    required this.animationConfig,
     Key? key,
   }) : super(key: key);
 
@@ -42,7 +42,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
       vsync: this,
       duration: _duration,
     );
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_curveAnimation);
 
     _handleAnimationStarted();
 
@@ -120,6 +120,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   /// never appear, as the opacity would stay at 0.
   Duration get _duration {
     final isNew = widget.reorderableEntity.isNew;
-    return isNew ? widget.fadeInDuration : Duration.zero;
+    return isNew ? widget.animationConfig.fadeInDuration : Duration.zero;
+  }
+
+  Animation<double> get _curveAnimation {
+    final fadeInCurve = widget.animationConfig.fadeInCurve;
+
+    if (fadeInCurve == null) {
+      return _controller;
+    }
+
+    return CurvedAnimation(
+      parent: _controller,
+      curve: fadeInCurve,
+    );
   }
 }
