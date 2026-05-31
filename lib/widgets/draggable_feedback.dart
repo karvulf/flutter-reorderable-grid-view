@@ -7,6 +7,11 @@ class DraggableFeedback extends StatefulWidget {
   final Animation<Decoration> decoration;
   final double feedbackScaleFactor;
   final VoidCallback onDeactivate;
+
+  /// Animation settings for feedback scaling.
+  ///
+  /// Uses the configured drag-feedback duration and curve for
+  /// the AnimatedContainer animation.
   final ReorderableAnimationConfig animationConfig;
 
   const DraggableFeedback({

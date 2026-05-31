@@ -55,10 +55,10 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// widgets that support animations and drag-and-drop functionality.
   final ChildBuilderFunction? childBuilder;
 
-  /// Configuration for animations related the children.
+  /// Configuration for child animations.
   ///
-  /// These animations contains all kind of animations for the children,
-  /// e.g. fade in or position animation.
+  /// Includes the durations and curves for fade-in, position change,
+  /// released-item movement, and drag feedback.
   final ReorderableAnimationConfig animationConfig;
 
   /// The length of items that are rendered through [ReorderableBuilder.builder].
