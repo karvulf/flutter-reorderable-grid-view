@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 /// Responsible for the animation when the [child] changes his position.
@@ -29,21 +30,14 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// then the callback won't be fired.
   final VoidCallback onMovingFinished;
 
-  /// Duration for the position change of [child] (won't be used while dragging!).
-  final Duration positionChangeDuration;
-
-  /// Default duration when an item changes his position.
-  ///
-  /// This duration will be used for position changes while dragging.
-  final Duration draggingPositionChangeDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
-    required this.positionChangeDuration,
-    required this.draggingPositionChangeDuration,
+    required this.animationConfig,
     Key? key,
   }) : super(key: key);
 
@@ -66,7 +60,7 @@ class _ReorderableAnimatedPositionedState
     super.initState();
 
     _animationController = AnimationController(
-      duration: widget.draggingPositionChangeDuration,
+      duration: widget.animationConfig.draggingPositionChangeDuration,
       vsync: this,
     );
 
@@ -155,9 +149,10 @@ class _ReorderableAnimatedPositionedState
     Offset begin = Offset.zero,
     Offset end = Offset.zero,
   }) async {
-    _animationController.duration = widget.draggingPositionChangeDuration;
+    _animationController.duration =
+        widget.animationConfig.draggingPositionChangeDuration;
     final tween = Tween<Offset>(begin: begin, end: end);
-    _offsetAnimation = tween.animate(_animationController)
+    _offsetAnimation = tween.animate(_draggingCurveAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -184,10 +179,11 @@ class _ReorderableAnimatedPositionedState
   /// Important, this function is only added when [widget.child] updates his
   /// position, not while dragging.
   Future<void> _animateOffset({required Offset begin}) async {
-    _animationController.duration = widget.positionChangeDuration;
+    _animationController.duration =
+        widget.animationConfig.positionChangeDuration;
 
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
-    _offsetAnimation = tween.animate(_animationController)
+    _offsetAnimation = tween.animate(_positionChangeCurveAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -197,5 +193,32 @@ class _ReorderableAnimatedPositionedState
     if (begin != Offset.zero) {
       widget.onMovingFinished();
     }
+  }
+
+  Animation<double> get _draggingCurveAnimation {
+    final draggingPositionChangeCurve =
+        widget.animationConfig.draggingPositionChangeCurve;
+
+    if (draggingPositionChangeCurve == null) {
+      return _animationController;
+    }
+
+    return CurvedAnimation(
+      parent: _animationController,
+      curve: draggingPositionChangeCurve,
+    );
+  }
+
+  Animation<double> get _positionChangeCurveAnimation {
+    final positionChangeCurve = widget.animationConfig.positionChangeCurve;
+
+    if (positionChangeCurve == null) {
+      return _animationController;
+    }
+
+    return CurvedAnimation(
+      parent: _animationController,
+      curve: positionChangeCurve,
+    );
   }
 }

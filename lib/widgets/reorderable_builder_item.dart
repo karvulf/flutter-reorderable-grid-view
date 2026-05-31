@@ -145,7 +145,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
 
     return ReorderableAnimatedOpacity(
       reorderableEntity: widget.reorderableEntity,
-      fadeInDuration: animationConfig.fadeInDuration,
+      animationConfig: animationConfig,
       onAnimationStarted: () {
         final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
@@ -153,9 +153,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
       child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
         isDragging: widget.currentDraggedEntity != null,
-        positionChangeDuration: animationConfig.positionChangeDuration,
-        draggingPositionChangeDuration:
-            animationConfig.draggingPositionChangeDuration,
+        animationConfig: animationConfig,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);
           _updateReorderableEntity(updatedEntity);
@@ -173,7 +171,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
             reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
             scrollOffset: widget.scrollOffset,
-            releasedItemDuration: animationConfig.releasedItemDuration,
+            animationConfig: animationConfig,
             child: ReorderableDraggable(
               reorderableEntity: _reorderableEntity,
               enableDraggable: widget.enableDraggable,
@@ -182,7 +180,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
               feedbackScaleFactor: widget.feedbackScaleFactor,
-              feedbackDuration: animationConfig.dragFeedbackDuration,
+              animationConfig: animationConfig,
               // all three dragging functions will trigger a setState for all children
               // that's why the single entity won't be updated here because
               // the drag and drop effects much more children

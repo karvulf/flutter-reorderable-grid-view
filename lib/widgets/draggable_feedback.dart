@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 
 class DraggableFeedback extends StatefulWidget {
   final Widget child;
@@ -6,7 +7,7 @@ class DraggableFeedback extends StatefulWidget {
   final Animation<Decoration> decoration;
   final double feedbackScaleFactor;
   final VoidCallback onDeactivate;
-  final Duration animationDuration;
+  final ReorderableAnimationConfig animationConfig;
 
   const DraggableFeedback({
     required this.child,
@@ -14,7 +15,7 @@ class DraggableFeedback extends StatefulWidget {
     required this.decoration,
     required this.feedbackScaleFactor,
     required this.onDeactivate,
-    required this.animationDuration,
+    required this.animationConfig,
     Key? key,
   }) : super(key: key);
 
@@ -51,7 +52,8 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: AnimatedContainer(
-        duration: widget.animationDuration,
+        duration: widget.animationConfig.dragFeedbackDuration,
+        curve: widget.animationConfig.dragFeedbackCurve,
         height: _size.height,
         width: _size.width,
         transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0.0),
