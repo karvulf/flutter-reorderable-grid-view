@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -167,7 +168,9 @@ class _TestAnimatedDraggableFeedbackState
       decoration: _decorationTween.animate(
         _decoratedBoxAnimationController,
       ),
-      animationDuration: widget.animationDuration,
+      animationConfig: ReorderableAnimationConfig(
+        dragFeedbackDuration: widget.animationDuration,
+      ),
       child: widget.child,
     );
   }

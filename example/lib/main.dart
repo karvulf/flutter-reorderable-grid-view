@@ -157,8 +157,10 @@ class _MyAppState extends State<MyApp> {
           lockedIndices: lockedIndices,
           nonDraggableIndices: nonDraggableIndices,
           scrollController: _scrollController,
-          animationConfig:
-              const ReorderableAnimationConfig(fadeInDuration: Duration.zero),
+          animationConfig: const ReorderableAnimationConfig(
+            fadeInDuration: Duration.zero,
+            defaultAnimationCurve: Curves.elasticIn,
+          ),
           children: generatedChildren,
           builder: (children) {
             return GridView.count(
