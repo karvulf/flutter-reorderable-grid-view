@@ -19,6 +19,7 @@ Package for having animated Drag and Drop functionality for every type of `GridV
   - [Animations](#animations)
 - [Supported Widgets](#supported-widgets)
 - [Parameters](#parameters)
+  - [AnimationConfig Parameters](#animationconfig-parameters)
 - [Road Map](#road-map)
 - [Future Plans](#future-plans)
 
@@ -170,9 +171,6 @@ For example, adding or removing a child at the beginning of the list affects the
 | `enableDraggable`              | Enables the drag and drop functionality.                                                                                 |     **true**      |
 | `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                         |     **true**      |
 | `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
-| `fadeInDuration`               | Deprecated. Use `animationConfig.fadeInDuration`.                                                                        |     **500ms**     |
-| `releasedChildDuration`        | Deprecated. Use `animationConfig.releasedItemDuration`.                                                                  |     **150ms**     |
-| `positionDuration`             | Deprecated. Use `animationConfig.positionChangeDuration`.                                                                |     **200ms**     |
 | `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
 | `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
 | `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
@@ -181,6 +179,25 @@ For example, adding or removing a child at the beginning of the list affects the
 | `onDragEnd`                    | Callback when the dragged child was released with the index.                                                             |       **-**       |
 | `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                   |       **-**       |
 | `scrollController`             | `ScrollController` which should be also assigned to the scrollable widget. Don't forget this to prevent animation issues.|       **-**       |
+
+### AnimationConfig Parameters
+
+Use `animationConfig` to configure all animation durations and curves in one place.
+
+| **Parameter**                       | **Description**                                                                                                  | **Default Value** |
+|:------------------------------------|:-----------------------------------------------------------------------------------------------------------------|:-----------------:|
+| `positionChangeDuration`            | Duration for item position changes outside active dragging.                                                      |    **200 ms**     |
+| `draggingPositionChangeDuration`    | Duration for item position changes while dragging.                                                               |    **200 ms**     |
+| `releasedItemDuration`              | Duration for the released dragged item to animate to its final position.                                        |    **150 ms**     |
+| `fadeInDuration`                    | Duration for fade-in when a new child is added.                                                                  |    **500 ms**     |
+| `dragFeedbackDuration`              | Duration for scaling the drag feedback widget.                                                                   |    **150 ms**     |
+| `positionChangeCurve`               | Curve for `positionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                            |       **-**       |
+| `draggingPositionChangeCurve`       | Curve for `draggingPositionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                    |       **-**       |
+| `releasedItemCurve`                 | Curve for `releasedItemDuration`. Falls back to `defaultAnimationCurve` when null.                              |       **-**       |
+| `fadeInCurve`                       | Curve for `fadeInDuration`. Falls back to `defaultAnimationCurve` when null.                                    |       **-**       |
+| `dragFeedbackCurve`                 | Curve for `dragFeedbackDuration`. Falls back to `defaultAnimationCurve`, then to `Curves.linear` if still null.| `Curves.linear` |
+| `defaultAnimationCurve`             | Global fallback curve for animation curve parameters when a specific curve is not provided.                      |       **-**       |
+| `enableAnimations`                  | Enables or disables animations globally. If false, durations become `Duration.zero` and nullable curves resolve to null. |    **true**      |
 
 ### `CustomDraggable`
 
