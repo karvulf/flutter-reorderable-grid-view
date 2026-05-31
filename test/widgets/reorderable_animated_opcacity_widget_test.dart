@@ -25,6 +25,8 @@ void main() {
             body: ReorderableAnimatedOpacity(
               animationConfig: const ReorderableAnimationConfig(
                 fadeInDuration: givenFadeInDuration,
+                draggingPositionChangeCurve: Curves.easeInCubic,
+                positionChangeCurve: Curves.elasticIn,
               ),
               onAnimationStarted: onAnimationStarted,
               reorderableEntity: reorderableEntity,

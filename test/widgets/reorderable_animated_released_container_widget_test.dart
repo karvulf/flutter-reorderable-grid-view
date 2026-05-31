@@ -24,6 +24,7 @@ void main() {
             body: ReorderableAnimatedReleasedContainer(
               animationConfig: const ReorderableAnimationConfig(
                 releasedItemDuration: givenReleasedChildDuration,
+                releasedItemCurve: Curves.elasticIn,
               ),
               releasedReorderableEntity: givenReleasedReorderableEntity,
               reorderableEntity: givenReorderableEntity,
