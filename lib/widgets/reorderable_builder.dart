@@ -10,6 +10,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_size_changed_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,
@@ -260,16 +261,13 @@ class ReorderableBuilder<T> extends StatefulWidget {
   State<ReorderableBuilder<T>> createState() => _ReorderableBuilderState();
 }
 
-class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
-    with WidgetsBindingObserver {
+class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
     reorderableBuilderController = ReorderableBuilderController();
     reorderableItemBuilderController = ReorderableItemBuilderController();
 
@@ -290,31 +288,6 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
   }
 
   @override
-  void didChangeMetrics() {
-    final orientationBefore = MediaQuery.orientationOf(context);
-    final screenSizeBefore = MediaQuery.sizeOf(context);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final orientationAfter = MediaQuery.orientationOf(context);
-      final screenSizeAfter = MediaQuery.sizeOf(context);
-
-      if (orientationBefore != orientationAfter ||
-          screenSizeBefore != screenSizeAfter) {
-        _reorderableController.handleDeviceOrientationChanged();
-        _reorderableController.scrollOffset == _scrollOffset;
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     late Widget child;
 
@@ -325,15 +298,18 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       child = builder(_wrapChildren());
     }
 
-    return ReorderableScrollingListener(
-      isDragging: _reorderableController.draggedEntity != null,
-      reorderableChildKey: child.key as GlobalKey?,
-      scrollController: widget.scrollController,
-      automaticScrollExtent: widget.automaticScrollExtent,
-      enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
-      reverse: widget.reverse,
-      onDragUpdate: _handleDragUpdate,
-      child: child,
+    return ReorderableSizeChangedListener(
+      onSizeChanged: _handleSizeChanged,
+      child: ReorderableScrollingListener(
+        isDragging: _reorderableController.draggedEntity != null,
+        reorderableChildKey: child.key as GlobalKey?,
+        scrollController: widget.scrollController,
+        automaticScrollExtent: widget.automaticScrollExtent,
+        enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+        reverse: widget.reverse,
+        onDragUpdate: _handleDragUpdate,
+        child: child,
+      ),
     );
   }
 
@@ -397,25 +373,28 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
     bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
         !widget.lockedIndices.contains(index);
 
-    return ReorderableBuilderItem(
-      reorderableEntity: reorderableEntity,
-      animationConfig: widget.animationConfig,
-      onOpacityFinished: _handleOpacityFinished,
-      onMovingFinished: _handleMovingFinished,
-      onCreated: _handleCreatedChild,
-      releasedReorderableEntity:
-          _reorderableController.releasedReorderableEntity,
-      scrollOffset: _scrollOffset,
-      enableDraggable: widget.enableDraggable && isDraggable,
-      currentDraggedEntity: currentDraggedEntity,
-      enableLongPress: widget.enableLongPress,
-      longPressDelay: widget.longPressDelay,
-      dragChildBoxDecoration: widget.dragChildBoxDecoration,
-      feedbackScaleFactor: widget.feedbackScaleFactor,
-      onDragStarted: _handleDragStarted,
-      onDragEnd: _handleDragEnd,
-      onDragCanceled: _handleDragCanceled,
-      child: child,
+    return ReorderableSizeChangedListener(
+      onSizeChanged: _handleSizeChanged,
+      child: ReorderableBuilderItem(
+        reorderableEntity: reorderableEntity,
+        animationConfig: widget.animationConfig,
+        onOpacityFinished: _handleOpacityFinished,
+        onMovingFinished: _handleMovingFinished,
+        onCreated: _handleCreatedChild,
+        releasedReorderableEntity:
+            _reorderableController.releasedReorderableEntity,
+        scrollOffset: _scrollOffset,
+        enableDraggable: widget.enableDraggable && isDraggable,
+        currentDraggedEntity: currentDraggedEntity,
+        enableLongPress: widget.enableLongPress,
+        longPressDelay: widget.longPressDelay,
+        dragChildBoxDecoration: widget.dragChildBoxDecoration,
+        feedbackScaleFactor: widget.feedbackScaleFactor,
+        onDragStarted: _handleDragStarted,
+        onDragEnd: _handleDragEnd,
+        onDragCanceled: _handleDragCanceled,
+        child: child,
+      ),
     );
   }
 
@@ -573,6 +552,20 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>>
       reorderableEntity: reorderableEntity,
       size: size,
     );
+  }
+
+  /// Called when this widget or one of its children got a new size.
+  ///
+  /// This can happen e.g. after rotating the device, resizing the window or
+  /// changing the tile size or column count of the GridView.
+  ///
+  /// Cached sizes and offsets would be stale, so all children are re-measured.
+  void _handleSizeChanged() {
+    if (!mounted) return;
+
+    setState(() {
+      _reorderableController.handleDeviceOrientationChanged();
+    });
   }
 
   ReorderableDragAndDropController get _reorderableController {

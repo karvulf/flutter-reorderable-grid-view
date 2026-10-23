@@ -2,6 +2,9 @@
 ⭐️ **New Features**
 - exported `ReorderUpdateEntity` so it can be used with `onReorderPositions` without an extra import
 
+🐛 **Bug Fixes**
+- fixed calculating issue when children size is changing e.g. by adding more columns to the same GridView (thanks to `chriskeeble`, see [#176](https://github.com/karvulf/flutter-reorderable-grid-view/issues/176))
+
 🏄‍♂️ **Improvements**
 - updated `flutter_lints` to `^6.0.0`
 - replaced `material.dart`/`cupertino.dart` imports with `widgets.dart` where Material/Cupertino isn't needed (prepares for the upcoming `material_ui` package)
