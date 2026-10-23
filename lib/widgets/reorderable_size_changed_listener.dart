@@ -1,8 +1,10 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// Calls [onSizeChanged] after the frame in which [child] was laid out with a
-/// different size than before (not on the first layout).
+/// Listener to detect any size changes in [child].
+///
+/// Calls [onSizeChanged] after the size of [child] has changed, e.g.
+/// after orientation change or one of the children in GridView changed the size.
 class ReorderableSizeChangedListener extends SingleChildRenderObjectWidget {
   final VoidCallback onSizeChanged;
 
@@ -34,6 +36,7 @@ class RenderReorderableSizeChangedListener extends RenderProxyBox {
   @override
   void performLayout() {
     super.performLayout();
+
     if (_previousSize != null && _previousSize != size) {
       // Called after the frame because a rebuild isn't allowed during layout.
       WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -68,15 +68,15 @@ void main() {
     });
   });
 
-  group('#orientationChanged', () {
+  group('#sizeChanged', () {
     test(
         'GIVEN required values '
-        'WHEN calling orientationChanged '
+        'WHEN calling sizeChanged '
         'THEN should return expected ReorderableEntity', () {
       // given
 
       // when
-      final actual = ReorderableEntity.orientationChanged(
+      final actual = ReorderableEntity.sizeChanged(
         key: givenKey,
         updatedOrderId: givenUpdatedOrderId,
         originalOrderId: givenOriginalOrderId,
