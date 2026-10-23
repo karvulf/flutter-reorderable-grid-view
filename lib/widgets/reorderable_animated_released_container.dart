@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
@@ -26,14 +26,13 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   /// [reorderableEntity] and an offset animation could start.
   final ReleasedReorderableEntity? releasedReorderableEntity;
 
-  const ReorderableAnimatedReleasedContainer({
-    required this.child,
-    required this.reorderableEntity,
-    required this.scrollOffset,
-    required this.animationConfig,
-    required this.releasedReorderableEntity,
-    Key? key,
-  }) : super(key: key);
+  const ReorderableAnimatedReleasedContainer(
+      {required this.child,
+      required this.reorderableEntity,
+      required this.scrollOffset,
+      required this.animationConfig,
+      required this.releasedReorderableEntity,
+      super.key});
 
   @override
   State<ReorderableAnimatedReleasedContainer> createState() =>

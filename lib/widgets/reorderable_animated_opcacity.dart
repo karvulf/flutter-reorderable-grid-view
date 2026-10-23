@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
@@ -21,8 +21,8 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
     required this.child,
     required this.onAnimationStarted,
     required this.animationConfig,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableAnimatedOpacity> createState() =>

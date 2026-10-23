@@ -123,8 +123,31 @@ If no `ScrollController` is assigned and no `ScrollController` is found within t
 ### Drag and Drop
 The drag-and-drop functionality is enabled by default.
 
-To ensure proper reordering, you must implement the `onReorder` callback to update your list of children. 
+To ensure proper reordering, you must implement either `onReorder` or `onReorderPositions` (exactly one of them) to update your list of children. 
 Without this, the reorder operation will not work and may cause issues.
+
+- `onReorder` passes a function that reorders your list for you:
+
+```dart
+onReorder: (ReorderedListFunction reorderedListFunction) {
+  setState(() {
+    _items = reorderedListFunction(_items) as List<int>;
+  });
+},
+```
+
+- `onReorderPositions` passes the position changes as a `List<ReorderUpdateEntity>` (each with `oldIndex` and `newIndex`), so you can apply them yourself, e.g. to update a database or state management:
+
+```dart
+onReorderPositions: (List<ReorderUpdateEntity> positions) {
+  setState(() {
+    for (final position in positions) {
+      final item = _items.removeAt(position.oldIndex);
+      _items.insert(position.newIndex, item);
+    }
+  });
+},
+```
 
 ### Scroll while dragging
 While dragging a child, moving it to the top or bottom of your `GridView` will trigger automatic scrolling. 
@@ -163,6 +186,7 @@ For example, adding or removing a child at the beginning of the list affects the
 |:-------------------------------|:--------------------------------------------------------------------------------------------------------------------------|:-----------------:|
 | `children`                     | Displays all given children that are build inside a Wrap or GridView. Don't forget a unique key for every child.       |       **-**       |
 | `childBuilder`                 | Enable support for [GridView.builder] using this function. Don't forget a unique key for every child.                   |       **-**       |
+| `itemCount`                    | Number of items rendered by `ReorderableBuilder.builder`. Required when using `childBuilder`.                            |       **-**       |
 | `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.              |    **<int>[]**    |
 | `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                   |    **<int>[]**    |
 | `animationConfig`              | Configuration for all child animations (fade in, position changes, drag feedback, release animation).                   | `const ReorderableAnimationConfig()` |
@@ -171,10 +195,12 @@ For example, adding or removing a child at the beginning of the list affects the
 | `enableDraggable`              | Enables the drag and drop functionality.                                                                                 |     **true**      |
 | `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                         |     **true**      |
 | `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
+| `feedbackScaleFactor`          | Scale factor of the dragged feedback widget, e.g. `1.5` enlarges it by 50%.                                              |     **1.05**      |
 | `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
 | `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
 | `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
-| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all items.   |       **-**       |
+| `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all items. Use either this or `onReorderPositions`. |       **-**       |
+| `onReorderPositions`           | After releasing the dragged child, [onReorderPositions] is called with a list of `ReorderUpdateEntity` (`oldIndex`, `newIndex`). Use either this or `onReorder`. |       **-**       |
 | `onDragStarted`                | Callback when dragging starts with the index where it started.                                                           |       **-**       |
 | `onDragEnd`                    | Callback when the dragged child was released with the index.                                                             |       **-**       |
 | `onUpdatedDraggedChild`        | Called when the dragged child has updated his position while dragging.                                                   |       **-**       |

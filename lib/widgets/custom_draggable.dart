@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 
 /// Helper widget for adding additional information to [Draggable] related to [child].
 ///

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 /// Widget that calls [onCreated] if [reorderableEntity] is new.
@@ -21,8 +21,8 @@ class ReorderableInitChild extends StatefulWidget {
     required this.child,
     required this.reorderableEntity,
     required this.onCreated,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableInitChild> createState() => _ReorderableInitChildState();
