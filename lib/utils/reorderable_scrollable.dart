@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 /// A utility class to manage scrolling behavior for scrollable widgets.
 ///

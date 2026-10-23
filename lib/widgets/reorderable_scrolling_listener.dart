@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 
 /// Uses [Listener] to indicate position updates while dragging a child and enables an autoscroll functionality.
@@ -42,8 +42,8 @@ class ReorderableScrollingListener extends StatefulWidget {
     required this.onDragUpdate,
     required this.reorderableChildKey,
     required this.scrollController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableScrollingListener> createState() =>

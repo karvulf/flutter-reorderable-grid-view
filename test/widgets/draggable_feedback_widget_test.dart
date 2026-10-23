@@ -134,8 +134,7 @@ class _TestAnimatedDraggableFeedback extends StatefulWidget {
     required this.feedbackScaleFactor,
     required this.animationConfig,
     required this.onDeactivate,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_TestAnimatedDraggableFeedback> createState() =>

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
@@ -38,8 +38,8 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
     required this.isDragging,
     required this.onMovingFinished,
     required this.animationConfig,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableAnimatedPositioned> createState() =>
