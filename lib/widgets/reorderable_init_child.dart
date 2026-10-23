@@ -21,8 +21,8 @@ class ReorderableInitChild extends StatefulWidget {
     required this.child,
     required this.reorderableEntity,
     required this.onCreated,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableInitChild> createState() => _ReorderableInitChildState();

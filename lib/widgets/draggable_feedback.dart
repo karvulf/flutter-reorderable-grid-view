@@ -21,8 +21,8 @@ class DraggableFeedback extends StatefulWidget {
     required this.feedbackScaleFactor,
     required this.onDeactivate,
     required this.animationConfig,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<DraggableFeedback> createState() => _DraggableFeedbackState();

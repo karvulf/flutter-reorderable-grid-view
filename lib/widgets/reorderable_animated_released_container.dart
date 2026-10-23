@@ -32,8 +32,8 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.scrollOffset,
     required this.animationConfig,
     required this.releasedReorderableEntity,
-    Key? key,
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   State<ReorderableAnimatedReleasedContainer> createState() =>

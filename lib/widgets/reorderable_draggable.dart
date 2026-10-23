@@ -42,8 +42,8 @@ class ReorderableDraggable extends StatefulWidget {
     required this.currentDraggedEntity,
     required this.animationConfig,
     this.dragChildBoxDecoration,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableDraggable> createState() => _ReorderableDraggableState();

@@ -38,8 +38,8 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
     required this.isDragging,
     required this.onMovingFinished,
     required this.animationConfig,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableAnimatedPositioned> createState() =>

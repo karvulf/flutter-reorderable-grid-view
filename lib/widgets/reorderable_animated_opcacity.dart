@@ -21,8 +21,8 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
     required this.child,
     required this.onAnimationStarted,
     required this.animationConfig,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ReorderableAnimatedOpacity> createState() =>

@@ -215,13 +215,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
-    Key? key,
+    super.key,
   })  : assert((enableDraggable &&
                 (onReorder != null || onReorderPositions != null)) ||
             !enableDraggable),
         childBuilder = null,
-        itemCount = null,
-        super(key: key);
+        itemCount = null;
 
   const ReorderableBuilder.builder({
     required ChildBuilderFunction this.childBuilder,
@@ -246,13 +245,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
-    Key? key,
+    super.key,
   })  : assert((enableDraggable &&
                 (onReorder != null || onReorderPositions != null)) ||
             !enableDraggable),
         children = null,
-        builder = null,
-        super(key: key);
+        builder = null;
 
   @override
   State<ReorderableBuilder<T>> createState() => _ReorderableBuilderState();
