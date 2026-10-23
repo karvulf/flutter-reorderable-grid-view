@@ -26,14 +26,13 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
   /// [reorderableEntity] and an offset animation could start.
   final ReleasedReorderableEntity? releasedReorderableEntity;
 
-  const ReorderableAnimatedReleasedContainer({
-    required this.child,
-    required this.reorderableEntity,
-    required this.scrollOffset,
-    required this.animationConfig,
-    required this.releasedReorderableEntity,
-    super.key
-  });
+  const ReorderableAnimatedReleasedContainer(
+      {required this.child,
+      required this.reorderableEntity,
+      required this.scrollOffset,
+      required this.animationConfig,
+      required this.releasedReorderableEntity,
+      super.key});
 
   @override
   State<ReorderableAnimatedReleasedContainer> createState() =>
