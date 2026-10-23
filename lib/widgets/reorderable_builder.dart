@@ -95,7 +95,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
 
   /// When disabling draggable, the drag and drop behavior is not working.
   ///
-  /// When [enableDraggable] is true, [onReorder] must not be null.
+  /// When [enableDraggable] is true, either [onReorder] or [onReorderPositions]
+  /// must be provided.
   ///
   /// Default value: true
   final bool enableDraggable;
@@ -110,7 +111,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
 
   /// Defines the height of the top or bottom before the dragged child indicates a scrolling.
   ///
-  /// Default value: 80.0
+  /// Default value: 150.0
   final double automaticScrollExtent;
 
   /// The scale factor applied to the feedback widget during a drag operation.
@@ -156,7 +157,10 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// After releasing the dragged child, [onReorderPositions] is called.
   ///
   /// Ensure [enableDraggable] is set to true for this callback to trigger.
-  /// This function returns a list of updated positions
+  /// This function returns a list of [ReorderUpdateEntity] containing the
+  /// [ReorderUpdateEntity.oldIndex] and [ReorderUpdateEntity.newIndex] of each
+  /// moved child.
+  /// Apply them in order to your list. Use either this or [onReorder].
   final OnReorderPositions? onReorderPositions;
 
   /// Callback when dragging starts with the index where it started.
