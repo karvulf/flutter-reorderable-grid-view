@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
@@ -61,8 +61,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
   final _defaultBoxDecoration = BoxDecoration(
     boxShadow: <BoxShadow>[
       BoxShadow(
-        // ignore: deprecated_member_use
-        color: Colors.black.withOpacity(0.2),
+        color: const Color(0x33000000),
         spreadRadius: 5,
         blurRadius: 6,
         offset: const Offset(0, 3), // changes position of shadow
@@ -80,7 +79,7 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
     );
 
     final beginDragBoxDecoration = widget.dragChildBoxDecoration?.copyWith(
-      color: Colors.transparent,
+      color: const Color(0x00000000),
       boxShadow: [],
     );
     _decorationTween = DecorationTween(
