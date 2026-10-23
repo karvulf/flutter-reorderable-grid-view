@@ -564,7 +564,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     if (!mounted) return;
 
     setState(() {
-      _reorderableController.handleDeviceOrientationChanged();
+      _reorderableController.handleSizeChanged();
     });
   }
 

@@ -45,7 +45,7 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     final oldEntity = oldWidget.reorderableEntity;
     final newEntity = widget.reorderableEntity;
 
-    // this case can happen if the orientation changed
+    // this case can happen if the size of the builder or a child changed
     if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
         newEntity.isBuildingOffset) {
       _handleCreatedChild();
