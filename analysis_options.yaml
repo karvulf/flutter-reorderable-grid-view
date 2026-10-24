@@ -9,3 +9,4 @@ include: package:flutter_lints/flutter.yaml
 linter:
   rules:
     - flutter_style_todos
+    - require_trailing_commas
