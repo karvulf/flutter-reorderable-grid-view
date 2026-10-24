@@ -116,15 +116,17 @@ abstract class ReorderableController {
 
   /// Resets all entities in [childrenOrderMap] and [childrenKeyMap].
   ///
+  /// Should be called when the size of [ReorderableBuilder] or one of its
+  /// children changed, e.g. after a rotation or a new column count.
   /// Clears [offsetMap] and rebuilds all entities in [childrenOrderMap] and
-  /// [childrenKeyMap] because after the orientation change, the children
-  /// will have new offsets that has to be recalculated.
-  void handleDeviceOrientationChanged() {
+  /// [childrenKeyMap] so the children get re-measured with their new
+  /// offsets and sizes.
+  void handleSizeChanged() {
     offsetMap.clear();
 
     for (final entry in childrenOrderMap.entries) {
       final value = entry.value;
-      childrenOrderMap[entry.key] = ReorderableEntity.orientationChanged(
+      childrenOrderMap[entry.key] = ReorderableEntity.sizeChanged(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
         originalOrderId: value.originalOrderId,
@@ -133,7 +135,7 @@ abstract class ReorderableController {
 
     for (final entry in childrenKeyMap.entries) {
       final value = entry.value;
-      childrenKeyMap[entry.key] = ReorderableEntity.orientationChanged(
+      childrenKeyMap[entry.key] = ReorderableEntity.sizeChanged(
         key: value.key,
         updatedOrderId: value.updatedOrderId,
         originalOrderId: value.originalOrderId,

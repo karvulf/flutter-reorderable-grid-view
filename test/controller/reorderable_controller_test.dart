@@ -304,12 +304,12 @@ void main() {
     });
   });
 
-  group('#handleDeviceOrientationChanged', () {
+  group('#handleSizeChanged', () {
     final givenEntities = reorderableBuilder.getUniqueEntities(count: 5);
 
     test(
         'GIVEN filled offsetMap, childrenKeyMap and childrenOrderMap '
-        'WHEN calling #handleDeviceOrientationChanged '
+        'WHEN calling #handleSizeChanged '
         'THEN should update maps as expected', () {
       // given
       controller.offsetMap[0] = Offset.zero;
@@ -321,13 +321,13 @@ void main() {
       }
 
       // when
-      controller.handleDeviceOrientationChanged();
+      controller.handleSizeChanged();
 
       // then
       final expectedChildrenKeyMap = <String, ReorderableEntity>{};
       final expectedChildrenOrderMap = <int, ReorderableEntity>{};
       for (final entity in givenEntities) {
-        final expectedEntity = ReorderableEntity.orientationChanged(
+        final expectedEntity = ReorderableEntity.sizeChanged(
           key: entity.key,
           updatedOrderId: entity.updatedOrderId,
           originalOrderId: entity.originalOrderId,

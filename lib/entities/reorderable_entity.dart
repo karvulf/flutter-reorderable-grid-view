@@ -54,7 +54,7 @@ class ReorderableEntity {
         hasSwappedOrder: false,
       );
 
-  factory ReorderableEntity.orientationChanged({
+  factory ReorderableEntity.sizeChanged({
     required ValueKey key,
     required int updatedOrderId,
     required int originalOrderId,
