@@ -48,6 +48,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     required int? itemCount,
   }) {
     _releasedReorderableEntity = null;
+    draggingAnimationMap.clear();
     this.lockedIndices = lockedIndices;
     super.draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;

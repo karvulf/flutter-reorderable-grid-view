@@ -41,9 +41,11 @@ void main() {
 
     // then
     expect(
-      find.byWidgetPredicate((widget) =>
-          widget is ReorderableSizeChangedListener &&
-          widget.child == givenChild),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ReorderableSizeChangedListener &&
+            widget.child == givenChild,
+      ),
       findsOneWidget,
     );
   });

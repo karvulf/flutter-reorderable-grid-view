@@ -114,25 +114,26 @@ void main() {
       findsOneWidget,
     );
     expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is LongPressDraggable &&
-              widget.delay == givenLongPressDelay &&
-              (widget.feedback as DraggableFeedback).size ==
-                  givenReorderableEntity.size &&
-              (widget.feedback as DraggableFeedback).decoration.value ==
-                  const BoxDecoration() &&
-              (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
-                  givenFeedbackScaleFactor &&
-              (widget.feedback as DraggableFeedback)
-                      .animationConfig
-                      .dragFeedbackDuration ==
-                  givenFeedbackDuration &&
-              widget.childWhenDragging == null &&
-              widget.data == null &&
-              widget.child == givenChild,
-        ),
-        findsOneWidget);
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is LongPressDraggable &&
+            widget.delay == givenLongPressDelay &&
+            (widget.feedback as DraggableFeedback).size ==
+                givenReorderableEntity.size &&
+            (widget.feedback as DraggableFeedback).decoration.value ==
+                const BoxDecoration() &&
+            (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
+                givenFeedbackScaleFactor &&
+            (widget.feedback as DraggableFeedback)
+                    .animationConfig
+                    .dragFeedbackDuration ==
+                givenFeedbackDuration &&
+            widget.childWhenDragging == null &&
+            widget.data == null &&
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(Draggable), findsNothing);
   });
 
@@ -151,20 +152,21 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is Draggable &&
-              (widget.feedback as DraggableFeedback).size ==
-                  givenReorderableEntity.size &&
-              (widget.feedback as DraggableFeedback).decoration.value ==
-                  const BoxDecoration() &&
-              (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
-                  givenFeedbackScaleFactor &&
-              widget.childWhenDragging == null &&
-              widget.data == null &&
-              widget.child == givenChild,
-        ),
-        findsOneWidget);
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Draggable &&
+            (widget.feedback as DraggableFeedback).size ==
+                givenReorderableEntity.size &&
+            (widget.feedback as DraggableFeedback).decoration.value ==
+                const BoxDecoration() &&
+            (widget.feedback as DraggableFeedback).feedbackScaleFactor ==
+                givenFeedbackScaleFactor &&
+            widget.childWhenDragging == null &&
+            widget.data == null &&
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(LongPressDraggable), findsNothing);
   });
 
@@ -248,22 +250,25 @@ void main() {
       // then
       expect(callCounter, equals(1));
 
-      expect(find.byWidgetPredicate((widget) {
-        if (widget is LongPressDraggable) {
-          final boxDecoration = ((widget.feedback as DraggableFeedback)
-              .decoration
-              .value as BoxDecoration);
-          expect(boxDecoration.boxShadow?.length, equals(1));
-          final shadow = boxDecoration.boxShadow![0];
-          // ignore: deprecated_member_use
-          expect(shadow.color, equals(Colors.black.withOpacity(0.2)));
-          expect(shadow.spreadRadius, equals(5));
-          expect(shadow.blurRadius, equals(6));
-          expect(shadow.offset, equals(const Offset(0, 3)));
-          return true;
-        }
-        return false;
-      }), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) {
+          if (widget is LongPressDraggable) {
+            final boxDecoration = ((widget.feedback as DraggableFeedback)
+                .decoration
+                .value as BoxDecoration);
+            expect(boxDecoration.boxShadow?.length, equals(1));
+            final shadow = boxDecoration.boxShadow![0];
+            // ignore: deprecated_member_use
+            expect(shadow.color, equals(Colors.black.withOpacity(0.2)));
+            expect(shadow.spreadRadius, equals(5));
+            expect(shadow.blurRadius, equals(6));
+            expect(shadow.offset, equals(const Offset(0, 3)));
+            return true;
+          }
+          return false;
+        }),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -303,16 +308,19 @@ void main() {
       expect(actualOffset, equals(const Offset(-32.75, 10.0)));
       expect(onDragCanceledCallCounter, equals(1));
 
-      expect(find.byWidgetPredicate((widget) {
-        if (widget is LongPressDraggable) {
-          final boxDecoration = ((widget.feedback as DraggableFeedback)
-              .decoration
-              .value as BoxDecoration);
-          expect(boxDecoration.boxShadow, isNull);
-          return true;
-        }
-        return false;
-      }), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) {
+          if (widget is LongPressDraggable) {
+            final boxDecoration = ((widget.feedback as DraggableFeedback)
+                .decoration
+                .value as BoxDecoration);
+            expect(boxDecoration.boxShadow, isNull);
+            return true;
+          }
+          return false;
+        }),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -353,16 +361,19 @@ void main() {
       expect(actualOffset, equals(const Offset(-42.75, -10.0)));
       expect(onDragCanceledCallCounter, equals(1));
 
-      expect(find.byWidgetPredicate((widget) {
-        if (widget is LongPressDraggable) {
-          final boxDecoration = ((widget.feedback as DraggableFeedback)
-              .decoration
-              .value as BoxDecoration);
-          expect(boxDecoration.boxShadow, isNull);
-          return true;
-        }
-        return false;
-      }), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) {
+          if (widget is LongPressDraggable) {
+            final boxDecoration = ((widget.feedback as DraggableFeedback)
+                .decoration
+                .value as BoxDecoration);
+            expect(boxDecoration.boxShadow, isNull);
+            return true;
+          }
+          return false;
+        }),
+        findsOneWidget,
+      );
     });
   });
 }

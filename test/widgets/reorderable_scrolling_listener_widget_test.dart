@@ -75,11 +75,14 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is Listener &&
             widget.behavior == HitTestBehavior.deferToChild &&
-            widget.onPointerMove != null),
-        findsOneWidget);
+            widget.onPointerMove != null,
+      ),
+      findsOneWidget,
+    );
   });
 
   group('scrollable inner widget', () {
@@ -361,54 +364,56 @@ class _TestOuterScrollableState extends State<_TestOuterScrollable> {
     return Scaffold(
       body: SingleChildScrollView(
         reverse: true,
-        child: Builder(builder: (context) {
-          widget.onBuilt(context);
-          return Column(
-            children: [
-              const SizedBox(
-                height: 200.0,
-                width: double.infinity,
-                child: ColoredBox(color: Colors.green),
-              ),
-              ReorderableBuilder.builder(
-                onReorder: (ReorderedListFunction reorderedListFunction) {
-                  setState(() {
-                    children = reorderedListFunction(children) as List<int>;
-                  });
-                },
-                reverse: true,
-                itemCount: children.length,
-                childBuilder: (itemBuilder) {
-                  return GridView.builder(
-                    key: _gridViewKey,
-                    reverse: true,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: children.length,
-                    itemBuilder: (context, index) {
-                      return itemBuilder(
-                        ColoredBox(
-                          key: Key(children.elementAt(index).toString()),
-                          color: Colors.lightBlue,
-                          child: Text(
-                            children.elementAt(index).toString(),
+        child: Builder(
+          builder: (context) {
+            widget.onBuilt(context);
+            return Column(
+              children: [
+                const SizedBox(
+                  height: 200.0,
+                  width: double.infinity,
+                  child: ColoredBox(color: Colors.green),
+                ),
+                ReorderableBuilder.builder(
+                  onReorder: (ReorderedListFunction reorderedListFunction) {
+                    setState(() {
+                      children = reorderedListFunction(children) as List<int>;
+                    });
+                  },
+                  reverse: true,
+                  itemCount: children.length,
+                  childBuilder: (itemBuilder) {
+                    return GridView.builder(
+                      key: _gridViewKey,
+                      reverse: true,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: children.length,
+                      itemBuilder: (context, index) {
+                        return itemBuilder(
+                          ColoredBox(
+                            key: Key(children.elementAt(index).toString()),
+                            color: Colors.lightBlue,
+                            child: Text(
+                              children.elementAt(index).toString(),
+                            ),
                           ),
-                        ),
-                        index,
-                      );
-                    },
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 8,
-                    ),
-                  );
-                },
-              ),
-            ],
-          );
-        }),
+                          index,
+                        );
+                      },
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 4,
+                        crossAxisSpacing: 8,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

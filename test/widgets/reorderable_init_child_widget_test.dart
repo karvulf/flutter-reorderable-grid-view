@@ -49,11 +49,14 @@ void main() {
     // then
     expect(actualGlobalKey, isNotNull);
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is SizedBox &&
             widget.key is GlobalKey &&
-            widget.child == givenChild),
-        findsOneWidget);
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
   });
 
   group('#didUpdateWidget', () {

@@ -120,39 +120,51 @@ void main() {
 
     // then
     expect(
-      find.byWidgetPredicate((widget) =>
-          widget is ReorderableAnimatedOpacity &&
-          widget.reorderableEntity == givenReorderableEntity &&
-          widget.animationConfig == givenAnimationConfig &&
-          widget.child is ReorderableAnimatedPositioned),
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ReorderableAnimatedOpacity &&
+            widget.reorderableEntity == givenReorderableEntity &&
+            widget.animationConfig == givenAnimationConfig &&
+            widget.child is ReorderableAnimatedPositioned,
+      ),
       findsOneWidget,
     );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is ReorderableAnimatedPositioned &&
             widget.reorderableEntity == givenReorderableEntity &&
             !widget.isDragging &&
             widget.animationConfig == givenAnimationConfig &&
-            widget.child is ReorderableInitChild),
-        findsOneWidget);
+            widget.child is ReorderableInitChild,
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is ReorderableInitChild &&
             widget.reorderableEntity == givenReorderableEntity &&
-            widget.child is ReorderableAnimatedReleasedContainer),
-        findsOneWidget);
+            widget.child is ReorderableAnimatedReleasedContainer,
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is ReorderableAnimatedReleasedContainer &&
             widget.reorderableEntity == givenReorderableEntity &&
             widget.releasedReorderableEntity ==
                 givenReleasedReorderableEntity &&
             widget.scrollOffset == givenScrollOffset &&
             widget.animationConfig == givenAnimationConfig &&
-            widget.child is ReorderableDraggable),
-        findsOneWidget);
+            widget.child is ReorderableDraggable,
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is ReorderableDraggable &&
             widget.reorderableEntity == givenReorderableEntity &&
             widget.enableDraggable == givenEnableDraggable &&
@@ -162,8 +174,10 @@ void main() {
             widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
             widget.animationConfig == givenAnimationConfig &&
-            widget.child == givenChild),
-        findsOneWidget);
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -180,9 +194,12 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is ReorderableAnimatedPositioned && widget.isDragging),
-        findsOneWidget);
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ReorderableAnimatedPositioned && widget.isDragging,
+      ),
+      findsOneWidget,
+    );
   });
 
   group('#calling functions', () {
@@ -210,10 +227,13 @@ void main() {
       // then
       expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity),
-          findsOneWidget);
+              widget.reorderableEntity == givenUpdatedReorderableEntity,
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -239,10 +259,13 @@ void main() {
       // then
       expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity),
-          findsOneWidget);
+              widget.reorderableEntity == givenUpdatedReorderableEntity,
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -273,10 +296,13 @@ void main() {
       expect(actualReorderableEntity, equals(givenReorderableEntity));
       expect(actualKey, equals(givenKey));
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity),
-          findsOneWidget);
+              widget.reorderableEntity == givenUpdatedReorderableEntity,
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -379,10 +405,13 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity),
-          findsOneWidget);
+              widget.reorderableEntity == givenUpdatedReorderableEntity,
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -414,10 +443,13 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity2),
-          findsOneWidget);
+              widget.reorderableEntity == givenUpdatedReorderableEntity2,
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

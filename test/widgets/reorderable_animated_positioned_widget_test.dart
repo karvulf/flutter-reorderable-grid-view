@@ -42,10 +42,13 @@ void main() {
     required double y,
   }) {
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is Container &&
-            widget.transform == Matrix4.translationValues(x, y, 0.0)),
-        findsOneWidget);
+            widget.transform == Matrix4.translationValues(x, y, 0.0),
+      ),
+      findsOneWidget,
+    );
   }
 
   group('#initState', () {
@@ -69,11 +72,14 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is Container &&
               widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0) &&
-              widget.child == givenChild),
-          findsOneWidget);
+              widget.child == givenChild,
+        ),
+        findsOneWidget,
+      );
       expect(callCounter, equals(0));
     });
 
