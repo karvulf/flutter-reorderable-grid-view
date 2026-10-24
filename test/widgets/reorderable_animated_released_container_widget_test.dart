@@ -47,9 +47,11 @@ void main() {
     // then
     expect(find.byWidget(givenChild), findsOneWidget);
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is Transform && widget.child == givenChild),
-        findsNothing);
+      find.byWidgetPredicate(
+        (widget) => widget is Transform && widget.child == givenChild,
+      ),
+      findsNothing,
+    );
   });
 
   group('#didUpdateWidget', () {
@@ -93,9 +95,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -116,9 +120,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -146,9 +152,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -178,13 +186,61 @@ void main() {
           givenReorderableEntity.updatedOffset +
           givenScrollOffset;
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is Transform &&
               widget.transform ==
                   Matrix4.translationValues(
-                      expectedOffset.dx, expectedOffset.dy, 0.0) &&
-              widget.child == givenChild),
-          findsOneWidget);
+                    expectedOffset.dx,
+                    expectedOffset.dy,
+                    0.0,
+                  ) &&
+              widget.child == givenChild,
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+        "GIVEN pumped [ReorderableAnimatedReleasedContainer] with long duration "
+        "WHEN updating with shorter releasedItemDuration and released entity "
+        "THEN should finish the release animation with the shorter duration",
+        (WidgetTester tester) async {
+      // given
+      Widget build(Duration duration, Offset dropOffset) => MaterialApp(
+            home: Scaffold(
+              body: ReorderableAnimatedReleasedContainer(
+                animationConfig: ReorderableAnimationConfig(
+                  releasedItemDuration: duration,
+                ),
+                releasedReorderableEntity: reorderableBuilder.getReleasedEntity(
+                  dropOffset: dropOffset,
+                  reorderableEntity: givenReorderableEntity,
+                ),
+                reorderableEntity: givenReorderableEntity,
+                scrollOffset: givenScrollOffset,
+                child: givenChild,
+              ),
+            ),
+          );
+      await tester.pumpWidget(
+        build(const Duration(seconds: 10), const Offset(100.0, 200.0)),
+      );
+
+      // when
+      await tester.pumpWidget(
+        build(const Duration(milliseconds: 100), const Offset(111.0, 222.0)),
+      );
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+
+      // then
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
   });
 }

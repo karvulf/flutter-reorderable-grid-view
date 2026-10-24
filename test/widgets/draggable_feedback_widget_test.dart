@@ -44,27 +44,38 @@ void main() {
 
     // then
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is Material && widget.color == Colors.transparent),
-        findsOneWidget);
+      find.byWidgetPredicate(
+        (widget) => widget is Material && widget.color == Colors.transparent,
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is AnimatedContainer &&
             widget.duration == givenAnimationConfig.dragFeedbackDuration &&
-            widget.curve == givenAnimationConfig.dragFeedbackCurve),
-        findsOneWidget);
+            widget.curve == givenAnimationConfig.dragFeedbackCurve,
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is Container &&
             widget.constraints == BoxConstraints.tight(givenSize) &&
-            widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0)),
-        findsOneWidget);
+            widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0),
+      ),
+      findsOneWidget,
+    );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is DecoratedBoxTransition &&
             widget.position == DecorationPosition.background &&
-            widget.child == givenChild),
-        findsOneWidget);
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -87,7 +98,8 @@ void main() {
       -((givenSize.height * 1.5) - givenSize.height) / 2,
     );
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is Container &&
             widget.constraints == BoxConstraints.tight(givenSize * 1.5) &&
             widget.transform ==
@@ -95,8 +107,10 @@ void main() {
                   expectedOffsetToCenterFeedback.dx,
                   expectedOffsetToCenterFeedback.dy,
                   0.0,
-                )),
-        findsOneWidget);
+                ),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
