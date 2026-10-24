@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
@@ -20,8 +21,14 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// Contains all information to animate the new position.
   final ReorderableEntity reorderableEntity;
 
-  /// Indicator to know if the [child] changed his position while drag and drop.
-  final bool isDragging;
+  /// The child that is currently dragged, null if nothing is dragged.
+  final ReorderableEntity? draggedEntity;
+
+  /// Visible offsets of all children animated while dragging, by their key.
+  ///
+  /// Used to continue these animations after releasing the dragged child
+  /// because the reordered child can be shown by another widget afterwards.
+  final Map<ValueKey, DraggingAnimationEntity> draggingAnimationMap;
 
   /// Callback for the animation after moving the [child].
   ///
@@ -35,7 +42,8 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   const ReorderableAnimatedPositioned({
     required this.child,
     required this.reorderableEntity,
-    required this.isDragging,
+    required this.draggedEntity,
+    required this.draggingAnimationMap,
     required this.onMovingFinished,
     required this.animationConfig,
     super.key,
@@ -64,7 +72,7 @@ class _ReorderableAnimatedPositionedState
       vsync: this,
     );
 
-    if (widget.isDragging) {
+    if (_isDragging) {
       _updateDragOffsetAnimation();
     } else {
       _updateOffsetAnimation();
@@ -74,6 +82,15 @@ class _ReorderableAnimatedPositionedState
   @override
   void didUpdateWidget(covariant ReorderableAnimatedPositioned oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.draggedEntity != null && !_isDragging) {
+      _continueAnimationAfterDragging(
+        isDraggedChild:
+            oldWidget.draggedEntity?.key == widget.reorderableEntity.key,
+        newEntity: widget.reorderableEntity,
+      );
+      return;
+    }
 
     _compareUpdatedReorderableEntity(
       oldEntity: oldWidget.reorderableEntity,
@@ -120,7 +137,7 @@ class _ReorderableAnimatedPositionedState
         oldEntity.isBuildingOffset != newEntity.isBuildingOffset ||
         oldEntity.key != newEntity.key) {
       // if it is new, this can lead to a wrong position
-      if (widget.isDragging && !widget.reorderableEntity.isNew) {
+      if (_isDragging && !widget.reorderableEntity.isNew) {
         final currentAnimationValue = _offsetAnimation.value;
         _animationController.reset();
         _updateDragOffsetAnimation(
@@ -142,6 +159,53 @@ class _ReorderableAnimatedPositionedState
     }
   }
 
+  /// Continues the running drag animation after the dragged child was released.
+  ///
+  /// After the release, the children are reordered and rendered at their new
+  /// positions, often by another widget than before. Without this, the
+  /// remaining part of the drag animation would be lost and the child would
+  /// jump to its new position.
+  ///
+  /// The visible offset of the child is taken from [draggingAnimationMap] and
+  /// the remaining offset is animated with the remaining drag duration.
+  void _continueAnimationAfterDragging({
+    required bool isDraggedChild,
+    required ReorderableEntity newEntity,
+  }) {
+    // the released container is animating the dragged child
+    final draggingAnimation = isDraggedChild
+        ? null
+        : widget.draggingAnimationMap.remove(newEntity.key);
+    final begin = draggingAnimation == null
+        ? Offset.zero
+        : draggingAnimation.offset - newEntity.updatedOffset;
+    final progress = draggingAnimation?.progress ?? 1.0;
+
+    final draggingDuration =
+        widget.animationConfig.draggingPositionChangeDuration;
+
+    _animationController.reset();
+    _animationController.duration = draggingDuration * (1.0 - progress);
+    _offsetAnimation = Tween<Offset>(begin: begin, end: Offset.zero)
+        .animate(_draggingCurveAnimation)
+      ..addListener(() {
+        setState(() {});
+      });
+    _animationController.forward();
+  }
+
+  /// Saves the visible offset of this child while another child is dragged.
+  void _updateDraggingAnimationMap() {
+    if (!_isDragging) return;
+
+    final reorderableEntity = widget.reorderableEntity;
+    widget.draggingAnimationMap[reorderableEntity.key] =
+        DraggingAnimationEntity(
+      offset: reorderableEntity.originalOffset + _offsetAnimation.value,
+      progress: _animationController.value,
+    );
+  }
+
   /// Updates [_offsetAnimation] for the position change.
   ///
   /// The new offset is still not rendered and will be shown like a preview.
@@ -155,6 +219,7 @@ class _ReorderableAnimatedPositionedState
     _offsetAnimation = tween.animate(_draggingCurveAnimation)
       ..addListener(() {
         setState(() {});
+        _updateDraggingAnimationMap();
       });
     await _animationController.forward();
   }
@@ -221,4 +286,7 @@ class _ReorderableAnimatedPositionedState
       curve: positionChangeCurve,
     );
   }
+
+  /// Indicator to know if the child changed his position while drag and drop.
+  bool get _isDragging => widget.draggedEntity != null;
 }

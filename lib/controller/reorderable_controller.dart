@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 // TODO(karvulf): add comment
@@ -12,6 +13,9 @@ abstract class ReorderableController {
   final childrenKeyMap = <String, ReorderableEntity>{};
 
   final offsetMap = <int, Offset>{};
+
+  /// Visible offsets of all children animated while dragging, by their key.
+  final draggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
 
   /// Creates or updates [ReorderableEntity] related to [key] and returns it.
   ///
@@ -57,19 +61,29 @@ abstract class ReorderableController {
     required Size size,
     required ReorderableEntity reorderableEntity,
   }) {
-    final existingReorderableEntity = _getExistingEntityWhileDragging(
-      reorderableEntity: reorderableEntity,
-      isBuildingOffset: true,
-    );
+    // children that appear for the first time while dragging (e.g. while
+    // scrolling) have no offset yet and must be measured
+    final isMeasured = offsetMap[reorderableEntity.updatedOrderId] != null;
+    final existingReorderableEntity = isMeasured
+        ? _getExistingEntityWhileDragging(
+            reorderableEntity: reorderableEntity,
+            isBuildingOffset: true,
+          )
+        : null;
     if (existingReorderableEntity != null) return existingReorderableEntity;
 
     if (offset != null) {
       offsetMap[reorderableEntity.updatedOrderId] = offset;
     }
-    final updatedEntity = reorderableEntity.creationFinished(
+    var updatedEntity = reorderableEntity.creationFinished(
       offset: offset,
       size: size,
     );
+    // while dragging, the child hasn't moved yet, so without the same original
+    // offset, it would animate from its old (unknown) offset
+    if (draggedEntity != null && !updatedEntity.isNew) {
+      updatedEntity = updatedEntity.positionUpdated();
+    }
     _updateMaps(reorderableEntity: updatedEntity);
 
     return updatedEntity;
