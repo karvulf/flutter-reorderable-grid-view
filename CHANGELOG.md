@@ -4,7 +4,7 @@
 
 🐛 **Bug Fixes**
 - fixed calculating issue when children size is changing e.g. by adding more columns to the same GridView (thanks to `chriskeeble`, see [#176](https://github.com/karvulf/flutter-reorderable-grid-view/issues/176))
-- fixed `releasedItemDuration` not being applied when it changed after the first build
+- fixed `releasedItemDuration` not being applied when it changed after the first build (thanks to `WD-J` [#175](https://github.com/karvulf/flutter-reorderable-grid-view/issues/175))
 - fixed other children jumping to their new positions when releasing the dragged child while they were still animating
 - fixed wrong positions when scrolling while dragging in a scrollable GridView with many children
 
