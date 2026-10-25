@@ -136,6 +136,7 @@ void main() {
               widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.dragChildBoxDecoration == null &&
+              widget.draggingAnimationMap.isEmpty &&
               widget.child == givenChild,
         ),
         findsOneWidget,
@@ -301,7 +302,8 @@ void main() {
               widget.currentDraggedEntity == null &&
               widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
-              widget.dragChildBoxDecoration == null,
+              widget.dragChildBoxDecoration == null &&
+              widget.draggingAnimationMap.isEmpty,
         ),
         findsNWidgets(3),
       );
@@ -388,7 +390,6 @@ void main() {
       final secondLocation = tester.getCenter(find.byWidget(givenChildren[2]));
       await gesture.moveTo(secondLocation);
       await tester.pump();
-
       await gesture.up();
       await tester.pump();
 
@@ -402,6 +403,12 @@ void main() {
       expect(actualOnDragEndIndex, equals(2));
       expect(actualOnUpdatedDraggedChildIndex, equals(2));
       expect(updatedChildren, equals(expectedUpdatedChildren));
+      final actualDraggingAnimationMap = tester
+          .widget<ReorderableBuilderItem>(
+            find.byType(ReorderableBuilderItem).first,
+          )
+          .draggingAnimationMap;
+      expect(actualDraggingAnimationMap.keys, equals(const [Key('child1')]));
     });
 
     testWidgets(

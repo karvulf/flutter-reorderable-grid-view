@@ -1,8 +1,15 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 
 class ReorderableBuilder {
+  DraggingAnimationEntity getDraggingAnimationEntity() =>
+      DraggingAnimationEntity(
+        offset: Offset.zero,
+        progress: 0.5,
+      );
+
   List<ReorderableEntity> getUniqueEntities({int count = 0}) {
     return List.generate(
       count,

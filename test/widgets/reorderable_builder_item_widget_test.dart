@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
@@ -38,6 +39,7 @@ void main() {
   const givenDragChildBoxDecoration = BoxDecoration();
   const givenFeedbackScaleFactor = 1.31;
   const givenChild = Placeholder();
+  final givenDraggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
 
   // functions
   ReorderableEntity givenOnOpacityFinished(
@@ -90,6 +92,7 @@ void main() {
             onOpacityFinished: onOpacityFinished ?? givenOnOpacityFinished,
             currentDraggedEntity: currentDraggedEntity,
             onMovingFinished: onMovingFinished ?? givenOnMovingFinished,
+            draggingAnimationMap: givenDraggingAnimationMap,
             onCreated: onCreated ?? givenOnCreated,
             releasedReorderableEntity: givenReleasedReorderableEntity,
             scrollOffset: givenScrollOffset,
@@ -134,7 +137,8 @@ void main() {
         (widget) =>
             widget is ReorderableAnimatedPositioned &&
             widget.reorderableEntity == givenReorderableEntity &&
-            !widget.isDragging &&
+            widget.draggedEntity == null &&
+            identical(widget.draggingAnimationMap, givenDraggingAnimationMap) &&
             widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableInitChild,
       ),
@@ -196,7 +200,8 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is ReorderableAnimatedPositioned && widget.isDragging,
+            widget is ReorderableAnimatedPositioned &&
+            widget.draggedEntity == givenReorderableEntity,
       ),
       findsOneWidget,
     );
@@ -498,6 +503,7 @@ class _TestReorderableBuilderItemState
         ),
         onOpacityFinished: (_) => _reorderableEntity,
         currentDraggedEntity: null,
+        draggingAnimationMap: <ValueKey, DraggingAnimationEntity>{},
         onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
         onCreated: (_, __) => _reorderableEntity,
         releasedReorderableEntity: null,
