@@ -191,8 +191,7 @@ class _ReorderableScrollingListenerState
   /// Updates [_scrollableRenderBox] with the visible area of the scrollable.
   ///
   /// There are two ways when scrolling. It is possible that the [GridView] is
-  /// scrollable or a parent widget. Fixed widgets around it like a header or
-  /// footer are not part of the scrollable area.
+  /// scrollable or a parent widget.
   void _updateScrollableRenderBox() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
