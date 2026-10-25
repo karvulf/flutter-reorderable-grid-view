@@ -4,10 +4,12 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_con
 import 'package:flutter_reorderable_grid_view/controller/reorderable_drag_and_drop_controller.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_size_changed_listener.dart';
@@ -269,6 +271,17 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   late final ReorderableBuilderController reorderableBuilderController;
   late final ReorderableItemBuilderController reorderableItemBuilderController;
 
+  /// Removed children that are still shown while fading out.
+  final _removedEntities = <RemovedReorderableEntity>[];
+
+  /// Last built child of every key for [ReorderableBuilder.builder].
+  ///
+  /// Needed to fade out a removed child that is no longer built.
+  final _lastBuiltChildren = <dynamic, Widget>{};
+
+  /// Keys of children built since the last update of the item count.
+  final _builtKeyValues = <dynamic>{};
+
   @override
   void initState() {
     super.initState();
@@ -285,8 +298,16 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     super.didUpdateWidget(oldWidget);
 
     final children = widget.children;
-    if (children == null || children == oldWidget.children) return;
+    if (children == null) {
+      _checkRemovedBuiltChildren(oldItemCount: oldWidget.itemCount);
+      return;
+    }
+    if (children == oldWidget.children) return;
 
+    _updateRemovedEntities(
+      oldChildren: oldWidget.children ?? const [],
+      children: children,
+    );
     reorderableBuilderController.updateChildren(children: children);
     setState(() {});
   }
@@ -304,16 +325,177 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
     return ReorderableSizeChangedListener(
       onSizeChanged: _handleSizeChanged,
-      child: ReorderableScrollingListener(
-        isDragging: _reorderableController.draggedEntity != null,
-        reorderableChildKey: child.key as GlobalKey?,
-        scrollController: widget.scrollController,
-        automaticScrollExtent: widget.automaticScrollExtent,
-        enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
-        reverse: widget.reverse,
-        onDragUpdate: _handleDragUpdate,
-        child: child,
+      // always added to keep the widget tree stable when children are removed
+      child: Stack(
+        fit: StackFit.passthrough,
+        clipBehavior: Clip.none,
+        children: [
+          ReorderableScrollingListener(
+            isDragging: _reorderableController.draggedEntity != null,
+            reorderableChildKey: child.key as GlobalKey?,
+            scrollController: widget.scrollController,
+            automaticScrollExtent: widget.automaticScrollExtent,
+            enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+            reverse: widget.reverse,
+            onDragUpdate: _handleDragUpdate,
+            child: child,
+          ),
+          ..._removedEntities.map(_buildRemovedChild),
+        ],
       ),
+    );
+  }
+
+  /// Adds removed children of [oldChildren] to [_removedEntities] to fade them out.
+  ///
+  /// Only children with a known offset and size are faded out. While dragging
+  /// or without fade out duration, removed children disappear immediately.
+  void _updateRemovedEntities({
+    required List<Widget> oldChildren,
+    required List<Widget> children,
+  }) {
+    final keyValues = {
+      for (final child in children) (child.key as ValueKey).value,
+    };
+
+    // a child that was added again is shown by the GridView
+    _removedEntities.removeWhere(
+      (entity) => keyValues.contains(entity.key.value),
+    );
+
+    final isFadeOutDisabled =
+        widget.animationConfig.fadeOutDuration == Duration.zero;
+    if (isFadeOutDisabled || _reorderableController.draggedEntity != null) {
+      return;
+    }
+
+    final childrenKeyMap = reorderableBuilderController.childrenKeyMap;
+    for (final oldChild in oldChildren) {
+      final key = oldChild.key as ValueKey;
+      if (keyValues.contains(key.value)) continue;
+
+      final reorderableEntity = childrenKeyMap[key.value];
+      if (reorderableEntity == null || reorderableEntity.isBuildingOffset) {
+        continue;
+      }
+
+      _removedEntities.add(
+        RemovedReorderableEntity(
+          key: key,
+          child: oldChild,
+          offset: reorderableEntity.updatedOffset,
+          size: reorderableEntity.size,
+        ),
+      );
+    }
+  }
+
+  /// Finds removed children for [ReorderableBuilder.builder] to fade them out.
+  ///
+  /// When the item count decreases, the GridView rebuilds all children that
+  /// are currently shown. A child that was visible before, but is not built
+  /// again in the next frame, was removed.
+  ///
+  /// ponytail: the removed child is added one frame after it disappeared,
+  /// because the GridView builds its children after this widget.
+  void _checkRemovedBuiltChildren({required int? oldItemCount}) {
+    final itemCount = widget.itemCount;
+    if (oldItemCount == null ||
+        itemCount == null ||
+        itemCount >= oldItemCount) {
+      return;
+    }
+
+    final isFadeOutDisabled =
+        widget.animationConfig.fadeOutDuration == Duration.zero;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (isFadeOutDisabled ||
+        _reorderableController.draggedEntity != null ||
+        renderBox == null ||
+        !renderBox.hasSize) {
+      return;
+    }
+
+    // size of the last frame
+    final visibleRect = Offset.zero & renderBox.size;
+    final scrollOffset = _scrollOffset;
+    final visibleEntities = <RemovedReorderableEntity>[];
+
+    for (final entity
+        in reorderableItemBuilderController.childrenKeyMap.values) {
+      final child = _lastBuiltChildren[entity.key.value];
+      if (child == null || entity.isBuildingOffset) continue;
+
+      final rect = (entity.updatedOffset - scrollOffset) & entity.size;
+      if (!rect.overlaps(visibleRect)) continue;
+
+      visibleEntities.add(
+        RemovedReorderableEntity(
+          key: entity.key,
+          child: child,
+          offset: entity.updatedOffset,
+          size: entity.size,
+        ),
+      );
+    }
+
+    _builtKeyValues.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final removedEntities = visibleEntities.where(
+        (entity) => !_builtKeyValues.contains(entity.key.value),
+      );
+      if (removedEntities.isEmpty) return;
+
+      setState(() {
+        for (final removedEntity in removedEntities) {
+          _lastBuiltChildren.remove(removedEntity.key.value);
+          _removedEntities.add(removedEntity);
+        }
+      });
+    });
+  }
+
+  /// Shows the removed child of [removedEntity] at its last position.
+  ///
+  /// The position follows [ReorderableBuilder.scrollController] while fading out.
+  ///
+  /// ponytail: with a scrollable outside of this widget, the position is not
+  /// updated while scrolling during the fade out.
+  Widget _buildRemovedChild(RemovedReorderableEntity removedEntity) {
+    Widget buildPositioned(BuildContext context, Widget? child) {
+      final offset = removedEntity.offset - _scrollOffset;
+      return Positioned(
+        left: offset.dx,
+        top: offset.dy,
+        width: removedEntity.size.width,
+        height: removedEntity.size.height,
+        child: child!,
+      );
+    }
+
+    final child = ReorderableAnimatedRemovedChild(
+      animationConfig: widget.animationConfig,
+      onFinished: () => setState(() {
+        _removedEntities.remove(removedEntity);
+      }),
+      child: removedEntity.child,
+    );
+
+    final scrollController = widget.scrollController;
+    if (scrollController == null) {
+      return KeyedSubtree(
+        key: ObjectKey(removedEntity),
+        child: buildPositioned(context, child),
+      );
+    }
+
+    return ListenableBuilder(
+      key: ObjectKey(removedEntity),
+      listenable: scrollController,
+      builder: buildPositioned,
+      child: child,
     );
   }
 
@@ -322,6 +504,10 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       child.key is ValueKey,
       'You have to provide a unique ValueKey to every child!',
     );
+    final key = child.key as ValueKey;
+    _lastBuiltChildren[key.value] = child;
+    _builtKeyValues.add(key.value);
+
     final reorderableEntity = reorderableItemBuilderController.buildItem(
       key: child.key as ValueKey,
       index: index,

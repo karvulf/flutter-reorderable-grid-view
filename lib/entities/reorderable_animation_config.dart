@@ -50,6 +50,18 @@ class ReorderableAnimationConfig {
   /// If null, [defaultAnimationCurve] is used.
   final Curve? _fadeInCurve;
 
+  /// Duration for the fade out animation when a child was removed.
+  ///
+  /// With [Duration.zero], removed children disappear immediately.
+  ///
+  /// Default value: Duration.zero
+  final Duration _fadeOutDuration;
+
+  /// Curve for [fadeOutDuration].
+  ///
+  /// If null, [defaultAnimationCurve] is used.
+  final Curve? _fadeOutCurve;
+
   /// Duration of the drag feedback scale animation.
   ///
   /// Default value: const Duration(milliseconds: 150)
@@ -73,11 +85,13 @@ class ReorderableAnimationConfig {
     Duration draggingPositionChangeDuration = const Duration(milliseconds: 200),
     Duration releasedItemDuration = const Duration(milliseconds: 150),
     Duration fadeInDuration = const Duration(milliseconds: 500),
+    Duration fadeOutDuration = const Duration(milliseconds: 200),
     Duration dragFeedbackDuration = const Duration(milliseconds: 150),
     Curve? positionChangeCurve,
     Curve? draggingPositionChangeCurve,
     Curve? releasedItemCurve,
     Curve? fadeInCurve,
+    Curve? fadeOutCurve,
     Curve? dragFeedbackCurve,
     this.defaultAnimationCurve,
     this.enableAnimations = true,
@@ -85,11 +99,13 @@ class ReorderableAnimationConfig {
         _draggingPositionChangeDuration = draggingPositionChangeDuration,
         _releasedItemDuration = releasedItemDuration,
         _fadeInDuration = fadeInDuration,
+        _fadeOutDuration = fadeOutDuration,
         _dragFeedbackDuration = dragFeedbackDuration,
         _positionChangeCurve = positionChangeCurve,
         _draggingPositionChangeCurve = draggingPositionChangeCurve,
         _releasedItemCurve = releasedItemCurve,
         _fadeInCurve = fadeInCurve,
+        _fadeOutCurve = fadeOutCurve,
         _dragFeedbackCurve = dragFeedbackCurve;
 
   Duration get positionChangeDuration =>
@@ -104,6 +120,9 @@ class ReorderableAnimationConfig {
   Duration get fadeInDuration =>
       enableAnimations ? _fadeInDuration : Duration.zero;
 
+  Duration get fadeOutDuration =>
+      enableAnimations ? _fadeOutDuration : Duration.zero;
+
   Duration get dragFeedbackDuration =>
       enableAnimations ? _dragFeedbackDuration : Duration.zero;
 
@@ -116,6 +135,8 @@ class ReorderableAnimationConfig {
   Curve? get releasedItemCurve => _releasedItemCurve ?? defaultAnimationCurve;
 
   Curve? get fadeInCurve => _fadeInCurve ?? defaultAnimationCurve;
+
+  Curve? get fadeOutCurve => _fadeOutCurve ?? defaultAnimationCurve;
 
   Curve get dragFeedbackCurve =>
       _dragFeedbackCurve ?? defaultAnimationCurve ?? Curves.linear;

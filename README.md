@@ -216,11 +216,13 @@ Use `animationConfig` to configure all animation durations and curves in one pla
 | `draggingPositionChangeDuration`    | Duration for item position changes while dragging.                                                               |    **200 ms**     |
 | `releasedItemDuration`              | Duration for the released dragged item to animate to its final position.                                        |    **150 ms**     |
 | `fadeInDuration`                    | Duration for fade-in when a new child is added.                                                                  |    **500 ms**     |
+| `fadeOutDuration`                   | Duration for fade-out when a child is removed. `Duration.zero` disables it. |   **0 ms**     |
 | `dragFeedbackDuration`              | Duration for scaling the drag feedback widget.                                                                   |    **150 ms**     |
 | `positionChangeCurve`               | Curve for `positionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                            |       **-**       |
 | `draggingPositionChangeCurve`       | Curve for `draggingPositionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                    |       **-**       |
 | `releasedItemCurve`                 | Curve for `releasedItemDuration`. Falls back to `defaultAnimationCurve` when null.                              |       **-**       |
 | `fadeInCurve`                       | Curve for `fadeInDuration`. Falls back to `defaultAnimationCurve` when null.                                    |       **-**       |
+| `fadeOutCurve`                      | Curve for `fadeOutDuration`. Falls back to `defaultAnimationCurve` when null.                                   |       **-**       |
 | `dragFeedbackCurve`                 | Curve for `dragFeedbackDuration`. Falls back to `defaultAnimationCurve`, then to `Curves.linear` if still null.| `Curves.linear` |
 | `defaultAnimationCurve`             | Global fallback curve for animation curve parameters when a specific curve is not provided.                      |       **-**       |
 | `enableAnimations`                  | Enables or disables animations globally. If false, durations become `Duration.zero` and nullable curves resolve to null. |    **true**      |

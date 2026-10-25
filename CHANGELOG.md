@@ -1,5 +1,6 @@
 ## 5.8.0
 ⭐️ **New Features**
+- added fade out animation for removed children with `fadeOutDuration` and `fadeOutCurve` in `ReorderableAnimationConfig` (disabled by default)
 - exported `ReorderUpdateEntity` so it can be used with `onReorderPositions` without an extra import
 
 🐛 **Bug Fixes**
@@ -12,12 +13,6 @@
 🏄‍♂️ **Improvements**
 - updated `flutter_lints` to `^6.0.0`
 - replaced `material.dart`/`cupertino.dart` imports with `widgets.dart` where Material/Cupertino isn't needed (prepares for the upcoming `material_ui` package)
-- replaced `Colors` usages in the drag decoration with `Color` values (removes deprecated `withOpacity`)
-
-📝 **Documentation**
-- added missing README docs for `onReorderPositions`, `itemCount` and `feedbackScaleFactor`
-- added examples for `onReorder` and `onReorderPositions`
-- fixed wrong default value of `automaticScrollExtent` in the API docs
 
 ## 5.7.0
 ⭐️ **New Features**
