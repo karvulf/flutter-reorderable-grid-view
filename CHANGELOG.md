@@ -7,6 +7,7 @@
 - fixed `releasedItemDuration` not being applied when it changed after the first build (thanks to `WD-J` [#175](https://github.com/karvulf/flutter-reorderable-grid-view/issues/175))
 - fixed other children jumping to their new positions when releasing the dragged child while they were still animating
 - fixed wrong positions when scrolling while dragging in a scrollable GridView with many children
+- fixed scrolling while dragging starting at the wrong position when there are fixed widgets like a header or footer around the scrollable widget
 
 🏄‍♂️ **Improvements**
 - updated `flutter_lints` to `^6.0.0`

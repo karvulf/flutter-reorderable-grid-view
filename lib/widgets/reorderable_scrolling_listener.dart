@@ -55,11 +55,10 @@ class _ReorderableScrollingListenerState
   /// Repeating timer to ensure that autoscroll also works when the user doesn't the dragged child.
   Timer? _scrollCheckTimer;
 
-  /// [Size] of the child that was found in [widget.reorderableChildKey].
-  Size? _childSize;
-
-  /// [Offset] of the child that was found in [widget.reorderableChildKey].
-  Offset? _childOffset;
+  /// Visible area of the scrollable widget, found when dragging starts.
+  ///
+  /// The scroll is triggered when the dragged child is near its edges.
+  RenderBox? _scrollableRenderBox;
 
   Offset? _lastDragPosition;
 
@@ -68,7 +67,7 @@ class _ReorderableScrollingListenerState
     super.didUpdateWidget(oldWidget);
     if (widget.isDragging != oldWidget.isDragging) {
       if (widget.isDragging) {
-        _updateChildSizeAndOffset();
+        _updateScrollableRenderBox();
       } else {
         _scrollCheckTimer?.cancel();
         _scrollCheckTimer = null;
@@ -114,7 +113,7 @@ class _ReorderableScrollingListenerState
     if (widget.enableScrollingWhileDragging &&
         widget.reorderableChildKey != null &&
         scrollDirection != null) {
-      _lastDragPosition = details.localPosition;
+      _lastDragPosition = details.position;
 
       if (_scrollCheckTimer == null || !_scrollCheckTimer!.isActive) {
         _scrollCheckTimer = Timer.periodic(
@@ -141,42 +140,28 @@ class _ReorderableScrollingListenerState
 
   /// Depending on [dragPosition] a scroll will be triggered.
   ///
-  /// Scrolls if [dragPosition] is within the area which is allowed to start
-  /// the scroll.
+  /// [dragPosition] is the global position of the dragged child. It scrolls
+  /// if it is within [ReorderableScrollingListener.automaticScrollExtent]
+  /// of an edge of the visible scrollable area.
   void _checkToScrollWhileDragging({
     required Offset dragPosition,
     required Axis scrollDirection,
   }) {
-    final childSize = _childSize;
-    final childOffset = _childOffset;
+    final scrollableRenderBox = _scrollableRenderBox;
+    if (scrollableRenderBox == null || !scrollableRenderBox.attached) return;
 
-    if (childSize == null || childOffset == null) return;
-
-    final absoluteDragPosition = dragPosition + childOffset;
-
+    final position = scrollableRenderBox.globalToLocal(dragPosition);
+    final size = scrollableRenderBox.size;
     final automaticScrollExtent = widget.automaticScrollExtent;
 
-    final minOffset = Offset(
-      automaticScrollExtent,
-      automaticScrollExtent,
-    );
-    final maxOffset = Offset(
-      childSize.width - automaticScrollExtent,
-      childSize.height - automaticScrollExtent,
-    );
+    final isVertical = scrollDirection == Axis.vertical;
+    final value = isVertical ? position.dy : position.dx;
+    final length = isVertical ? size.height : size.width;
 
-    if (scrollDirection == Axis.vertical) {
-      if (absoluteDragPosition.dy < minOffset.dy) {
-        _scrollTo(scrollToTop: true);
-      } else if (absoluteDragPosition.dy > maxOffset.dy) {
-        _scrollTo(scrollToTop: false);
-      }
-    } else {
-      if (absoluteDragPosition.dx < minOffset.dx) {
-        _scrollTo(scrollToTop: true);
-      } else if (absoluteDragPosition.dx > maxOffset.dx) {
-        _scrollTo(scrollToTop: false);
-      }
+    if (value < automaticScrollExtent) {
+      _scrollTo(scrollToTop: true);
+    } else if (value > length - automaticScrollExtent) {
+      _scrollTo(scrollToTop: false);
     }
   }
 
@@ -203,29 +188,35 @@ class _ReorderableScrollingListenerState
     }
   }
 
-  /// Updates [_childOffset] and [_childSize] using the values defined in [widget.reorderableChildKey].
+  /// Updates [_scrollableRenderBox] with the visible area of the scrollable.
   ///
-  /// There are two ways when scrolling. It is possible that the [GridView] is scrollable
-  /// or a parent widget.
-  /// Depending on the scrollable widget, the size and position of the [GridView]
-  /// will be calculated.
-  void _updateChildSizeAndOffset() {
+  /// There are two ways when scrolling. It is possible that the [GridView] is
+  /// scrollable or a parent widget.
+  void _updateScrollableRenderBox() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final currentContext = widget.reorderableChildKey?.currentContext;
       final renderBox = currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox == null) return;
 
-      if (renderBox != null) {
-        // scroll is outside widget
-        if (renderBox.constraints.biggest.isInfinite) {
-          final dimension = Scrollable.of(context).position.viewportDimension;
-          _childSize = Size(dimension, dimension);
-          _childOffset = renderBox.localToGlobal(Offset.zero);
-        } else {
-          _childSize = renderBox.size;
-          _childOffset = Offset.zero;
-        }
+      // scroll is outside widget
+      if (renderBox.constraints.biggest.isInfinite) {
+        final scrollableContext = Scrollable.maybeOf(context)?.context;
+        _scrollableRenderBox =
+            scrollableContext?.findRenderObject() as RenderBox?;
+      } else {
+        _scrollableRenderBox = _innerScrollableRenderBox ?? renderBox;
       }
     });
+  }
+
+  /// [RenderBox] of the scrollable using [widget.scrollController].
+  RenderBox? get _innerScrollableRenderBox {
+    final scrollController = widget.scrollController;
+    if (scrollController == null || !scrollController.hasClients) return null;
+
+    final scrollContext = scrollController.position.context.notificationContext;
+    return scrollContext?.findRenderObject() as RenderBox?;
   }
 
   ReorderableScrollable get _reorderableScrollable => ReorderableScrollable.of(
