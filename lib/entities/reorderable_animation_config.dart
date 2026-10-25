@@ -72,6 +72,14 @@ class ReorderableAnimationConfig {
   /// If null, [defaultAnimationCurve] is used.
   final Curve? _dragFeedbackCurve;
 
+  /// Whether the other children wait for the fade out of a removed child.
+  ///
+  /// If true, the other children start to move to their new positions after
+  /// [fadeOutDuration]. Otherwise they move while the removed child fades out.
+  ///
+  /// Default value: false
+  final bool positionChangeAfterFadeOut;
+
   /// Whether animations are enabled.
   final bool enableAnimations;
 
@@ -95,6 +103,7 @@ class ReorderableAnimationConfig {
     Curve? dragFeedbackCurve,
     this.defaultAnimationCurve,
     this.enableAnimations = true,
+    this.positionChangeAfterFadeOut = false,
   })  : _positionChangeDuration = positionChangeDuration,
         _draggingPositionChangeDuration = draggingPositionChangeDuration,
         _releasedItemDuration = releasedItemDuration,

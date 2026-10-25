@@ -37,6 +37,11 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
   /// then the callback won't be fired.
   final VoidCallback onMovingFinished;
 
+  /// Returns the delay before a position change starts.
+  ///
+  /// Used to wait for the fade out of a removed child.
+  final ValueGetter<Duration>? positionChangeDelay;
+
   final ReorderableAnimationConfig animationConfig;
 
   const ReorderableAnimatedPositioned({
@@ -45,6 +50,7 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
     required this.draggedEntity,
     required this.draggingAnimationMap,
     required this.onMovingFinished,
+    this.positionChangeDelay,
     required this.animationConfig,
     super.key,
   });
@@ -205,12 +211,24 @@ class _ReorderableAnimatedPositionedState
         ? Offset.zero
         : entity.originalOffset - entity.updatedOffset;
     final config = widget.animationConfig;
+    final duration = config.positionChangeDuration;
+    final delay = widget.positionChangeDelay?.call() ?? Duration.zero;
+    final hasDelay = begin != Offset.zero &&
+        delay > Duration.zero &&
+        duration > Duration.zero;
 
     await _animate(
       begin: begin,
       end: Offset.zero,
-      duration: config.positionChangeDuration,
-      curve: config.positionChangeCurve,
+      duration: hasDelay ? delay + duration : duration,
+      // the child keeps its old position during the delay
+      curve: hasDelay
+          ? Interval(
+              delay.inMicroseconds / (delay + duration).inMicroseconds,
+              1.0,
+              curve: config.positionChangeCurve ?? Curves.linear,
+            )
+          : config.positionChangeCurve,
       reset: reset,
     );
 

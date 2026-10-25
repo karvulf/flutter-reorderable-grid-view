@@ -1,6 +1,7 @@
 ## 5.8.0
 ⭐️ **New Features**
 - added fade out animation for removed children with `fadeOutDuration` and `fadeOutCurve` in `ReorderableAnimationConfig` (disabled by default)
+- added `positionChangeAfterFadeOut` to `ReorderableAnimationConfig` to move the other children after the fade out of a removed child
 - exported `ReorderUpdateEntity` so it can be used with `onReorderPositions` without an extra import
 
 🐛 **Bug Fixes**

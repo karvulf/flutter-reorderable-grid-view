@@ -33,6 +33,9 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// Callback for the animation after moving the [child].
   final ReturnReorderableEntityCallback onMovingFinished;
 
+  /// Returns the delay before a position change starts.
+  final ValueGetter<Duration>? positionChangeDelay;
+
   /// Visible offsets of all children animated while dragging, by their key.
   final Map<ValueKey, DraggingAnimationEntity> draggingAnimationMap;
 
@@ -94,6 +97,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.currentDraggedEntity,
     required this.onMovingFinished,
     required this.draggingAnimationMap,
+    this.positionChangeDelay,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,
@@ -159,6 +163,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
         reorderableEntity: _reorderableEntity,
         draggedEntity: widget.currentDraggedEntity,
         draggingAnimationMap: widget.draggingAnimationMap,
+        positionChangeDelay: widget.positionChangeDelay,
         animationConfig: animationConfig,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);

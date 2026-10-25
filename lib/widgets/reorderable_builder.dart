@@ -282,6 +282,9 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   /// Keys of children built since the last update of the item count.
   final _builtKeyValues = <dynamic>{};
 
+  /// Delay for position changes that were triggered by removed children.
+  Duration _positionChangeDelay = Duration.zero;
+
   @override
   void initState() {
     super.initState();
@@ -370,6 +373,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     }
 
     final childrenKeyMap = reorderableBuilderController.childrenKeyMap;
+    final removedCount = _removedEntities.length;
     for (final oldChild in oldChildren) {
       final key = oldChild.key as ValueKey;
       if (keyValues.contains(key.value)) continue;
@@ -388,6 +392,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         ),
       );
     }
+
+    if (_removedEntities.length > removedCount) _delayPositionChanges();
   }
 
   /// Finds removed children for [ReorderableBuilder.builder] to fade them out.
@@ -448,11 +454,29 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       );
       if (removedEntities.isEmpty) return;
 
+      _delayPositionChanges();
       setState(() {
         for (final removedEntity in removedEntities) {
           _lastBuiltChildren.remove(removedEntity.key.value);
           _removedEntities.add(removedEntity);
         }
+      });
+    });
+  }
+
+  /// Lets the position changes of the current update wait for the fade out.
+  ///
+  /// Only if [ReorderableAnimationConfig.positionChangeAfterFadeOut] is true.
+  /// The delay is reset after the next frame, when all position changes of
+  /// this update have started.
+  void _delayPositionChanges() {
+    final animationConfig = widget.animationConfig;
+    if (!animationConfig.positionChangeAfterFadeOut) return;
+
+    _positionChangeDelay = animationConfig.fadeOutDuration;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _positionChangeDelay = Duration.zero;
       });
     });
   }
@@ -568,6 +592,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       child: ReorderableBuilderItem(
         reorderableEntity: reorderableEntity,
         draggingAnimationMap: _reorderableController.draggingAnimationMap,
+        positionChangeDelay: () => _positionChangeDelay,
         animationConfig: widget.animationConfig,
         onOpacityFinished: _handleOpacityFinished,
         onMovingFinished: _handleMovingFinished,

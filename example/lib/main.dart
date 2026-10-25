@@ -210,6 +210,7 @@ class _MyAppState extends State<MyApp> {
           animationConfig: const ReorderableAnimationConfig(
             fadeInDuration: Duration(milliseconds: 800),
             defaultAnimationCurve: Curves.easeInCubic,
+            positionChangeAfterFadeOut: true,
           ),
           itemCount: children.length,
           childBuilder: (itemBuilder) {
