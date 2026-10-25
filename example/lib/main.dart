@@ -133,8 +133,7 @@ class _MyAppState extends State<MyApp> {
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           reverse: true,
-          children: generatedChildren,
-          animationConfig: ReorderableAnimationConfig(
+          animationConfig: const ReorderableAnimationConfig(
             draggingPositionChangeDuration: Duration(milliseconds: 500),
             releasedItemDuration: Duration(seconds: 1),
           ),
@@ -151,6 +150,7 @@ class _MyAppState extends State<MyApp> {
               children: children,
             );
           },
+          children: generatedChildren,
         );
 
       case ReorderableType.gridViewCount:
