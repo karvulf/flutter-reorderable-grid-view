@@ -282,6 +282,69 @@ void main() {
       expect(scrollPositionAfter, equals(0.0));
     });
   });
+
+  testWidgets(
+      "GIVEN scrollable GridView between header and footer and dragged item "
+      "WHEN moving dragged item to the bottom of the GridView "
+      "THEN should scroll down", (WidgetTester tester) async {
+    // given
+    final givenScrollController = ScrollController();
+    final givenChildKey = GlobalKey();
+    const givenHeaderHeight = 200.0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReorderableBuilder.builder(
+            scrollController: givenScrollController,
+            longPressDelay: Duration.zero,
+            onReorder: (_) {},
+            itemCount: 200,
+            childBuilder: (itemBuilder) => Column(
+              key: givenChildKey,
+              children: [
+                const SizedBox(height: givenHeaderHeight),
+                Expanded(
+                  child: GridView.builder(
+                    controller: givenScrollController,
+                    itemCount: 200,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                    ),
+                    itemBuilder: (context, index) => itemBuilder(
+                      ColoredBox(
+                        key: Key(index.toString()),
+                        color: Colors.lightBlue,
+                      ),
+                      index,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: givenHeaderHeight),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final gridViewRect = tester.getRect(find.byType(GridView));
+
+    // when
+    final gesture = await move(
+      tester: tester,
+      startGestureFinder: find.byKey(const Key('0')),
+      moveOffset: Offset(gridViewRect.left + 50.0, gridViewRect.bottom - 20.0),
+      isScrollableInside: true,
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+
+    // then
+    expect(givenScrollController.offset, greaterThan(0.0));
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+  });
 }
 
 class _TestInnerScrollable extends StatefulWidget {

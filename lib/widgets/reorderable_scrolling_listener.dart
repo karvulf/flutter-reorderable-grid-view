@@ -221,11 +221,27 @@ class _ReorderableScrollingListenerState
           _childSize = Size(dimension, dimension);
           _childOffset = renderBox.localToGlobal(Offset.zero);
         } else {
-          _childSize = renderBox.size;
-          _childOffset = Offset.zero;
+          // the scrollable can be smaller than the child,
+          // e.g. if there is a header or footer next to the GridView
+          final scrollRenderBox = _scrollableRenderBox ?? renderBox;
+          _childSize = scrollRenderBox.size;
+          // translates the drag position of this widget to the scrollable
+          final listenerRenderBox = context.findRenderObject() as RenderBox;
+          _childOffset = scrollRenderBox.globalToLocal(
+            listenerRenderBox.localToGlobal(Offset.zero),
+          );
         }
       }
     });
+  }
+
+  /// [RenderBox] of the scrollable using [widget.scrollController].
+  RenderBox? get _scrollableRenderBox {
+    final scrollController = widget.scrollController;
+    if (scrollController == null || !scrollController.hasClients) return null;
+
+    final scrollContext = scrollController.position.context.notificationContext;
+    return scrollContext?.findRenderObject() as RenderBox?;
   }
 
   ReorderableScrollable get _reorderableScrollable => ReorderableScrollable.of(
