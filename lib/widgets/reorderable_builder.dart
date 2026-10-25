@@ -221,9 +221,11 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragEnd,
     this.onUpdatedDraggedChild,
     super.key,
-  })  : assert((enableDraggable &&
-                (onReorder != null || onReorderPositions != null)) ||
-            !enableDraggable),
+  })  : assert(
+          (enableDraggable &&
+                  (onReorder != null || onReorderPositions != null)) ||
+              !enableDraggable,
+        ),
         childBuilder = null,
         itemCount = null;
 
@@ -251,9 +253,11 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onDragEnd,
     this.onUpdatedDraggedChild,
     super.key,
-  })  : assert((enableDraggable &&
-                (onReorder != null || onReorderPositions != null)) ||
-            !enableDraggable),
+  })  : assert(
+          (enableDraggable &&
+                  (onReorder != null || onReorderPositions != null)) ||
+              !enableDraggable,
+        ),
         children = null,
         builder = null;
 
@@ -377,6 +381,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       onSizeChanged: _handleSizeChanged,
       child: ReorderableBuilderItem(
         reorderableEntity: reorderableEntity,
+        draggingAnimationMap: _reorderableController.draggingAnimationMap,
         animationConfig: widget.animationConfig,
         onOpacityFinished: _handleOpacityFinished,
         onMovingFinished: _handleMovingFinished,
@@ -416,14 +421,15 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   }
 
   void _handleDragUpdate(PointerMoveEvent pointerMoveEvent) {
+    // the scroll position can change while dragging (e.g. auto scroll),
+    // so it has to be updated before calculating the new position
+    _reorderableController.scrollOffset = _scrollOffset;
+
     final hasUpdated = _reorderableController.handleDragUpdate(
       pointerMoveEvent: pointerMoveEvent,
     );
 
     if (hasUpdated) {
-      // this fixes the issue when the user scrolls while dragging to get the updated scroll value
-      _reorderableController.scrollOffset = _scrollOffset;
-
       // notifying about the new position of the dragged child
       final orderId = _reorderableController.draggedEntity!.updatedOrderId;
       widget.onUpdatedDraggedChild?.call(orderId);
@@ -483,15 +489,19 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     final reorderUpdateEntities = _reorderableController.handleDragEnd();
 
     if (reorderUpdateEntities != null) {
-      assert((widget.onReorder != null) ^ (widget.onReorderPositions != null),
-          'One of either onReorder or onReorderPositions must be provided');
+      assert(
+        (widget.onReorder != null) ^ (widget.onReorderPositions != null),
+        'One of either onReorder or onReorderPositions must be provided',
+      );
 
       widget.onReorderPositions?.call(reorderUpdateEntities);
 
-      widget.onReorder?.call((items) => _reorderableController.reorderList(
-            items: items,
-            reorderUpdateEntities: reorderUpdateEntities,
-          ));
+      widget.onReorder?.call(
+        (items) => _reorderableController.reorderList(
+          items: items,
+          reorderUpdateEntities: reorderUpdateEntities,
+        ),
+      );
     }
   }
 

@@ -22,10 +22,11 @@ void main() {
                 itemCount: 1,
                 childBuilder: (itemBuilder) {
                   return itemBuilder(
-                      const Placeholder(
-                        key: ValueKey('0'),
-                      ),
-                      0);
+                    const Placeholder(
+                      key: ValueKey('0'),
+                    ),
+                    0,
+                  );
                 },
                 enableDraggable: enableDraggable,
                 onReorder: onReorder,
@@ -88,23 +89,25 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ReorderableBuilder &&
-                widget.children == null &&
-                widget.lockedIndices.isEmpty &&
-                widget.nonDraggableIndices.isEmpty &&
-                widget.longPressDelay == const Duration(milliseconds: 500) &&
-                widget.enableDraggable &&
-                widget.automaticScrollExtent == 150.0 &&
-                widget.enableScrollingWhileDragging &&
-                widget.animationConfig == const ReorderableAnimationConfig() &&
-                widget.feedbackScaleFactor == 1.05 &&
-                !widget.reverse,
-          ),
-          findsOneWidget);
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableBuilder &&
+              widget.children == null &&
+              widget.lockedIndices.isEmpty &&
+              widget.nonDraggableIndices.isEmpty &&
+              widget.longPressDelay == const Duration(milliseconds: 500) &&
+              widget.enableDraggable &&
+              widget.automaticScrollExtent == 150.0 &&
+              widget.enableScrollingWhileDragging &&
+              widget.animationConfig == const ReorderableAnimationConfig() &&
+              widget.feedbackScaleFactor == 1.05 &&
+              !widget.reverse,
+        ),
+        findsOneWidget,
+      );
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableScrollingListener &&
               !widget.isDragging &&
               widget.reorderableChildKey == null &&
@@ -112,28 +115,32 @@ void main() {
               widget.automaticScrollExtent == 150.0 &&
               widget.enableScrollingWhileDragging &&
               !widget.reverse &&
-              widget.child is SingleChildScrollView),
-          findsOneWidget);
+              widget.child is SingleChildScrollView,
+        ),
+        findsOneWidget,
+      );
       expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ReorderableBuilderItem &&
-                widget.animationConfig.fadeInDuration ==
-                    const Duration(milliseconds: 500) &&
-                widget.animationConfig.positionChangeDuration ==
-                    const Duration(milliseconds: 200) &&
-                widget.releasedReorderableEntity == null &&
-                widget.scrollOffset == Offset.zero &&
-                widget.animationConfig.releasedItemDuration ==
-                    const Duration(milliseconds: 150) &&
-                widget.enableDraggable &&
-                widget.currentDraggedEntity == null &&
-                widget.enableLongPress &&
-                widget.longPressDelay == const Duration(milliseconds: 500) &&
-                widget.dragChildBoxDecoration == null &&
-                widget.child == givenChild,
-          ),
-          findsOneWidget);
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableBuilderItem &&
+              widget.animationConfig.fadeInDuration ==
+                  const Duration(milliseconds: 500) &&
+              widget.animationConfig.positionChangeDuration ==
+                  const Duration(milliseconds: 200) &&
+              widget.releasedReorderableEntity == null &&
+              widget.scrollOffset == Offset.zero &&
+              widget.animationConfig.releasedItemDuration ==
+                  const Duration(milliseconds: 150) &&
+              widget.enableDraggable &&
+              widget.currentDraggedEntity == null &&
+              widget.enableLongPress &&
+              widget.longPressDelay == const Duration(milliseconds: 500) &&
+              widget.dragChildBoxDecoration == null &&
+              widget.draggingAnimationMap.isEmpty &&
+              widget.child == givenChild,
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -250,22 +257,24 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ReorderableBuilder &&
-                widget.childBuilder == null &&
-                widget.lockedIndices == const [2] &&
-                widget.nonDraggableIndices == const [1] &&
-                widget.longPressDelay == const Duration(milliseconds: 500) &&
-                widget.enableDraggable &&
-                widget.automaticScrollExtent == 150.0 &&
-                widget.enableScrollingWhileDragging &&
-                widget.animationConfig == const ReorderableAnimationConfig() &&
-                !widget.reverse,
-          ),
-          findsOneWidget);
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableBuilder &&
+              widget.childBuilder == null &&
+              widget.lockedIndices == const [2] &&
+              widget.nonDraggableIndices == const [1] &&
+              widget.longPressDelay == const Duration(milliseconds: 500) &&
+              widget.enableDraggable &&
+              widget.automaticScrollExtent == 150.0 &&
+              widget.enableScrollingWhileDragging &&
+              widget.animationConfig == const ReorderableAnimationConfig() &&
+              !widget.reverse,
+        ),
+        findsOneWidget,
+      );
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableScrollingListener &&
               !widget.isDragging &&
               widget.reorderableChildKey == null &&
@@ -273,45 +282,58 @@ void main() {
               widget.automaticScrollExtent == 150.0 &&
               widget.enableScrollingWhileDragging &&
               !widget.reverse &&
-              widget.child is SingleChildScrollView),
-          findsOneWidget);
+              widget.child is SingleChildScrollView,
+        ),
+        findsOneWidget,
+      );
 
       expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ReorderableBuilderItem &&
-                widget.animationConfig.fadeInDuration ==
-                    const Duration(milliseconds: 500) &&
-                widget.animationConfig.positionChangeDuration ==
-                    const Duration(milliseconds: 200) &&
-                widget.releasedReorderableEntity == null &&
-                widget.scrollOffset == Offset.zero &&
-                widget.animationConfig.releasedItemDuration ==
-                    const Duration(milliseconds: 150) &&
-                widget.currentDraggedEntity == null &&
-                widget.enableLongPress &&
-                widget.longPressDelay == const Duration(milliseconds: 500) &&
-                widget.dragChildBoxDecoration == null,
-          ),
-          findsNWidgets(3));
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableBuilderItem &&
+              widget.animationConfig.fadeInDuration ==
+                  const Duration(milliseconds: 500) &&
+              widget.animationConfig.positionChangeDuration ==
+                  const Duration(milliseconds: 200) &&
+              widget.releasedReorderableEntity == null &&
+              widget.scrollOffset == Offset.zero &&
+              widget.animationConfig.releasedItemDuration ==
+                  const Duration(milliseconds: 150) &&
+              widget.currentDraggedEntity == null &&
+              widget.enableLongPress &&
+              widget.longPressDelay == const Duration(milliseconds: 500) &&
+              widget.dragChildBoxDecoration == null &&
+              widget.draggingAnimationMap.isEmpty,
+        ),
+        findsNWidgets(3),
+      );
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableBuilderItem &&
               widget.enableDraggable &&
-              widget.child == givenChildren[0]),
-          findsOneWidget);
+              widget.child == givenChildren[0],
+        ),
+        findsOneWidget,
+      );
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableBuilderItem &&
               !widget.enableDraggable &&
-              widget.child == givenChildren[1]),
-          findsOneWidget);
+              widget.child == givenChildren[1],
+        ),
+        findsOneWidget,
+      );
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is ReorderableBuilderItem &&
               !widget.enableDraggable &&
-              widget.child == givenChildren[2]),
-          findsOneWidget);
+              widget.child == givenChildren[2],
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -368,7 +390,6 @@ void main() {
       final secondLocation = tester.getCenter(find.byWidget(givenChildren[2]));
       await gesture.moveTo(secondLocation);
       await tester.pump();
-
       await gesture.up();
       await tester.pump();
 
@@ -382,6 +403,12 @@ void main() {
       expect(actualOnDragEndIndex, equals(2));
       expect(actualOnUpdatedDraggedChildIndex, equals(2));
       expect(updatedChildren, equals(expectedUpdatedChildren));
+      final actualDraggingAnimationMap = tester
+          .widget<ReorderableBuilderItem>(
+            find.byType(ReorderableBuilderItem).first,
+          )
+          .draggingAnimationMap;
+      expect(actualDraggingAnimationMap.keys, equals(const [Key('child1')]));
     });
 
     testWidgets(

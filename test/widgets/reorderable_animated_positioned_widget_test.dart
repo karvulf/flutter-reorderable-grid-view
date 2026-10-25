@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
@@ -13,6 +14,7 @@ void main() {
   const givenDraggingPositionDuration = Duration(milliseconds: 400);
   const givenChild = Placeholder();
   final givenReorderableEntity = reorderableBuilder.getEntity();
+  final givenDraggedEntity = ReorderableBuilder().getEntity(key: 'dragged');
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -25,7 +27,8 @@ void main() {
           home: Scaffold(
             body: ReorderableAnimatedPositioned(
               reorderableEntity: reorderableEntity,
-              isDragging: isDragging,
+              draggedEntity: isDragging ? givenDraggedEntity : null,
+              draggingAnimationMap: <ValueKey, DraggingAnimationEntity>{},
               animationConfig: const ReorderableAnimationConfig(
                 positionChangeDuration: givenPositionDuration,
                 draggingPositionChangeDuration: givenDraggingPositionDuration,
@@ -42,10 +45,13 @@ void main() {
     required double y,
   }) {
     expect(
-        find.byWidgetPredicate((widget) =>
+      find.byWidgetPredicate(
+        (widget) =>
             widget is Container &&
-            widget.transform == Matrix4.translationValues(x, y, 0.0)),
-        findsOneWidget);
+            widget.transform == Matrix4.translationValues(x, y, 0.0),
+      ),
+      findsOneWidget,
+    );
   }
 
   group('#initState', () {
@@ -69,11 +75,14 @@ void main() {
 
       // then
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is Container &&
               widget.transform == Matrix4.translationValues(0.0, 0.0, 0.0) &&
-              widget.child == givenChild),
-          findsOneWidget);
+              widget.child == givenChild,
+        ),
+        findsOneWidget,
+      );
       expect(callCounter, equals(0));
     });
 
@@ -165,6 +174,9 @@ void main() {
       required ReorderableEntity updatedReorderableEntity,
       required bool isDragging,
       required VoidCallback onMovingFinished,
+      bool? updatedIsDragging,
+      ReorderableEntity? draggedEntity,
+      Map<ValueKey, DraggingAnimationEntity>? draggingAnimationMap,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -174,6 +186,9 @@ void main() {
               updatedReorderableEntity: updatedReorderableEntity,
               isDragging: isDragging,
               onMovingFinished: onMovingFinished,
+              updatedIsDragging: updatedIsDragging,
+              draggedEntity: draggedEntity,
+              draggingAnimationMap: draggingAnimationMap,
             ),
           ),
         ),
@@ -209,6 +224,7 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: true,
+        draggedEntity: givenDraggedEntity,
         onMovingFinished: () {
           callCounter++;
         },
@@ -322,6 +338,7 @@ void main() {
         reorderableEntity: givenReorderableEntity,
         updatedReorderableEntity: givenUpdatedReorderableEntity,
         isDragging: true,
+        draggedEntity: givenDraggedEntity,
         onMovingFinished: () {
           callCounter++;
         },
@@ -365,6 +382,57 @@ void main() {
       // then
       findContainerWithMatrix(x: 0.0, y: 0.0);
       expect(callCounter, equals(0));
+    });
+
+    testWidgets(
+        'GIVEN isDragging = true and child is not the dragged child '
+        'WHEN releasing the dragged child '
+        'THEN should continue the animation with the saved offset',
+        (WidgetTester tester) async {
+      // given
+      final givenDraggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
+
+      // when
+      await pumpWidgetAndUpdate(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        updatedReorderableEntity: givenReorderableEntity,
+        isDragging: true,
+        updatedIsDragging: false,
+        onMovingFinished: () {},
+        draggingAnimationMap: givenDraggingAnimationMap,
+      );
+
+      // then
+      expect(givenDraggingAnimationMap, isEmpty);
+      findContainerWithMatrix(x: 0.0, y: 0.0);
+    });
+
+    testWidgets(
+        'GIVEN isDragging = true and child is the dragged child '
+        'WHEN releasing the dragged child '
+        'THEN should not use the saved offset', (WidgetTester tester) async {
+      // given
+      final givenDraggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
+
+      // when
+      await pumpWidgetAndUpdate(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        updatedReorderableEntity: givenReorderableEntity,
+        isDragging: true,
+        updatedIsDragging: false,
+        draggedEntity: givenReorderableEntity,
+        onMovingFinished: () {},
+        draggingAnimationMap: givenDraggingAnimationMap,
+      );
+
+      // then
+      expect(
+        givenDraggingAnimationMap.keys,
+        equals([givenReorderableEntity.key]),
+      );
+      findContainerWithMatrix(x: 0.0, y: 0.0);
     });
   });
 
@@ -433,6 +501,7 @@ void main() {
               reorderableEntity: givenReorderableEntity,
               updatedReorderableEntity: givenUpdatedReorderableEntity,
               isDragging: true,
+              draggedEntity: givenDraggedEntity,
               animationConfig: const ReorderableAnimationConfig(
                 positionChangeDuration: givenPositionDuration,
                 draggingPositionChangeDuration: givenDraggingPositionDuration,
@@ -468,6 +537,9 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
   final ReorderableEntity reorderableEntity;
   final ReorderableEntity updatedReorderableEntity;
   final bool isDragging;
+  final bool? updatedIsDragging;
+  final ReorderableEntity? draggedEntity;
+  final Map<ValueKey, DraggingAnimationEntity>? draggingAnimationMap;
   final VoidCallback onMovingFinished;
   final ReorderableAnimationConfig animationConfig;
 
@@ -476,6 +548,9 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
     required this.updatedReorderableEntity,
     required this.isDragging,
     required this.onMovingFinished,
+    this.updatedIsDragging,
+    this.draggedEntity,
+    this.draggingAnimationMap,
     this.animationConfig = const ReorderableAnimationConfig(
       positionChangeDuration: Duration(milliseconds: 200),
       draggingPositionChangeDuration: Duration(milliseconds: 300),
@@ -490,6 +565,9 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
 class _TestUpdateReorderableAnimatedPositionedState
     extends State<_TestUpdateReorderableAnimatedPositioned> {
   late ReorderableEntity reorderableEntity = widget.reorderableEntity;
+  late bool isDragging = widget.isDragging;
+  late final draggingAnimationMap =
+      widget.draggingAnimationMap ?? <ValueKey, DraggingAnimationEntity>{};
 
   @override
   Widget build(BuildContext context) {
@@ -500,13 +578,15 @@ class _TestUpdateReorderableAnimatedPositionedState
             onPressed: () {
               setState(() {
                 reorderableEntity = widget.updatedReorderableEntity;
+                isDragging = widget.updatedIsDragging ?? isDragging;
               });
             },
             child: const Text('Update'),
           ),
           ReorderableAnimatedPositioned(
             reorderableEntity: reorderableEntity,
-            isDragging: widget.isDragging,
+            draggedEntity: isDragging ? widget.draggedEntity : null,
+            draggingAnimationMap: draggingAnimationMap,
             animationConfig: widget.animationConfig,
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),

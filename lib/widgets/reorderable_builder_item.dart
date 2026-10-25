@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
@@ -31,6 +32,9 @@ class ReorderableBuilderItem extends StatefulWidget {
 
   /// Callback for the animation after moving the [child].
   final ReturnReorderableEntityCallback onMovingFinished;
+
+  /// Visible offsets of all children animated while dragging, by their key.
+  final Map<ValueKey, DraggingAnimationEntity> draggingAnimationMap;
 
   ///
   /// For [ReorderableInitChild]
@@ -89,6 +93,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.onOpacityFinished,
     required this.currentDraggedEntity,
     required this.onMovingFinished,
+    required this.draggingAnimationMap,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,
@@ -152,7 +157,8 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
       },
       child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
-        isDragging: widget.currentDraggedEntity != null,
+        draggedEntity: widget.currentDraggedEntity,
+        draggingAnimationMap: widget.draggingAnimationMap,
         animationConfig: animationConfig,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);

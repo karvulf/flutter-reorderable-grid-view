@@ -47,9 +47,11 @@ void main() {
     // then
     expect(find.byWidget(givenChild), findsOneWidget);
     expect(
-        find.byWidgetPredicate(
-            (widget) => widget is Transform && widget.child == givenChild),
-        findsNothing);
+      find.byWidgetPredicate(
+        (widget) => widget is Transform && widget.child == givenChild,
+      ),
+      findsNothing,
+    );
   });
 
   group('#didUpdateWidget', () {
@@ -57,6 +59,7 @@ void main() {
       WidgetTester tester, {
       required ReleasedReorderableEntity releasedEntity,
       required ReleasedReorderableEntity? updatedReleasedEntity,
+      Duration? updatedReleasedChildDuration,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -65,6 +68,7 @@ void main() {
               releasedChildDuration: givenReleasedChildDuration,
               releasedEntity: releasedEntity,
               updatedReleasedEntity: updatedReleasedEntity,
+              updatedReleasedChildDuration: updatedReleasedChildDuration,
               reorderableEntity: givenReorderableEntity,
               scrollOffset: givenScrollOffset,
               child: givenChild,
@@ -93,9 +97,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -116,9 +122,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -146,9 +154,11 @@ void main() {
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
       expect(
-          find.byWidgetPredicate(
-              (widget) => widget is Transform && widget.child == givenChild),
-          findsNothing);
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -178,13 +188,53 @@ void main() {
           givenReorderableEntity.updatedOffset +
           givenScrollOffset;
       expect(
-          find.byWidgetPredicate((widget) =>
+        find.byWidgetPredicate(
+          (widget) =>
               widget is Transform &&
               widget.transform ==
                   Matrix4.translationValues(
-                      expectedOffset.dx, expectedOffset.dy, 0.0) &&
-              widget.child == givenChild),
-          findsOneWidget);
+                    expectedOffset.dx,
+                    expectedOffset.dy,
+                    0.0,
+                  ) &&
+              widget.child == givenChild,
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+        "GIVEN releasedItemDuration of 555 ms "
+        "WHEN updating with releasedItemDuration of 100 ms and released entity "
+        "THEN should finish the release animation with the shorter duration",
+        (WidgetTester tester) async {
+      // given
+      final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
+        dropOffset: const Offset(100.0, 200.0),
+        reorderableEntity: givenReorderableEntity,
+      );
+      final givenUpdatedReleasedEntity = reorderableBuilder.getReleasedEntity(
+        dropOffset: const Offset(111.0, 222.0),
+        reorderableEntity: givenReorderableEntity,
+      );
+
+      // when
+      await pumpWidgetAndUpdate(
+        tester,
+        releasedEntity: givenReleasedEntity,
+        updatedReleasedEntity: givenUpdatedReleasedEntity,
+        updatedReleasedChildDuration: const Duration(milliseconds: 100),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      // then
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is Transform && widget.child == givenChild,
+        ),
+        findsNothing,
+      );
     });
   });
 }
@@ -198,6 +248,7 @@ class _TestUpdateReorderableAnimatedReleasedContainer extends StatefulWidget {
 
   final ReleasedReorderableEntity releasedEntity;
   final ReleasedReorderableEntity? updatedReleasedEntity;
+  final Duration? updatedReleasedChildDuration;
 
   const _TestUpdateReorderableAnimatedReleasedContainer({
     required this.child,
@@ -206,6 +257,7 @@ class _TestUpdateReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.scrollOffset,
     required this.releasedEntity,
     required this.updatedReleasedEntity,
+    this.updatedReleasedChildDuration,
   });
 
   @override
@@ -216,6 +268,7 @@ class _TestUpdateReorderableAnimatedReleasedContainer extends StatefulWidget {
 class _TestUpdateReorderableAnimatedReleasedContainerState
     extends State<_TestUpdateReorderableAnimatedReleasedContainer> {
   late ReleasedReorderableEntity? releasedEntity = widget.releasedEntity;
+  late Duration releasedChildDuration = widget.releasedChildDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -226,13 +279,15 @@ class _TestUpdateReorderableAnimatedReleasedContainerState
             onPressed: () {
               setState(() {
                 releasedEntity = widget.updatedReleasedEntity;
+                releasedChildDuration = widget.updatedReleasedChildDuration ??
+                    releasedChildDuration;
               });
             },
             child: const Text('Update'),
           ),
           ReorderableAnimatedReleasedContainer(
             animationConfig: ReorderableAnimationConfig(
-              releasedItemDuration: widget.releasedChildDuration,
+              releasedItemDuration: releasedChildDuration,
             ),
             releasedReorderableEntity: releasedEntity,
             reorderableEntity: widget.reorderableEntity,

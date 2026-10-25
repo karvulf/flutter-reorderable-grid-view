@@ -132,7 +132,7 @@ void main() {
     );
 
     test(
-        'GIVEN originalOrderId = 0, dragging is true and existing reorderableEntity '
+        'GIVEN originalOrderId = 0, dragging is true and measured existing reorderableEntity '
         'WHEN calling #handleCreatedChild '
         'THEN should return existing reorderableEntity', () {
       // given
@@ -141,6 +141,9 @@ void main() {
         originalOrderId: 0,
       );
 
+      const givenMeasuredOffset = Offset(1.0, 2.0);
+      controller.offsetMap[givenReorderableEntity.updatedOrderId] =
+          givenMeasuredOffset;
       controller.draggedEntity = givenDraggedEntity;
       controller.childrenOrderMap[givenReorderableEntity.updatedOrderId] =
           givenReorderableEntity;
@@ -158,7 +161,10 @@ void main() {
       );
       expect(actual, equals(expectedReorderableEntity));
 
-      expect(controller.offsetMap, isEmpty);
+      expect(
+        controller.offsetMap,
+        equals({givenReorderableEntity.updatedOrderId: givenMeasuredOffset}),
+      );
       expect(
         mapEquals(controller.childrenOrderMap, {
           givenReorderableEntity.updatedOrderId: givenReorderableEntity,
@@ -166,6 +172,38 @@ void main() {
         isTrue,
       );
       expect(controller.childrenKeyMap, isEmpty);
+    });
+
+    test(
+        'GIVEN dragging is true and existing reorderableEntity without offset '
+        'WHEN calling #handleCreatedChild '
+        'THEN should measure the reorderableEntity', () {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        isBuildingOffset: true,
+        originalOrderId: 0,
+      );
+
+      controller.draggedEntity = givenDraggedEntity;
+      controller.childrenOrderMap[givenReorderableEntity.updatedOrderId] =
+          givenReorderableEntity;
+
+      // when
+      final actual = controller.handleCreatedChild(
+        offset: givenOffset,
+        reorderableEntity: givenReorderableEntity,
+        size: givenSize,
+      );
+
+      // then
+      final expectedReorderableEntity = givenReorderableEntity
+          .creationFinished(offset: givenOffset, size: givenSize)
+          .positionUpdated();
+      expect(actual, equals(expectedReorderableEntity));
+      expect(
+        controller.offsetMap,
+        equals({givenReorderableEntity.updatedOrderId: givenOffset}),
+      );
     });
 
     test(

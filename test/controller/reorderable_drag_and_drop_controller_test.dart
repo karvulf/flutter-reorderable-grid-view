@@ -40,6 +40,7 @@ void main() {
         'should remove the children which have a higher position than the itemCount',
         () {
       // given
+      final givenDraggedValueKey = ValueKey('dragging');
       const givenItemCount = 1;
       const givenDraggedKeyValue = 'dragged_key';
       const givenRemoveKeyValue1 = 'remove1';
@@ -56,6 +57,8 @@ void main() {
         originalOrderId: givenItemCount + 1,
         key: givenRemoveKeyValue2,
       );
+      final givenDraggingAnimationEntity =
+          reorderableBuilder.getDraggingAnimationEntity();
       const givenOffset = Offset(100.0, 200.0);
       const givenLockedIndices = [0, 1, 2, 3];
       const givenIsScrollableOutside = true;
@@ -63,6 +66,8 @@ void main() {
       controller.childrenKeyMap[givenDraggedKeyValue] = givenDraggedEntity;
       controller.childrenKeyMap[givenRemoveKeyValue1] = givenChildToRemove1;
       controller.childrenKeyMap[givenRemoveKeyValue2] = givenChildToRemove2;
+      controller.draggingAnimationMap[givenDraggedValueKey] =
+          givenDraggingAnimationEntity;
 
       // when
       controller.handleDragStarted(
@@ -82,6 +87,7 @@ void main() {
       expect(controller.startDraggingScrollOffset, equals(givenOffset));
       final expectedMap = {givenDraggedKeyValue: givenDraggedEntity};
       expect(controller.childrenKeyMap, equals(expectedMap));
+      expect(controller.draggingAnimationMap, isEmpty);
     });
   });
 
