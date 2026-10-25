@@ -74,8 +74,9 @@ class ReorderableAnimationConfig {
 
   /// Whether the other children wait for the fade out of a removed child.
   ///
-  /// If true, the other children start to move to their new positions after
-  /// [fadeOutDuration]. Otherwise they move while the removed child fades out.
+  /// If true, the other children start to move to their new positions halfway
+  /// through [fadeOutDuration]. Otherwise they move while the removed child
+  /// fades out.
   ///
   /// Default value: false
   final bool positionChangeAfterFadeOut;

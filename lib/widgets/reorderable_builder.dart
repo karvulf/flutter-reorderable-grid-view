@@ -473,7 +473,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     final animationConfig = widget.animationConfig;
     if (!animationConfig.positionChangeAfterFadeOut) return;
 
-    _positionChangeDelay = animationConfig.fadeOutDuration;
+    // the children start to move while the removed child is still fading out
+    _positionChangeDelay = animationConfig.fadeOutDuration ~/ 2;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _positionChangeDelay = Duration.zero;

@@ -226,7 +226,8 @@ class _ReorderableAnimatedPositionedState
           ? Interval(
               delay.inMicroseconds / (delay + duration).inMicroseconds,
               1.0,
-              curve: config.positionChangeCurve ?? Curves.linear,
+              // starts slowly after waiting instead of jumping into full speed
+              curve: config.positionChangeCurve ?? Curves.easeInOut,
             )
           : config.positionChangeCurve,
       reset: reset,
