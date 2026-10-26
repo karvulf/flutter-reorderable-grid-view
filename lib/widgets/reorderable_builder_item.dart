@@ -36,6 +36,9 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// Returns the delay before a position change starts.
   final ValueGetter<Duration>? positionChangeDelay;
 
+  /// Called when this item was disposed, e.g. after scrolling it out of view.
+  final VoidCallback? onDisposed;
+
   /// Visible offsets of all children animated while dragging, by their key.
   final Map<ValueKey, DraggingAnimationEntity> draggingAnimationMap;
 
@@ -98,6 +101,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.onMovingFinished,
     required this.draggingAnimationMap,
     this.positionChangeDelay,
+    this.onDisposed,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,
@@ -133,6 +137,12 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   void initState() {
     super.initState();
     _reorderableEntity = widget.reorderableEntity;
+  }
+
+  @override
+  void dispose() {
+    widget.onDisposed?.call();
+    super.dispose();
   }
 
   @override

@@ -37,6 +37,16 @@ abstract class ReorderableController {
     builtKeyValues.add(key.value);
   }
 
+  /// Removes [child] of [key] from [lastBuiltChildren] after it was disposed.
+  ///
+  /// Only removed if [child] is still the last built widget of [key]. When
+  /// the child moved to another index, it is already built again there.
+  void removeBuiltChild({required ValueKey key, required Widget child}) {
+    if (identical(lastBuiltChildren[key.value], child)) {
+      lastBuiltChildren.remove(key.value);
+    }
+  }
+
   /// Creates or updates [ReorderableEntity] related to [key] and returns it.
   ///
   /// Looks for [ReorderableEntity] in [childrenKeyMap] and updates it if found.
