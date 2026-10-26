@@ -364,6 +364,80 @@ void main() {
     });
   });
 
+  group('#fadeOutDuration', () {
+    const givenDuration = Duration(milliseconds: 567);
+
+    test(
+        'GIVEN enableAnimations true '
+        'WHEN getting value '
+        'THEN should return configured duration', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: true,
+        fadeOutDuration: givenDuration,
+      );
+
+      // when
+      final actual = config.fadeOutDuration;
+
+      // then
+      expect(actual, equals(givenDuration));
+    });
+
+    test(
+        'GIVEN enableAnimations false '
+        'WHEN getting value '
+        'THEN should return Duration.zero', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        enableAnimations: false,
+        fadeOutDuration: Duration(milliseconds: 567),
+      );
+
+      // when
+      final actual = config.fadeOutDuration;
+
+      // then
+      expect(actual, equals(Duration.zero));
+    });
+  });
+
+  group('#fadeOutCurve', () {
+    test(
+        'GIVEN fadeOutCurve and default curve is set '
+        'WHEN getting value '
+        'THEN should return given curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        fadeOutCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.fadeOutCurve;
+
+      // then
+      expect(actual, equals(givenCurve));
+    });
+
+    test(
+        'GIVEN fadeOutCurve is not set and default curve is set '
+        'WHEN getting value '
+        'THEN should return default curve', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        fadeOutCurve: null,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.fadeOutCurve;
+
+      // then
+      expect(actual, equals(givenDefaultCurve));
+    });
+  });
+
   group('#dragFeedbackCurve', () {
     test(
         'GIVEN dragFeedbackCurve and default curve is set '
@@ -397,6 +471,22 @@ void main() {
 
       // then
       expect(actual, equals(givenDefaultCurve));
+    });
+  });
+
+  group('#positionChangeAfterFadeOut', () {
+    test(
+        'GIVEN nothing '
+        'WHEN getting value '
+        'THEN should return default value', () {
+      // given
+      const config = ReorderableAnimationConfig();
+
+      // when
+      final actual = config.positionChangeAfterFadeOut;
+
+      // then
+      expect(actual, isFalse);
     });
   });
 }

@@ -54,7 +54,7 @@ class ReorderableAnimationConfig {
   ///
   /// With [Duration.zero], removed children disappear immediately.
   ///
-  /// Default value: Duration.zero
+  /// Default value: Duration(milliseconds: 200)
   final Duration _fadeOutDuration;
 
   /// Curve for [fadeOutDuration].
