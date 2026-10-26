@@ -49,6 +49,9 @@ class ReorderableBuilderController extends ReorderableDragAndDropController {
       updatedChildrenOrderMap[originalOrderId] = reorderableEntity;
       updatedChildrenKeyMap[reorderableEntity.key.value] = reorderableEntity;
     }
+    lastRemovedEntities = childrenKeyMap.values
+        .where((entity) => !updatedChildrenKeyMap.containsKey(entity.key.value))
+        .toList();
     replaceMaps(
       updatedChildrenKeyMap: updatedChildrenKeyMap,
       updatedChildrenOrderMap: updatedChildrenOrderMap,

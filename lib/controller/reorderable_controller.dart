@@ -17,6 +17,26 @@ abstract class ReorderableController {
   /// Visible offsets of all children animated while dragging, by their key.
   final draggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
 
+  /// Last built widget of every child by its key value.
+  ///
+  /// Used to fade out removed children of ReorderableBuilder.builder.
+  final lastBuiltChildren = <dynamic, Widget>{};
+
+  /// Key values of children built since the item count decreased.
+  final builtKeyValues = <dynamic>{};
+
+  /// Entities of the children removed by the last update of the children.
+  List<ReorderableEntity> lastRemovedEntities = const [];
+
+  /// Delay for position changes caused by removed children.
+  Duration positionChangeDelay = Duration.zero;
+
+  /// Saves [child] as the last built widget of [key].
+  void addBuiltChild({required ValueKey key, required Widget child}) {
+    lastBuiltChildren[key.value] = child;
+    builtKeyValues.add(key.value);
+  }
+
   /// Creates or updates [ReorderableEntity] related to [key] and returns it.
   ///
   /// Looks for [ReorderableEntity] in [childrenKeyMap] and updates it if found.
