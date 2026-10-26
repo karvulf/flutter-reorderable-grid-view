@@ -149,6 +149,14 @@ class _ReorderableAnimatedPositionedState
       );
     } else if (!newEntity.isBuildingOffset) {
       if (newEntity.hasSwappedOrder) {
+        // keeps the old position until the animation starts after this frame,
+        // otherwise the child is shown at its new position for one frame
+        if (!newEntity.isNew) {
+          _animationController.stop();
+          _offsetAnimation = AlwaysStoppedAnimation(
+            newEntity.originalOffset - newEntity.updatedOffset,
+          );
+        }
         // important to prevent flickering for calculating new offsets
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _animatePositionChange();
