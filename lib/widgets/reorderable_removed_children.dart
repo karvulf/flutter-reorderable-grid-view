@@ -58,6 +58,7 @@ class _ReorderableRemovedChildrenState
     super.didUpdateWidget(oldWidget);
 
     final children = widget.children;
+
     if (children == null) {
       _checkRemovedBuiltChildren(oldItemCount: oldWidget.itemCount);
     } else if (children != oldWidget.children) {
@@ -67,13 +68,22 @@ class _ReorderableRemovedChildrenState
 
   @override
   Widget build(BuildContext context) {
-    // always added to keep the widget tree stable when children are removed
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.none,
       children: [
         widget.child,
-        ..._removedEntities.map(_buildRemovedChild),
+        for (final removedEntity in _removedEntities)
+          ReorderableAnimatedRemovedChild(
+            key: ObjectKey(removedEntity),
+            removedEntity: removedEntity,
+            animationConfig: widget.animationConfig,
+            scrollController: widget.scrollController,
+            getScrollOffset: widget.getScrollOffset,
+            onFinished: () => setState(() {
+              _removedEntities.remove(removedEntity);
+            }),
+          ),
       ],
     );
   }
@@ -120,9 +130,6 @@ class _ReorderableRemovedChildrenState
   /// When the item count decreases, the GridView rebuilds all children that
   /// are currently shown. A child that was visible before, but is not built
   /// again in the next frame, was removed.
-  ///
-  /// ponytail: the removed child is added one frame after it disappeared,
-  /// because the GridView builds its children after this widget.
   void _checkRemovedBuiltChildren({required int? oldItemCount}) {
     final itemCount = widget.itemCount;
     if (oldItemCount == null ||
@@ -193,49 +200,6 @@ class _ReorderableRemovedChildrenState
         controller.positionChangeDelay = Duration.zero;
       });
     });
-  }
-
-  /// Shows the removed child of [removedEntity] at its last position.
-  ///
-  /// The position follows [ReorderableRemovedChildren.scrollController]
-  /// while fading out.
-  ///
-  /// ponytail: with a scrollable outside of ReorderableBuilder, the position
-  /// is not updated while scrolling during the fade out.
-  Widget _buildRemovedChild(RemovedReorderableEntity removedEntity) {
-    Widget buildPositioned(BuildContext context, Widget? child) {
-      final offset = removedEntity.offset - widget.getScrollOffset();
-      return Positioned(
-        left: offset.dx,
-        top: offset.dy,
-        width: removedEntity.size.width,
-        height: removedEntity.size.height,
-        child: child!,
-      );
-    }
-
-    final child = ReorderableAnimatedRemovedChild(
-      animationConfig: widget.animationConfig,
-      onFinished: () => setState(() {
-        _removedEntities.remove(removedEntity);
-      }),
-      child: removedEntity.child,
-    );
-
-    final scrollController = widget.scrollController;
-    if (scrollController == null) {
-      return KeyedSubtree(
-        key: ObjectKey(removedEntity),
-        child: buildPositioned(context, child),
-      );
-    }
-
-    return ListenableBuilder(
-      key: ObjectKey(removedEntity),
-      listenable: scrollController,
-      builder: buildPositioned,
-      child: child,
-    );
   }
 
   /// Removed children only fade out with a duration and while not dragging.
