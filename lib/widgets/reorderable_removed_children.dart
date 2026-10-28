@@ -84,7 +84,7 @@ class _ReorderableRemovedChildrenState
             onFinished: () => setState(() {
               _removedEntities.remove(removedEntity);
             }),
-          )
+          ),
       ],
     );
   }

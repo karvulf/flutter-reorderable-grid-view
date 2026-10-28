@@ -44,7 +44,9 @@ void main() {
 
       // then
       expect(
-          controller.lastBuiltChildren, equals({givenKey.value: givenChild}));
+        controller.lastBuiltChildren,
+        equals({givenKey.value: givenChild}),
+      );
       expect(controller.builtKeyValues, equals({givenKey.value}));
     });
   });
@@ -71,7 +73,9 @@ void main() {
 
       // then
       expect(
-          controller.lastBuiltChildren, equals({givenKey1.value: givenChild1}));
+        controller.lastBuiltChildren,
+        equals({givenKey1.value: givenChild1}),
+      );
       expect(controller.builtKeyValues, equals({givenKey1.value}));
     });
 

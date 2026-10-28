@@ -216,7 +216,7 @@ Use `animationConfig` to configure all animation durations and curves in one pla
 | `draggingPositionChangeDuration`    | Duration for item position changes while dragging.                                                               |    **200 ms**     |
 | `releasedItemDuration`              | Duration for the released dragged item to animate to its final position.                                        |    **150 ms**     |
 | `fadeInDuration`                    | Duration for fade-in when a new child is added.                                                                  |    **500 ms**     |
-| `fadeOutDuration`                   | Duration for fade-out when a child is removed. `Duration.zero` disables it. |   **0 ms**     |
+| `fadeOutDuration`                   | Duration for fade-out when a child is removed. `Duration.zero` disables it. |   **200 ms**     |
 | `dragFeedbackDuration`              | Duration for scaling the drag feedback widget.                                                                   |    **150 ms**     |
 | `positionChangeCurve`               | Curve for `positionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                            |       **-**       |
 | `draggingPositionChangeCurve`       | Curve for `draggingPositionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                    |       **-**       |

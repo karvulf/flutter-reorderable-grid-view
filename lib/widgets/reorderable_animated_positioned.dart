@@ -50,7 +50,7 @@ class ReorderableAnimatedPositioned extends StatefulWidget {
     required this.draggedEntity,
     required this.draggingAnimationMap,
     required this.onMovingFinished,
-    this.positionChangeDelay,
+    required this.positionChangeDelay,
     required this.animationConfig,
     super.key,
   });
