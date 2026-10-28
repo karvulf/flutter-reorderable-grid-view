@@ -20,10 +20,10 @@ abstract class ReorderableController {
   /// Last built widget of every child by its key value.
   ///
   /// Used to fade out removed children of ReorderableBuilder.builder.
-  final lastBuiltChildren = <dynamic, Widget>{};
+  final lastBuiltChildren = <String, Widget>{};
 
   /// Key values of children built since the item count decreased.
-  final builtKeyValues = <dynamic>{};
+  final builtKeyValues = <String>{};
 
   /// Entities of the children removed by the last update of the children.
   List<ReorderableEntity> lastRemovedEntities = const [];
