@@ -34,7 +34,7 @@ class ReorderableBuilderItem extends StatefulWidget {
   final ReturnReorderableEntityCallback onMovingFinished;
 
   /// Returns the delay before a position change starts.
-  final ValueGetter<Duration>? positionChangeDelay;
+  final ValueGetter<Duration> positionChangeDelay;
 
   /// Called when this item was disposed, e.g. after scrolling it out of view.
   final VoidCallback? onDisposed;
@@ -100,8 +100,8 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.currentDraggedEntity,
     required this.onMovingFinished,
     required this.draggingAnimationMap,
-    this.positionChangeDelay,
-    this.onDisposed,
+    required this.positionChangeDelay,
+    required this.onDisposed,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,

@@ -185,12 +185,12 @@ class _ReorderableRemovedChildrenState
 
   /// Lets the position changes of the current update wait for the fade out.
   ///
-  /// Only if [ReorderableAnimationConfig.positionChangeAfterFadeOut] is true.
+  /// Only if [ReorderableAnimationConfig.changePositionAfterFadeOut] is true.
   /// The delay is reset after the next frame, when all position changes of
   /// this update have started.
   void _delayPositionChanges() {
     final animationConfig = widget.animationConfig;
-    if (!animationConfig.positionChangeAfterFadeOut) return;
+    if (!animationConfig.changePositionAfterFadeOut) return;
 
     final controller = widget.controller;
     // the children start to move while the removed child is still fading out

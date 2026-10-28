@@ -474,7 +474,7 @@ void main() {
     });
   });
 
-  group('#positionChangeAfterFadeOut', () {
+  group('#changePositionAfterFadeOut', () {
     test(
         'GIVEN nothing '
         'WHEN getting value '
@@ -483,7 +483,7 @@ void main() {
       const config = ReorderableAnimationConfig();
 
       // when
-      final actual = config.positionChangeAfterFadeOut;
+      final actual = config.changePositionAfterFadeOut;
 
       // then
       expect(actual, isFalse);

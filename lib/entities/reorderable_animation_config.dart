@@ -79,7 +79,7 @@ class ReorderableAnimationConfig {
   /// fades out.
   ///
   /// Default value: false
-  final bool positionChangeAfterFadeOut;
+  final bool changePositionAfterFadeOut;
 
   /// Whether animations are enabled.
   final bool enableAnimations;
@@ -104,7 +104,7 @@ class ReorderableAnimationConfig {
     Curve? dragFeedbackCurve,
     this.defaultAnimationCurve,
     this.enableAnimations = true,
-    this.positionChangeAfterFadeOut = false,
+    this.changePositionAfterFadeOut = false,
   })  : _positionChangeDuration = positionChangeDuration,
         _draggingPositionChangeDuration = draggingPositionChangeDuration,
         _releasedItemDuration = releasedItemDuration,

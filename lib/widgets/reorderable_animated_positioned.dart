@@ -219,32 +219,57 @@ class _ReorderableAnimatedPositionedState
         ? Offset.zero
         : entity.originalOffset - entity.updatedOffset;
     final config = widget.animationConfig;
-    final duration = config.positionChangeDuration;
     final delay = widget.positionChangeDelay?.call() ?? Duration.zero;
-    final hasDelay = begin != Offset.zero &&
-        delay > Duration.zero &&
-        duration > Duration.zero;
 
-    await _animate(
-      begin: begin,
-      end: Offset.zero,
-      duration: hasDelay ? delay + duration : duration,
-      // the child keeps its old position during the delay
-      curve: hasDelay
-          ? Interval(
-              delay.inMicroseconds / (delay + duration).inMicroseconds,
-              1.0,
-              // starts slowly after waiting instead of jumping into full speed
-              curve: config.positionChangeCurve ?? Curves.easeInOut,
-            )
-          : config.positionChangeCurve,
-      reset: reset,
-    );
+    if (begin != Offset.zero &&
+        delay > Duration.zero &&
+        config.positionChangeDuration > Duration.zero) {
+      await _animateDelayedPositionChange(
+        begin: begin,
+        delay: delay,
+        reset: reset,
+      );
+    } else {
+      await _animate(
+        begin: begin,
+        end: Offset.zero,
+        duration: config.positionChangeDuration,
+        curve: config.positionChangeCurve,
+        reset: reset,
+      );
+    }
 
     // there is no need to call the callback if the widget didn't change his position.
     if (begin != Offset.zero) {
       widget.onMovingFinished();
     }
+  }
+
+  /// Animates from [begin] to the updated offset after [delay].
+  ///
+  /// The child keeps its old position during [delay], e.g. while a removed
+  /// child is fading out. The delay is part of the animation, so it can't
+  /// collide with other animations of this child.
+  TickerFuture _animateDelayedPositionChange({
+    required Offset begin,
+    required Duration delay,
+    required bool reset,
+  }) {
+    final config = widget.animationConfig;
+    final totalDuration = delay + config.positionChangeDuration;
+
+    return _animate(
+      begin: begin,
+      end: Offset.zero,
+      duration: totalDuration,
+      curve: Interval(
+        delay.inMicroseconds / totalDuration.inMicroseconds,
+        1.0,
+        // starts slowly after waiting instead of jumping into full speed
+        curve: config.positionChangeCurve ?? Curves.easeInOut,
+      ),
+      reset: reset,
+    );
   }
 
   /// Starts [_animationController] to animate from [begin] to [end].

@@ -223,7 +223,7 @@ Use `animationConfig` to configure all animation durations and curves in one pla
 | `releasedItemCurve`                 | Curve for `releasedItemDuration`. Falls back to `defaultAnimationCurve` when null.                              |       **-**       |
 | `fadeInCurve`                       | Curve for `fadeInDuration`. Falls back to `defaultAnimationCurve` when null.                                    |       **-**       |
 | `fadeOutCurve`                      | Curve for `fadeOutDuration`. Falls back to `defaultAnimationCurve` when null.                                   |       **-**       |
-| `positionChangeAfterFadeOut`        | If true, the other children start moving halfway through the fade-out of a removed child instead of immediately.  |     **false**     |
+| `changePositionAfterFadeOut`        | If true, the other children start moving halfway through the fade-out of a removed child instead of immediately.  |     **false**     |
 | `dragFeedbackCurve`                 | Curve for `dragFeedbackDuration`. Falls back to `defaultAnimationCurve`, then to `Curves.linear` if still null.| `Curves.linear` |
 | `defaultAnimationCurve`             | Global fallback curve for animation curve parameters when a specific curve is not provided.                      |       **-**       |
 | `enableAnimations`                  | Enables or disables animations globally. If false, durations become `Duration.zero` and nullable curves resolve to null. |    **true**      |
