@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
 
 /// Shows removed children above [child] while they are fading out.
@@ -83,7 +84,7 @@ class _ReorderableRemovedChildrenState
             onFinished: () => setState(() {
               _removedEntities.remove(removedEntity);
             }),
-          ),
+          )
       ],
     );
   }
@@ -110,7 +111,7 @@ class _ReorderableRemovedChildrenState
 
     for (final entity in widget.controller.lastRemovedEntities) {
       final child = oldChildMap[entity.key.value];
-      if (child == null || entity.isBuildingOffset) continue;
+      if (child == null || !_wasVisible(entity)) continue;
 
       _removedEntities.add(
         RemovedReorderableEntity(
@@ -138,21 +139,14 @@ class _ReorderableRemovedChildrenState
       return;
     }
 
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (!_canFadeOut || renderBox == null || !renderBox.hasSize) return;
+    if (!_canFadeOut) return;
 
-    // size of the last frame
-    final visibleRect = Offset.zero & renderBox.size;
-    final scrollOffset = widget.getScrollOffset();
     final controller = widget.controller;
     final visibleEntities = <RemovedReorderableEntity>[];
 
     for (final entity in controller.childrenKeyMap.values) {
       final child = controller.lastBuiltChildren[entity.key.value];
-      if (child == null || entity.isBuildingOffset) continue;
-
-      final rect = (entity.updatedOffset - scrollOffset) & entity.size;
-      if (!rect.overlaps(visibleRect)) continue;
+      if (child == null || !_wasVisible(entity)) continue;
 
       visibleEntities.add(
         RemovedReorderableEntity(
@@ -162,6 +156,12 @@ class _ReorderableRemovedChildrenState
           size: entity.size,
         ),
       );
+    }
+
+    // all children were removed, so there is no need to wait for the GridView
+    if (itemCount == 0) {
+      _removedEntities.addAll(visibleEntities);
+      return;
     }
 
     controller.builtKeyValues.clear();
@@ -200,6 +200,18 @@ class _ReorderableRemovedChildrenState
         controller.positionChangeDelay = Duration.zero;
       });
     });
+  }
+
+  /// Returns true if [entity] was measured and at least partially visible
+  /// in the last frame.
+  bool _wasVisible(ReorderableEntity entity) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (entity.isBuildingOffset || renderBox == null || !renderBox.hasSize) {
+      return false;
+    }
+
+    final offset = entity.updatedOffset - widget.getScrollOffset();
+    return (offset & entity.size).overlaps(Offset.zero & renderBox.size);
   }
 
   /// Removed children only fade out with a duration and while not dragging.

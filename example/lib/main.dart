@@ -209,7 +209,7 @@ class _MyAppState extends State<MyApp> {
           scrollController: _scrollController,
           animationConfig: const ReorderableAnimationConfig(
             fadeInDuration: Duration(milliseconds: 800),
-            defaultAnimationCurve: Curves.easeInCubic,
+            defaultAnimationCurve: Curves.easeOut,
             changePositionAfterFadeOut: true,
           ),
           itemCount: children.length,
