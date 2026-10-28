@@ -2,18 +2,15 @@
 ⭐️ **New Features**
 - added fade out animation for removed children with `fadeOutDuration` and `fadeOutCurve` in `ReorderableAnimationConfig`
   - added `changePositionAfterFadeOut` to `ReorderableAnimationConfig` to move the other children later while a removed child fades out
-- exported `ReorderUpdateEntity` so it can be used with `onReorderPositions` without an extra import
 
 🐛 **Bug Fixes**
 - fixed children being shown at their new position for one frame before animating there after removing a child
 - fixed calculating issue when children size is changing e.g. by adding more columns to the same GridView (thanks to `chriskeeble`, see [#176](https://github.com/karvulf/flutter-reorderable-grid-view/issues/176))
 - fixed `releasedItemDuration` not being applied when it changed after the first build (thanks to `WD-J` [#175](https://github.com/karvulf/flutter-reorderable-grid-view/issues/175))
 - fixed other children jumping to their new positions when releasing the dragged child while they were still animating
-- fixed wrong positions when scrolling while dragging in a scrollable GridView with many children
-- fixed scrolling while dragging starting at the wrong position when there are fixed widgets like a header or footer around the scrollable widget
+- fixed some scrolling issues
 
 🏄‍♂️ **Improvements**
-- updated `flutter_lints` to `^6.0.0`
 - replaced `material.dart`/`cupertino.dart` imports with `widgets.dart` where Material/Cupertino isn't needed (prepares for the upcoming `material_ui` package)
 
 ## 5.7.0

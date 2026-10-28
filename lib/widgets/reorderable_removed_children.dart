@@ -74,17 +74,28 @@ class _ReorderableRemovedChildrenState
       clipBehavior: Clip.none,
       children: [
         widget.child,
-        for (final removedEntity in _removedEntities)
-          ReorderableAnimatedRemovedChild(
-            key: ObjectKey(removedEntity),
-            removedEntity: removedEntity,
-            animationConfig: widget.animationConfig,
-            scrollController: widget.scrollController,
-            getScrollOffset: widget.getScrollOffset,
-            onFinished: () => setState(() {
-              _removedEntities.remove(removedEntity);
-            }),
+        // Ensures that removed children in scrollable GridViews
+        // are visible on the outside of the GridView when fading them out
+        Positioned.fill(
+          child: ClipRect(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                for (final removedEntity in _removedEntities)
+                  ReorderableAnimatedRemovedChild(
+                    key: ObjectKey(removedEntity),
+                    removedEntity: removedEntity,
+                    animationConfig: widget.animationConfig,
+                    scrollController: widget.scrollController,
+                    getScrollOffset: widget.getScrollOffset,
+                    onFinished: () => setState(() {
+                      _removedEntities.remove(removedEntity);
+                    }),
+                  ),
+              ],
+            ),
           ),
+        ),
       ],
     );
   }
