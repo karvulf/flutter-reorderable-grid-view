@@ -104,6 +104,30 @@ void main() {
         givenKey2.value: expectedReorderableEntity2,
       };
       expect(controller.childrenKeyMap, equals(expectedChildrenKeyMap));
+      expect(controller.lastRemovedEntities, isEmpty);
+    });
+
+    test(
+        'GIVEN two initialized children '
+        'WHEN calling #updateChildren without the second child '
+        'THEN should add the second child to lastRemovedEntities', () {
+      // given
+      controller.initChildren(
+        children: const [
+          Placeholder(key: givenKey1),
+          Placeholder(key: givenKey2),
+        ],
+      );
+      final expectedRemovedEntity = controller.childrenKeyMap[givenKey2.value];
+
+      // when
+      controller.updateChildren(
+        children: const [Placeholder(key: givenKey1)],
+      );
+
+      // then
+      expect(controller.lastRemovedEntities, equals([expectedRemovedEntity]));
+      expect(controller.childrenKeyMap.keys, equals([givenKey1.value]));
     });
   });
 }

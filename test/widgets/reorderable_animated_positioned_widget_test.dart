@@ -34,6 +34,7 @@ void main() {
                 draggingPositionChangeDuration: givenDraggingPositionDuration,
               ),
               onMovingFinished: onMovingFinished,
+              positionChangeDelay: null,
               child: givenChild,
             ),
           ),
@@ -177,6 +178,8 @@ void main() {
       bool? updatedIsDragging,
       ReorderableEntity? draggedEntity,
       Map<ValueKey, DraggingAnimationEntity>? draggingAnimationMap,
+      ValueGetter<Duration>? positionChangeDelay,
+      bool waitForAnimation = true,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -189,14 +192,19 @@ void main() {
               updatedIsDragging: updatedIsDragging,
               draggedEntity: draggedEntity,
               draggingAnimationMap: draggingAnimationMap,
+              positionChangeDelay: positionChangeDelay,
             ),
           ),
         ),
       );
 
       await tester.tap(find.byType(TextButton));
-      // finish animation of position
-      await tester.pumpAndSettle(const Duration(milliseconds: 200));
+      if (waitForAnimation) {
+        // finish animation of position
+        await tester.pumpAndSettle(const Duration(milliseconds: 200));
+      } else {
+        await tester.pump();
+      }
     }
 
     testWidgets(
@@ -434,6 +442,50 @@ void main() {
       );
       findContainerWithMatrix(x: 0.0, y: 0.0);
     });
+
+    group('order changed (hasSwappedOrder = true)', () {
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: Offset.zero,
+        isBuildingOffset: false,
+        hasSwappedOrder: false,
+      );
+      final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+        originalOffset: Offset.zero,
+        updatedOffset: const Offset(100.0, 200.0),
+        isBuildingOffset: false,
+        hasSwappedOrder: true,
+      );
+
+      testWidgets(
+          'GIVEN changed order and positionChangeDelay = 300ms '
+          'WHEN pumping during and after the delay '
+          'THEN should keep the old position during the delay '
+          'and animate to the new position afterwards',
+          (WidgetTester tester) async {
+        // given
+        int callCounter = 0;
+
+        // when
+        await pumpWidgetAndUpdate(
+          tester,
+          reorderableEntity: givenReorderableEntity,
+          updatedReorderableEntity: givenUpdatedReorderableEntity,
+          isDragging: false,
+          onMovingFinished: () => callCounter++,
+          positionChangeDelay: () => const Duration(milliseconds: 300),
+          waitForAnimation: false,
+        );
+        // starts the animation after the first frame
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+        await tester.pumpAndSettle();
+
+        // then
+        findContainerWithMatrix(x: 0.0, y: 0.0);
+        expect(callCounter, equals(1));
+      });
+    });
   });
 
   group('#animationDuration', () {
@@ -540,6 +592,7 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
   final bool? updatedIsDragging;
   final ReorderableEntity? draggedEntity;
   final Map<ValueKey, DraggingAnimationEntity>? draggingAnimationMap;
+  final ValueGetter<Duration>? positionChangeDelay;
   final VoidCallback onMovingFinished;
   final ReorderableAnimationConfig animationConfig;
 
@@ -551,6 +604,7 @@ class _TestUpdateReorderableAnimatedPositioned extends StatefulWidget {
     this.updatedIsDragging,
     this.draggedEntity,
     this.draggingAnimationMap,
+    this.positionChangeDelay,
     this.animationConfig = const ReorderableAnimationConfig(
       positionChangeDuration: Duration(milliseconds: 200),
       draggingPositionChangeDuration: Duration(milliseconds: 300),
@@ -587,6 +641,7 @@ class _TestUpdateReorderableAnimatedPositionedState
             reorderableEntity: reorderableEntity,
             draggedEntity: isDragging ? widget.draggedEntity : null,
             draggingAnimationMap: draggingAnimationMap,
+            positionChangeDelay: widget.positionChangeDelay,
             animationConfig: widget.animationConfig,
             onMovingFinished: widget.onMovingFinished,
             child: const Placeholder(),

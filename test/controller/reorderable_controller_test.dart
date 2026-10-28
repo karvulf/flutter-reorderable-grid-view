@@ -30,6 +30,71 @@ void main() {
     );
   }
 
+  group('#addBuiltChild', () {
+    test(
+        'GIVEN key and child '
+        'WHEN calling addBuiltChild '
+        'THEN should update maps as expected', () {
+      // given
+      const givenChild = Placeholder();
+      const givenKey = ValueKey('key');
+
+      // when
+      controller.addBuiltChild(key: givenKey, child: givenChild);
+
+      // then
+      expect(
+        controller.lastBuiltChildren,
+        equals({givenKey.value: givenChild}),
+      );
+      expect(controller.builtKeyValues, equals({givenKey.value}));
+    });
+  });
+
+  group('#removeBuiltChild', () {
+    const givenChild1 = Placeholder(
+      key: Key('1'),
+    );
+    const givenChild2 = Placeholder(
+      key: Key('2'),
+    );
+    const givenKey1 = ValueKey('key1');
+    const givenKey2 = ValueKey('key2');
+
+    test(
+        'GIVEN key and child not found '
+        'WHEN calling removeBuiltChild '
+        'THEN should not update maps', () {
+      // given
+      controller.addBuiltChild(key: givenKey1, child: givenChild1);
+
+      // when
+      controller.removeBuiltChild(key: givenKey2, child: givenChild2);
+
+      // then
+      expect(
+        controller.lastBuiltChildren,
+        equals({givenKey1.value: givenChild1}),
+      );
+      expect(controller.builtKeyValues, equals({givenKey1.value}));
+    });
+
+    test(
+        'GIVEN key and child found '
+        'WHEN calling removeBuiltChild '
+        'THEN should update maps', () {
+      // given
+      controller.addBuiltChild(key: givenKey1, child: givenChild1);
+
+      // when
+      controller.removeBuiltChild(key: givenKey1, child: givenChild1);
+
+      // then
+      expect(controller.lastBuiltChildren, isEmpty);
+      expect(controller.builtKeyValues, {givenKey1.value});
+    });
+  });
+
   group('#getReorderableEntity', () {
     const givenKey = ValueKey('id');
     const givenIndex = 0;

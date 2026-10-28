@@ -9,6 +9,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_con
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_removed_children.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_size_changed_listener.dart';
 
@@ -293,75 +294,81 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
   @override
   Widget build(BuildContext context) {
-    late Widget child;
-
     final builder = widget.builder;
-    if (builder == null) {
-      child = widget.childBuilder!(_buildItem);
-    } else {
-      child = builder(_wrapChildren());
-    }
+    final child = builder == null
+        ? widget.childBuilder!(_buildItem)
+        : builder(_wrapChildren());
 
     return ReorderableSizeChangedListener(
       onSizeChanged: _handleSizeChanged,
-      child: ReorderableScrollingListener(
-        isDragging: _reorderableController.draggedEntity != null,
-        reorderableChildKey: child.key as GlobalKey?,
+      child: ReorderableRemovedChildren(
+        children: widget.children,
+        itemCount: widget.itemCount,
+        controller: _reorderableController,
+        animationConfig: widget.animationConfig,
         scrollController: widget.scrollController,
-        automaticScrollExtent: widget.automaticScrollExtent,
-        enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
-        reverse: widget.reverse,
-        onDragUpdate: _handleDragUpdate,
-        child: child,
+        getScrollOffset: () => _scrollOffset,
+        child: ReorderableScrollingListener(
+          isDragging: _reorderableController.draggedEntity != null,
+          reorderableChildKey: child.key as GlobalKey?,
+          scrollController: widget.scrollController,
+          automaticScrollExtent: widget.automaticScrollExtent,
+          enableScrollingWhileDragging: widget.enableScrollingWhileDragging,
+          reverse: widget.reverse,
+          onDragUpdate: _handleDragUpdate,
+          child: child,
+        ),
       ),
     );
   }
 
+  /// Wraps [child] built by [ReorderableBuilder.childBuilder] at [index].
   Widget _buildItem(Widget child, int index) {
     assert(
       child.key is ValueKey,
       'You have to provide a unique ValueKey to every child!',
     );
-    final reorderableEntity = reorderableItemBuilderController.buildItem(
-      key: child.key as ValueKey,
-      index: index,
-    );
-    final reorderableController = _reorderableController;
-    final draggedEntity = reorderableController.draggedEntity;
+    final key = child.key as ValueKey;
 
     return _wrapChild(
       child: child,
-      reorderableEntity: reorderableEntity,
-      currentDraggedEntity: draggedEntity,
       index: index,
+      reorderableEntity: reorderableItemBuilderController.buildItem(
+        key: key,
+        index: index,
+      ),
+      onDisposed: _trackBuiltChild(key: key, child: child),
     );
   }
 
+  /// Wraps all [ReorderableBuilder.children].
   List<Widget> _wrapChildren() {
-    final children = widget.children;
-    if (children == null) return <Widget>[];
+    final childrenKeyMap = reorderableBuilderController.childrenKeyMap;
 
-    final updatedChildren = <Widget>[];
-
-    final reorderableController = _reorderableController;
-    final childrenKeyMap = reorderableController.childrenKeyMap;
-    final draggedEntity = reorderableController.draggedEntity;
-    var index = 0;
-
-    for (final child in children) {
-      final key = (child.key as ValueKey);
-      final reorderableEntity = childrenKeyMap[key.value]!;
-
-      updatedChildren.add(
+    return [
+      for (final (index, child) in widget.children!.indexed)
         _wrapChild(
           child: child,
-          reorderableEntity: reorderableEntity,
-          currentDraggedEntity: draggedEntity,
-          index: index++,
+          index: index,
+          reorderableEntity: childrenKeyMap[(child.key as ValueKey).value]!,
         ),
-      );
-    }
-    return updatedChildren;
+    ];
+  }
+
+  /// Remembers [child] of [key] to fade it out if it gets removed.
+  ///
+  /// Only needed for [ReorderableBuilder.builder] with enabled fade out.
+  /// Returns the callback to forget [child] after its item was disposed,
+  /// e.g. after scrolling it out of view.
+  VoidCallback? _trackBuiltChild({
+    required ValueKey key,
+    required Widget child,
+  }) {
+    if (widget.animationConfig.fadeOutDuration == Duration.zero) return null;
+
+    final controller = reorderableItemBuilderController;
+    controller.addBuiltChild(key: key, child: child);
+    return () => controller.removeBuiltChild(key: key, child: child);
   }
 
   /// Helper function to wrap [child] with required widgets for this package.
@@ -371,8 +378,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   Widget _wrapChild({
     required Widget child,
     required ReorderableEntity reorderableEntity,
-    required ReorderableEntity? currentDraggedEntity,
     required int index,
+    VoidCallback? onDisposed,
   }) {
     bool isDraggable = !widget.nonDraggableIndices.contains(index) &&
         !widget.lockedIndices.contains(index);
@@ -382,6 +389,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       child: ReorderableBuilderItem(
         reorderableEntity: reorderableEntity,
         draggingAnimationMap: _reorderableController.draggingAnimationMap,
+        positionChangeDelay: () => _reorderableController.positionChangeDelay,
+        onDisposed: onDisposed,
         animationConfig: widget.animationConfig,
         onOpacityFinished: _handleOpacityFinished,
         onMovingFinished: _handleMovingFinished,
@@ -390,7 +399,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
             _reorderableController.releasedReorderableEntity,
         scrollOffset: _scrollOffset,
         enableDraggable: widget.enableDraggable && isDraggable,
-        currentDraggedEntity: currentDraggedEntity,
+        currentDraggedEntity: _reorderableController.draggedEntity,
         enableLongPress: widget.enableLongPress,
         longPressDelay: widget.longPressDelay,
         dragChildBoxDecoration: widget.dragChildBoxDecoration,

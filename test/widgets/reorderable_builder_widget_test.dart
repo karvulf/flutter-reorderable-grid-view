@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
@@ -8,6 +9,12 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_list
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  Finder findRemovedChild(int item) => find.byWidgetPredicate(
+        (widget) =>
+            widget is ReorderableAnimatedRemovedChild &&
+            widget.removedEntity.key == ValueKey(item.toString()),
+      );
+
   group('#ReorderableBuilder.builder', () {
     Future<void> pumpWidget(
       WidgetTester tester, {
@@ -183,6 +190,72 @@ void main() {
 
       // then
       expect(onReorderCallCounter, equals(0));
+    });
+
+    group('fade out of removed children', () {
+      late List<int> givenItems;
+      late StateSetter updateItems;
+
+      /// Pumps 40 children in 4 columns, more than fit on the screen.
+      Future<void> pumpWidgetWithManyChildren(WidgetTester tester) async {
+        givenItems = List.generate(40, (index) => index);
+        final scrollController = ScrollController();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  updateItems = setState;
+                  return ReorderableBuilder.builder(
+                    scrollController: scrollController,
+                    animationConfig: const ReorderableAnimationConfig(
+                      fadeOutDuration: Duration(milliseconds: 200),
+                    ),
+                    onReorder: (_) {},
+                    itemCount: givenItems.length,
+                    childBuilder: (itemBuilder) => GridView.builder(
+                      controller: scrollController,
+                      itemCount: givenItems.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                      ),
+                      itemBuilder: (context, index) => itemBuilder(
+                        SizedBox(
+                          key: ValueKey(givenItems[index].toString()),
+                          child: Text(givenItems[index].toString()),
+                        ),
+                        index,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets(
+          "GIVEN [ReorderableBuilder.builder] "
+          "WHEN removing a visible child "
+          "THEN should only fade out the removed child",
+          (WidgetTester tester) async {
+        // given
+        await pumpWidgetWithManyChildren(tester);
+
+        // when
+        updateItems(() => givenItems.remove(5));
+        // the removed child is found after the GridView was built
+        await tester.pump();
+        await tester.pump();
+
+        // then
+        expect(find.byType(ReorderableAnimatedRemovedChild), findsOneWidget);
+        expect(findRemovedChild(5), findsOneWidget);
+      });
     });
   });
 
@@ -509,6 +582,76 @@ void main() {
       for (final draggable in draggables) {
         expect(draggable.reorderableEntity.size, equals(const Size(100, 100)));
       }
+    });
+
+    group('fade out of removed children', () {
+      late List<int> givenItems;
+      late StateSetter updateItems;
+
+      /// Pumps 40 children in 4 columns, more than fit on the screen.
+      Future<void> pumpWidgetWithManyChildren(
+        WidgetTester tester, {
+        required Duration fadeOutDuration,
+      }) async {
+        givenItems = List.generate(40, (index) => index);
+        final scrollController = ScrollController();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  updateItems = setState;
+                  return ReorderableBuilder(
+                    scrollController: scrollController,
+                    animationConfig: ReorderableAnimationConfig(
+                      fadeOutDuration: fadeOutDuration,
+                    ),
+                    onReorder: (_) {},
+                    builder: (children) => GridView(
+                      controller: scrollController,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                      ),
+                      children: children,
+                    ),
+                    children: [
+                      for (final item in givenItems)
+                        SizedBox(
+                          key: ValueKey(item.toString()),
+                          child: Text(item.toString()),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets(
+          "GIVEN [ReorderableBuilder] "
+          "WHEN removing a visible child "
+          "THEN should fade out the child at its old position",
+          (WidgetTester tester) async {
+        // given
+        await pumpWidgetWithManyChildren(
+          tester,
+          fadeOutDuration: const Duration(milliseconds: 200),
+        );
+        final givenOffset = tester.getTopLeft(find.text('5'));
+
+        // when
+        updateItems(() => givenItems.remove(5));
+        await tester.pump();
+
+        // then
+        expect(find.byType(ReorderableAnimatedRemovedChild), findsOneWidget);
+        expect(tester.getTopLeft(findRemovedChild(5)), equals(givenOffset));
+      });
     });
   });
 }

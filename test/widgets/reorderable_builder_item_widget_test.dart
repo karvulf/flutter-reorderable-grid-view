@@ -54,6 +54,8 @@ void main() {
     return givenReorderableEntity;
   }
 
+  Duration givenPositionChangeDelay() => const Duration(milliseconds: 100);
+
   ReorderableEntity givenOnCreated(
     ReorderableEntity reorderableEntity,
     GlobalKey key,
@@ -83,6 +85,7 @@ void main() {
     ReorderableEntityCallback? onDragStarted,
     OnDragEndFunction? onDragEnd,
     ReorderableEntityCallback? onDragCanceled,
+    VoidCallback? onDisposed,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -93,6 +96,8 @@ void main() {
             currentDraggedEntity: currentDraggedEntity,
             onMovingFinished: onMovingFinished ?? givenOnMovingFinished,
             draggingAnimationMap: givenDraggingAnimationMap,
+            positionChangeDelay: givenPositionChangeDelay,
+            onDisposed: onDisposed,
             onCreated: onCreated ?? givenOnCreated,
             releasedReorderableEntity: givenReleasedReorderableEntity,
             scrollOffset: givenScrollOffset,
@@ -139,6 +144,7 @@ void main() {
             widget.reorderableEntity == givenReorderableEntity &&
             widget.draggedEntity == null &&
             identical(widget.draggingAnimationMap, givenDraggingAnimationMap) &&
+            widget.positionChangeDelay == givenPositionChangeDelay &&
             widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableInitChild,
       ),
@@ -208,6 +214,21 @@ void main() {
   });
 
   group('#calling functions', () {
+    testWidgets(
+        "GIVEN [ReorderableBuilderItem] "
+        "WHEN removing it from the widget tree "
+        "THEN should call onDisposed once", (tester) async {
+      // given
+      int callCounter = 0;
+      await pumpWidget(tester, onDisposed: () => callCounter++);
+
+      // when
+      await tester.pumpWidget(const SizedBox());
+
+      // then
+      expect(callCounter, equals(1));
+    });
+
     testWidgets(
         "GIVEN [ReorderableBuilderItem] "
         "WHEN calling onAnimationStarted "
@@ -504,6 +525,8 @@ class _TestReorderableBuilderItemState
         onOpacityFinished: (_) => _reorderableEntity,
         currentDraggedEntity: null,
         draggingAnimationMap: <ValueKey, DraggingAnimationEntity>{},
+        positionChangeDelay: () => Duration.zero,
+        onDisposed: null,
         onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
         onCreated: (_, __) => _reorderableEntity,
         releasedReorderableEntity: null,

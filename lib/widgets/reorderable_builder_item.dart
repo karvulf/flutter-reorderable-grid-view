@@ -33,6 +33,12 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// Callback for the animation after moving the [child].
   final ReturnReorderableEntityCallback onMovingFinished;
 
+  /// Returns the delay before a position change starts.
+  final ValueGetter<Duration> positionChangeDelay;
+
+  /// Called when this item was disposed, e.g. after scrolling it out of view.
+  final VoidCallback? onDisposed;
+
   /// Visible offsets of all children animated while dragging, by their key.
   final Map<ValueKey, DraggingAnimationEntity> draggingAnimationMap;
 
@@ -94,6 +100,8 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.currentDraggedEntity,
     required this.onMovingFinished,
     required this.draggingAnimationMap,
+    required this.positionChangeDelay,
+    required this.onDisposed,
     required this.onCreated,
     required this.releasedReorderableEntity,
     required this.scrollOffset,
@@ -132,6 +140,12 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   }
 
   @override
+  void dispose() {
+    widget.onDisposed?.call();
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(covariant ReorderableBuilderItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldEntity = oldWidget.reorderableEntity;
@@ -159,6 +173,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
         reorderableEntity: _reorderableEntity,
         draggedEntity: widget.currentDraggedEntity,
         draggingAnimationMap: widget.draggingAnimationMap,
+        positionChangeDelay: widget.positionChangeDelay,
         animationConfig: animationConfig,
         onMovingFinished: () {
           final updatedEntity = widget.onMovingFinished(_reorderableEntity);
