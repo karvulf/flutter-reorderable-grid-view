@@ -4,7 +4,7 @@ import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 /// Custom insert, remove and drag feedback animations.
 ///
-/// Tap + to insert a child, tap a child to remove it, long press to drag it.
+/// Tap + to insert a child, tap - or a child to remove it, long press to drag.
 void main() {
   runApp(const MaterialApp(home: CustomAnimationsExample()));
 }
@@ -27,13 +27,28 @@ class _CustomAnimationsExampleState extends State<CustomAnimationsExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Custom animations')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => _items = [..._items, _nextItem++]),
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'remove',
+            onPressed: _items.isEmpty
+                ? null
+                : () => setState(() => _items = _items.sublist(1)),
+            child: const Icon(Icons.remove),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'add',
+            onPressed: () => setState(() => _items = [..._items, _nextItem++]),
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: ReorderableBuilder.builder(
         scrollController: _scrollController,
         animationConfig: ReorderableAnimationConfig(
+          changePositionAfterFadeOut: true,
           // pops in with an elastic spin
           insert: ReorderableItemTransition(
             duration: const Duration(milliseconds: 900),

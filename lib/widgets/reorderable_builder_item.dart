@@ -162,30 +162,33 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   Widget build(BuildContext context) {
     final animationConfig = widget.animationConfig;
 
-    return ReorderableAnimatedOpacity(
-      reorderableEntity: widget.reorderableEntity,
+    return ReorderableAnimatedPositioned(
+      reorderableEntity: _reorderableEntity,
+      draggedEntity: widget.currentDraggedEntity,
+      draggingAnimationMap: widget.draggingAnimationMap,
+      positionChangeDelay: widget.positionChangeDelay,
       animationConfig: animationConfig,
-      onAnimationStarted: () {
-        final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
+      onMovingFinished: () {
+        final updatedEntity = widget.onMovingFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
       },
-      child: ReorderableAnimatedPositioned(
+      child: ReorderableInitChild(
         reorderableEntity: _reorderableEntity,
-        draggedEntity: widget.currentDraggedEntity,
-        draggingAnimationMap: widget.draggingAnimationMap,
-        positionChangeDelay: widget.positionChangeDelay,
-        animationConfig: animationConfig,
-        onMovingFinished: () {
-          final updatedEntity = widget.onMovingFinished(_reorderableEntity);
+        onCreated: (globalKey) {
+          final updatedEntity = widget.onCreated(
+            _reorderableEntity,
+            globalKey,
+          );
           _updateReorderableEntity(updatedEntity);
         },
-        child: ReorderableInitChild(
-          reorderableEntity: _reorderableEntity,
-          onCreated: (globalKey) {
-            final updatedEntity = widget.onCreated(
-              _reorderableEntity,
-              globalKey,
-            );
+        // the insert transition is below the measured child of
+        // [ReorderableInitChild], otherwise transforms like scaling would
+        // change the measured offset
+        child: ReorderableAnimatedOpacity(
+          reorderableEntity: widget.reorderableEntity,
+          animationConfig: animationConfig,
+          onAnimationStarted: () {
+            final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
             _updateReorderableEntity(updatedEntity);
           },
           child: ReorderableAnimatedReleasedContainer(
