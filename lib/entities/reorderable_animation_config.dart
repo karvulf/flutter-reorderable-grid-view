@@ -139,25 +139,36 @@ class ReorderableAnimationConfig {
         _dragFeedbackCurve = dragFeedbackCurve;
 
   /// Animation when a new child was inserted.
-  ReorderableItemTransition get insert =>
-      _insert ??
-      ReorderableItemTransition(duration: _fadeInDuration, curve: _fadeInCurve);
+  ///
+  /// [enableAnimations] and [defaultAnimationCurve] are already applied.
+  ReorderableItemTransition get insert => _resolve(
+        _insert ??
+            ReorderableItemTransition(
+              duration: _fadeInDuration,
+              curve: _fadeInCurve,
+            ),
+      );
 
   /// Animation when a child was removed.
-  ReorderableItemTransition get remove =>
-      _remove ??
-      ReorderableItemTransition(
-        duration: _fadeOutDuration,
-        curve: _fadeOutCurve,
+  ///
+  /// [enableAnimations] and [defaultAnimationCurve] are already applied.
+  ReorderableItemTransition get remove => _resolve(
+        _remove ??
+            ReorderableItemTransition(
+              duration: _fadeOutDuration,
+              curve: _fadeOutCurve,
+            ),
       );
 
   /// Animation of the drag feedback when dragging starts.
-  ReorderableItemTransition get dragFeedback =>
-      _dragFeedback ??
-      ReorderableItemTransition(
-        duration: _dragFeedbackDuration,
-        curve: _dragFeedbackCurve,
-        builder: ReorderableItemTransition.none,
+  ///
+  /// [enableAnimations] and [defaultAnimationCurve] are already applied.
+  ReorderableItemTransition get dragFeedback => _resolve(
+        _dragFeedback ??
+            ReorderableItemTransition.none(
+              duration: _dragFeedbackDuration,
+              curve: _dragFeedbackCurve,
+            ),
       );
 
   Duration get positionChangeDuration =>
@@ -169,15 +180,6 @@ class ReorderableAnimationConfig {
   Duration get releasedItemDuration =>
       enableAnimations ? _releasedItemDuration : Duration.zero;
 
-  Duration get insertDuration =>
-      enableAnimations ? insert.duration : Duration.zero;
-
-  Duration get removeDuration =>
-      enableAnimations ? remove.duration : Duration.zero;
-
-  Duration get dragFeedbackDuration =>
-      enableAnimations ? dragFeedback.duration : Duration.zero;
-
   Curve? get positionChangeCurve =>
       _positionChangeCurve ?? defaultAnimationCurve;
 
@@ -186,22 +188,28 @@ class ReorderableAnimationConfig {
 
   Curve? get releasedItemCurve => _releasedItemCurve ?? defaultAnimationCurve;
 
-  Curve? get insertCurve => insert.curve ?? defaultAnimationCurve;
+  @Deprecated('Use insert.duration instead. Deprecated after v5.8.0.')
+  Duration get fadeInDuration => insert.duration;
 
-  Curve? get removeCurve => remove.curve ?? defaultAnimationCurve;
+  @Deprecated('Use remove.duration instead. Deprecated after v5.8.0.')
+  Duration get fadeOutDuration => remove.duration;
 
-  Curve get dragFeedbackCurve =>
-      dragFeedback.curve ?? defaultAnimationCurve ?? Curves.linear;
+  @Deprecated('Use insert.curve instead. Deprecated after v5.8.0.')
+  Curve? get fadeInCurve => insert.curve;
 
-  @Deprecated('Use insertDuration instead. Deprecated after v5.8.0.')
-  Duration get fadeInDuration => insertDuration;
+  @Deprecated('Use remove.curve instead. Deprecated after v5.8.0.')
+  Curve? get fadeOutCurve => remove.curve;
 
-  @Deprecated('Use removeDuration instead. Deprecated after v5.8.0.')
-  Duration get fadeOutDuration => removeDuration;
+  @Deprecated('Use dragFeedback.duration instead. Deprecated after v5.8.0.')
+  Duration get dragFeedbackDuration => dragFeedback.duration;
 
-  @Deprecated('Use insertCurve instead. Deprecated after v5.8.0.')
-  Curve? get fadeInCurve => insertCurve;
+  @Deprecated('Use dragFeedback.curve instead. Deprecated after v5.8.0.')
+  Curve get dragFeedbackCurve => dragFeedback.curve ?? Curves.linear;
 
-  @Deprecated('Use removeCurve instead. Deprecated after v5.8.0.')
-  Curve? get fadeOutCurve => removeCurve;
+  ReorderableItemTransition _resolve(ReorderableItemTransition transition) =>
+      ReorderableItemTransition(
+        duration: enableAnimations ? transition.duration : Duration.zero,
+        curve: transition.curve ?? defaultAnimationCurve,
+        builder: transition.builder,
+      );
 }

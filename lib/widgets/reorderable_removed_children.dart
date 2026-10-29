@@ -205,7 +205,7 @@ class _ReorderableRemovedChildrenState
 
     final controller = widget.controller;
     // the children start to move while the removed child is still fading out
-    controller.positionChangeDelay = animationConfig.fadeOutDuration ~/ 2;
+    controller.positionChangeDelay = animationConfig.remove.duration ~/ 2;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.positionChangeDelay = Duration.zero;
@@ -227,6 +227,6 @@ class _ReorderableRemovedChildrenState
 
   /// Removed children only fade out with a duration and while not dragging.
   bool get _canFadeOut =>
-      widget.animationConfig.fadeOutDuration > Duration.zero &&
+      widget.animationConfig.remove.duration > Duration.zero &&
       widget.controller.draggedEntity == null;
 }

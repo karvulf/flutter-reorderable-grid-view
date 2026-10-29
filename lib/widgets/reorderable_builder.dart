@@ -364,7 +364,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
     required ValueKey key,
     required Widget child,
   }) {
-    if (widget.animationConfig.fadeOutDuration == Duration.zero) return null;
+    if (widget.animationConfig.remove.duration == Duration.zero) return null;
 
     final controller = reorderableItemBuilderController;
     controller.addBuiltChild(key: key, child: child);

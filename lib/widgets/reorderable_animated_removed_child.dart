@@ -41,7 +41,7 @@ class _ReorderableAnimatedRemovedChildState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: widget.animationConfig.fadeOutDuration,
+    duration: widget.animationConfig.remove.duration,
   );
 
   @override
@@ -61,7 +61,7 @@ class _ReorderableAnimatedRemovedChildState
   @override
   Widget build(BuildContext context) {
     final removedEntity = widget.removedEntity;
-    final curve = widget.animationConfig.fadeOutCurve;
+    final curve = widget.animationConfig.remove.curve;
     final Animation<double> animation = curve == null
         ? _controller
         : CurvedAnimation(parent: _controller, curve: curve);

@@ -57,8 +57,8 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: AnimatedContainer(
-        duration: widget.animationConfig.dragFeedbackDuration,
-        curve: widget.animationConfig.dragFeedbackCurve,
+        duration: widget.animationConfig.dragFeedback.duration,
+        curve: widget.animationConfig.dragFeedback.curve ?? Curves.linear,
         height: _size.height,
         width: _size.width,
         transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0.0),

@@ -3,7 +3,9 @@ import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_con
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
 
-/// Responsible for the fade in animation when [child] is created.
+/// Responsible for the insert animation when [child] is created.
+///
+/// The animation is built by [ReorderableAnimationConfig.insert].
 class ReorderableAnimatedOpacity extends StatefulWidget {
   /// Entity that contains all information to recognize it as a new widget.
   final ReorderableEntity reorderableEntity;
@@ -76,10 +78,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _animation,
-      child: widget.child,
-    );
+    return widget.animationConfig.insert.builder(widget.child, _animation);
   }
 
   void _restartAnimation() {
@@ -120,19 +119,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   /// never appear, as the opacity would stay at 0.
   Duration get _duration {
     final isNew = widget.reorderableEntity.isNew;
-    return isNew ? widget.animationConfig.fadeInDuration : Duration.zero;
+    return isNew ? widget.animationConfig.insert.duration : Duration.zero;
   }
 
   Animation<double> get _curveAnimation {
-    final fadeInCurve = widget.animationConfig.fadeInCurve;
+    final insertCurve = widget.animationConfig.insert.curve;
 
-    if (fadeInCurve == null) {
+    if (insertCurve == null) {
       return _controller;
     }
 
     return CurvedAnimation(
       parent: _controller,
-      curve: fadeInCurve,
+      curve: insertCurve,
     );
   }
 }
