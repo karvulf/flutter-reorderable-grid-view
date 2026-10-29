@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
 
 class DraggableFeedback extends StatefulWidget {
   final Widget child;
@@ -73,21 +74,17 @@ class _DraggableFeedbackState extends State<DraggableFeedback>
       decoration: widget.decoration,
       child: widget.child,
     );
-    final builder = widget.animationConfig.dragFeedback.builder;
 
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
       child: SizedBox.fromSize(
         size: widget.size,
-        child: builder != null
-            ? builder(child, _animation)
-            : ScaleTransition(
-                scale: Tween<double>(
-                  begin: 1.0,
-                  end: widget.feedbackScaleFactor ?? 1.05,
-                ).animate(_animation),
-                child: child,
-              ),
+        child: DragFeedbackTransition(
+          animationConfig: widget.animationConfig,
+          feedbackScaleFactor: widget.feedbackScaleFactor,
+          animation: _animation,
+          child: child,
+        ),
       ),
     );
   }

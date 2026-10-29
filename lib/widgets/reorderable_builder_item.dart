@@ -194,6 +194,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
           child: ReorderableAnimatedReleasedContainer(
             reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
+            feedbackScaleFactor: widget.feedbackScaleFactor,
             scrollOffset: widget.scrollOffset,
             animationConfig: animationConfig,
             child: ReorderableDraggable(

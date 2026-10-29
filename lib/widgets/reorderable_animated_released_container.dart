@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
 
 /// Responsible for the animation when releasing [child] after drag and drop.
 ///
@@ -20,6 +21,9 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
 
   final ReorderableAnimationConfig animationConfig;
 
+  /// Scale factor of the default drag feedback transition.
+  final double? feedbackScaleFactor;
+
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
   /// If this value is not null, it will be checked, if this is related to
@@ -32,6 +36,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.scrollOffset,
     required this.animationConfig,
     required this.releasedReorderableEntity,
+    this.feedbackScaleFactor,
     super.key,
   });
 
@@ -48,6 +53,11 @@ class _ReorderableAnimatedReleasedContainerState
 
   /// Animation value to show the offset animation.
   Animation<Offset>? _offsetAnimation;
+
+  /// Plays the drag feedback transition in reverse while releasing.
+  ///
+  /// Stays dismissed (0) when not releasing, so the child is shown as usual.
+  Animation<double> _feedbackAnimation = kAlwaysDismissedAnimation;
 
   @override
   void initState() {
@@ -79,7 +89,12 @@ class _ReorderableAnimatedReleasedContainerState
 
   @override
   Widget build(BuildContext context) {
-    var child = widget.child;
+    final child = DragFeedbackTransition(
+      animationConfig: widget.animationConfig,
+      feedbackScaleFactor: widget.feedbackScaleFactor,
+      animation: _feedbackAnimation,
+      child: widget.child,
+    );
 
     final offset = _offsetAnimation?.value;
 
@@ -118,7 +133,9 @@ class _ReorderableAnimatedReleasedContainerState
       releasedReorderableEntity: releasedReorderableEntity,
     );
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
-    _offsetAnimation = tween.animate(_curveAnimation)
+    final curveAnimation = _curveAnimation;
+    _feedbackAnimation = ReverseAnimation(curveAnimation);
+    _offsetAnimation = tween.animate(curveAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -129,6 +146,7 @@ class _ReorderableAnimatedReleasedContainerState
 
     _offsetAnimationController.reset();
     _offsetAnimation = null;
+    _feedbackAnimation = kAlwaysDismissedAnimation;
   }
 
   /// Calculates the offset after releasing the dragged [widget.child].
