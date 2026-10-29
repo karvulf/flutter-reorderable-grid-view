@@ -2,15 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 
-/// Shows a removed child at its last position and fades it out.
+/// Shows a removed child at its last position and animates it out.
+///
+/// The animation is built by [ReorderableAnimationConfig.remove].
 ///
 /// Has to be a direct child of a [Stack] because it returns a [Positioned].
-/// Calls [onFinished] after the fade out.
+/// Calls [onFinished] after the animation.
 class ReorderableAnimatedRemovedChild extends StatefulWidget {
   /// Contains the last widget, offset and size of the removed child.
   final RemovedReorderableEntity removedEntity;
 
-  /// Contains the duration and curve for the fade out.
+  /// Contains the duration, curve and builder for the remove animation.
   final ReorderableAnimationConfig animationConfig;
 
   /// Used to update the position while scrolling during the fade out.
@@ -80,9 +82,9 @@ class _ReorderableAnimatedRemovedChildState
         );
       },
       child: IgnorePointer(
-        child: FadeTransition(
-          opacity: ReverseAnimation(animation),
-          child: removedEntity.child,
+        child: widget.animationConfig.remove.builder(
+          removedEntity.child,
+          ReverseAnimation(animation),
         ),
       ),
     );
