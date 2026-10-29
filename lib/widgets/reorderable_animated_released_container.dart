@@ -59,6 +59,15 @@ class _ReorderableAnimatedReleasedContainerState
   /// Stays dismissed (0) when not releasing, so the child is shown as usual.
   Animation<double> _feedbackAnimation = kAlwaysDismissedAnimation;
 
+  /// Shows the released child in the [Overlay] above all other children.
+  final _overlayController = OverlayPortalController();
+
+  /// Keeps the released child at the position of this widget in the [Overlay].
+  final _layerLink = LayerLink();
+
+  /// Keeps the state of [widget.child] when it moves into the [Overlay].
+  final _childKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -89,23 +98,41 @@ class _ReorderableAnimatedReleasedContainerState
 
   @override
   Widget build(BuildContext context) {
-    final child = DragFeedbackTransition(
-      animationConfig: widget.animationConfig,
-      feedbackScaleFactor: widget.feedbackScaleFactor,
-      animation: _feedbackAnimation,
-      child: widget.child,
-    );
-
+    final child = KeyedSubtree(key: _childKey, child: widget.child);
     final offset = _offsetAnimation?.value;
 
-    if (offset == null) {
-      return child;
-    } else {
-      return Transform(
-        transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
-        child: child,
-      );
-    }
+    if (offset == null) return child;
+
+    // while releasing, the child is painted in the overlay to stay above
+    // the other children
+    final size = widget.reorderableEntity.size;
+    return OverlayPortal(
+      controller: _overlayController,
+      overlayChildBuilder: (context) => Positioned(
+        left: 0,
+        top: 0,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          child: Transform(
+            transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
+            child: SizedBox.fromSize(
+              size: size,
+              child: DragFeedbackTransition(
+                animationConfig: widget.animationConfig,
+                feedbackScaleFactor: widget.feedbackScaleFactor,
+                animation: _feedbackAnimation,
+                child: child,
+              ),
+            ),
+          ),
+        ),
+      ),
+      child: CompositedTransformTarget(
+        link: _layerLink,
+        child: SizedBox.fromSize(size: size),
+      ),
+    );
   }
 
   /// Checks if [oldEntity] and [newEntity] are different and the same for animation.
@@ -142,7 +169,10 @@ class _ReorderableAnimatedReleasedContainerState
 
     _offsetAnimationController.duration =
         widget.animationConfig.releasedItemDuration;
+    _overlayController.show();
     await _offsetAnimationController.forward();
+    if (!mounted) return;
+    _overlayController.hide();
 
     _offsetAnimationController.reset();
     _offsetAnimation = null;
