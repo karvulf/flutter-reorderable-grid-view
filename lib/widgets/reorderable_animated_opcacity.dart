@@ -78,7 +78,10 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
 
   @override
   Widget build(BuildContext context) {
-    return widget.animationConfig.insert.builder(widget.child, _animation);
+    final builder = widget.animationConfig.insert.builder;
+    if (builder != null) return builder(widget.child, _animation);
+
+    return FadeTransition(opacity: _animation, child: widget.child);
   }
 
   void _restartAnimation() {

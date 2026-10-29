@@ -64,9 +64,12 @@ class _ReorderableAnimatedRemovedChildState
   Widget build(BuildContext context) {
     final removedEntity = widget.removedEntity;
     final curve = widget.animationConfig.remove.curve;
-    final Animation<double> animation = curve == null
-        ? _controller
-        : CurvedAnimation(parent: _controller, curve: curve);
+    final Animation<double> animation = ReverseAnimation(
+      curve == null
+          ? _controller
+          : CurvedAnimation(parent: _controller, curve: curve),
+    );
+    final builder = widget.animationConfig.remove.builder;
 
     return ListenableBuilder(
       // without scroll controller, the position is only calculated once
@@ -82,10 +85,9 @@ class _ReorderableAnimatedRemovedChildState
         );
       },
       child: IgnorePointer(
-        child: widget.animationConfig.remove.builder(
-          removedEntity.child,
-          ReverseAnimation(animation),
-        ),
+        child: builder != null
+            ? builder(removedEntity.child, animation)
+            : FadeTransition(opacity: animation, child: removedEntity.child),
       ),
     );
   }

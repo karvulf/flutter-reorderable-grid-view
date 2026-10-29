@@ -40,7 +40,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
   static const _defaultEnableDraggable = true;
   static const _defaultAutomaticScrollExtent = 150.0;
   static const _defaultEnableScrollingWhileDragging = true;
-  static const _defaultFeedbackScaleFactor = 1.05;
   static const _defaultReverse = false;
   static const _defaultAnimationConfig = ReorderableAnimationConfig();
 
@@ -124,8 +123,15 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// the feedback widget.
   /// For example, a value of 1.5 will increase the size by 50%.
   ///
+  /// Ignored if [ReorderableAnimationConfig.dragFeedback] has a builder.
+  ///
   /// Default value: 1.05 (feedback widget grows by 5%)
-  final double feedbackScaleFactor;
+  @Deprecated(
+    'Use animationConfig: ReorderableAnimationConfig(dragFeedback: '
+    'ReorderableItemTransition(builder: ...)) instead. '
+    'Deprecated after v5.8.0.',
+  )
+  final double? feedbackScaleFactor;
 
   /// Manages the case where the order of [children] is reversed.
   ///
@@ -215,7 +221,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
-    this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    @Deprecated(
+      'Use animationConfig: ReorderableAnimationConfig(dragFeedback: '
+      'ReorderableItemTransition(builder: ...)) instead. '
+      'Deprecated after v5.8.0.',
+    )
+    this.feedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
@@ -247,7 +258,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.enableDraggable = _defaultEnableDraggable,
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
-    this.feedbackScaleFactor = _defaultFeedbackScaleFactor,
+    @Deprecated(
+      'Use animationConfig: ReorderableAnimationConfig(dragFeedback: '
+      'ReorderableItemTransition(builder: ...)) instead. '
+      'Deprecated after v5.8.0.',
+    )
+    this.feedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
     this.onDragStarted,
@@ -403,6 +419,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         enableLongPress: widget.enableLongPress,
         longPressDelay: widget.longPressDelay,
         dragChildBoxDecoration: widget.dragChildBoxDecoration,
+        // ignore: deprecated_member_use_from_same_package
         feedbackScaleFactor: widget.feedbackScaleFactor,
         onDragStarted: _handleDragStarted,
         onDragEnd: _handleDragEnd,

@@ -79,7 +79,7 @@ class ReorderableBuilderItem extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   /// The scale factor applied to the feedback widget during a drag operation.
-  final double feedbackScaleFactor;
+  final double? feedbackScaleFactor;
 
   /// Callback when dragging starts.
   final ReorderableEntityCallback onDragStarted;

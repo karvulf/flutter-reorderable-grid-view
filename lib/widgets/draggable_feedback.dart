@@ -5,13 +5,17 @@ class DraggableFeedback extends StatefulWidget {
   final Widget child;
   final Size size;
   final Animation<Decoration> decoration;
-  final double feedbackScaleFactor;
+
+  /// Scale factor of the default transition (default: 1.05).
+  ///
+  /// Ignored if [ReorderableAnimationConfig.dragFeedback] has a builder.
+  final double? feedbackScaleFactor;
   final VoidCallback onDeactivate;
 
-  /// Animation settings for feedback scaling.
+  /// Animation settings for the feedback.
   ///
-  /// Uses the configured drag-feedback duration and curve for
-  /// the AnimatedContainer animation.
+  /// [ReorderableAnimationConfig.dragFeedback] animates the feedback when
+  /// dragging starts.
   final ReorderableAnimationConfig animationConfig;
 
   const DraggableFeedback({
@@ -28,22 +32,32 @@ class DraggableFeedback extends StatefulWidget {
   State<DraggableFeedback> createState() => _DraggableFeedbackState();
 }
 
-class _DraggableFeedbackState extends State<DraggableFeedback> {
-  /// The initial size of the feedback widget.
-  ///
-  /// This size can expand to visually indicate that the drag operation has started.
-  late Size _size = widget.size;
+class _DraggableFeedbackState extends State<DraggableFeedback>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.animationConfig.dragFeedback.duration,
+  );
 
-  /// The offset ensures that the feedback widget, when scaled, remains centered.
-  Offset _offset = Offset.zero;
+  late final CurvedAnimation _animation = CurvedAnimation(
+    parent: _controller,
+    curve: widget.animationConfig.dragFeedback.curve ?? Curves.linear,
+  );
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scaleAndCenterFeedback();
+      if (mounted) _controller.forward();
     });
+  }
+
+  @override
+  void dispose() {
+    _animation.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,38 +68,27 @@ class _DraggableFeedbackState extends State<DraggableFeedback> {
 
   @override
   Widget build(BuildContext context) {
+    final child = DecoratedBoxTransition(
+      position: DecorationPosition.background,
+      decoration: widget.decoration,
+      child: widget.child,
+    );
+    final builder = widget.animationConfig.dragFeedback.builder;
+
     return Material(
       color: Colors.transparent, // removes white corners when having shadow
-      child: AnimatedContainer(
-        duration: widget.animationConfig.dragFeedback.duration,
-        curve: widget.animationConfig.dragFeedback.curve ?? Curves.linear,
-        height: _size.height,
-        width: _size.width,
-        transform: Matrix4.translationValues(_offset.dx, _offset.dy, 0.0),
-        child: DecoratedBoxTransition(
-          position: DecorationPosition.background,
-          decoration: widget.decoration,
-          child: widget.child,
-        ),
+      child: SizedBox.fromSize(
+        size: widget.size,
+        child: builder != null
+            ? builder(child, _animation)
+            : ScaleTransition(
+                scale: Tween<double>(
+                  begin: 1.0,
+                  end: widget.feedbackScaleFactor ?? 1.05,
+                ).animate(_animation),
+                child: child,
+              ),
       ),
     );
-  }
-
-  /// Updates size and offset of [widget.child].
-  ///
-  /// By changing the size, it is more clear that the dragging of [widget.child]
-  /// has started. Because the size change, also the offset has to be changed
-  /// to ensure that the widget is still centered.
-  void _scaleAndCenterFeedback() {
-    final feedbackSize = _size * widget.feedbackScaleFactor;
-    final offsetToCenterFeedback = Offset(
-      -(feedbackSize.width - _size.width) / 2,
-      -(feedbackSize.height - _size.height) / 2,
-    );
-
-    setState(() {
-      _size = feedbackSize;
-      _offset = offsetToCenterFeedback;
-    });
   }
 }

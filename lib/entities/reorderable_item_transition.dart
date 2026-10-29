@@ -19,23 +19,13 @@ class ReorderableItemTransition {
 
   /// Builds the animated child.
   ///
-  /// Default value: fades the child.
-  final AnimatedSwitcherTransitionBuilder builder;
+  /// If null, the default transition is used (fade for insert and remove,
+  /// scale for drag feedback).
+  final AnimatedSwitcherTransitionBuilder? builder;
 
   const ReorderableItemTransition({
     required this.duration,
     this.curve,
-    this.builder = _fade,
+    this.builder,
   });
-
-  /// Shows the child without any transition.
-  const ReorderableItemTransition.none({
-    required this.duration,
-    this.curve,
-  }) : builder = _none;
 }
-
-Widget _fade(Widget child, Animation<double> animation) =>
-    FadeTransition(opacity: animation, child: child);
-
-Widget _none(Widget child, Animation<double> animation) => child;

@@ -57,11 +57,7 @@ class ReorderableAnimationConfig {
 
   /// Animation of the drag feedback when dragging starts.
   ///
-  /// The builder is applied on top of the scaling by
-  /// [ReorderableBuilder.feedbackScaleFactor].
-  ///
-  /// Default value: no extra transition with
-  /// const Duration(milliseconds: 150)
+  /// Default value: scales up by 5% with const Duration(milliseconds: 150)
   final ReorderableItemTransition? _dragFeedback;
 
   // Deprecated values, only used when the matching transition is null.
@@ -165,7 +161,7 @@ class ReorderableAnimationConfig {
   /// [enableAnimations] and [defaultAnimationCurve] are already applied.
   ReorderableItemTransition get dragFeedback => _resolve(
         _dragFeedback ??
-            ReorderableItemTransition.none(
+            ReorderableItemTransition(
               duration: _dragFeedbackDuration,
               curve: _dragFeedbackCurve,
             ),

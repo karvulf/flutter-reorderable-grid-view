@@ -19,7 +19,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableLongPress;
   final Duration longPressDelay;
   final bool enableDraggable;
-  final double feedbackScaleFactor;
+  final double? feedbackScaleFactor;
   final BoxDecoration? dragChildBoxDecoration;
   final ReorderableAnimationConfig animationConfig;
 
