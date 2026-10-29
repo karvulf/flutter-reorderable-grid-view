@@ -93,8 +93,30 @@ void main() {
             widget is Stack &&
             widget.fit == StackFit.passthrough &&
             widget.clipBehavior == Clip.none &&
-            widget.children.length == 1 &&
+            widget.children.length == 2 &&
             widget.children.first is Builder,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Positioned &&
+            widget.left == 0.0 &&
+            widget.top == 0.0 &&
+            widget.right == 0.0 &&
+            widget.bottom == 0.0 &&
+            widget.child is ClipRect,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ClipRect &&
+            widget.child is Stack &&
+            (widget.child! as Stack).clipBehavior == Clip.none &&
+            (widget.child! as Stack).children.isEmpty,
       ),
       findsOneWidget,
     );

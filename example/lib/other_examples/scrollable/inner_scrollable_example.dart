@@ -1,4 +1,14 @@
+// Reproduction: fading removed children are not clipped by the GridView.
+//
+// 1. Scroll the grid a bit, so the top row is only partly visible below the
+//    green header.
+// 2. Tap a tile of that row to remove it (or use the button to remove all).
+//
+// EXPECTED: the fading tile stays inside the grid, like before removing it.
+// ACTUAL: the fading tile is drawn at full size and overlaps the green header
+// for the duration of the fade out (1 second here).
 import 'package:flutter/material.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
 void main() {
@@ -21,6 +31,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => setState(() => children = []),
+        label: const Text('Remove all'),
+      ),
       body: Column(
         children: [
           const SizedBox(
@@ -31,6 +45,10 @@ class _MyAppState extends State<MyApp> {
           Expanded(
             child: ReorderableBuilder.builder(
               scrollController: _scrollController,
+              // long fade out to see the removed child clearly
+              animationConfig: const ReorderableAnimationConfig(
+                fadeOutDuration: Duration(seconds: 1),
+              ),
               onReorder: (ReorderedListFunction<int> reorderedListFunction) {
                 setState(() {
                   children = reorderedListFunction(children);
@@ -43,12 +61,15 @@ class _MyAppState extends State<MyApp> {
                   controller: _scrollController,
                   itemCount: children.length,
                   itemBuilder: (context, index) {
+                    final child = children.elementAt(index);
                     return itemBuilder(
-                      ColoredBox(
-                        key: Key(children.elementAt(index).toString()),
-                        color: Colors.lightBlue,
-                        child: Text(
-                          children.elementAt(index).toString(),
+                      GestureDetector(
+                        key: Key(child.toString()),
+                        // removes the tapped child
+                        onTap: () => setState(() => children.remove(child)),
+                        child: ColoredBox(
+                          color: Colors.lightBlue,
+                          child: Text(child.toString()),
                         ),
                       ),
                       index,
