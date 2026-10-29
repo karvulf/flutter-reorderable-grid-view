@@ -53,7 +53,9 @@ class _MyAppState extends State<MyApp> {
         longPressDelay: const Duration(milliseconds: 300),
         lockedIndices: [_fruits.length],
         animationConfig: const ReorderableAnimationConfig(
-          fadeInDuration: Duration(milliseconds: 1000),
+          insert: ReorderableItemTransition(
+            duration: Duration(milliseconds: 1000),
+          ),
         ),
         dragChildBoxDecoration:
             const BoxDecoration(color: CupertinoColors.transparent),

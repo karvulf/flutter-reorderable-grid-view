@@ -47,7 +47,9 @@ class _MyAppState extends State<MyApp> {
               scrollController: _scrollController,
               // long fade out to see the removed child clearly
               animationConfig: const ReorderableAnimationConfig(
-                fadeOutDuration: Duration(seconds: 1),
+                remove: ReorderableItemTransition(
+                  duration: Duration(seconds: 1),
+                ),
               ),
               onReorder: (ReorderedListFunction<int> reorderedListFunction) {
                 setState(() {
