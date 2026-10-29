@@ -1,3 +1,42 @@
+## 5.9.0
+⭐️ **New Features**
+- added custom animations to `ReorderableAnimationConfig` with `ReorderableItemTransition`
+  - `insert`: animation when a child was added (default: fade in)
+  - `remove`: animation when a child was removed (default: fade out)
+  - `dragFeedback`: animation of the drag feedback when dragging starts
+
+⚠️ **Deprecations**
+- `fadeInDuration`/`fadeInCurve`, `fadeOutDuration`/`fadeOutCurve` and `dragFeedbackDuration`/`dragFeedbackCurve` in `ReorderableAnimationConfig` are deprecated and will be removed in the next major version
+
+  ```dart
+  // Before
+  ReorderableAnimationConfig(
+    fadeInDuration: const Duration(milliseconds: 300),
+    fadeInCurve: Curves.easeOut,
+    fadeOutDuration: const Duration(milliseconds: 200),
+  )
+
+  // After
+  ReorderableAnimationConfig(
+    insert: const ReorderableItemTransition(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    ),
+    remove: const ReorderableItemTransition(
+      duration: Duration(milliseconds: 200),
+    ),
+  )
+  ```
+
+  You can now also change the animation itself with `builder`:
+
+  ```dart
+  insert: ReorderableItemTransition(
+    duration: const Duration(milliseconds: 300),
+    builder: (child, animation) => ScaleTransition(scale: animation, child: child),
+  ),
+  ```
+
 ## 5.8.0
 ⭐️ **New Features**
 - added fade out animation for removed children with `fadeOutDuration` and `fadeOutCurve` in `ReorderableAnimationConfig`

@@ -1,4 +1,7 @@
 import 'package:flutter/animation.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_item_transition.dart';
+
+export 'package:flutter_reorderable_grid_view/entities/reorderable_item_transition.dart';
 
 class ReorderableAnimationConfig {
   /// Duration for the position change of a child (not during dragging).
@@ -40,43 +43,40 @@ class ReorderableAnimationConfig {
   /// If null, [defaultAnimationCurve] is used.
   final Curve? _releasedItemCurve;
 
-  /// Duration for the fade in animation when a new child was added.
+  /// Animation when a new child was inserted.
   ///
-  /// Default value: const Duration(milliseconds: 500)
-  final Duration _fadeInDuration;
+  /// Default value: fade in with const Duration(milliseconds: 500)
+  final ReorderableItemTransition? _insert;
 
-  /// Curve for [fadeInDuration].
-  ///
-  /// If null, [defaultAnimationCurve] is used.
-  final Curve? _fadeInCurve;
-
-  /// Duration for the fade out animation when a child was removed.
+  /// Animation when a child was removed.
   ///
   /// With [Duration.zero], removed children disappear immediately.
   ///
-  /// Default value: Duration(milliseconds: 200)
+  /// Default value: fade out with const Duration(milliseconds: 200)
+  final ReorderableItemTransition? _remove;
+
+  /// Animation of the drag feedback when dragging starts.
+  ///
+  /// The builder is applied on top of the scaling by
+  /// [ReorderableBuilder.feedbackScaleFactor].
+  ///
+  /// Default value: no extra transition with
+  /// const Duration(milliseconds: 150)
+  final ReorderableItemTransition? _dragFeedback;
+
+  // Deprecated values, only used when the matching transition is null.
+  final Duration _fadeInDuration;
+  final Curve? _fadeInCurve;
   final Duration _fadeOutDuration;
-
-  /// Curve for [fadeOutDuration].
-  ///
-  /// If null, [defaultAnimationCurve] is used.
   final Curve? _fadeOutCurve;
-
-  /// Duration of the drag feedback scale animation.
-  ///
-  /// Default value: const Duration(milliseconds: 150)
   final Duration _dragFeedbackDuration;
-
-  /// Curve for [dragFeedbackDuration].
-  ///
-  /// If null, [defaultAnimationCurve] is used.
   final Curve? _dragFeedbackCurve;
 
-  /// Whether the other children wait for the fade out of a removed child.
+  /// Whether the other children wait for the remove animation of a child.
   ///
   /// If true, the other children start to move to their new positions halfway
-  /// through [fadeOutDuration]. Otherwise they move while the removed child
-  /// fades out.
+  /// through the [remove] duration. Otherwise they move while the removed
+  /// child animates out.
   ///
   /// Default value: false
   final bool changePositionAfterFadeOut;
@@ -93,14 +93,31 @@ class ReorderableAnimationConfig {
     Duration positionChangeDuration = const Duration(milliseconds: 200),
     Duration draggingPositionChangeDuration = const Duration(milliseconds: 200),
     Duration releasedItemDuration = const Duration(milliseconds: 150),
+    ReorderableItemTransition? insert,
+    ReorderableItemTransition? remove,
+    ReorderableItemTransition? dragFeedback,
+    @Deprecated('Use insert: ReorderableItemTransition(duration: ...) instead. '
+        'Deprecated after v5.8.0.')
     Duration fadeInDuration = const Duration(milliseconds: 500),
+    @Deprecated('Use remove: ReorderableItemTransition(duration: ...) instead. '
+        'Deprecated after v5.8.0.')
     Duration fadeOutDuration = const Duration(milliseconds: 200),
+    @Deprecated(
+        'Use dragFeedback: ReorderableItemTransition(duration: ...) instead. '
+        'Deprecated after v5.8.0.')
     Duration dragFeedbackDuration = const Duration(milliseconds: 150),
     Curve? positionChangeCurve,
     Curve? draggingPositionChangeCurve,
     Curve? releasedItemCurve,
+    @Deprecated('Use insert: ReorderableItemTransition(curve: ...) instead. '
+        'Deprecated after v5.8.0.')
     Curve? fadeInCurve,
+    @Deprecated('Use remove: ReorderableItemTransition(curve: ...) instead. '
+        'Deprecated after v5.8.0.')
     Curve? fadeOutCurve,
+    @Deprecated(
+        'Use dragFeedback: ReorderableItemTransition(curve: ...) instead. '
+        'Deprecated after v5.8.0.')
     Curve? dragFeedbackCurve,
     this.defaultAnimationCurve,
     this.enableAnimations = true,
@@ -108,6 +125,9 @@ class ReorderableAnimationConfig {
   })  : _positionChangeDuration = positionChangeDuration,
         _draggingPositionChangeDuration = draggingPositionChangeDuration,
         _releasedItemDuration = releasedItemDuration,
+        _insert = insert,
+        _remove = remove,
+        _dragFeedback = dragFeedback,
         _fadeInDuration = fadeInDuration,
         _fadeOutDuration = fadeOutDuration,
         _dragFeedbackDuration = dragFeedbackDuration,
@@ -118,6 +138,28 @@ class ReorderableAnimationConfig {
         _fadeOutCurve = fadeOutCurve,
         _dragFeedbackCurve = dragFeedbackCurve;
 
+  /// Animation when a new child was inserted.
+  ReorderableItemTransition get insert =>
+      _insert ??
+      ReorderableItemTransition(duration: _fadeInDuration, curve: _fadeInCurve);
+
+  /// Animation when a child was removed.
+  ReorderableItemTransition get remove =>
+      _remove ??
+      ReorderableItemTransition(
+        duration: _fadeOutDuration,
+        curve: _fadeOutCurve,
+      );
+
+  /// Animation of the drag feedback when dragging starts.
+  ReorderableItemTransition get dragFeedback =>
+      _dragFeedback ??
+      ReorderableItemTransition(
+        duration: _dragFeedbackDuration,
+        curve: _dragFeedbackCurve,
+        builder: ReorderableItemTransition.none,
+      );
+
   Duration get positionChangeDuration =>
       enableAnimations ? _positionChangeDuration : Duration.zero;
 
@@ -127,14 +169,14 @@ class ReorderableAnimationConfig {
   Duration get releasedItemDuration =>
       enableAnimations ? _releasedItemDuration : Duration.zero;
 
-  Duration get fadeInDuration =>
-      enableAnimations ? _fadeInDuration : Duration.zero;
+  Duration get insertDuration =>
+      enableAnimations ? insert.duration : Duration.zero;
 
-  Duration get fadeOutDuration =>
-      enableAnimations ? _fadeOutDuration : Duration.zero;
+  Duration get removeDuration =>
+      enableAnimations ? remove.duration : Duration.zero;
 
   Duration get dragFeedbackDuration =>
-      enableAnimations ? _dragFeedbackDuration : Duration.zero;
+      enableAnimations ? dragFeedback.duration : Duration.zero;
 
   Curve? get positionChangeCurve =>
       _positionChangeCurve ?? defaultAnimationCurve;
@@ -144,10 +186,22 @@ class ReorderableAnimationConfig {
 
   Curve? get releasedItemCurve => _releasedItemCurve ?? defaultAnimationCurve;
 
-  Curve? get fadeInCurve => _fadeInCurve ?? defaultAnimationCurve;
+  Curve? get insertCurve => insert.curve ?? defaultAnimationCurve;
 
-  Curve? get fadeOutCurve => _fadeOutCurve ?? defaultAnimationCurve;
+  Curve? get removeCurve => remove.curve ?? defaultAnimationCurve;
 
   Curve get dragFeedbackCurve =>
-      _dragFeedbackCurve ?? defaultAnimationCurve ?? Curves.linear;
+      dragFeedback.curve ?? defaultAnimationCurve ?? Curves.linear;
+
+  @Deprecated('Use insertDuration instead. Deprecated after v5.8.0.')
+  Duration get fadeInDuration => insertDuration;
+
+  @Deprecated('Use removeDuration instead. Deprecated after v5.8.0.')
+  Duration get fadeOutDuration => removeDuration;
+
+  @Deprecated('Use insertCurve instead. Deprecated after v5.8.0.')
+  Curve? get fadeInCurve => insertCurve;
+
+  @Deprecated('Use removeCurve instead. Deprecated after v5.8.0.')
+  Curve? get fadeOutCurve => removeCurve;
 }
