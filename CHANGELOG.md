@@ -3,10 +3,13 @@
 - added custom animations to `ReorderableAnimationConfig` with `ReorderableItemTransition`
   - `insert`: animation when a child was added (default: fade in)
   - `remove`: animation when a child was removed (default: fade out)
-  - `dragFeedback`: animation of the drag feedback when dragging starts
+  - `dragFeedback`: animation of the drag feedback when dragging starts (default: scale up by 5%)
+  - each transition has a `duration`, an optional `curve` and an optional `builder` to define your own animation, without `builder` the default transition is used
+- added `custom_animations_example.dart` to the example app
 
 ⚠️ **Deprecations**
 - `fadeInDuration`/`fadeInCurve`, `fadeOutDuration`/`fadeOutCurve` and `dragFeedbackDuration`/`dragFeedbackCurve` in `ReorderableAnimationConfig` are deprecated and will be removed in the next major version
+- `feedbackScaleFactor` in `ReorderableBuilder` is deprecated, use a `builder` for `dragFeedback` instead (it's ignored when a `builder` is set)
 
   ```dart
   // Before
@@ -26,6 +29,27 @@
       duration: Duration(milliseconds: 200),
     ),
   )
+
+  // Before
+  ReorderableBuilder(
+    feedbackScaleFactor: 1.2,
+    animationConfig: const ReorderableAnimationConfig(
+      dragFeedbackDuration: Duration(milliseconds: 200),
+    ),
+  )
+
+  // After
+  ReorderableBuilder(
+    animationConfig: ReorderableAnimationConfig(
+      dragFeedback: ReorderableItemTransition(
+        duration: const Duration(milliseconds: 200),
+        builder: (child, animation) => ScaleTransition(
+          scale: Tween(begin: 1.0, end: 1.2).animate(animation),
+          child: child,
+        ),
+      ),
+    ),
+  )
   ```
 
   You can now also change the animation itself with `builder`:
@@ -36,6 +60,9 @@
     builder: (child, animation) => ScaleTransition(scale: animation, child: child),
   ),
   ```
+
+🏄‍♂️ **Improvements**
+- the drag feedback is now scaled with a `ScaleTransition` instead of resizing it, so the content is scaled as well
 
 ## 5.8.0
 ⭐️ **New Features**
