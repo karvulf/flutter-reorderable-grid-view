@@ -1,4 +1,9 @@
 ## 5.9.0
+🐛 **Bug Fixes**
+- fixed `Null check operator used on a null value` when dragging while other children are still moving (thanks to `stanbav` for the PR, see [#184](https://github.com/karvulf/flutter-reorderable-grid-view/pull/184))
+- fixed reordering issues when reordering while children are still moving
+
+## 5.9.0
 ⭐️ **New Features**
 - added custom animations to `ReorderableAnimationConfig` with `ReorderableItemTransition`
   - `insert`: animation when a child was added (default: fade in)

@@ -142,9 +142,21 @@ abstract class ReorderableController {
   ///
   /// Should be called when the fade in was finished. Then the original
   /// offset and orderId are overwritten with the updated values of the entity.
+  ///
+  /// If the maps already hold another position for the child, the current
+  /// entity is returned and the maps stay unchanged.
   ReorderableEntity handleMovingFinished({
     required ReorderableEntity reorderableEntity,
   }) {
+    // A swap while dragging can move this child in the frame its move finishes,
+    // before it is rebuilt. Applying the old position would remove the child
+    // the swap moved there from the maps.
+    final currentEntity = childrenKeyMap[reorderableEntity.key.value];
+    if (currentEntity != null &&
+        currentEntity.updatedOrderId != reorderableEntity.updatedOrderId) {
+      return currentEntity;
+    }
+
     final updatedEntity = reorderableEntity.positionUpdated();
     _updateMaps(reorderableEntity: updatedEntity);
 
