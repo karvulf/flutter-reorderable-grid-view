@@ -1,3 +1,8 @@
+## 5.9.0
+🐛 **Bug Fixes**
+- fixed `Null check operator used on a null value` when dragging while other children are still moving (thanks to `stanbav` for the PR, see [#184](https://github.com/karvulf/flutter-reorderable-grid-view/pull/184))
+- fixed reordering issues when reordering while children are still moving
+
 ## 5.8.0
 ⭐️ **New Features**
 - added fade out animation for removed children with `fadeOutDuration` and `fadeOutCurve` in `ReorderableAnimationConfig`
