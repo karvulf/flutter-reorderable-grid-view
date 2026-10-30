@@ -12,7 +12,7 @@ void main() {
     dimension: 200.0,
     child: Placeholder(),
   );
-  const givenFadeInDuration = Duration(milliseconds: 1000);
+  const givenInsertDuration = Duration(milliseconds: 1000);
 
   Future<void> pumpWidget(
     WidgetTester tester, {
@@ -24,7 +24,8 @@ void main() {
           home: Scaffold(
             body: ReorderableAnimatedOpacity(
               animationConfig: const ReorderableAnimationConfig(
-                fadeInDuration: givenFadeInDuration,
+                insert:
+                    ReorderableItemTransition(duration: givenInsertDuration),
                 draggingPositionChangeCurve: Curves.easeInCubic,
                 positionChangeCurve: Curves.elasticIn,
               ),
@@ -37,7 +38,7 @@ void main() {
       );
 
   testWidgets(
-      'GIVEN fadeInDuration and reorderableEntity is new '
+      'GIVEN insert duration and reorderableEntity is new '
       'WHEN pumping [ReorderableAnimatedOpacity] '
       'THEN should show expected AnimatedOpacity', (WidgetTester tester) async {
     // given
@@ -55,7 +56,7 @@ void main() {
       },
     );
     await tester.pump();
-    await tester.pump(givenFadeInDuration);
+    await tester.pump(givenInsertDuration);
 
     // then
     expect(
@@ -119,21 +120,21 @@ void main() {
     );
     int callCounter = 0;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: _TestUpdatedReorderableAnimatedOpacity(
-          reorderableEntity: givenReorderableEntity,
-          updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onAnimationStarted: () {
-            callCounter++;
-          },
-        ),
-      ),
+    void onAnimationStarted() => callCounter++;
+
+    await pumpWidget(
+      tester,
+      reorderableEntity: givenReorderableEntity,
+      onAnimationStarted: onAnimationStarted,
     );
     await tester.pumpAndSettle();
 
     // when
-    await tester.tap(find.byType(ElevatedButton));
+    await pumpWidget(
+      tester,
+      reorderableEntity: givenUpdatedReorderableEntity,
+      onAnimationStarted: onAnimationStarted,
+    );
     await tester.pumpAndSettle();
 
     // then
@@ -156,79 +157,24 @@ void main() {
     );
     int callCounter = 0;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: _TestUpdatedReorderableAnimatedOpacity(
-          reorderableEntity: givenReorderableEntity,
-          updatedReorderableEntity: givenUpdatedReorderableEntity,
-          onAnimationStarted: () {
-            callCounter++;
-          },
-        ),
-      ),
+    void onAnimationStarted() => callCounter++;
+
+    await pumpWidget(
+      tester,
+      reorderableEntity: givenReorderableEntity,
+      onAnimationStarted: onAnimationStarted,
     );
-    await tester.pump(givenFadeInDuration);
+    await tester.pumpAndSettle();
 
     // when
-    await tester.tap(find.byType(ElevatedButton));
+    await pumpWidget(
+      tester,
+      reorderableEntity: givenUpdatedReorderableEntity,
+      onAnimationStarted: onAnimationStarted,
+    );
     await tester.pumpAndSettle();
-    await tester.pump();
 
     // then
     expect(callCounter, equals(2));
   });
-}
-
-class _TestUpdatedReorderableAnimatedOpacity extends StatefulWidget {
-  final ReorderableEntity reorderableEntity;
-  final ReorderableEntity updatedReorderableEntity;
-  final VoidCallback onAnimationStarted;
-
-  const _TestUpdatedReorderableAnimatedOpacity({
-    required this.reorderableEntity,
-    required this.updatedReorderableEntity,
-    required this.onAnimationStarted,
-  });
-
-  @override
-  State<_TestUpdatedReorderableAnimatedOpacity> createState() =>
-      _TestUpdatedReorderableAnimatedOpacityState();
-}
-
-class _TestUpdatedReorderableAnimatedOpacityState
-    extends State<_TestUpdatedReorderableAnimatedOpacity> {
-  late ReorderableEntity reorderableEntity;
-
-  @override
-  void initState() {
-    super.initState();
-
-    reorderableEntity = widget.reorderableEntity;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                reorderableEntity = widget.updatedReorderableEntity;
-              });
-            },
-            child: const Text('press me'),
-          ),
-          ReorderableAnimatedOpacity(
-            animationConfig: const ReorderableAnimationConfig(
-              fadeInDuration: Duration.zero,
-            ),
-            onAnimationStarted: widget.onAnimationStarted,
-            reorderableEntity: reorderableEntity,
-            child: const Placeholder(),
-          ),
-        ],
-      ),
-    );
-  }
 }

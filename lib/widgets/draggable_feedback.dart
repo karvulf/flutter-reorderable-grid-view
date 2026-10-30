@@ -40,10 +40,10 @@ class _DraggableFeedbackState extends State<DraggableFeedback>
     duration: widget.animationConfig.dragFeedback.duration,
   );
 
-  late final CurvedAnimation _animation = CurvedAnimation(
-    parent: _controller,
-    curve: widget.animationConfig.dragFeedback.curve ?? Curves.linear,
-  );
+  /// Without a curve, the animation of [_controller] is linear.
+  late final CurvedAnimation? _curvedAnimation = _createCurvedAnimation();
+
+  late final Animation<double> _animation = _curvedAnimation ?? _controller;
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _DraggableFeedbackState extends State<DraggableFeedback>
 
   @override
   void dispose() {
-    _animation.dispose();
+    _curvedAnimation?.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -87,5 +87,12 @@ class _DraggableFeedbackState extends State<DraggableFeedback>
         ),
       ),
     );
+  }
+
+  CurvedAnimation? _createCurvedAnimation() {
+    final curve = widget.animationConfig.dragFeedback.curve;
+    if (curve == null) return null;
+
+    return CurvedAnimation(parent: _controller, curve: curve);
   }
 }
