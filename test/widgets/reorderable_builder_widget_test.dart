@@ -107,7 +107,7 @@ void main() {
               widget.automaticScrollExtent == 150.0 &&
               widget.enableScrollingWhileDragging &&
               widget.animationConfig == const ReorderableAnimationConfig() &&
-              widget.feedbackScaleFactor == 1.05 &&
+              widget.feedbackScaleFactor == null &&
               !widget.reverse,
         ),
         findsOneWidget,
@@ -130,7 +130,7 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is ReorderableBuilderItem &&
-              widget.animationConfig.fadeInDuration ==
+              widget.animationConfig.insert.duration ==
                   const Duration(milliseconds: 500) &&
               widget.animationConfig.positionChangeDuration ==
                   const Duration(milliseconds: 200) &&
@@ -364,7 +364,7 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is ReorderableBuilderItem &&
-              widget.animationConfig.fadeInDuration ==
+              widget.animationConfig.insert.duration ==
                   const Duration(milliseconds: 500) &&
               widget.animationConfig.positionChangeDuration ==
                   const Duration(milliseconds: 200) &&
