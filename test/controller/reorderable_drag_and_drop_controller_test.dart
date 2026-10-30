@@ -89,6 +89,35 @@ void main() {
       expect(controller.childrenKeyMap, equals(expectedMap));
       expect(controller.draggingAnimationMap, isEmpty);
     });
+
+    test(
+        'GIVEN child still moving to its new position after a removal '
+        'WHEN calling handleDragStarted '
+        'THEN should drag it from its new position', () {
+      // given
+      const givenMovingEntity = ReorderableEntity(
+        key: ValueKey('moving'),
+        originalOrderId: 1,
+        updatedOrderId: 0,
+        originalOffset: Offset(100.0, 0.0),
+        updatedOffset: Offset.zero,
+        size: Size(100.0, 100.0),
+        isBuildingOffset: false,
+        hasSwappedOrder: true,
+      );
+      controller.childrenKeyMap['moving'] = givenMovingEntity;
+      controller.childrenOrderMap[1] = givenMovingEntity;
+
+      // when
+      setUpDragStarted(reorderableEntity: givenMovingEntity);
+
+      // then
+      final expectedEntity = givenMovingEntity.positionUpdated();
+      expect(controller.draggedEntity, equals(expectedEntity));
+      expect(controller.childrenKeyMap, equals({'moving': expectedEntity}));
+      expect(controller.childrenOrderMap, equals({0: expectedEntity}));
+      expect(controller.handleDragEnd(), isNull);
+    });
   });
 
   group('#handleDragUpdate', () {

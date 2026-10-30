@@ -584,6 +584,76 @@ void main() {
       }
     });
 
+    testWidgets(
+        "GIVEN [ReorderableBuilder] and a child moving after a removal "
+        "WHEN a drag swaps it in the frame its move finishes "
+        "THEN should keep every child and reorder them",
+        (WidgetTester tester) async {
+      // given
+      var givenItems = List.generate(6, (index) => index);
+      late StateSetter updateItems;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                updateItems = setState;
+                return ReorderableBuilder<int>(
+                  longPressDelay: Duration.zero,
+                  animationConfig: const ReorderableAnimationConfig(
+                    positionChangeDuration: Duration(milliseconds: 200),
+                  ),
+                  onReorder: (reorderedListFunction) => setState(
+                    () => givenItems = reorderedListFunction(givenItems),
+                  ),
+                  builder: (children) => GridView(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                    ),
+                    children: children,
+                  ),
+                  children: [
+                    for (final item in givenItems)
+                      SizedBox(
+                        key: ValueKey(item.toString()),
+                        child: Text(item.toString()),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final givenPositionOf2 = tester.getCenter(find.text('2'));
+
+      // removing "2" moves "3" to the position of "2" within 200 ms
+      updateItems(() => givenItems.remove(2));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1));
+
+      // dragging "1" while "3" is still moving
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('1')),
+      );
+      await gesture.moveBy(const Offset(20, 0));
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 160));
+
+      // when
+      // swapping "1" and "3" without a frame before "3" finishes moving
+      await gesture.moveTo(givenPositionOf2);
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // then
+      expect(tester.takeException(), isNull);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(givenItems, equals([0, 3, 1, 4, 5]));
+    });
+
     group('fade out of removed children', () {
       late List<int> givenItems;
       late StateSetter updateItems;
