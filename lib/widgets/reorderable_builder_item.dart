@@ -181,9 +181,6 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
           );
           _updateReorderableEntity(updatedEntity);
         },
-        // the insert transition is below the measured child of
-        // [ReorderableInitChild], otherwise transforms like scaling would
-        // change the measured offset
         child: ReorderableAnimatedOpacity(
           reorderableEntity: widget.reorderableEntity,
           animationConfig: animationConfig,

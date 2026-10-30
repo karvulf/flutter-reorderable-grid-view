@@ -11,7 +11,7 @@ void main() {
   final reorderableBuilder = ReorderableBuilder();
   late ReorderableBuilderController controller;
 
-  const givenFadeOutDuration = Duration(milliseconds: 200);
+  const givenRemoveDuration = Duration(milliseconds: 200);
   const givenChild1 = SizedBox(key: ValueKey('1'));
   const givenChild2 = SizedBox(key: ValueKey('2'));
   final givenEntity1 = reorderableBuilder.getEntity(
@@ -39,7 +39,9 @@ void main() {
     int? itemCount,
     List<Widget> builtChildren = const [],
     ReorderableAnimationConfig animationConfig =
-        const ReorderableAnimationConfig(fadeOutDuration: givenFadeOutDuration),
+        const ReorderableAnimationConfig(
+      remove: ReorderableItemTransition(duration: givenRemoveDuration),
+    ),
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -127,7 +129,7 @@ void main() {
     testWidgets(
         'GIVEN two visible children '
         'WHEN removing the second child '
-        'THEN should fade out the second child', (tester) async {
+        'THEN should animate out the second child', (tester) async {
       // given
       await pumpWidget(tester, children: const [givenChild1, givenChild2]);
       controller.lastRemovedEntities = [givenEntity2];
@@ -152,7 +154,7 @@ void main() {
     testWidgets(
         'GIVEN second child outside of the visible area '
         'WHEN removing the second child '
-        'THEN should not fade out the second child', (tester) async {
+        'THEN should not animate out the second child', (tester) async {
       // given
       await pumpWidget(tester, children: const [givenChild1, givenChild2]);
       controller.lastRemovedEntities = [
@@ -171,12 +173,12 @@ void main() {
     });
 
     testWidgets(
-        'GIVEN fadeOutDuration = Duration.zero '
+        'GIVEN remove duration = Duration.zero '
         'WHEN removing the second child '
-        'THEN should not fade out the second child', (tester) async {
+        'THEN should not animate out the second child', (tester) async {
       // given
       const givenAnimationConfig = ReorderableAnimationConfig(
-        fadeOutDuration: Duration.zero,
+        remove: ReorderableItemTransition(duration: Duration.zero),
       );
       await pumpWidget(
         tester,
@@ -202,7 +204,7 @@ void main() {
         'THEN should delay position changes for one update', (tester) async {
       // given
       const givenAnimationConfig = ReorderableAnimationConfig(
-        fadeOutDuration: givenFadeOutDuration,
+        remove: ReorderableItemTransition(duration: givenRemoveDuration),
         changePositionAfterFadeOut: true,
       );
       await pumpWidget(
@@ -222,7 +224,7 @@ void main() {
       // then
       expect(
         controller.positionChangeDelay,
-        equals(givenFadeOutDuration ~/ 2),
+        equals(givenRemoveDuration ~/ 2),
       );
     });
   });
@@ -236,7 +238,7 @@ void main() {
     testWidgets(
         'GIVEN two visible built children '
         'WHEN decreasing itemCount and building only the first child '
-        'THEN should fade out the second child after this frame',
+        'THEN should animate out the second child after this frame',
         (tester) async {
       // given
       await pumpWidget(
@@ -261,7 +263,8 @@ void main() {
     testWidgets(
         'GIVEN two visible built children '
         'WHEN decreasing itemCount to 0 '
-        'THEN should fade out both children in the same frame', (tester) async {
+        'THEN should animate out both children in the same frame',
+        (tester) async {
       // given
       await pumpWidget(
         tester,

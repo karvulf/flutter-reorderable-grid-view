@@ -23,11 +23,11 @@ void main() {
   final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
     key: 'Updated',
   );
-  const givenFadeInDuration = Duration(milliseconds: 300);
+  const givenInsertDuration = Duration(milliseconds: 300);
   const givenPositionDuration = Duration(milliseconds: 400);
   const givenReleasedChildDuration = Duration(milliseconds: 500);
   const givenAnimationConfig = ReorderableAnimationConfig(
-    fadeInDuration: givenFadeInDuration,
+    insert: ReorderableItemTransition(duration: givenInsertDuration),
     positionChangeDuration: givenPositionDuration,
     releasedItemDuration: givenReleasedChildDuration,
   );
@@ -78,6 +78,7 @@ void main() {
 
   Future<void> pumpWidget(
     WidgetTester tester, {
+    ReorderableEntity? reorderableEntity,
     ReorderableEntity? currentDraggedEntity,
     ReturnReorderableEntityCallback? onOpacityFinished,
     ReturnReorderableEntityCallback? onMovingFinished,
@@ -90,7 +91,7 @@ void main() {
       tester.pumpWidget(
         MaterialApp(
           home: ReorderableBuilderItem(
-            reorderableEntity: givenReorderableEntity,
+            reorderableEntity: reorderableEntity ?? givenReorderableEntity,
             animationConfig: givenAnimationConfig,
             onOpacityFinished: onOpacityFinished ?? givenOnOpacityFinished,
             currentDraggedEntity: currentDraggedEntity,
@@ -130,16 +131,6 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is ReorderableAnimatedOpacity &&
-            widget.reorderableEntity == givenReorderableEntity &&
-            widget.animationConfig == givenAnimationConfig &&
-            widget.child is ReorderableAnimatedPositioned,
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
             widget is ReorderableAnimatedPositioned &&
             widget.reorderableEntity == givenReorderableEntity &&
             widget.draggedEntity == null &&
@@ -155,6 +146,16 @@ void main() {
         (widget) =>
             widget is ReorderableInitChild &&
             widget.reorderableEntity == givenReorderableEntity &&
+            widget.child is ReorderableAnimatedOpacity,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ReorderableAnimatedOpacity &&
+            widget.reorderableEntity == givenReorderableEntity &&
+            widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableAnimatedReleasedContainer,
       ),
       findsOneWidget,
@@ -168,6 +169,7 @@ void main() {
                 givenReleasedReorderableEntity &&
             widget.scrollOffset == givenScrollOffset &&
             widget.animationConfig == givenAnimationConfig &&
+            widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.child is ReorderableDraggable,
       ),
       findsOneWidget,
@@ -408,26 +410,17 @@ void main() {
   group('#didUpdateWidget', () {
     testWidgets(
         "GIVEN [ReorderableBuilderItem] "
-        "WHEN updating reorderableEntity which is new "
+        "WHEN updating with different reorderableEntity "
         "THEN should update reorderableEntity", (tester) async {
       // given
-      await tester.pumpWidget(
-        MaterialApp(
-          home: _TestReorderableBuilderItem(
-            reorderableEntity: givenReorderableEntity,
-            onUpdate: () {
-              return givenUpdatedReorderableEntity;
-            },
-          ),
-        ),
-      );
+      await pumpWidget(tester);
       await tester.pumpAndSettle();
-      findWidget<ReorderableAnimatedPositioned>().onMovingFinished();
-      await tester.pump();
 
       // when
-      await tester.tap(find.byType(IconButton));
-      await tester.pumpAndSettle();
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenUpdatedReorderableEntity,
+      );
 
       // then
       expect(
@@ -441,109 +434,33 @@ void main() {
     });
 
     testWidgets(
-        "GIVEN [ReorderableBuilderItem] "
-        "WHEN updating reorderableEntity which is newer but the same as the current one in widget "
-        "THEN should not update reorderableEntity", (tester) async {
+        "GIVEN [ReorderableBuilderItem] with internally updated reorderableEntity "
+        "WHEN updating with the same reorderableEntity "
+        "THEN should keep reorderableEntity", (tester) async {
       // given
-      final givenUpdatedReorderableEntity2 = reorderableBuilder.getEntity(
-        key: 'Newer Update',
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          home: _TestReorderableBuilderItem(
-            reorderableEntity: givenReorderableEntity,
-            onUpdate: () {
-              return givenUpdatedReorderableEntity2;
-            },
-            onMovingFinished: (_) {
-              return givenUpdatedReorderableEntity2;
-            },
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+      ReorderableEntity onMovingFinished(ReorderableEntity _) =>
+          givenUpdatedReorderableEntity;
+
+      await pumpWidget(tester, onMovingFinished: onMovingFinished);
+      findWidget<ReorderableAnimatedPositioned>().onMovingFinished();
+      await tester.pump();
 
       // when
-      await tester.tap(find.byType(IconButton));
-      await tester.pumpAndSettle();
+      await pumpWidget(
+        tester,
+        reorderableEntity: givenUpdatedReorderableEntity,
+        onMovingFinished: onMovingFinished,
+      );
 
       // then
       expect(
         find.byWidgetPredicate(
           (widget) =>
               widget is ReorderableDraggable &&
-              widget.reorderableEntity == givenUpdatedReorderableEntity2,
+              widget.reorderableEntity == givenUpdatedReorderableEntity,
         ),
         findsOneWidget,
       );
     });
   });
-}
-
-class _TestReorderableBuilderItem extends StatefulWidget {
-  final ReorderableEntity reorderableEntity;
-  final ReorderableEntity Function() onUpdate;
-  final ReturnReorderableEntityCallback? onMovingFinished;
-
-  const _TestReorderableBuilderItem({
-    required this.reorderableEntity,
-    required this.onUpdate,
-    this.onMovingFinished,
-  });
-
-  @override
-  State<_TestReorderableBuilderItem> createState() =>
-      _TestReorderableBuilderItemState();
-}
-
-class _TestReorderableBuilderItemState
-    extends State<_TestReorderableBuilderItem> {
-  late ReorderableEntity _reorderableEntity = widget.reorderableEntity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _reorderableEntity = widget.onUpdate();
-              });
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: ReorderableBuilderItem(
-        reorderableEntity: _reorderableEntity,
-        animationConfig: const ReorderableAnimationConfig(
-          fadeInDuration: Duration(milliseconds: 200),
-          positionChangeDuration: Duration(milliseconds: 200),
-          releasedItemDuration: Duration(milliseconds: 200),
-        ),
-        onOpacityFinished: (_) => _reorderableEntity,
-        currentDraggedEntity: null,
-        draggingAnimationMap: <ValueKey, DraggingAnimationEntity>{},
-        positionChangeDelay: () => Duration.zero,
-        onDisposed: null,
-        onMovingFinished: widget.onMovingFinished ?? (_) => _reorderableEntity,
-        onCreated: (_, __) => _reorderableEntity,
-        releasedReorderableEntity: null,
-        scrollOffset: Offset.zero,
-        enableDraggable: true,
-        enableLongPress: true,
-        longPressDelay: const Duration(milliseconds: 200),
-        dragChildBoxDecoration: null,
-        feedbackScaleFactor: 1.5,
-        onDragStarted: (_) {},
-        onDragEnd: (_, __) {},
-        onDragCanceled: (_) {},
-        child: const SizedBox.square(
-          dimension: 200.0,
-          child: Placeholder(),
-        ),
-      ),
-    );
-  }
 }

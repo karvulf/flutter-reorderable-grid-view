@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_overlay_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../reorderable_builder.dart';
@@ -10,177 +11,120 @@ import '../reorderable_builder.dart';
 void main() {
   final reorderableBuilder = ReorderableBuilder();
 
-  const givenReleasedChildDuration = Duration(milliseconds: 555);
+  const givenReleasedItemDuration = Duration(milliseconds: 555);
+  const givenFeedbackScaleFactor = 1.5;
+  const givenScrollOffset = Offset(1.0, 2.0);
+  const givenChild = Placeholder();
   final givenReorderableEntity = reorderableBuilder.getEntity(
     updatedOffset: const Offset(123.0, 456.0),
   );
-  final givenReleasedReorderableEntity = reorderableBuilder.getReleasedEntity();
-  const givenScrollOffset = Offset(1.0, 2.0);
-  const givenChild = Placeholder();
+  final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
+    dropOffset: const Offset(100.0, 200.0),
+    reorderableEntity: givenReorderableEntity,
+  );
 
-  Future<void> pumpWidget(WidgetTester tester) async => tester.pumpWidget(
+  Future<void> pumpWidget(
+    WidgetTester tester, {
+    required ReleasedReorderableEntity? releasedEntity,
+    Duration releasedItemDuration = givenReleasedItemDuration,
+  }) =>
+      tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: ReorderableAnimatedReleasedContainer(
-              animationConfig: const ReorderableAnimationConfig(
-                releasedItemDuration: givenReleasedChildDuration,
-                releasedItemCurve: Curves.elasticIn,
-              ),
-              releasedReorderableEntity: givenReleasedReorderableEntity,
-              reorderableEntity: givenReorderableEntity,
-              scrollOffset: givenScrollOffset,
-              child: givenChild,
+          home: ReorderableAnimatedReleasedContainer(
+            animationConfig: ReorderableAnimationConfig(
+              releasedItemDuration: releasedItemDuration,
             ),
+            feedbackScaleFactor: givenFeedbackScaleFactor,
+            releasedReorderableEntity: releasedEntity,
+            reorderableEntity: givenReorderableEntity,
+            scrollOffset: givenScrollOffset,
+            child: givenChild,
           ),
         ),
       );
 
   testWidgets(
-      "GIVEN _offsetAnimation = null "
-      "WHEN pumping [ReorderableAnimatedReleasedContainer] "
-      "THEN should show expected widgets", (WidgetTester tester) async {
+      'GIVEN releasedEntity '
+      'WHEN pumping [ReorderableAnimatedReleasedContainer] '
+      'THEN should show child without release animation',
+      (WidgetTester tester) async {
     // given
 
     // when
-    await pumpWidget(tester);
+    await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
     // then
     expect(find.byWidget(givenChild), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) => widget is Transform && widget.child == givenChild,
-      ),
-      findsNothing,
-    );
+    expect(find.byType(ReorderableOverlayChild), findsNothing);
   });
 
   group('#didUpdateWidget', () {
-    Future<void> pumpWidgetAndUpdate(
-      WidgetTester tester, {
-      required ReleasedReorderableEntity releasedEntity,
-      required ReleasedReorderableEntity? updatedReleasedEntity,
-      Duration? updatedReleasedChildDuration,
-    }) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: _TestUpdateReorderableAnimatedReleasedContainer(
-              releasedChildDuration: givenReleasedChildDuration,
-              releasedEntity: releasedEntity,
-              updatedReleasedEntity: updatedReleasedEntity,
-              updatedReleasedChildDuration: updatedReleasedChildDuration,
-              reorderableEntity: givenReorderableEntity,
-              scrollOffset: givenScrollOffset,
-              child: givenChild,
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.byType(TextButton));
-    }
-
     testWidgets(
-        "GIVEN updated ReleasedReorderableEntity same "
-        "WHEN pumping [ReorderableAnimatedReleasedContainer] "
-        "THEN should show expected widgets", (WidgetTester tester) async {
+        'GIVEN pumped [ReorderableAnimatedReleasedContainer] '
+        'WHEN updating with same releasedEntity '
+        'THEN should show child without release animation',
+        (WidgetTester tester) async {
       // given
-      final givenReleasedEntity = reorderableBuilder.getReleasedEntity();
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
       // when
-      await pumpWidgetAndUpdate(
-        tester,
-        releasedEntity: givenReleasedEntity,
-        updatedReleasedEntity: givenReleasedEntity,
-      );
-      await tester.pumpAndSettle(givenReleasedChildDuration);
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is Transform && widget.child == givenChild,
-        ),
-        findsNothing,
-      );
+      expect(find.byType(ReorderableOverlayChild), findsNothing);
     });
 
     testWidgets(
-        "GIVEN updated ReleasedReorderableEntity changed but is null "
-        "WHEN pumping [ReorderableAnimatedReleasedContainer] "
-        "THEN should show expected widgets", (WidgetTester tester) async {
+        'GIVEN pumped [ReorderableAnimatedReleasedContainer] '
+        'WHEN updating with releasedEntity = null '
+        'THEN should show child without release animation',
+        (WidgetTester tester) async {
       // given
-      final givenReleasedEntity = reorderableBuilder.getReleasedEntity();
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
       // when
-      await pumpWidgetAndUpdate(
-        tester,
-        releasedEntity: givenReleasedEntity,
-        updatedReleasedEntity: null,
-      );
-      await tester.pumpAndSettle(givenReleasedChildDuration);
+      await pumpWidget(tester, releasedEntity: null);
 
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is Transform && widget.child == givenChild,
-        ),
-        findsNothing,
-      );
+      expect(find.byType(ReorderableOverlayChild), findsNothing);
     });
 
     testWidgets(
-        "GIVEN updated ReleasedReorderableEntity changed but key has changed "
-        "WHEN pumping [ReorderableAnimatedReleasedContainer] "
-        "THEN should show expected widgets", (WidgetTester tester) async {
+        'GIVEN pumped [ReorderableAnimatedReleasedContainer] '
+        'WHEN updating with releasedEntity of another key '
+        'THEN should show child without release animation',
+        (WidgetTester tester) async {
       // given
-      final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
-        dropOffset: const Offset(100.0, 200.0),
-        reorderableEntity: givenReorderableEntity,
-      );
       final givenUpdatedReleasedEntity = reorderableBuilder.getReleasedEntity(
         dropOffset: const Offset(111.0, 222.0),
         reorderableEntity: reorderableBuilder.getEntity(key: 'updated'),
       );
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
       // when
-      await pumpWidgetAndUpdate(
-        tester,
-        releasedEntity: givenReleasedEntity,
-        updatedReleasedEntity: givenUpdatedReleasedEntity,
-      );
-      await tester.pumpAndSettle(givenReleasedChildDuration);
+      await pumpWidget(tester, releasedEntity: givenUpdatedReleasedEntity);
 
       // then
       expect(find.byWidget(givenChild), findsOneWidget);
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is Transform && widget.child == givenChild,
-        ),
-        findsNothing,
-      );
+      expect(find.byType(ReorderableOverlayChild), findsNothing);
     });
 
     testWidgets(
-        "GIVEN updated ReleasedReorderableEntity changed "
-        "WHEN pumping [ReorderableAnimatedReleasedContainer] "
-        "THEN should show expected widgets", (WidgetTester tester) async {
+        'GIVEN pumped [ReorderableAnimatedReleasedContainer] '
+        'WHEN updating with new releasedEntity of same key '
+        'THEN should show child in overlay at drop offset with lifted feedback',
+        (WidgetTester tester) async {
       // given
-      final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
-        dropOffset: const Offset(100.0, 200.0),
-        reorderableEntity: givenReorderableEntity,
-      );
       final givenUpdatedReleasedEntity = reorderableBuilder.getReleasedEntity(
         dropOffset: const Offset(111.0, 222.0),
         reorderableEntity: givenReorderableEntity,
       );
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
 
       // when
-      await pumpWidgetAndUpdate(
-        tester,
-        releasedEntity: givenReleasedEntity,
-        updatedReleasedEntity: givenUpdatedReleasedEntity,
-      );
+      await pumpWidget(tester, releasedEntity: givenUpdatedReleasedEntity);
       await tester.pump();
 
       // then
@@ -190,112 +134,49 @@ void main() {
       expect(
         find.byWidgetPredicate(
           (widget) =>
-              widget is Transform &&
-              widget.transform ==
+              widget is ReorderableOverlayChild &&
+              widget.size == givenReorderableEntity.size &&
+              widget.child is Transform &&
+              (widget.child as Transform).transform ==
                   Matrix4.translationValues(
                     expectedOffset.dx,
                     expectedOffset.dy,
                     0.0,
-                  ) &&
-              widget.child == givenChild,
+                  ),
         ),
         findsOneWidget,
       );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DragFeedbackTransition &&
+              widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
+              widget.animation.value == 1.0,
+        ),
+        findsOneWidget,
+      );
+      expect(find.byWidget(givenChild), findsOneWidget);
     });
 
     testWidgets(
-        "GIVEN releasedItemDuration of 555 ms "
-        "WHEN updating with releasedItemDuration of 100 ms and released entity "
-        "THEN should finish the release animation with the shorter duration",
+        'GIVEN started release animation '
+        'WHEN waiting until animation was done '
+        'THEN should show child without release animation',
         (WidgetTester tester) async {
       // given
-      final givenReleasedEntity = reorderableBuilder.getReleasedEntity(
-        dropOffset: const Offset(100.0, 200.0),
-        reorderableEntity: givenReorderableEntity,
-      );
       final givenUpdatedReleasedEntity = reorderableBuilder.getReleasedEntity(
         dropOffset: const Offset(111.0, 222.0),
         reorderableEntity: givenReorderableEntity,
       );
+      await pumpWidget(tester, releasedEntity: givenReleasedEntity);
+      await pumpWidget(tester, releasedEntity: givenUpdatedReleasedEntity);
 
       // when
-      await pumpWidgetAndUpdate(
-        tester,
-        releasedEntity: givenReleasedEntity,
-        updatedReleasedEntity: givenUpdatedReleasedEntity,
-        updatedReleasedChildDuration: const Duration(milliseconds: 100),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pumpAndSettle();
 
       // then
-      expect(
-        find.byWidgetPredicate(
-          (widget) => widget is Transform && widget.child == givenChild,
-        ),
-        findsNothing,
-      );
+      expect(find.byWidget(givenChild), findsOneWidget);
+      expect(find.byType(ReorderableOverlayChild), findsNothing);
     });
   });
-}
-
-class _TestUpdateReorderableAnimatedReleasedContainer extends StatefulWidget {
-  final Widget child;
-  final ReorderableEntity reorderableEntity;
-
-  final Duration releasedChildDuration;
-  final Offset scrollOffset;
-
-  final ReleasedReorderableEntity releasedEntity;
-  final ReleasedReorderableEntity? updatedReleasedEntity;
-  final Duration? updatedReleasedChildDuration;
-
-  const _TestUpdateReorderableAnimatedReleasedContainer({
-    required this.child,
-    required this.reorderableEntity,
-    required this.releasedChildDuration,
-    required this.scrollOffset,
-    required this.releasedEntity,
-    required this.updatedReleasedEntity,
-    this.updatedReleasedChildDuration,
-  });
-
-  @override
-  State<_TestUpdateReorderableAnimatedReleasedContainer> createState() =>
-      _TestUpdateReorderableAnimatedReleasedContainerState();
-}
-
-class _TestUpdateReorderableAnimatedReleasedContainerState
-    extends State<_TestUpdateReorderableAnimatedReleasedContainer> {
-  late ReleasedReorderableEntity? releasedEntity = widget.releasedEntity;
-  late Duration releasedChildDuration = widget.releasedChildDuration;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                releasedEntity = widget.updatedReleasedEntity;
-                releasedChildDuration = widget.updatedReleasedChildDuration ??
-                    releasedChildDuration;
-              });
-            },
-            child: const Text('Update'),
-          ),
-          ReorderableAnimatedReleasedContainer(
-            animationConfig: ReorderableAnimationConfig(
-              releasedItemDuration: releasedChildDuration,
-            ),
-            releasedReorderableEntity: releasedEntity,
-            reorderableEntity: widget.reorderableEntity,
-            scrollOffset: widget.scrollOffset,
-            child: widget.child,
-          ),
-        ],
-      ),
-    );
-  }
 }

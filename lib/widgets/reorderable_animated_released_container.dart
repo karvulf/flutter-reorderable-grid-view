@@ -93,6 +93,8 @@ class _ReorderableAnimatedReleasedContainerState
 
   @override
   Widget build(BuildContext context) {
+    // the GlobalKey keeps the state of the child when it moves into the
+    // overlay while releasing and back afterwards, otherwise it is recreated
     final child = KeyedSubtree(key: _childKey, child: widget.child);
     final offset = _offsetAnimation?.value;
 
