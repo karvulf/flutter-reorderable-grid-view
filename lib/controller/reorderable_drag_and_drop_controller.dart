@@ -50,6 +50,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     _releasedReorderableEntity = null;
     draggingAnimationMap.clear();
     this.lockedIndices = lockedIndices;
+    _settleMovingChildren();
     super.draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
@@ -139,6 +140,33 @@ class ReorderableDragAndDropController extends ReorderableController {
       _releasedReorderableEntity;
 
   /// private
+
+  /// Applies the target position of children still moving to it.
+  ///
+  /// E.g. after a child was removed, the others animate to their new position
+  /// and still keep their old orderId and offset as original values. Dragging
+  /// treats the original values as the position of the child, so it would
+  /// animate them from the wrong offset and report a wrong old index.
+  /// The running move animations still end at the target position.
+  /// New children and children without a measured offset are skipped.
+  void _settleMovingChildren() {
+    final settledKeyMap = <String, ReorderableEntity>{};
+    final settledOrderMap = <int, ReorderableEntity>{};
+
+    for (final entry in childrenKeyMap.entries) {
+      final entity = entry.value;
+      final settled = entity.isNew || entity.isBuildingOffset
+          ? entity
+          : entity.positionUpdated();
+      settledKeyMap[entry.key] = settled;
+      settledOrderMap[settled.updatedOrderId] = settled;
+    }
+
+    replaceMaps(
+      updatedChildrenKeyMap: settledKeyMap,
+      updatedChildrenOrderMap: settledOrderMap,
+    );
+  }
 
   /// Updates all children that were between the collision and dragged child position.
   void _updateMultipleCollisions({
