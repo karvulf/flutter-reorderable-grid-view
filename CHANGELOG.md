@@ -1,9 +1,4 @@
 ## 5.9.0
-🐛 **Bug Fixes**
-- fixed `Null check operator used on a null value` when dragging while other children are still moving (thanks to `stanbav` for the PR, see [#184](https://github.com/karvulf/flutter-reorderable-grid-view/pull/184))
-- fixed reordering issues when reordering while children are still moving
-
-## 5.9.0
 ⭐️ **New Features**
 - added custom animations to `ReorderableAnimationConfig` with `ReorderableItemTransition`
   - `insert`: animation when a child was added (default: fade in)
@@ -11,6 +6,10 @@
   - `dragFeedback`: animation of the drag feedback when dragging starts (default: scale up by 5%)
   - each transition has a `duration`, an optional `curve` and an optional `builder` to define your own animation, without `builder` the default transition is used
 - added `custom_animations_example.dart` to the example app
+
+🐛 **Bug Fixes**
+- fixed `Null check operator used on a null value` when dragging while other children are still moving (thanks to `stanbav` for the PR, see [#184](https://github.com/karvulf/flutter-reorderable-grid-view/pull/184))
+- fixed reordering issues when reordering while children are still moving
 
 ⚠️ **Deprecations**
 - `fadeInDuration`/`fadeInCurve`, `fadeOutDuration`/`fadeOutCurve` and `dragFeedbackDuration`/`dragFeedbackCurve` in `ReorderableAnimationConfig` are deprecated and will be removed in the next major version
