@@ -405,6 +405,54 @@ void main() {
       expect(actual, equals(expectedUpdatedEntity));
       checkMaps(expectedReorderableEntity: expectedUpdatedEntity);
     });
+
+    test(
+        'GIVEN reorderableEntity moving from 2 to 1 '
+        'and a swap that moved it to 0 and the dragged child to 1 '
+        'WHEN calling #handleMovingFinished with the entity before the swap '
+        'THEN should return the swapped entity and keep both maps', () {
+      // given
+      final givenOutdatedEntity = reorderableBuilder.getEntity(
+        key: 'moved',
+        originalOrderId: 2,
+        updatedOrderId: 1,
+      );
+      final givenSwappedEntity = givenOutdatedEntity.dragUpdated(
+        updatedOrderId: 0,
+        updatedOffset: Offset.zero,
+      );
+      final givenDraggedChildEntity = reorderableBuilder.getEntity(
+        key: 'dragged',
+        originalOrderId: 0,
+        updatedOrderId: 1,
+      );
+      for (final entity in [givenSwappedEntity, givenDraggedChildEntity]) {
+        controller.childrenKeyMap[entity.key.value] = entity;
+        controller.childrenOrderMap[entity.updatedOrderId] = entity;
+      }
+
+      // when
+      final actual = controller.handleMovingFinished(
+        reorderableEntity: givenOutdatedEntity,
+      );
+
+      // then
+      expect(actual, equals(givenSwappedEntity));
+      expect(
+        controller.childrenKeyMap,
+        equals({
+          'moved': givenSwappedEntity,
+          'dragged': givenDraggedChildEntity,
+        }),
+      );
+      expect(
+        controller.childrenOrderMap,
+        equals({
+          0: givenSwappedEntity,
+          1: givenDraggedChildEntity,
+        }),
+      );
+    });
   });
 
   group('#handleSizeChanged', () {
