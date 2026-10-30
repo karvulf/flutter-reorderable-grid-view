@@ -208,7 +208,9 @@ class _MyAppState extends State<MyApp> {
           onDragEnd: _handleDragEnd,
           scrollController: _scrollController,
           animationConfig: const ReorderableAnimationConfig(
-            fadeInDuration: Duration(milliseconds: 800),
+            insert: ReorderableItemTransition(
+              duration: Duration(milliseconds: 800),
+            ),
             defaultAnimationCurve: Curves.easeOut,
             changePositionAfterFadeOut: true,
           ),

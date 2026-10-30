@@ -2,15 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 
-/// Shows a removed child at its last position and fades it out.
+/// Shows a removed child at its last position and animates it out.
+///
+/// The animation is built by [ReorderableAnimationConfig.remove].
 ///
 /// Has to be a direct child of a [Stack] because it returns a [Positioned].
-/// Calls [onFinished] after the fade out.
+/// Calls [onFinished] after the animation.
 class ReorderableAnimatedRemovedChild extends StatefulWidget {
   /// Contains the last widget, offset and size of the removed child.
   final RemovedReorderableEntity removedEntity;
 
-  /// Contains the duration and curve for the fade out.
+  /// Contains the duration, curve and builder for the remove animation.
   final ReorderableAnimationConfig animationConfig;
 
   /// Used to update the position while scrolling during the fade out.
@@ -41,7 +43,7 @@ class _ReorderableAnimatedRemovedChildState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: widget.animationConfig.fadeOutDuration,
+    duration: widget.animationConfig.remove.duration,
   );
 
   @override
@@ -61,10 +63,13 @@ class _ReorderableAnimatedRemovedChildState
   @override
   Widget build(BuildContext context) {
     final removedEntity = widget.removedEntity;
-    final curve = widget.animationConfig.fadeOutCurve;
-    final Animation<double> animation = curve == null
-        ? _controller
-        : CurvedAnimation(parent: _controller, curve: curve);
+    final curve = widget.animationConfig.remove.curve;
+    final Animation<double> animation = ReverseAnimation(
+      curve == null
+          ? _controller
+          : CurvedAnimation(parent: _controller, curve: curve),
+    );
+    final builder = widget.animationConfig.remove.builder;
 
     return ListenableBuilder(
       // without scroll controller, the position is only calculated once
@@ -80,10 +85,9 @@ class _ReorderableAnimatedRemovedChildState
         );
       },
       child: IgnorePointer(
-        child: FadeTransition(
-          opacity: ReverseAnimation(animation),
-          child: removedEntity.child,
-        ),
+        child: builder != null
+            ? builder(removedEntity.child, animation)
+            : FadeTransition(opacity: animation, child: removedEntity.child),
       ),
     );
   }

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const givenChild = Placeholder();
-  const givenFadeOutDuration = Duration(milliseconds: 200);
-  const givenAnimationConfig = ReorderableAnimationConfig(
-    fadeOutDuration: givenFadeOutDuration,
-  );
+  const givenRemoveDuration = Duration(milliseconds: 200);
   const givenRemovedEntity = RemovedReorderableEntity(
     key: ValueKey('removed'),
     child: givenChild,
@@ -22,6 +19,10 @@ void main() {
     ScrollController? scrollController,
     ValueGetter<Offset>? getScrollOffset,
     VoidCallback? onFinished,
+    ReorderableAnimationConfig animationConfig =
+        const ReorderableAnimationConfig(
+      remove: ReorderableItemTransition(duration: givenRemoveDuration),
+    ),
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -35,7 +36,7 @@ void main() {
                   ),
                 ReorderableAnimatedRemovedChild(
                   removedEntity: givenRemovedEntity,
-                  animationConfig: givenAnimationConfig,
+                  animationConfig: animationConfig,
                   scrollController: scrollController,
                   getScrollOffset: getScrollOffset ?? () => Offset.zero,
                   onFinished: onFinished ?? () {},
@@ -88,9 +89,52 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN remove with builder and curve '
+      'WHEN pumping [ReorderableAnimatedRemovedChild] '
+      'THEN should show child built by builder with reversed curved animation',
+      (tester) async {
+    // given
+    final animationConfig = ReorderableAnimationConfig(
+      remove: ReorderableItemTransition(
+        duration: givenRemoveDuration,
+        curve: Curves.easeIn,
+        builder: (child, animation) => ScaleTransition(
+          scale: animation,
+          child: child,
+        ),
+      ),
+    );
+
+    // when
+    await pumpWidget(tester, animationConfig: animationConfig);
+
+    // then
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ScaleTransition &&
+            widget.scale.value == 1.0 &&
+            widget.scale is ReverseAnimation &&
+            (widget.scale as ReverseAnimation).parent is CurvedAnimation &&
+            ((widget.scale as ReverseAnimation).parent as CurvedAnimation)
+                    .curve ==
+                Curves.easeIn &&
+            widget.child == givenChild,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is FadeTransition && widget.child == givenChild,
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets(
       'GIVEN [ReorderableAnimatedRemovedChild] '
-      'WHEN fading out '
-      'THEN should call onFinished only after the fade out', (tester) async {
+      'WHEN animating out '
+      'THEN should call onFinished only after the animation', (tester) async {
     // given
     int callCounter = 0;
     await pumpWidget(tester, onFinished: () => callCounter++);

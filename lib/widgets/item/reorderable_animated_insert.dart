@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_init_child.dart';
 
-/// Responsible for the fade in animation when [child] is created.
-class ReorderableAnimatedOpacity extends StatefulWidget {
+/// Responsible for the insert animation when [child] is created.
+///
+/// The animation is built by [ReorderableAnimationConfig.insert].
+class ReorderableAnimatedInsert extends StatefulWidget {
   /// Entity that contains all information to recognize it as a new widget.
   final ReorderableEntity reorderableEntity;
 
@@ -16,7 +18,7 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
 
   final ReorderableAnimationConfig animationConfig;
 
-  const ReorderableAnimatedOpacity({
+  const ReorderableAnimatedInsert({
     required this.reorderableEntity,
     required this.child,
     required this.onAnimationStarted,
@@ -25,11 +27,11 @@ class ReorderableAnimatedOpacity extends StatefulWidget {
   });
 
   @override
-  State<ReorderableAnimatedOpacity> createState() =>
-      _ReorderableAnimatedOpacityState();
+  State<ReorderableAnimatedInsert> createState() =>
+      _ReorderableAnimatedInsertState();
 }
 
-class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
+class _ReorderableAnimatedInsertState extends State<ReorderableAnimatedInsert>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
@@ -57,7 +59,7 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   }
 
   @override
-  void didUpdateWidget(covariant ReorderableAnimatedOpacity oldWidget) {
+  void didUpdateWidget(covariant ReorderableAnimatedInsert oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldEntity = oldWidget.reorderableEntity;
     final entity = widget.reorderableEntity;
@@ -76,10 +78,10 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _animation,
-      child: widget.child,
-    );
+    final builder = widget.animationConfig.insert.builder;
+    if (builder != null) return builder(widget.child, _animation);
+
+    return FadeTransition(opacity: _animation, child: widget.child);
   }
 
   void _restartAnimation() {
@@ -120,19 +122,19 @@ class _ReorderableAnimatedOpacityState extends State<ReorderableAnimatedOpacity>
   /// never appear, as the opacity would stay at 0.
   Duration get _duration {
     final isNew = widget.reorderableEntity.isNew;
-    return isNew ? widget.animationConfig.fadeInDuration : Duration.zero;
+    return isNew ? widget.animationConfig.insert.duration : Duration.zero;
   }
 
   Animation<double> get _curveAnimation {
-    final fadeInCurve = widget.animationConfig.fadeInCurve;
+    final insertCurve = widget.animationConfig.insert.curve;
 
-    if (fadeInCurve == null) {
+    if (insertCurve == null) {
       return _controller;
     }
 
     return CurvedAnimation(
       parent: _controller,
-      curve: fadeInCurve,
+      curve: insertCurve,
     );
   }
 }

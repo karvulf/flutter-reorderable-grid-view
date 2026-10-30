@@ -1,4 +1,4 @@
-import 'package:flutter/animation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,6 +6,7 @@ void main() {
   const givenDuration = Duration(milliseconds: 123);
   const givenDefaultCurve = Curves.easeInCubic;
   const givenCurve = Curves.bounceInOut;
+  Widget givenBuilder(Widget child, Animation<double> animation) => child;
 
   test(
       'GIVEN no params '
@@ -487,6 +488,156 @@ void main() {
 
       // then
       expect(actual, isFalse);
+    });
+  });
+
+  group('#insert', () {
+    test(
+        'GIVEN insert without curve, default curve and enableAnimations = false '
+        'WHEN getting insert '
+        'THEN should return Duration.zero, default curve and given builder',
+        () {
+      // given
+      final config = ReorderableAnimationConfig(
+        insert: ReorderableItemTransition(
+          duration: givenDuration,
+          builder: givenBuilder,
+        ),
+        // ignore: deprecated_member_use_from_same_package
+        fadeInDuration: Duration(milliseconds: 999),
+        defaultAnimationCurve: givenDefaultCurve,
+        enableAnimations: false,
+      );
+
+      // when
+      final actual = config.insert;
+
+      // then
+      expect(actual.duration, equals(Duration.zero));
+      expect(actual.curve, equals(givenDefaultCurve));
+      expect(actual.builder, equals(givenBuilder));
+    });
+
+    test(
+        'GIVEN no insert but deprecated fadeInDuration and fadeInCurve '
+        'WHEN getting insert '
+        'THEN should return deprecated values without builder', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        // ignore: deprecated_member_use_from_same_package
+        fadeInDuration: givenDuration,
+        // ignore: deprecated_member_use_from_same_package
+        fadeInCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.insert;
+
+      // then
+      expect(actual.duration, equals(givenDuration));
+      expect(actual.curve, equals(givenCurve));
+      expect(actual.builder, isNull);
+    });
+  });
+
+  group('#remove', () {
+    test(
+        'GIVEN remove without curve, default curve and enableAnimations = false '
+        'WHEN getting remove '
+        'THEN should return Duration.zero, default curve and given builder',
+        () {
+      // given
+      final config = ReorderableAnimationConfig(
+        remove: ReorderableItemTransition(
+          duration: givenDuration,
+          builder: givenBuilder,
+        ),
+        // ignore: deprecated_member_use_from_same_package
+        fadeOutDuration: Duration(milliseconds: 999),
+        defaultAnimationCurve: givenDefaultCurve,
+        enableAnimations: false,
+      );
+
+      // when
+      final actual = config.remove;
+
+      // then
+      expect(actual.duration, equals(Duration.zero));
+      expect(actual.curve, equals(givenDefaultCurve));
+      expect(actual.builder, equals(givenBuilder));
+    });
+
+    test(
+        'GIVEN no remove but deprecated fadeOutDuration and fadeOutCurve '
+        'WHEN getting remove '
+        'THEN should return deprecated values without builder', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        // ignore: deprecated_member_use_from_same_package
+        fadeOutDuration: givenDuration,
+        // ignore: deprecated_member_use_from_same_package
+        fadeOutCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.remove;
+
+      // then
+      expect(actual.duration, equals(givenDuration));
+      expect(actual.curve, equals(givenCurve));
+      expect(actual.builder, isNull);
+    });
+  });
+
+  group('#dragFeedback', () {
+    test(
+        'GIVEN dragFeedback without curve, default curve and enableAnimations = false '
+        'WHEN getting dragFeedback '
+        'THEN should return Duration.zero, default curve and given builder',
+        () {
+      // given
+      final config = ReorderableAnimationConfig(
+        dragFeedback: ReorderableItemTransition(
+          duration: givenDuration,
+          builder: givenBuilder,
+        ),
+        // ignore: deprecated_member_use_from_same_package
+        dragFeedbackDuration: Duration(milliseconds: 999),
+        defaultAnimationCurve: givenDefaultCurve,
+        enableAnimations: false,
+      );
+
+      // when
+      final actual = config.dragFeedback;
+
+      // then
+      expect(actual.duration, equals(Duration.zero));
+      expect(actual.curve, equals(givenDefaultCurve));
+      expect(actual.builder, equals(givenBuilder));
+    });
+
+    test(
+        'GIVEN no dragFeedback but deprecated dragFeedbackDuration and dragFeedbackCurve '
+        'WHEN getting dragFeedback '
+        'THEN should return deprecated values without builder', () {
+      // given
+      const config = ReorderableAnimationConfig(
+        // ignore: deprecated_member_use_from_same_package
+        dragFeedbackDuration: givenDuration,
+        // ignore: deprecated_member_use_from_same_package
+        dragFeedbackCurve: givenCurve,
+        defaultAnimationCurve: givenDefaultCurve,
+      );
+
+      // when
+      final actual = config.dragFeedback;
+
+      // then
+      expect(actual.duration, equals(givenDuration));
+      expect(actual.curve, equals(givenCurve));
+      expect(actual.builder, isNull);
     });
   });
 }

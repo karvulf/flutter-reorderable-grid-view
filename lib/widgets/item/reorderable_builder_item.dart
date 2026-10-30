@@ -4,15 +4,15 @@ import 'package:flutter_reorderable_grid_view/entities/released_reorderable_enti
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_insert.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_init_child.dart';
 
 class ReorderableBuilderItem extends StatefulWidget {
   ///
-  /// For [ReorderableAnimatedOpacity]
+  /// For [ReorderableAnimatedInsert]
   ///
 
   /// Contains all info to enable animations and drag and drop.
@@ -79,7 +79,7 @@ class ReorderableBuilderItem extends StatefulWidget {
   final BoxDecoration? dragChildBoxDecoration;
 
   /// The scale factor applied to the feedback widget during a drag operation.
-  final double feedbackScaleFactor;
+  final double? feedbackScaleFactor;
 
   /// Callback when dragging starts.
   final ReorderableEntityCallback onDragStarted;
@@ -162,35 +162,36 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   Widget build(BuildContext context) {
     final animationConfig = widget.animationConfig;
 
-    return ReorderableAnimatedOpacity(
-      reorderableEntity: widget.reorderableEntity,
+    return ReorderableAnimatedPositioned(
+      reorderableEntity: _reorderableEntity,
+      draggedEntity: widget.currentDraggedEntity,
+      draggingAnimationMap: widget.draggingAnimationMap,
+      positionChangeDelay: widget.positionChangeDelay,
       animationConfig: animationConfig,
-      onAnimationStarted: () {
-        final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
+      onMovingFinished: () {
+        final updatedEntity = widget.onMovingFinished(_reorderableEntity);
         _updateReorderableEntity(updatedEntity);
       },
-      child: ReorderableAnimatedPositioned(
+      child: ReorderableInitChild(
         reorderableEntity: _reorderableEntity,
-        draggedEntity: widget.currentDraggedEntity,
-        draggingAnimationMap: widget.draggingAnimationMap,
-        positionChangeDelay: widget.positionChangeDelay,
-        animationConfig: animationConfig,
-        onMovingFinished: () {
-          final updatedEntity = widget.onMovingFinished(_reorderableEntity);
+        onCreated: (globalKey) {
+          final updatedEntity = widget.onCreated(
+            _reorderableEntity,
+            globalKey,
+          );
           _updateReorderableEntity(updatedEntity);
         },
-        child: ReorderableInitChild(
-          reorderableEntity: _reorderableEntity,
-          onCreated: (globalKey) {
-            final updatedEntity = widget.onCreated(
-              _reorderableEntity,
-              globalKey,
-            );
+        child: ReorderableAnimatedInsert(
+          reorderableEntity: widget.reorderableEntity,
+          animationConfig: animationConfig,
+          onAnimationStarted: () {
+            final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
             _updateReorderableEntity(updatedEntity);
           },
           child: ReorderableAnimatedReleasedContainer(
             reorderableEntity: _reorderableEntity,
             releasedReorderableEntity: widget.releasedReorderableEntity,
+            feedbackScaleFactor: widget.feedbackScaleFactor,
             scrollOffset: widget.scrollOffset,
             animationConfig: animationConfig,
             child: ReorderableDraggable(

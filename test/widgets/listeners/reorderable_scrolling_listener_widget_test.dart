@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_scrolling_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

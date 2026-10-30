@@ -189,13 +189,13 @@ For example, adding or removing a child at the beginning of the list affects the
 | `itemCount`                    | Number of items rendered by `ReorderableBuilder.builder`. Required when using `childBuilder`.                            |       **-**       |
 | `lockedIndices`                | Define all children that can't be moved while dragging. You need to add the index of this child in a list.              |    **<int>[]**    |
 | `nonDraggableIndices`          | Specify indices for [children] that are not draggable.                                                                   |    **<int>[]**    |
-| `animationConfig`              | Configuration for all child animations (fade in, position changes, drag feedback, release animation).                   | `const ReorderableAnimationConfig()` |
+| `animationConfig`              | Configuration for all child animations (insert, remove, position changes, drag feedback, release animation).            | `const ReorderableAnimationConfig()` |
 | `enableLongPress`              | Deprecated. Use `longPressDelay`; for immediate drag set `Duration.zero`.                                                |     **true**      |
 | `longPressDelay`               | Specify the duration before dragging starts after long-pressing the widget.                                              |    **500 ms**     |
 | `enableDraggable`              | Enables the drag and drop functionality.                                                                                 |     **true**      |
 | `enableScrollingWhileDragging` | Enables the functionality to scroll while dragging a child to the top or bottom.                                         |     **true**      |
 | `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
-| `feedbackScaleFactor`          | Scale factor of the dragged feedback widget, e.g. `1.5` enlarges it by 50%.                                              |     **1.05**      |
+| `feedbackScaleFactor`          | Deprecated. Use `animationConfig.dragFeedback` with a custom `builder`. Ignored if that builder is set.                   |     **1.05**      |
 | `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
 | `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
 | `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
@@ -215,18 +215,51 @@ Use `animationConfig` to configure all animation durations and curves in one pla
 | `positionChangeDuration`            | Duration for item position changes outside active dragging.                                                      |    **200 ms**     |
 | `draggingPositionChangeDuration`    | Duration for item position changes while dragging.                                                               |    **200 ms**     |
 | `releasedItemDuration`              | Duration for the released dragged item to animate to its final position.                                        |    **150 ms**     |
-| `fadeInDuration`                    | Duration for fade-in when a new child is added.                                                                  |    **500 ms**     |
-| `fadeOutDuration`                   | Duration for fade-out when a child is removed. `Duration.zero` disables it. |   **200 ms**     |
-| `dragFeedbackDuration`              | Duration for scaling the drag feedback widget.                                                                   |    **150 ms**     |
+| `insert`                            | `ReorderableItemTransition` when a new child is added. Default transition: fade in.                              |    **500 ms**     |
+| `remove`                            | `ReorderableItemTransition` when a child is removed. Default transition: fade out. `Duration.zero` disables it. |    **200 ms**     |
+| `dragFeedback`                      | `ReorderableItemTransition` when dragging starts. Default transition: scale up by 5%. Curve falls back to `Curves.linear`. |    **150 ms**     |
 | `positionChangeCurve`               | Curve for `positionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                            |       **-**       |
 | `draggingPositionChangeCurve`       | Curve for `draggingPositionChangeDuration`. Falls back to `defaultAnimationCurve` when null.                    |       **-**       |
 | `releasedItemCurve`                 | Curve for `releasedItemDuration`. Falls back to `defaultAnimationCurve` when null.                              |       **-**       |
-| `fadeInCurve`                       | Curve for `fadeInDuration`. Falls back to `defaultAnimationCurve` when null.                                    |       **-**       |
-| `fadeOutCurve`                      | Curve for `fadeOutDuration`. Falls back to `defaultAnimationCurve` when null.                                   |       **-**       |
-| `changePositionAfterFadeOut`        | If true, the other children start moving halfway through the fade-out of a removed child instead of immediately.  |     **false**     |
-| `dragFeedbackCurve`                 | Curve for `dragFeedbackDuration`. Falls back to `defaultAnimationCurve`, then to `Curves.linear` if still null.| `Curves.linear` |
+| `changePositionAfterFadeOut`        | If true, the other children start moving halfway through the `remove` animation instead of immediately.          |     **false**     |
 | `defaultAnimationCurve`             | Global fallback curve for animation curve parameters when a specific curve is not provided.                      |       **-**       |
 | `enableAnimations`                  | Enables or disables animations globally. If false, durations become `Duration.zero` and nullable curves resolve to null. |    **true**      |
+
+`fadeInDuration`, `fadeInCurve`, `fadeOutDuration`, `fadeOutCurve`, `dragFeedbackDuration` and `dragFeedbackCurve` are deprecated, use `insert`, `remove` and `dragFeedback` instead.
+
+#### Custom Animations
+
+`insert`, `remove` and `dragFeedback` take a `ReorderableItemTransition` with a `duration`, an optional `curve` (falls back to `defaultAnimationCurve`) and an optional `builder`. Without a `builder`, the default transition is used.
+
+The `builder` receives the child and an animation running from 0 to 1 with the curve already applied. For `remove` it runs reversed (1 to 0), so the same builder works for both directions.
+
+```dart
+ReorderableBuilder(
+  animationConfig: ReorderableAnimationConfig(
+    insert: ReorderableItemTransition(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      builder: (child, animation) => ScaleTransition(scale: animation, child: child),
+    ),
+    remove: ReorderableItemTransition(
+      duration: const Duration(milliseconds: 300),
+      builder: (child, animation) => SizeTransition(sizeFactor: animation, child: child),
+    ),
+    dragFeedback: ReorderableItemTransition(
+      duration: const Duration(milliseconds: 200),
+      builder: (child, animation) => RotationTransition(
+        turns: Tween(begin: 0.0, end: 0.02).animate(animation),
+        child: child,
+      ),
+    ),
+  ),
+  // ...
+)
+```
+
+Use explicit transitions driven by `animation` (e.g. `ScaleTransition`, `SlideTransition`, `RotationTransition`). Implicit animations or own controllers are not supported because the timing is owned by `duration`, e.g. removed children are disposed after it.
+
+See [custom_animations_example.dart](https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/example/lib/other_examples/custom_animations_example.dart) for a complete example.
 
 ### `CustomDraggable`
 

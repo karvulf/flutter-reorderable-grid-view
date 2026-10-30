@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/drag_feedback_transition.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_overlay_child.dart';
 
 /// Responsible for the animation when releasing [child] after drag and drop.
 ///
@@ -20,6 +22,9 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
 
   final ReorderableAnimationConfig animationConfig;
 
+  /// Scale factor of the default drag feedback transition.
+  final double? feedbackScaleFactor;
+
   /// Describes [reorderableEntity] that is released after drag and drop.
   ///
   /// If this value is not null, it will be checked, if this is related to
@@ -32,6 +37,7 @@ class ReorderableAnimatedReleasedContainer extends StatefulWidget {
     required this.scrollOffset,
     required this.animationConfig,
     required this.releasedReorderableEntity,
+    this.feedbackScaleFactor,
     super.key,
   });
 
@@ -48,6 +54,14 @@ class _ReorderableAnimatedReleasedContainerState
 
   /// Animation value to show the offset animation.
   Animation<Offset>? _offsetAnimation;
+
+  /// Plays the drag feedback transition in reverse while releasing.
+  ///
+  /// Stays dismissed (0) when not releasing, so the child is shown as usual.
+  Animation<double> _feedbackAnimation = kAlwaysDismissedAnimation;
+
+  /// Keeps the state of [widget.child] when it moves into the [Overlay].
+  final _childKey = GlobalKey();
 
   @override
   void initState() {
@@ -79,18 +93,26 @@ class _ReorderableAnimatedReleasedContainerState
 
   @override
   Widget build(BuildContext context) {
-    var child = widget.child;
-
+    // the GlobalKey keeps the state of the child when it moves into the
+    // overlay while releasing and back afterwards, otherwise it is recreated
+    final child = KeyedSubtree(key: _childKey, child: widget.child);
     final offset = _offsetAnimation?.value;
 
-    if (offset == null) {
-      return child;
-    } else {
-      return Transform(
+    if (offset == null) return child;
+
+    // while releasing, the child stays above the other children
+    return ReorderableOverlayChild(
+      size: widget.reorderableEntity.size,
+      child: Transform(
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0.0),
-        child: child,
-      );
-    }
+        child: DragFeedbackTransition(
+          animationConfig: widget.animationConfig,
+          feedbackScaleFactor: widget.feedbackScaleFactor,
+          animation: _feedbackAnimation,
+          child: child,
+        ),
+      ),
+    );
   }
 
   /// Checks if [oldEntity] and [newEntity] are different and the same for animation.
@@ -118,7 +140,9 @@ class _ReorderableAnimatedReleasedContainerState
       releasedReorderableEntity: releasedReorderableEntity,
     );
     final tween = Tween<Offset>(begin: begin, end: Offset.zero);
-    _offsetAnimation = tween.animate(_curveAnimation)
+    final curveAnimation = _curveAnimation;
+    _feedbackAnimation = ReverseAnimation(curveAnimation);
+    _offsetAnimation = tween.animate(curveAnimation)
       ..addListener(() {
         setState(() {});
       });
@@ -129,6 +153,7 @@ class _ReorderableAnimatedReleasedContainerState
 
     _offsetAnimationController.reset();
     _offsetAnimation = null;
+    _feedbackAnimation = kAlwaysDismissedAnimation;
   }
 
   /// Calculates the offset after releasing the dragged [widget.child].
