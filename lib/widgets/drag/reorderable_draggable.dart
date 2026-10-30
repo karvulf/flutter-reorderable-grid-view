@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/draggable_feedback.dart';
 
 /// Enables drag and drop behaviour for [child].
 ///

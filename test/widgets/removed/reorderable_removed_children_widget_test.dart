@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_removed_children.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_removed_children.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../reorderable_builder.dart';
+import '../../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();

@@ -3,16 +3,16 @@ import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_insert.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_builder_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_init_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../helper/widget_test_helper.dart';
-import '../reorderable_builder.dart';
+import '../../helper/widget_test_helper.dart';
+import '../../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();
@@ -146,14 +146,14 @@ void main() {
         (widget) =>
             widget is ReorderableInitChild &&
             widget.reorderableEntity == givenReorderableEntity &&
-            widget.child is ReorderableAnimatedOpacity,
+            widget.child is ReorderableAnimatedInsert,
       ),
       findsOneWidget,
     );
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is ReorderableAnimatedOpacity &&
+            widget is ReorderableAnimatedInsert &&
             widget.reorderableEntity == givenReorderableEntity &&
             widget.animationConfig == givenAnimationConfig &&
             widget.child is ReorderableAnimatedReleasedContainer,
@@ -248,7 +248,7 @@ void main() {
       );
 
       // when
-      findWidget<ReorderableAnimatedOpacity>().onAnimationStarted();
+      findWidget<ReorderableAnimatedInsert>().onAnimationStarted();
       // calling pumpAndSettle would init the normal fade in
       await tester.pump();
 

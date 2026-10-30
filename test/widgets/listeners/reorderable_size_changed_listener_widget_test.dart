@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_size_changed_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_size_changed_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

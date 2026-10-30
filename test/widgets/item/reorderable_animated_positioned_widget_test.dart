@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/dragging_animation_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_positioned.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../reorderable_builder.dart';
+import '../../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();

@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_overlay_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/drag_feedback_transition.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_overlay_child.dart';
 
 /// Responsible for the animation when releasing [child] after drag and drop.
 ///

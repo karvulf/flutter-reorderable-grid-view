@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_overlay_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/drag_feedback_transition.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_overlay_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../reorderable_builder.dart';
+import '../../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();

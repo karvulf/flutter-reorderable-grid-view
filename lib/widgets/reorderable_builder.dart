@@ -8,10 +8,10 @@ import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dar
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_removed_children.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_size_changed_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_builder_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_removed_children.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_scrolling_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_size_changed_listener.dart';
 
 typedef DraggableBuilder = Widget Function(
   List<Widget> children,

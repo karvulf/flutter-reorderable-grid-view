@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_overlay_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_overlay_child.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

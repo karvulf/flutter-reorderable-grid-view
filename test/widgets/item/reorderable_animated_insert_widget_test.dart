@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_insert.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../reorderable_builder.dart';
+import '../../reorderable_builder.dart';
 
 void main() {
   final reorderableBuilder = ReorderableBuilder();
@@ -22,7 +22,7 @@ void main() {
       tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ReorderableAnimatedOpacity(
+            body: ReorderableAnimatedInsert(
               animationConfig: const ReorderableAnimationConfig(
                 insert:
                     ReorderableItemTransition(duration: givenInsertDuration),
@@ -39,8 +39,8 @@ void main() {
 
   testWidgets(
       'GIVEN insert duration and reorderableEntity is new '
-      'WHEN pumping [ReorderableAnimatedOpacity] '
-      'THEN should show expected AnimatedOpacity', (WidgetTester tester) async {
+      'WHEN pumping [ReorderableAnimatedInsert] '
+      'THEN should show expected FadeTransition', (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
       originalOrderId: -1,
@@ -73,7 +73,7 @@ void main() {
 
   testWidgets(
       'GIVEN reorderableEntity which is NOT new  '
-      'WHEN pumping [ReorderableAnimatedOpacity] '
+      'WHEN pumping [ReorderableAnimatedInsert] '
       'THEN should NOT call onAnimationStarted', (WidgetTester tester) async {
     // given
     final givenReorderableEntity = reorderableBuilder.getEntity(
@@ -106,7 +106,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableAnimatedOpacity] '
+      'GIVEN pumped [ReorderableAnimatedInsert] '
       'WHEN reorderableEntity is updated but isNew = false '
       'THEN should call onOpacityFinished only one time (from initState)',
       (WidgetTester tester) async {
@@ -142,7 +142,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN pumped [ReorderableAnimatedOpacity] '
+      'GIVEN pumped [ReorderableAnimatedInsert] '
       'WHEN reorderableEntity is updated and isNew = true '
       'THEN should call onOpacityFinished two times (from initState)',
       (WidgetTester tester) async {

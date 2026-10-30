@@ -4,15 +4,15 @@ import 'package:flutter_reorderable_grid_view/entities/released_reorderable_enti
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_opcacity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_positioned.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_released_container.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_init_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_insert.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_animated_positioned.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_animated_released_container.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_init_child.dart';
 
 class ReorderableBuilderItem extends StatefulWidget {
   ///
-  /// For [ReorderableAnimatedOpacity]
+  /// For [ReorderableAnimatedInsert]
   ///
 
   /// Contains all info to enable animations and drag and drop.
@@ -181,7 +181,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
           );
           _updateReorderableEntity(updatedEntity);
         },
-        child: ReorderableAnimatedOpacity(
+        child: ReorderableAnimatedInsert(
           reorderableEntity: widget.reorderableEntity,
           animationConfig: animationConfig,
           onAnimationStarted: () {

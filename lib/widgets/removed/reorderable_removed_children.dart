@@ -3,7 +3,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
 
 /// Shows removed children above [child] while they are fading out.
 ///

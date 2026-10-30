@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_animated_removed_child.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder_item.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_scrolling_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_builder_item.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_scrolling_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

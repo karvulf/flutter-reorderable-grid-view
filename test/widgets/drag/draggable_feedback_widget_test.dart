@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/drag_feedback_transition.dart';
-import 'package:flutter_reorderable_grid_view/widgets/draggable_feedback.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/drag_feedback_transition.dart';
+import 'package:flutter_reorderable_grid_view/widgets/drag/draggable_feedback.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
