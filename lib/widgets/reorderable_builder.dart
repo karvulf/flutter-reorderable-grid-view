@@ -440,6 +440,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       lockedIndices: widget.lockedIndices,
       isScrollableOutside: _isScrollOutside,
       itemCount: widget.itemCount,
+      scrollDirection: _reorderableScrollable.scrollDirection,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
@@ -484,11 +485,10 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       }
 
       // call to ensure animation to dropped item
-      _reorderableController.updateReleasedReorderableEntity(
-        releasedReorderableEntity: ReleasedReorderableEntity(
-          dropOffset: offset,
-          reorderableEntity: reorderableEntity,
-        ),
+      _reorderableController.releasedReorderableEntity =
+          ReleasedReorderableEntity(
+        dropOffset: offset,
+        reorderableEntity: reorderableEntity,
       );
     }
     setState(() {});
