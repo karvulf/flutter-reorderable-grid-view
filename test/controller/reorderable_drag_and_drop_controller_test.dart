@@ -28,6 +28,7 @@ void main() {
       lockedIndices: lockedIndices,
       isScrollableOutside: isScrollableOutside,
       itemCount: itemCount,
+      scrollDirection: null,
     );
   }
 
@@ -76,6 +77,7 @@ void main() {
         lockedIndices: givenLockedIndices,
         isScrollableOutside: givenIsScrollableOutside,
         itemCount: givenItemCount,
+        scrollDirection: null,
       );
 
       // then

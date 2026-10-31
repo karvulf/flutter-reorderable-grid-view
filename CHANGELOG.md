@@ -1,3 +1,7 @@
+## 5.10.0
+⭐️ **New Features**
+- dragging a child before or after all children now moves it to the first or last unlocked position
+
 ## 5.9.0
 ⭐️ **New Features**
 - added custom animations to `ReorderableAnimationConfig` with `ReorderableItemTransition`

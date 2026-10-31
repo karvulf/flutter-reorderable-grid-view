@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
@@ -5,7 +7,13 @@ import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dar
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
-// TODO(karvulf): add comment
+/// Handles the drag and drop state of the children in [ReorderableBuilder].
+///
+/// While dragging, collisions between the dragged child and other children
+/// swap their positions, skipping [lockedIndices]. Dragging before or after
+/// all children moves the dragged child to the first or last unlocked
+/// position. When the drag ends, the changed positions are returned as
+/// [ReorderUpdateEntity]s so the children can be reordered.
 class ReorderableDragAndDropController extends ReorderableController {
   /// Indices of children that cannot move while drag and drop.
   @visibleForTesting
@@ -40,13 +48,18 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// After dragging a child, [scrollOffset] is always updated.
   Offset scrollOffset = Offset.zero;
 
+  /// Main axis of the grid, used when dragging before/after all children.
+  Axis? scrollDirection;
+
   void handleDragStarted({
     required ReorderableEntity reorderableEntity,
     required Offset currentScrollOffset,
     required List<int> lockedIndices,
     required bool isScrollableOutside,
     required int? itemCount,
+    required Axis? scrollDirection,
   }) {
+    this.scrollDirection = scrollDirection;
     _releasedReorderableEntity = null;
     draggingAnimationMap.clear();
     this.lockedIndices = lockedIndices;
@@ -267,8 +280,84 @@ class ReorderableDragAndDropController extends ReorderableController {
         return entry.value;
       }
     }
+
+    final outsideEntity = _getOutsideReorderableEntity(
+      draggedOffset: draggedOffset,
+    );
+
+    if (outsideEntity?.key.value == keyValue) {
+      return null;
+    }
+    return outsideEntity;
+  }
+
+  /// Returns the first or last unlocked child when dragged outside of all.
+  ///
+  /// The dragged child is outside when [draggedOffset] is before or after all
+  /// children along the main axis ([scrollDirection]).
+  ReorderableEntity? _getOutsideReorderableEntity({
+    required Offset draggedOffset,
+  }) {
+    final unlockedEntities = _getUnlockedEntitiesInDisplayOrder();
+    if (unlockedEntities.isEmpty) {
+      return null;
+    }
+
+    final draggedPosition = scrollDirection == Axis.horizontal
+        ? draggedOffset.dx
+        : draggedOffset.dy;
+
+    if (draggedPosition < _getMinStartPosition()) {
+      return unlockedEntities.first;
+    }
+    if (draggedPosition > _getMaxStartPosition()) {
+      return unlockedEntities.last;
+    }
+
     return null;
   }
+
+  /// Returns all unlocked children in the order they are shown.
+  ///
+  /// The children are sorted by their order id. Reversed grids show the first
+  /// child at the end, so the list is reversed in that case.
+  List<ReorderableEntity> _getUnlockedEntitiesInDisplayOrder() {
+    final unlockedEntities = childrenKeyMap.values
+        .where((entity) => !lockedIndices.contains(entity.updatedOrderId))
+        .toList()
+      ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
+    if (unlockedEntities.isEmpty) {
+      return unlockedEntities;
+    }
+
+    final startPosition = _getStartPosition(entity: unlockedEntities.first);
+    final endPosition = _getStartPosition(entity: unlockedEntities.last);
+    final isReversed = startPosition > endPosition;
+    return isReversed ? unlockedEntities.reversed.toList() : unlockedEntities;
+  }
+
+  /// Returns the smallest start position of all children along the main axis.
+  double _getMinStartPosition() => childrenKeyMap.values
+      .map((child) => _getStartPosition(entity: child))
+      .reduce(min);
+
+  /// Returns the largest end position of all children along the main axis.
+  double _getMaxStartPosition() => childrenKeyMap.values
+      .map((child) => _getEndPosition(entity: child))
+      .reduce(max);
+
+  /// Returns the start position of [entity] along the main axis.
+  double _getStartPosition({required ReorderableEntity entity}) =>
+      scrollDirection == Axis.horizontal
+          ? entity.updatedOffset.dx
+          : entity.updatedOffset.dy;
+
+  /// Returns the end position of [entity] along the main axis.
+  double _getEndPosition({required ReorderableEntity entity}) =>
+      _getStartPosition(entity: entity) +
+      (scrollDirection == Axis.horizontal
+          ? entity.size.width
+          : entity.size.height);
 
   /// Returns a list of all updated positions containing old and new index.
   ///

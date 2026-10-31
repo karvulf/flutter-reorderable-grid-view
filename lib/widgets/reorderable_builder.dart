@@ -440,6 +440,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       lockedIndices: widget.lockedIndices,
       isScrollableOutside: _isScrollOutside,
       itemCount: widget.itemCount,
+      scrollDirection: _reorderableScrollable.scrollDirection,
     );
     widget.onDragStarted?.call(reorderableEntity.updatedOrderId);
 
