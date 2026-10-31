@@ -346,6 +346,60 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets(
+      "GIVEN scrollable GridView scrolled to an offset not divisible by 10 "
+      "WHEN moving dragged item to the top of the GridView "
+      "THEN should scroll exactly to the top", (WidgetTester tester) async {
+    // given
+    final givenScrollController = ScrollController();
+    final givenGridViewKey = GlobalKey();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReorderableBuilder.builder(
+            scrollController: givenScrollController,
+            longPressDelay: Duration.zero,
+            onReorder: (_) {},
+            itemCount: 200,
+            childBuilder: (itemBuilder) => GridView.builder(
+              key: givenGridViewKey,
+              controller: givenScrollController,
+              itemCount: 200,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+              ),
+              itemBuilder: (context, index) => itemBuilder(
+                ColoredBox(
+                  key: Key(index.toString()),
+                  color: Colors.lightBlue,
+                ),
+                index,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    givenScrollController.jumpTo(207.0);
+    await tester.pumpAndSettle();
+    final gridViewRect = tester.getRect(find.byType(GridView));
+
+    // when
+    final gesture = await move(
+      tester: tester,
+      startGestureFinder: find.byKey(const Key('8')),
+      moveOffset: Offset(gridViewRect.left + 50.0, gridViewRect.top + 5.0),
+      isScrollableInside: true,
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    // then
+    expect(givenScrollController.offset, equals(0.0));
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+  });
+
   group('outer scrollable between header and footer', () {
     final givenScrollController = ScrollController();
 

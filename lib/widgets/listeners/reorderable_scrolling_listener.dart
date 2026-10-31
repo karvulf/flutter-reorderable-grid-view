@@ -179,10 +179,11 @@ class _ReorderableScrollingListenerState
     final maxScrollExtent = _reorderableScrollable.maxScrollExtent;
 
     if (scrollOffset != null && maxScrollExtent != null) {
-      final value = scrollToTop ? scrollOffset - 10 : scrollOffset + 10;
+      final step = scrollToTop ? -10 : 10;
+      // clamp so the last step reaches the edges exactly
+      final value = (scrollOffset + step).clamp(0.0, maxScrollExtent);
 
-      // only scroll in the viewport of scrollable widget
-      if (value > 0 && value < maxScrollExtent + 10) {
+      if (value != scrollOffset) {
         _reorderableScrollable.jumpTo(value: value);
       }
     }
