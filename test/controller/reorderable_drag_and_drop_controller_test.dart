@@ -21,6 +21,7 @@ void main() {
     List<int> lockedIndices = const [],
     bool isScrollableOutside = false,
     int? itemCount,
+    Axis? scrollDirection,
   }) {
     controller.handleDragStarted(
       reorderableEntity: reorderableEntity ?? reorderableBuilder.getEntity(),
@@ -28,7 +29,7 @@ void main() {
       lockedIndices: lockedIndices,
       isScrollableOutside: isScrollableOutside,
       itemCount: itemCount,
-      scrollDirection: null,
+      scrollDirection: scrollDirection,
     );
   }
 
@@ -413,6 +414,147 @@ void main() {
         3: givenBehindReorderableEntity2,
       };
       expect(controller.childrenOrderMap, equals(expectedChildrenOrderMap));
+    });
+  });
+
+  group('#handleDragUpdate outside of all children', () {
+    List<ReorderableEntity> givenChildren({required List<Offset> offsets}) {
+      final children = [
+        for (var i = 0; i < offsets.length; i++)
+          reorderableBuilder.getEntity(
+            key: '$i',
+            originalOrderId: i,
+            updatedOrderId: i,
+            updatedOffset: offsets[i],
+          ),
+      ];
+      for (final child in children) {
+        controller.childrenKeyMap[child.key.value] = child;
+        controller.childrenOrderMap[child.updatedOrderId] = child;
+      }
+      return children;
+    }
+
+    void dragTo(Offset position) {
+      controller.handleDragUpdate(
+        pointerMoveEvent: PointerMoveEvent(position: position),
+      );
+    }
+
+    test(
+        'GIVEN vertical children and dragged child '
+        'WHEN dragging before all children '
+        'THEN should move dragged child to the first position', () {
+      // given
+      final children = givenChildren(
+        offsets: const [
+          Offset(0.0, 0.0),
+          Offset(0.0, 20.0),
+          Offset(0.0, 40.0),
+        ],
+      );
+      setUpDragStarted(reorderableEntity: children[2]);
+
+      // when
+      dragTo(const Offset(5.0, -10.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(0));
+    });
+
+    test(
+        'GIVEN vertical children and dragged child '
+        'WHEN dragging after all children '
+        'THEN should move dragged child to the last position', () {
+      // given
+      final children = givenChildren(
+        offsets: const [
+          Offset(0.0, 0.0),
+          Offset(0.0, 20.0),
+          Offset(0.0, 40.0),
+        ],
+      );
+      setUpDragStarted(reorderableEntity: children[0]);
+
+      // when
+      dragTo(const Offset(5.0, 100.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(2));
+    });
+
+    test(
+        'GIVEN vertical children with locked first index and dragged child '
+        'WHEN dragging before all children '
+        'THEN should move dragged child to the first unlocked position', () {
+      // given
+      final children = givenChildren(
+        offsets: const [
+          Offset(0.0, 0.0),
+          Offset(0.0, 20.0),
+          Offset(0.0, 40.0),
+        ],
+      );
+      setUpDragStarted(reorderableEntity: children[2], lockedIndices: [0]);
+
+      // when
+      dragTo(const Offset(5.0, -10.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(1));
+      expect(controller.childrenOrderMap[0], equals(children[0]));
+    });
+
+    test(
+        'GIVEN horizontal children and dragged child '
+        'WHEN dragging before and then after all children '
+        'THEN should move dragged child to the first and then last position',
+        () {
+      // given
+      final children = givenChildren(
+        offsets: const [
+          Offset(0.0, 0.0),
+          Offset(20.0, 0.0),
+          Offset(40.0, 0.0),
+        ],
+      );
+      setUpDragStarted(
+        reorderableEntity: children[1],
+        scrollDirection: Axis.horizontal,
+      );
+
+      // when
+      dragTo(const Offset(-10.0, 5.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(0));
+
+      // when
+      dragTo(const Offset(100.0, 5.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(2));
+    });
+
+    test(
+        'GIVEN reversed vertical children and dragged child '
+        'WHEN dragging after all children '
+        'THEN should move dragged child to the first position', () {
+      // given
+      final children = givenChildren(
+        offsets: const [
+          Offset(0.0, 40.0),
+          Offset(0.0, 20.0),
+          Offset(0.0, 0.0),
+        ],
+      );
+      setUpDragStarted(reorderableEntity: children[2]);
+
+      // when
+      dragTo(const Offset(5.0, 100.0));
+
+      // then
+      expect(controller.draggedEntity!.updatedOrderId, equals(0));
     });
   });
 
