@@ -92,32 +92,10 @@ class ReorderableDragAndDropController extends ReorderableController {
 
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
       final draggedOrderId = super.draggedEntity!.updatedOrderId;
-      final difference = draggedOrderId - collisionOrderId;
-
-      if (difference > 1 || difference < -1) {
-        // print('_draggedEntity $_draggedEntity');
-      }
-
-      if (difference > 1) {
-        _updateMultipleCollisions(
-          collisionReorderableEntity: collisionReorderableEntity!,
-          draggedKey: draggedKey,
-          isBackwards: true,
-          lockedIndices: lockedIndices,
-        );
-      } else if (difference < -1) {
-        _updateMultipleCollisions(
-          collisionReorderableEntity: collisionReorderableEntity!,
-          draggedKey: draggedKey,
-          isBackwards: false,
-          lockedIndices: lockedIndices,
-        );
-      } else {
-        _updateCollision(
-          collisionReorderableEntity: collisionReorderableEntity!,
-          lockedIndices: lockedIndices,
-        );
-      }
+      _updateMultipleCollisions(
+        collisionReorderableEntity: collisionReorderableEntity!,
+        isBackwards: draggedOrderId > collisionOrderId,
+      );
       return true;
     }
 
@@ -183,10 +161,8 @@ class ReorderableDragAndDropController extends ReorderableController {
 
   /// Updates all children that were between the collision and dragged child position.
   void _updateMultipleCollisions({
-    required Key draggedKey,
     required ReorderableEntity collisionReorderableEntity,
     required bool isBackwards,
-    required List<int> lockedIndices,
   }) {
     final summands = isBackwards ? -1 : 1;
     final collisionOrderId = collisionReorderableEntity.updatedOrderId;
@@ -203,10 +179,7 @@ class ReorderableDragAndDropController extends ReorderableController {
           return;
         }
 
-        _updateCollision(
-          collisionReorderableEntity: collisionMapEntry,
-          lockedIndices: lockedIndices,
-        );
+        _updateCollision(collisionReorderableEntity: collisionMapEntry);
       }
     }
   }
@@ -222,7 +195,6 @@ class ReorderableDragAndDropController extends ReorderableController {
   /// to ensure that an animation will be shown.
   void _updateCollision({
     required ReorderableEntity collisionReorderableEntity,
-    required List<int> lockedIndices,
   }) {
     final draggedEntity = super.draggedEntity;
     if (draggedEntity == null) return;
@@ -519,35 +491,3 @@ class ReorderableDragAndDropController extends ReorderableController {
     return updatedItems;
   }
 }
-
-/**
- *
-    ///
-    /// some prints for me
-    ///
-    final draggedOrderIdBefore = updatedDraggedEntity.originalOrderId;
-    final draggedOrderIdAfter = updatedDraggedEntity.updatedOrderId;
-
-    final draggedOffsetBefore = updatedDraggedEntity.originalOffset;
-    final draggedOffsetAfter = updatedDraggedEntity.updatedOffset;
-
-    final collisionOrderIdBefore = updatedCollisionEntity.originalOrderId;
-    final collisionOrderIdAfter = updatedCollisionEntity.updatedOrderId;
-
-    final collisionOffsetBefore = updatedCollisionEntity.originalOffset;
-    final collisionOffsetAfter = updatedCollisionEntity.updatedOffset;
-    /*
-    print(
-    'Dragged $draggedOrderIdBefore(${draggedEntity.key}) -> $draggedOrderIdAfter(${updatedDraggedEntity.key})');
-    print(
-    'Collisioned $collisionOrderIdBefore(${collisionReorderableEntity.key}) -> $collisionOrderIdAfter(${updatedCollisionEntity.key})');
-
-    print('');
-    print('Dragged Entity: $updatedDraggedEntity');
-    print('----');
-    print('Collisioned Entity: $updatedCollisionEntity');
-    print('---- END ----');
-    print('');
-    */
-
- */
