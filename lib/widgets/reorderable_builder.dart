@@ -485,11 +485,10 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       }
 
       // call to ensure animation to dropped item
-      _reorderableController.updateReleasedReorderableEntity(
-        releasedReorderableEntity: ReleasedReorderableEntity(
-          dropOffset: offset,
-          reorderableEntity: reorderableEntity,
-        ),
+      _reorderableController.releasedReorderableEntity =
+          ReleasedReorderableEntity(
+        dropOffset: offset,
+        reorderableEntity: reorderableEntity,
       );
     }
     setState(() {});

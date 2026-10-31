@@ -23,7 +23,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   ///
   /// [ReleasedReorderableEntity] contains the offset where it was released.
   /// This value is required to animate the released item to his new position.
-  ReleasedReorderableEntity? _releasedReorderableEntity;
+  ReleasedReorderableEntity? releasedReorderableEntity;
 
   /// Defines if the scrollable part is outside of the widget.
   ///
@@ -60,11 +60,11 @@ class ReorderableDragAndDropController extends ReorderableController {
     required Axis? scrollDirection,
   }) {
     this.scrollDirection = scrollDirection;
-    _releasedReorderableEntity = null;
+    releasedReorderableEntity = null;
     draggingAnimationMap.clear();
     this.lockedIndices = lockedIndices;
     _settleMovingChildren();
-    super.draggedEntity = childrenKeyMap[reorderableEntity.key.value];
+    draggedEntity = childrenKeyMap[reorderableEntity.key.value];
     scrollOffset = currentScrollOffset;
     this.isScrollableOutside = isScrollableOutside;
     startDraggingScrollOffset = currentScrollOffset;
@@ -91,7 +91,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
-      final draggedOrderId = super.draggedEntity!.updatedOrderId;
+      final draggedOrderId = draggedEntity!.updatedOrderId;
       _updateMultipleCollisions(
         collisionReorderableEntity: collisionReorderableEntity!,
         isBackwards: draggedOrderId > collisionOrderId,
@@ -103,12 +103,13 @@ class ReorderableDragAndDropController extends ReorderableController {
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {
-    if (super.draggedEntity == null) return null;
+    final draggedEntity = this.draggedEntity;
+    if (draggedEntity == null) return null;
 
-    final oldIndex = super.draggedEntity!.originalOrderId;
-    final newIndex = super.draggedEntity!.updatedOrderId;
+    final oldIndex = draggedEntity.originalOrderId;
+    final newIndex = draggedEntity.updatedOrderId;
 
-    super.draggedEntity = null;
+    this.draggedEntity = null;
 
     if (oldIndex == newIndex) return null;
 
@@ -120,17 +121,6 @@ class ReorderableDragAndDropController extends ReorderableController {
     updateToActualPositions();
     return orderUpdateEntities;
   }
-
-  void updateReleasedReorderableEntity({
-    required ReleasedReorderableEntity releasedReorderableEntity,
-  }) {
-    _releasedReorderableEntity = releasedReorderableEntity;
-  }
-
-  ReleasedReorderableEntity? get releasedReorderableEntity =>
-      _releasedReorderableEntity;
-
-  /// private
 
   /// Applies the target position of children still moving to it.
   ///
@@ -166,7 +156,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   }) {
     final summands = isBackwards ? -1 : 1;
     final collisionOrderId = collisionReorderableEntity.updatedOrderId;
-    var currentCollisionOrderId = super.draggedEntity!.updatedOrderId;
+    var currentCollisionOrderId = draggedEntity!.updatedOrderId;
 
     while (currentCollisionOrderId != collisionOrderId) {
       currentCollisionOrderId += summands;
@@ -196,7 +186,7 @@ class ReorderableDragAndDropController extends ReorderableController {
   void _updateCollision({
     required ReorderableEntity collisionReorderableEntity,
   }) {
-    final draggedEntity = super.draggedEntity;
+    final draggedEntity = this.draggedEntity;
     if (draggedEntity == null) return;
 
     if (collisionReorderableEntity.updatedOrderId ==
@@ -216,7 +206,7 @@ class ReorderableDragAndDropController extends ReorderableController {
       updatedOrderId: collisionReorderableEntity.updatedOrderId,
     );
 
-    super.draggedEntity = updatedDraggedEntity;
+    this.draggedEntity = updatedDraggedEntity;
 
     final collisionKeyValue = updatedCollisionEntity.key.value;
     final collisionUpdatedOrderId = updatedCollisionEntity.updatedOrderId;
@@ -237,18 +227,13 @@ class ReorderableDragAndDropController extends ReorderableController {
     required Offset draggedOffset,
   }) {
     for (final entry in childrenKeyMap.entries) {
-      final localPosition = entry.value.updatedOffset;
-      final size = entry.value.size;
-
       if (entry.key == keyValue) {
         continue;
       }
 
       // checking collision with full item size and local position
-      if (draggedOffset.dx >= localPosition.dx &&
-          draggedOffset.dy >= localPosition.dy &&
-          draggedOffset.dx <= localPosition.dx + size.width &&
-          draggedOffset.dy <= localPosition.dy + size.height) {
+      final childRect = entry.value.updatedOffset & entry.value.size;
+      if (childRect.contains(draggedOffset)) {
         return entry.value;
       }
     }
@@ -282,7 +267,7 @@ class ReorderableDragAndDropController extends ReorderableController {
     if (draggedPosition < _getMinStartPosition()) {
       return unlockedEntities.first;
     }
-    if (draggedPosition > _getMaxStartPosition()) {
+    if (draggedPosition > _getMaxEndPosition()) {
       return unlockedEntities.last;
     }
 
@@ -314,7 +299,7 @@ class ReorderableDragAndDropController extends ReorderableController {
       .reduce(min);
 
   /// Returns the largest end position of all children along the main axis.
-  double _getMaxStartPosition() => childrenKeyMap.values
+  double _getMaxEndPosition() => childrenKeyMap.values
       .map((child) => _getEndPosition(entity: child))
       .reduce(max);
 
