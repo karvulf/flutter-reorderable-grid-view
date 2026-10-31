@@ -84,9 +84,11 @@ class ReorderableDragAndDropController extends ReorderableController {
       offset = localOffset + scrollOffset;
     }
 
-    final collisionReorderableEntity = _getCollisionReorderableEntity(
-      keyValue: draggedKey.value,
-      draggedOffset: offset,
+    final collisionReorderableEntity = filterCollision(
+      _getCollisionReorderableEntity(
+        keyValue: draggedKey.value,
+        draggedOffset: offset,
+      ),
     );
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
@@ -96,11 +98,28 @@ class ReorderableDragAndDropController extends ReorderableController {
         collisionReorderableEntity: collisionReorderableEntity!,
         isBackwards: draggedOrderId > collisionOrderId,
       );
+      updatePositionsAfterCollision();
       return true;
     }
 
     return false;
   }
+
+  /// Returns the child the dragged child should collide with.
+  ///
+  /// [collision] is the child found under the dragged child. Layouts with
+  /// children of different sizes, e.g. [Wrap], override this to ignore
+  /// collisions that would swap the children back and forth.
+  @protected
+  ReorderableEntity? filterCollision(ReorderableEntity? collision) => collision;
+
+  /// Called after the dragged child changed its order with other children.
+  ///
+  /// The colliding children already swapped their positions, which is only
+  /// correct if all children have the same size. Layouts with children of
+  /// different sizes, e.g. [Wrap], override this to recalculate the positions.
+  @protected
+  void updatePositionsAfterCollision() {}
 
   List<ReorderUpdateEntity>? handleDragEnd() {
     final draggedEntity = this.draggedEntity;
