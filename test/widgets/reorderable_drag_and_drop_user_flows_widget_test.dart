@@ -605,6 +605,56 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN children with different widths '
+        'WHEN removing the first child '
+        'THEN should animate the following children to their new positions',
+        (WidgetTester tester) async {
+      // given
+      var items = givenItems(6);
+      late StateSetter setItems;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setItems = setState;
+                return ReorderableBuilder<int>.wrap(
+                  onReorder: (_) {},
+                  builder: (children) => Wrap(
+                    spacing: givenSpacing,
+                    runSpacing: givenRunSpacing,
+                    children: children,
+                  ),
+                  children: [for (final item in items) buildWrapChild(item)],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final givenRect = tester.getRect(find.byKey(const Key('2')));
+      // first child of the first run with 180 + spacing
+      const expectedLeft = 188.0;
+
+      // when
+      setItems(() => items = items.sublist(1));
+      await tester.pump();
+      // after the fade out of the removed child and before the end
+      for (var frame = 0; frame < 4; frame++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      // then the child is on its way to its new position
+      final actualLeft = tester.getRect(find.byKey(const Key('2'))).left;
+      expect(actualLeft, lessThan(givenRect.left));
+      expect(actualLeft, greaterThan(expectedLeft));
+
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(const Key('2'))).left, expectedLeft);
+    });
+
+    testWidgets(
         'GIVEN Wrap with centered alignment '
         'WHEN dragging a child onto another child '
         'THEN should throw AssertionError because it is not supported',

@@ -65,6 +65,40 @@ class ReorderableWrapController extends ReorderableBuilderController {
     );
   }
 
+  /// Marks a measured child that changed its order as moved to animate it.
+  ///
+  /// In a grid, the new position of a child is known before it is built
+  /// again, so it is animated as a swapped child. In a [Wrap], children that
+  /// changed their order, e.g. after removing another child, are measured
+  /// first (see [getReorderableEntity]). Without marking them, they would
+  /// jump to their new position.
+  @override
+  ReorderableEntity handleCreatedChild({
+    required Offset? offset,
+    required Size size,
+    required ReorderableEntity reorderableEntity,
+  }) {
+    final entity = super.handleCreatedChild(
+      offset: offset,
+      size: size,
+      reorderableEntity: reorderableEntity,
+    );
+    final hasMoved = draggedEntity == null &&
+        !entity.isNew &&
+        entity.originalOrderId != entity.updatedOrderId &&
+        entity.originalOffset != entity.updatedOffset;
+    if (!hasMoved) return entity;
+
+    final movedEntity = entity.dragUpdated(
+      updatedOrderId: entity.updatedOrderId,
+      updatedOffset: entity.updatedOffset,
+    );
+    // same map keys as used by the base controller after creating a child
+    childrenKeyMap[movedEntity.key.value] = movedEntity;
+    childrenOrderMap[movedEntity.originalOrderId] = movedEntity;
+    return movedEntity;
+  }
+
   /// Returns the child whose index moves the dragged child to [draggedOffset].
   ///
   /// Children with different sizes change the line breaks of the [Wrap], so
