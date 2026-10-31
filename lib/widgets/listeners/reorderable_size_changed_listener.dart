@@ -8,41 +8,59 @@ import 'package:flutter/widgets.dart';
 class ReorderableSizeChangedListener extends SingleChildRenderObjectWidget {
   final VoidCallback onSizeChanged;
 
+  /// Only reports a change when the available width changed.
+  ///
+  /// Used for [Wrap], which changes its own size when its children change
+  /// their order, e.g. when a new run is needed. That doesn't change the
+  /// positions of the children, but a new available width does.
+  final bool onlyAvailableWidth;
+
   const ReorderableSizeChangedListener({
     required this.onSizeChanged,
     required super.child,
+    this.onlyAvailableWidth = false,
     super.key,
   });
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      RenderReorderableSizeChangedListener(onSizeChanged);
+      RenderReorderableSizeChangedListener(
+        onSizeChanged,
+        onlyAvailableWidth: onlyAvailableWidth,
+      );
 
   @override
   void updateRenderObject(
     BuildContext context,
     RenderReorderableSizeChangedListener renderObject,
   ) {
-    renderObject.onSizeChanged = onSizeChanged;
+    renderObject
+      ..onSizeChanged = onSizeChanged
+      ..onlyAvailableWidth = onlyAvailableWidth;
   }
 }
 
 class RenderReorderableSizeChangedListener extends RenderProxyBox {
   VoidCallback onSizeChanged;
-  Size? _previousSize;
+  bool onlyAvailableWidth;
+  Object? _previousValue;
 
-  RenderReorderableSizeChangedListener(this.onSizeChanged);
+  RenderReorderableSizeChangedListener(
+    this.onSizeChanged, {
+    this.onlyAvailableWidth = false,
+  });
 
   @override
   void performLayout() {
     super.performLayout();
 
-    if (_previousSize != null && _previousSize != size) {
+    final value = onlyAvailableWidth ? constraints.maxWidth : size;
+    if (_previousValue != null && _previousValue != value) {
       // Called after the frame because a rebuild isn't allowed during layout.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (attached) onSizeChanged();
       });
     }
-    _previousSize = size;
+    _previousValue = value;
   }
 }

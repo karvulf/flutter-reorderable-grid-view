@@ -306,6 +306,13 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// horizontal and all alignments and directions keep their default.
   /// [Wrap.spacing] and [Wrap.runSpacing] can be used.
   ///
+  /// [lockedIndices] keep their index and their position on the screen while
+  /// dragging. Children with different sizes change the line breaks of the
+  /// [Wrap], so a child can't be moved to an index that would move a locked
+  /// child, e.g. into the next run. In that case, the dragged child is
+  /// exchanged with the child under it if that keeps the locked children at
+  /// their position, e.g. if both have the same size.
+  ///
   /// If the [Wrap] should be scrollable, wrap this widget into a scrollable
   /// widget, e.g. [SingleChildScrollView].
   const ReorderableBuilder.wrap({
@@ -389,6 +396,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
     return ReorderableSizeChangedListener(
       onSizeChanged: _handleSizeChanged,
+      onlyAvailableWidth: widget._type == _ReorderableBuilderType.wrap,
       child: ReorderableRemovedChildren(
         children: widget.children,
         itemCount: widget.itemCount,
@@ -473,6 +481,12 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         !widget.lockedIndices.contains(index);
 
     return ReorderableSizeChangedListener(
+      // in a Wrap, children at the same index can have different sizes, so
+      // the listener has to stay with its child to not report a size change
+      // after reordering
+      key: widget._type == _ReorderableBuilderType.wrap
+          ? ValueKey(child.key)
+          : null,
       onSizeChanged: _handleSizeChanged,
       child: ReorderableBuilderItem(
         reorderableEntity: reorderableEntity,

@@ -20,48 +20,220 @@ class ReorderableWrapController extends ReorderableBuilderController {
   /// same as the ones of the user.
   final wrapKey = GlobalKey();
 
-  /// Key of the child that collided last with the dragged child.
-  Key? _lastCollisionKey;
-
-  /// Ignores the child that just swapped with the dragged child.
+  /// Key of the child that is exchanged with the dragged child.
   ///
-  /// After swapping with a child of a different size, the positions are
-  /// recalculated and that child can end up under the dragged child again.
-  /// Without ignoring it, both would swap back and forth on every move.
-  /// The child collides again after the dragged child has left it.
-  // ponytail: only remembers the last child, children moving under the
-  // dragged child after the recalculation could still swap once more
-  @override
-  ReorderableEntity? filterCollision(ReorderableEntity? collision) {
-    if (collision?.key == _lastCollisionKey) return null;
+  /// Set by [filterCollision] if the dragged child can't be moved to an index
+  /// without moving a locked child, but can be exchanged with the child at
+  /// its position.
+  ValueKey? _exchangeKey;
 
-    _lastCollisionKey = collision?.key;
+  /// Updates the children and measures the ones with a new position again.
+  ///
+  /// [offsetMap] caches the offset of every index. That only works if every
+  /// index keeps its position, like in a grid. In a [Wrap], the position of
+  /// an index depends on the sizes of all children before it, so the cached
+  /// offsets would belong to other children after they changed their order.
+  /// Instead, the positions are taken from [getReorderableEntity].
+  @override
+  void updateChildren({required List<Widget> children}) {
+    offsetMap.clear();
+    super.updateChildren(children: children);
+  }
+
+  /// Returns the entity of [key] at [index] with its known position.
+  ///
+  /// After dropping a child, every child already has its new position
+  /// calculated while dragging. Only children with an unknown position at
+  /// [index], e.g. new children or children moved by adding or removing
+  /// another child, are measured again.
+  @override
+  ReorderableEntity getReorderableEntity({
+    required ValueKey key,
+    required int index,
+  }) {
+    final entity = childrenKeyMap[key.value];
+    if (entity == null) {
+      return ReorderableEntity.create(key: key, updatedOrderId: index);
+    }
+
+    final hasKnownPosition =
+        entity.updatedOrderId == index && !entity.isBuildingOffset;
+    return entity.updated(
+      updatedOrderId: index,
+      updatedOffset: hasKnownPosition ? entity.updatedOffset : null,
+      size: entity.size,
+    );
+  }
+
+  /// Returns the child whose index moves the dragged child to [draggedOffset].
+  ///
+  /// Children with different sizes change the line breaks of the [Wrap], so
+  /// taking the index of the child under [draggedOffset] could move the
+  /// dragged child somewhere else. Instead, the dragged child takes the index
+  /// where it would be laid out at [draggedOffset].
+  ///
+  /// If no index is possible, the dragged child is exchanged with [collision]
+  /// if that lays it out at [draggedOffset], see [updateOrderAfterCollision].
+  ///
+  /// Collisions without a child at [draggedOffset], e.g. when dragging
+  /// outside of all children, keep the index of [collision].
+  ///
+  /// An order is never used if it would move a locked child on the screen.
+  /// Returns null if there is no such order or the dragged child is already
+  /// there.
+  // ponytail: lays out all children for every index on each move (O(n²)),
+  // only check indices near the pointer if big wraps get slow
+  @override
+  ReorderableEntity? filterCollision(
+    ReorderableEntity? collision, {
+    required Offset draggedOffset,
+  }) {
+    _exchangeKey = null;
+    final draggedEntity = this.draggedEntity;
+    if (collision == null || draggedEntity == null) return collision;
+
+    final renderWrap = _getRenderWrap();
+    if (renderWrap == null) return collision;
+
+    final isOverCollision =
+        (collision.updatedOffset & collision.size).contains(draggedOffset);
+    bool isAllowed(List<ReorderableEntity> orderedEntities) => _isAllowedOrder(
+          orderedEntities,
+          renderWrap: renderWrap,
+          draggedOffset: isOverCollision ? draggedOffset : null,
+        );
+
+    final targets = isOverCollision
+        ? _getOrderedEntities().where((entity) => !_isLocked(entity))
+        : [collision];
+    for (final target in targets) {
+      final orderedEntities = _getOrderAfterCollision(
+        draggedEntity: draggedEntity,
+        collision: target,
+      );
+      if (!isAllowed(orderedEntities)) continue;
+
+      return target.key == draggedEntity.key ? null : target;
+    }
+
+    final canExchange = isOverCollision &&
+        !_isLocked(collision) &&
+        isAllowed(_getOrderAfterExchange(collision));
+    if (!canExchange) return null;
+
+    _exchangeKey = collision.key;
     return collision;
   }
 
+  /// Exchanges the dragged child with [collision] if chosen by [filterCollision].
+  ///
+  /// Only the two children change their index. That keeps the other children
+  /// and especially the locked ones at their position if both have the
+  /// same size.
+  @override
+  void updateOrderAfterCollision(ReorderableEntity collision) {
+    final draggedEntity = this.draggedEntity;
+    if (collision.key != _exchangeKey || draggedEntity == null) {
+      super.updateOrderAfterCollision(collision);
+      return;
+    }
+
+    _updateEntity(
+      collision.dragUpdated(
+        updatedOrderId: draggedEntity.updatedOrderId,
+        updatedOffset: collision.updatedOffset,
+      ),
+    );
+    _updateEntity(
+      draggedEntity.dragUpdated(
+        updatedOrderId: collision.updatedOrderId,
+        updatedOffset: draggedEntity.updatedOffset,
+      ),
+    );
+  }
+
+  /// Returns the moves from the order before dragging to the current order.
+  ///
+  /// The dragged child can be moved to an index or exchanged with another
+  /// child, so the new order is not only one move of the dragged child.
+  /// Every child is moved to its new index one after the other, like
+  /// [reorderList] applies them.
   @override
   List<ReorderUpdateEntity>? handleDragEnd() {
-    _lastCollisionKey = null;
-    return super.handleDragEnd();
+    if (draggedEntity == null) return null;
+
+    final previousKeys = (childrenKeyMap.values.toList()
+          ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId)))
+        .map((entity) => entity.key)
+        .toList();
+    final reorderUpdateEntities = <ReorderUpdateEntity>[];
+    for (final (newIndex, entity) in _getOrderedEntities().indexed) {
+      final oldIndex = previousKeys.indexOf(entity.key);
+      if (oldIndex == newIndex) continue;
+
+      reorderUpdateEntities.add(
+        ReorderUpdateEntity(oldIndex: oldIndex, newIndex: newIndex),
+      );
+      previousKeys.insert(newIndex, previousKeys.removeAt(oldIndex));
+    }
+
+    draggedEntity = null;
+    _exchangeKey = null;
+    if (reorderUpdateEntities.isEmpty) return null;
+
+    updateToActualPositions();
+    return reorderUpdateEntities;
   }
+
+  /// Checks if [orderedEntities] can be used as the new order.
+  ///
+  /// A locked child must keep its position. If [draggedOffset] is given, the
+  /// dragged child has to be laid out there.
+  bool _isAllowedOrder(
+    List<ReorderableEntity> orderedEntities, {
+    required RenderWrap renderWrap,
+    required Offset? draggedOffset,
+  }) {
+    final offsets = _calculateOffsets(orderedEntities, renderWrap);
+    if (_movesLockedChild(orderedEntities, offsets)) return false;
+    if (draggedOffset == null) return true;
+
+    final draggedIndex = orderedEntities.indexWhere(
+      (entity) => entity.key == draggedEntity?.key,
+    );
+    final draggedRect =
+        offsets[draggedIndex] & orderedEntities[draggedIndex].size;
+    return draggedRect.contains(draggedOffset);
+  }
+
+  /// Checks if a locked child of [orderedEntities] would leave its position.
+  ///
+  /// [offsets] are the new positions of [orderedEntities] in the same order.
+  bool _movesLockedChild(
+    List<ReorderableEntity> orderedEntities,
+    List<Offset> offsets,
+  ) {
+    for (final (index, entity) in orderedEntities.indexed) {
+      final distance = (offsets[index] - entity.updatedOffset).distance;
+      // tolerance for measured offsets with small rounding differences
+      if (_isLocked(entity) && distance > 0.01) return true;
+    }
+    return false;
+  }
+
+  bool _isLocked(ReorderableEntity entity) =>
+      lockedIndices.contains(entity.updatedOrderId);
 
   @override
   void updatePositionsAfterCollision() {
     final renderWrap = _getRenderWrap();
     if (renderWrap == null) return;
 
-    final entities = childrenKeyMap.values.toList()
-      ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
-    final offsets = calculateWrapOffsets(
-      sizes: [for (final entity in entities) entity.size],
-      maxWidth: renderWrap.constraints.maxWidth,
-      spacing: renderWrap.spacing,
-      runSpacing: renderWrap.runSpacing,
-    );
-    final wrapOffset = _getWrapOffset();
+    final entities = _getOrderedEntities();
+    final offsets = _calculateOffsets(entities, renderWrap);
 
     for (final (index, entity) in entities.indexed) {
-      final updatedOffset = wrapOffset + offsets[index];
+      final updatedOffset = offsets[index];
       if (updatedOffset == entity.updatedOffset) continue;
 
       _updateEntity(
@@ -71,6 +243,70 @@ class ReorderableWrapController extends ReorderableBuilderController {
         ),
       );
     }
+  }
+
+  /// Returns all children sorted by their current order.
+  List<ReorderableEntity> _getOrderedEntities() =>
+      childrenKeyMap.values.toList()
+        ..sort((a, b) => a.updatedOrderId.compareTo(b.updatedOrderId));
+
+  /// Returns all children in the order after [draggedEntity] collided with
+  /// [collision].
+  ///
+  /// Same result as the collision handling of the base controller: the
+  /// dragged child moves to the index of [collision] and the children in
+  /// between move by one, except the children in [lockedIndices].
+  List<ReorderableEntity> _getOrderAfterCollision({
+    required ReorderableEntity draggedEntity,
+    required ReorderableEntity collision,
+  }) {
+    final orderedEntities = _getOrderedEntities();
+    final movableEntities =
+        orderedEntities.where((entity) => !_isLocked(entity)).toList();
+    final collisionIndex = movableEntities.indexOf(collision);
+    movableEntities
+      ..removeWhere((entity) => entity.key == draggedEntity.key)
+      ..insert(collisionIndex, draggedEntity);
+
+    final movableIterator = movableEntities.iterator;
+    return [
+      for (final entity in orderedEntities)
+        if (_isLocked(entity))
+          entity
+        else if (movableIterator.moveNext())
+          movableIterator.current,
+    ];
+  }
+
+  /// Returns all children in the order after the dragged child was exchanged
+  /// with [collision].
+  List<ReorderableEntity> _getOrderAfterExchange(ReorderableEntity collision) {
+    return [
+      for (final entity in _getOrderedEntities())
+        if (entity.key == collision.key)
+          draggedEntity!
+        else if (entity.key == draggedEntity!.key)
+          collision
+        else
+          entity,
+    ];
+  }
+
+  /// Returns the offsets of [orderedEntities] laid out by [renderWrap].
+  ///
+  /// The offsets are in the same coordinates as [ReorderableEntity.updatedOffset].
+  List<Offset> _calculateOffsets(
+    List<ReorderableEntity> orderedEntities,
+    RenderWrap renderWrap,
+  ) {
+    final wrapOffset = _getWrapOffset();
+    final offsets = calculateWrapOffsets(
+      sizes: [for (final entity in orderedEntities) entity.size],
+      maxWidth: renderWrap.constraints.maxWidth,
+      spacing: renderWrap.spacing,
+      runSpacing: renderWrap.runSpacing,
+    );
+    return [for (final offset in offsets) wrapOffset + offset];
   }
 
   /// Returns the rendered [Wrap] of [wrapKey].

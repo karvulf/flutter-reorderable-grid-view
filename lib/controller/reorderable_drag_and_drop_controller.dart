@@ -16,7 +16,6 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 /// [ReorderUpdateEntity]s so the children can be reordered.
 class ReorderableDragAndDropController extends ReorderableController {
   /// Indices of children that cannot move while drag and drop.
-  @visibleForTesting
   var lockedIndices = <int>[];
 
   /// Entity that is released after drag and drop.
@@ -89,15 +88,12 @@ class ReorderableDragAndDropController extends ReorderableController {
         keyValue: draggedKey.value,
         draggedOffset: offset,
       ),
+      draggedOffset: offset,
     );
     final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
 
     if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
-      final draggedOrderId = draggedEntity!.updatedOrderId;
-      _updateMultipleCollisions(
-        collisionReorderableEntity: collisionReorderableEntity!,
-        isBackwards: draggedOrderId > collisionOrderId,
-      );
+      updateOrderAfterCollision(collisionReorderableEntity!);
       updatePositionsAfterCollision();
       return true;
     }
@@ -105,13 +101,31 @@ class ReorderableDragAndDropController extends ReorderableController {
     return false;
   }
 
+  /// Moves the dragged child to the index of [collision].
+  ///
+  /// The children between them move by one index, except the locked ones.
+  /// Layouts with children of different sizes, e.g. [Wrap], override this
+  /// to exchange the dragged child with [collision] instead.
+  @protected
+  void updateOrderAfterCollision(ReorderableEntity collision) {
+    _updateMultipleCollisions(
+      collisionReorderableEntity: collision,
+      isBackwards: draggedEntity!.updatedOrderId > collision.updatedOrderId,
+    );
+  }
+
   /// Returns the child the dragged child should collide with.
   ///
-  /// [collision] is the child found under the dragged child. Layouts with
-  /// children of different sizes, e.g. [Wrap], override this to ignore
-  /// collisions that would swap the children back and forth.
+  /// [collision] is the child found at [draggedOffset], the position of the
+  /// dragged child. Layouts with children of different sizes, e.g. [Wrap],
+  /// override this to ignore collisions that wouldn't move the dragged child
+  /// to [draggedOffset].
   @protected
-  ReorderableEntity? filterCollision(ReorderableEntity? collision) => collision;
+  ReorderableEntity? filterCollision(
+    ReorderableEntity? collision, {
+    required Offset draggedOffset,
+  }) =>
+      collision;
 
   /// Called after the dragged child changed its order with other children.
   ///
