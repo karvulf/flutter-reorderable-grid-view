@@ -137,7 +137,7 @@ void main() {
             identical(widget.draggingAnimationMap, givenDraggingAnimationMap) &&
             widget.positionChangeDelay == givenPositionChangeDelay &&
             widget.animationConfig == givenAnimationConfig &&
-            widget.child is ReorderableInitChild,
+            widget.child is ReorderableAnimatedInsert,
       ),
       findsOneWidget,
     );
@@ -146,7 +146,7 @@ void main() {
         (widget) =>
             widget is ReorderableInitChild &&
             widget.reorderableEntity == givenReorderableEntity &&
-            widget.child is ReorderableAnimatedInsert,
+            widget.child is ReorderableAnimatedPositioned,
       ),
       findsOneWidget,
     );

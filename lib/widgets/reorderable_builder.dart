@@ -646,7 +646,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         // translating global offset to the local offset in this widget
         var parentRenderObject = context.findRenderObject() as RenderBox;
         offset = parentRenderObject.globalToLocal(
-          _getLayoutRenderBox(renderBox).localToGlobal(Offset.zero),
+          renderBox.localToGlobal(Offset.zero),
         );
         offset += _scrollOffset;
       }
@@ -657,23 +657,6 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       reorderableEntity: reorderableEntity,
       size: size,
     );
-  }
-
-  /// Returns the box of the child that is laid out by the parent widget.
-  ///
-  /// [renderBox] is inside the animations of the child, e.g. the position
-  /// change. Measuring it while the child is still moving would save a
-  /// position in between. The box of [ReorderableSizeChangedListener] around
-  /// every child isn't moved by these animations.
-  RenderBox _getLayoutRenderBox({required RenderBox renderBox}) {
-    RenderObject? renderObject = renderBox;
-
-    while (renderObject != null &&
-        renderObject is! RenderReorderableSizeChangedListener) {
-      renderObject = renderObject.parent;
-    }
-
-    return renderObject as RenderBox? ?? renderBox;
   }
 
   /// Called when this widget or one of its children got a new size.
