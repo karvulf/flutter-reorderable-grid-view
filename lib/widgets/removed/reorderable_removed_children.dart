@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
@@ -33,6 +34,9 @@ class ReorderableRemovedChildren extends StatefulWidget {
   /// Returns the current scroll offset.
   final ValueGetter<Offset> getScrollOffset;
 
+  /// Type of ReorderableBuilder that uses this widget.
+  final ReorderableBuilderType type;
+
   const ReorderableRemovedChildren({
     required this.child,
     required this.children,
@@ -41,6 +45,7 @@ class ReorderableRemovedChildren extends StatefulWidget {
     required this.animationConfig,
     required this.scrollController,
     required this.getScrollOffset,
+    required this.type,
     super.key,
   });
 
@@ -74,6 +79,7 @@ class _ReorderableRemovedChildrenState
       clipBehavior: Clip.none,
       children: [
         widget.child,
+        if (_buildRemovedArea() case final removedArea?) removedArea,
         // Ensures that removed children in scrollable GridViews
         // are visible on the outside of the GridView when fading them out
         Positioned.fill(
@@ -98,6 +104,29 @@ class _ReorderableRemovedChildrenState
         ),
       ],
     );
+  }
+
+  /// Returns an empty box covering all removed children of a [Wrap].
+  ///
+  /// A [Wrap] shrinks with its children, so the removed children would be
+  /// clipped, e.g. after removing all children at once. As a non-positioned
+  /// child of the [Stack], the [Stack] is at least as big as this box.
+  /// Returns null for other types or if no child is removed.
+  Widget? _buildRemovedArea() {
+    if (widget.type != ReorderableBuilderType.wrap) return null;
+    if (_removedEntities.isEmpty) return null;
+
+    var size = Size.zero;
+    for (final entity in _removedEntities) {
+      final bottomRight = entity.offset -
+          widget.getScrollOffset() +
+          entity.size.bottomRight(Offset.zero);
+      size = Size(
+        bottomRight.dx > size.width ? bottomRight.dx : size.width,
+        bottomRight.dy > size.height ? bottomRight.dy : size.height,
+      );
+    }
+    return SizedBox.fromSize(size: size);
   }
 
   /// Adds removed children of [oldChildren] to [_removedEntities] to fade them out.

@@ -655,6 +655,55 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN children in a scrollable '
+        'WHEN removing all children at once '
+        'THEN should show them fading out at their last position',
+        (WidgetTester tester) async {
+      // given
+      var items = givenItems(6);
+      late StateSetter setItems;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  setItems = setState;
+                  return ReorderableBuilder<int>.wrap(
+                    onReorder: (_) {},
+                    builder: (children) => Wrap(
+                      spacing: givenSpacing,
+                      runSpacing: givenRunSpacing,
+                      children: children,
+                    ),
+                    children: [for (final item in items) buildWrapChild(item)],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final givenRect = tester.getRect(find.byKey(const Key('3')));
+
+      // when
+      setItems(() => items = []);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // then the removed child is still at its last position and not
+      // clipped by the shrunk Wrap
+      final finder = find.byKey(const Key('3'));
+      expect(tester.getRect(finder), equals(givenRect));
+      final visibleArea = tester.getRect(find.byType(ReorderableBuilder<int>));
+      expect(visibleArea.intersect(givenRect), equals(givenRect));
+
+      await tester.pumpAndSettle();
+      expect(finder, findsNothing);
+    });
+
+    testWidgets(
         'GIVEN Wrap with centered alignment '
         'WHEN dragging a child onto another child '
         'THEN should throw AssertionError because it is not supported',

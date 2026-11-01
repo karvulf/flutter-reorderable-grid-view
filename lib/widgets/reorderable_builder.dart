@@ -6,6 +6,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_item_builde
 import 'package:flutter_reorderable_grid_view/controller/reorderable_wrap_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/released_reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
@@ -25,18 +26,6 @@ typedef ItemCallback = void Function(int index);
 typedef ChildBuilderFunction = Widget Function(
   Widget Function(Widget child, int index) itemBuilder,
 );
-
-/// Type of [ReorderableBuilder], set by the used constructor.
-enum _ReorderableBuilderType {
-  /// [ReorderableBuilder] with [ReorderableBuilder.children].
-  children,
-
-  /// [ReorderableBuilder.builder] with [ReorderableBuilder.childBuilder].
-  builder,
-
-  /// [ReorderableBuilder.wrap] with [ReorderableBuilder.children] in a [Wrap].
-  wrap,
-}
 
 /// Enables animated drag and drop behaviour for built widgets in [builder].
 ///
@@ -218,7 +207,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
   final ScrollController? scrollController;
 
   /// Type of this widget, set by the used constructor.
-  final _ReorderableBuilderType _type;
+  final ReorderableBuilderType _type;
 
   const ReorderableBuilder({
     required this.children,
@@ -256,7 +245,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
         ),
         childBuilder = null,
         itemCount = null,
-        _type = _ReorderableBuilderType.children;
+        _type = ReorderableBuilderType.children;
 
   const ReorderableBuilder.builder({
     required ChildBuilderFunction this.childBuilder,
@@ -294,7 +283,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
         ),
         children = null,
         builder = null,
-        _type = _ReorderableBuilderType.builder;
+        _type = ReorderableBuilderType.builder;
 
   /// Enables drag and drop for [children] shown in a [Wrap].
   ///
@@ -343,7 +332,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
         enableLongPress = _defaultEnableLongPress,
         feedbackScaleFactor = null,
         reverse = _defaultReverse,
-        _type = _ReorderableBuilderType.wrap;
+        _type = ReorderableBuilderType.wrap;
 
   @override
   State<ReorderableBuilder<T>> createState() => _ReorderableBuilderState();
@@ -360,9 +349,9 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   void initState() {
     super.initState();
     reorderableBuilderController = switch (widget._type) {
-      _ReorderableBuilderType.wrap => reorderableWrapController,
-      _ReorderableBuilderType.children ||
-      _ReorderableBuilderType.builder =>
+      ReorderableBuilderType.wrap => reorderableWrapController,
+      ReorderableBuilderType.children ||
+      ReorderableBuilderType.builder =>
         ReorderableBuilderController(),
     };
     reorderableItemBuilderController = ReorderableItemBuilderController();
@@ -386,9 +375,9 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   @override
   Widget build(BuildContext context) {
     final child = switch (widget._type) {
-      _ReorderableBuilderType.children => widget.builder!(_wrapChildren()),
-      _ReorderableBuilderType.builder => widget.childBuilder!(_buildItem),
-      _ReorderableBuilderType.wrap => KeyedSubtree(
+      ReorderableBuilderType.children => widget.builder!(_wrapChildren()),
+      ReorderableBuilderType.builder => widget.childBuilder!(_buildItem),
+      ReorderableBuilderType.wrap => KeyedSubtree(
           key: reorderableWrapController.wrapKey,
           child: widget.builder!(_wrapChildren()),
         ),
@@ -396,7 +385,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
     return ReorderableSizeChangedListener(
       onSizeChanged: _handleSizeChanged,
-      onlyAvailableWidth: widget._type == _ReorderableBuilderType.wrap,
+      onlyAvailableWidth: widget._type == ReorderableBuilderType.wrap,
       child: ReorderableRemovedChildren(
         children: widget.children,
         itemCount: widget.itemCount,
@@ -404,6 +393,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         animationConfig: widget.animationConfig,
         scrollController: widget.scrollController,
         getScrollOffset: () => _scrollOffset,
+        type: widget._type,
         child: ReorderableScrollingListener(
           isDragging: _reorderableController.draggedEntity != null,
           reorderableChildKey: child.key as GlobalKey?,
@@ -484,7 +474,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
       // in a Wrap, children at the same index can have different sizes, so
       // the listener has to stay with its child to not report a size change
       // after reordering
-      key: widget._type == _ReorderableBuilderType.wrap
+      key: widget._type == ReorderableBuilderType.wrap
           ? ValueKey(child.key)
           : null,
       onSizeChanged: _handleSizeChanged,
@@ -692,9 +682,9 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
   ReorderableDragAndDropController get _reorderableController =>
       switch (widget._type) {
-        _ReorderableBuilderType.builder => reorderableItemBuilderController,
-        _ReorderableBuilderType.children ||
-        _ReorderableBuilderType.wrap =>
+        ReorderableBuilderType.builder => reorderableItemBuilderController,
+        ReorderableBuilderType.children ||
+        ReorderableBuilderType.wrap =>
           reorderableBuilderController,
       };
 

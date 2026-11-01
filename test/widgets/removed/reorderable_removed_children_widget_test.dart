@@ -3,6 +3,7 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_con
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
 import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_removed_children.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../reorderable_builder.dart';
@@ -51,6 +52,9 @@ void main() {
               dimension: 400.0,
               child: ReorderableRemovedChildren(
                 children: children,
+                type: children == null
+                    ? ReorderableBuilderType.builder
+                    : ReorderableBuilderType.children,
                 itemCount: itemCount,
                 controller: controller,
                 animationConfig: animationConfig,
