@@ -1,7 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/foundation.dart' show precisionErrorTolerance;
-import 'package:flutter/rendering.dart' show RenderWrap;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
@@ -247,7 +244,7 @@ class ReorderableWrapController extends ReorderableBuilderController {
     required List<ReorderableEntity> orderedEntities,
     required RenderWrap renderWrap,
   }) {
-    final wrapOffset = _getWrapOffset();
+    final wrapOffset = _getWrapOffset(renderWrap: renderWrap);
     final offsets = calculateWrapOffsets(
       sizes: orderedEntities.map((e) => e.size).toList(),
       renderWrap: renderWrap,
@@ -257,45 +254,39 @@ class ReorderableWrapController extends ReorderableBuilderController {
 
   /// Calculates the offsets of children with [sizes] like [renderWrap] would do.
   ///
-  /// The available width, the spacing and the run spacing are taken from
-  /// [renderWrap], so it has to be laid out. The offsets are relative to the
+  /// A copy of [renderWrap] with the same layout values lays out empty boxes
+  /// with [sizes], so every layout of [Wrap] is supported. [renderWrap] has
+  /// to be laid out to know its constraints. The offsets are relative to the
   /// top left of the [Wrap] and in the same order as [sizes].
-  ///
-  /// Supports the default [Wrap] layout: horizontal direction, left to right,
-  /// top to bottom and every alignment set to start.
   @visibleForTesting
   List<Offset> calculateWrapOffsets({
     required List<Size> sizes,
     required RenderWrap renderWrap,
   }) {
-    final maxWidth = renderWrap.constraints.maxWidth;
-    final spacing = renderWrap.spacing;
-    final runSpacing = renderWrap.runSpacing;
-    final offsets = <Offset>[];
-    var childrenInRun = 0;
-    var runWidth = 0.0;
-    var runHeight = 0.0;
-    var runTop = 0.0;
+    final layoutWrap = RenderWrap(
+      direction: renderWrap.direction,
+      alignment: renderWrap.alignment,
+      spacing: renderWrap.spacing,
+      runAlignment: renderWrap.runAlignment,
+      runSpacing: renderWrap.runSpacing,
+      crossAxisAlignment: renderWrap.crossAxisAlignment,
+      textDirection: renderWrap.textDirection,
+      verticalDirection: renderWrap.verticalDirection,
+    );
+    final boxes = sizes
+        .map(
+          (size) => RenderConstrainedBox(
+            additionalConstraints: BoxConstraints.tight(size),
+          ),
+        )
+        .toList();
+    layoutWrap
+      ..addAll(boxes)
+      ..layout(renderWrap.constraints);
 
-    for (final size in sizes) {
-      // same check as RenderWrap to start a new run
-      final needsNewRun = childrenInRun > 0 &&
-          runWidth + size.width + spacing - maxWidth > precisionErrorTolerance;
-
-      if (needsNewRun) {
-        runTop += runHeight + runSpacing;
-        childrenInRun = 0;
-        runWidth = 0.0;
-        runHeight = 0.0;
-      }
-
-      final left = childrenInRun == 0 ? 0.0 : runWidth + spacing;
-      offsets.add(Offset(left, runTop));
-      childrenInRun++;
-      runWidth = left + size.width;
-      runHeight = runHeight > size.height ? runHeight : size.height;
-    }
-
+    final offsets =
+        boxes.map((box) => (box.parentData! as WrapParentData).offset).toList();
+    layoutWrap.dispose();
     return offsets;
   }
 
@@ -311,35 +302,31 @@ class ReorderableWrapController extends ReorderableBuilderController {
       return null;
     }
 
-    assert(
-      _isDefaultWrapLayout(renderWrap: renderWrap),
-      'ReorderableBuilder.wrap only supports the default layout of Wrap, '
-      'only spacing and runSpacing can be changed.',
-    );
     return renderWrap;
   }
 
-  /// Checks if [renderWrap] uses the layout supported by [calculateWrapOffsets].
-  ///
-  // TODO(karvulf): Support also all other kind of layouts for Wrap.
-  bool _isDefaultWrapLayout({required RenderWrap renderWrap}) =>
-      renderWrap.direction == Axis.horizontal &&
-      renderWrap.alignment == WrapAlignment.start &&
-      renderWrap.runAlignment == WrapAlignment.start &&
-      renderWrap.crossAxisAlignment == WrapCrossAlignment.start &&
-      renderWrap.textDirection != TextDirection.rtl &&
-      renderWrap.verticalDirection == VerticalDirection.down;
-
   /// Returns the top left position of the [Wrap].
   ///
-  /// The original offsets don't change while dragging. With the default
-  /// [Wrap] layout, every run starts at the left and the first run at the top.
-  Offset _getWrapOffset() {
-    final originalOffsets = childrenKeyMap.values.map((e) => e.originalOffset);
-    return Offset(
-      originalOffsets.map((offset) => offset.dx).reduce(min),
-      originalOffsets.map((offset) => offset.dy).reduce(min),
+  /// The original offsets were measured before dragging and don't change
+  /// while dragging. Laying out the children in their original order gives
+  /// their offsets inside the [Wrap], the difference to a measured offset is
+  /// the position of the [Wrap].
+  Offset _getWrapOffset({required RenderWrap renderWrap}) {
+    // new children have no original offset
+    final originalEntities = childrenKeyMap.values
+        .where((entity) => !entity.isNew)
+        .toList()
+      ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId));
+    if (originalEntities.isEmpty) {
+      return Offset.zero;
+    }
+
+    final offsets = calculateWrapOffsets(
+      sizes: originalEntities.map((e) => e.size).toList(),
+      renderWrap: renderWrap,
     );
+
+    return originalEntities.first.originalOffset - offsets.first;
   }
 
   /// Replaces the entity in both maps and in [draggedEntity] if it's dragged.
