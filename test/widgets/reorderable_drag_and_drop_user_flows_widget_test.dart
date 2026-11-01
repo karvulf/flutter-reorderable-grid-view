@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/utils/reorderable_wrap_layout.dart';
+import 'package:flutter/rendering.dart' show RenderWrap;
+import 'package:flutter_reorderable_grid_view/controller/reorderable_wrap_controller.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -476,11 +477,9 @@ void main() {
       /// Returns the rects of [order] like a Wrap at the top left lays them out.
       Map<int, Rect> getExpectedRects(List<int> order) {
         final sizes = [for (final item in order) Size(givenWidths[item], 50)];
-        final offsets = calculateWrapOffsets(
+        final offsets = ReorderableWrapController().calculateWrapOffsets(
           sizes: sizes,
-          maxWidth: 400.0,
-          spacing: givenSpacing,
-          runSpacing: givenRunSpacing,
+          renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
         );
         return {
           for (final (index, item) in order.indexed)
@@ -665,14 +664,12 @@ void main() {
 
       void expectWrapLayout(List<int> expectedItems) {
         expect(items, equals(expectedItems));
-        final offsets = calculateWrapOffsets(
+        final offsets = ReorderableWrapController().calculateWrapOffsets(
           sizes: [
             for (final item in expectedItems)
               Size(60.0 + (item % 4) * 40.0, 50.0),
           ],
-          maxWidth: 400.0,
-          spacing: givenSpacing,
-          runSpacing: givenRunSpacing,
+          renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
         );
         for (final (index, item) in expectedItems.indexed) {
           final actualOffset = tester.getTopLeft(find.byKey(Key('$item')));
@@ -774,11 +771,9 @@ void main() {
       final expectedItems = [...items]
         ..[3] = collisionItem
         ..[5] = draggedItem;
-      final expectedOffsets = calculateWrapOffsets(
+      final expectedOffsets = ReorderableWrapController().calculateWrapOffsets(
         sizes: [for (final item in expectedItems) Size(getWidth(item), 50.0)],
-        maxWidth: 400.0,
-        spacing: givenSpacing,
-        runSpacing: givenRunSpacing,
+        renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
       );
       for (final (index, item) in expectedItems.indexed) {
         if (item == draggedItem) continue;

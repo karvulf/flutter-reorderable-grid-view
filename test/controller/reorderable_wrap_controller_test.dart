@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/utils/reorderable_wrap_layout.dart';
+import 'package:flutter/rendering.dart' show RenderWrap;
+import 'package:flutter_reorderable_grid_view/controller/reorderable_wrap_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -87,11 +88,9 @@ void main() {
         );
 
         // when
-        final actual = calculateWrapOffsets(
+        final actual = ReorderableWrapController().calculateWrapOffsets(
           sizes: sizes,
-          maxWidth: givenMaxWidth,
-          spacing: spacing,
-          runSpacing: runSpacing,
+          renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
         );
 
         // then

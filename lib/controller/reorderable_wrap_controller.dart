@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show precisionErrorTolerance;
 import 'package:flutter/rendering.dart' show RenderWrap;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_builder_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
-import 'package:flutter_reorderable_grid_view/utils/reorderable_wrap_layout.dart';
 import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 
 /// Handles drag and drop of the children in [ReorderableBuilder.wrap].
@@ -250,11 +250,53 @@ class ReorderableWrapController extends ReorderableBuilderController {
     final wrapOffset = _getWrapOffset();
     final offsets = calculateWrapOffsets(
       sizes: orderedEntities.map((e) => e.size).toList(),
-      maxWidth: renderWrap.constraints.maxWidth,
-      spacing: renderWrap.spacing,
-      runSpacing: renderWrap.runSpacing,
+      renderWrap: renderWrap,
     );
     return offsets.map((e) => e + wrapOffset).toList();
+  }
+
+  /// Calculates the offsets of children with [sizes] like [renderWrap] would do.
+  ///
+  /// The available width, the spacing and the run spacing are taken from
+  /// [renderWrap], so it has to be laid out. The offsets are relative to the
+  /// top left of the [Wrap] and in the same order as [sizes].
+  ///
+  /// Supports the default [Wrap] layout: horizontal direction, left to right,
+  /// top to bottom and every alignment set to start.
+  @visibleForTesting
+  List<Offset> calculateWrapOffsets({
+    required List<Size> sizes,
+    required RenderWrap renderWrap,
+  }) {
+    final maxWidth = renderWrap.constraints.maxWidth;
+    final spacing = renderWrap.spacing;
+    final runSpacing = renderWrap.runSpacing;
+    final offsets = <Offset>[];
+    var childrenInRun = 0;
+    var runWidth = 0.0;
+    var runHeight = 0.0;
+    var runTop = 0.0;
+
+    for (final size in sizes) {
+      // same check as RenderWrap to start a new run
+      final needsNewRun = childrenInRun > 0 &&
+          runWidth + size.width + spacing - maxWidth > precisionErrorTolerance;
+
+      if (needsNewRun) {
+        runTop += runHeight + runSpacing;
+        childrenInRun = 0;
+        runWidth = 0.0;
+        runHeight = 0.0;
+      }
+
+      final left = childrenInRun == 0 ? 0.0 : runWidth + spacing;
+      offsets.add(Offset(left, runTop));
+      childrenInRun++;
+      runWidth = left + size.width;
+      runHeight = runHeight > size.height ? runHeight : size.height;
+    }
+
+    return offsets;
   }
 
   /// Returns the rendered [Wrap] of [wrapKey].
