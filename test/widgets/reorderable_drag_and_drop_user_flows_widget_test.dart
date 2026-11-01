@@ -624,6 +624,177 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN removed children '
+        'WHEN adding new children quickly at the first index and exchanging '
+        'two of them '
+        'THEN should show all children like a Wrap at every step',
+        (WidgetTester tester) async {
+      // given
+      var items = givenItems(4);
+      late StateSetter setItems;
+      Widget buildChild(int item) => SizedBox(
+            key: Key('$item'),
+            width: 60.0 + (item % 4) * 40.0,
+            height: 50.0,
+            child: const ColoredBox(color: Colors.lightBlue),
+          );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setItems = setState;
+                return ReorderableBuilder<int>.wrap(
+                  onReorder: (reorder) =>
+                      setState(() => items = reorder(items)),
+                  builder: (children) => Wrap(
+                    spacing: givenSpacing,
+                    runSpacing: givenRunSpacing,
+                    children: children,
+                  ),
+                  children: [for (final item in items) buildChild(item)],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      setItems(() => items = []);
+      await tester.pumpAndSettle();
+
+      void expectWrapLayout(List<int> expectedItems) {
+        expect(items, equals(expectedItems));
+        final offsets = calculateWrapOffsets(
+          sizes: [
+            for (final item in expectedItems)
+              Size(60.0 + (item % 4) * 40.0, 50.0),
+          ],
+          maxWidth: 400.0,
+          spacing: givenSpacing,
+          runSpacing: givenRunSpacing,
+        );
+        for (final (index, item) in expectedItems.indexed) {
+          final actualOffset = tester.getTopLeft(find.byKey(Key('$item')));
+          expect(actualOffset, equals(offsets[index]), reason: 'item $item');
+        }
+      }
+
+      // when adding a new child every 30 ms, faster than the fade in
+      for (var item = 100; item < 106; item++) {
+        setItems(() => items.insert(0, item));
+        await tester.pump(const Duration(milliseconds: 30));
+      }
+      await tester.pumpAndSettle();
+
+      // then
+      expectWrapLayout(const [105, 104, 103, 102, 101, 100]);
+
+      // when
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('105'))),
+        pointer: 7,
+      );
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('102'))));
+      await tester.pumpAndSettle();
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      expectWrapLayout(const [102, 104, 103, 105, 101, 100]);
+    });
+
+    testWidgets(
+        'GIVEN removed children '
+        'WHEN adding new children at the first index while the others are '
+        'still moving and exchanging two of them '
+        'THEN should show all children like a Wrap while dragging',
+        (WidgetTester tester) async {
+      // given
+      var items = givenItems(30);
+      late StateSetter setItems;
+      double getWidth(int item) => 60.0 + (item % 4) * 40.0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setItems = setState;
+                return ReorderableBuilder<int>.wrap(
+                  onReorder: (reorder) =>
+                      setState(() => items = reorder(items)),
+                  builder: (children) => Wrap(
+                    spacing: givenSpacing,
+                    runSpacing: givenRunSpacing,
+                    children: children,
+                  ),
+                  children: [
+                    for (final item in items)
+                      SizedBox(
+                        key: Key('$item'),
+                        width: getWidth(item),
+                        height: 50.0,
+                        child: const ColoredBox(color: Colors.lightBlue),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      setItems(() => items = []);
+      await tester.pumpAndSettle();
+
+      // when adding a child every 128 ms, the moving children are measured
+      // in the frames in between like on a real device
+      for (var item = 100; item < 113; item++) {
+        setItems(() => items.insert(0, item));
+        for (var frame = 0; frame < 8; frame++) {
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+      }
+      await tester.pumpAndSettle();
+
+      final draggedItem = items[3];
+      final collisionItem = items[5];
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(Key('$draggedItem'))),
+        pointer: 7,
+      );
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(tester.getCenter(find.byKey(Key('$collisionItem'))));
+      await tester.pumpAndSettle();
+
+      // then
+      final expectedItems = [...items]
+        ..[3] = collisionItem
+        ..[5] = draggedItem;
+      final expectedOffsets = calculateWrapOffsets(
+        sizes: [for (final item in expectedItems) Size(getWidth(item), 50.0)],
+        maxWidth: 400.0,
+        spacing: givenSpacing,
+        runSpacing: givenRunSpacing,
+      );
+      for (final (index, item) in expectedItems.indexed) {
+        if (item == draggedItem) continue;
+        final actualOffset = tester.getTopLeft(find.byKey(Key('$item')).last);
+        expect(
+          actualOffset,
+          equals(expectedOffsets[index]),
+          reason: 'item $item',
+        );
+      }
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
         'GIVEN Wrap with centered alignment '
         'WHEN dragging a child onto another child '
         'THEN should throw AssertionError because it is not supported',
