@@ -178,7 +178,7 @@ class _ReorderableRemovedChildrenState
 
     if (_removedEntities.length > removedCount) {
       final renderBox = context.findRenderObject() as RenderBox?;
-      
+
       if (renderBox != null && renderBox.hasSize) {
         _sizeBeforeRemoval ??= renderBox.size;
       }

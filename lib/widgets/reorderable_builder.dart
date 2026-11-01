@@ -239,9 +239,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onUpdatedDraggedChild,
     super.key,
   })  : assert(
-          (enableDraggable &&
-                  (onReorder != null || onReorderPositions != null)) ||
-              !enableDraggable,
+          !enableDraggable || onReorder != null || onReorderPositions != null,
+          'onReorder or onReorderPositions is required if enableDraggable is true',
         ),
         childBuilder = null,
         itemCount = null,
@@ -277,9 +276,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onUpdatedDraggedChild,
     super.key,
   })  : assert(
-          (enableDraggable &&
-                  (onReorder != null || onReorderPositions != null)) ||
-              !enableDraggable,
+          !enableDraggable || onReorder != null || onReorderPositions != null,
+          'onReorder or onReorderPositions is required if enableDraggable is true',
         ),
         children = null,
         builder = null,
@@ -316,9 +314,8 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.onUpdatedDraggedChild,
     super.key,
   })  : assert(
-          (enableDraggable &&
-                  (onReorder != null || onReorderPositions != null)) ||
-              !enableDraggable,
+          !enableDraggable || onReorder != null || onReorderPositions != null,
+          'onReorder or onReorderPositions is required if enableDraggable is true',
         ),
         childBuilder = null,
         itemCount = null,
@@ -342,17 +339,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   @override
   void initState() {
     super.initState();
-    reorderableBuilderController = switch (widget._type) {
-      ReorderableBuilderType.wrap => reorderableWrapController,
-      ReorderableBuilderType.children ||
-      ReorderableBuilderType.builder =>
-        ReorderableBuilderController(),
-    };
-    reorderableItemBuilderController = ReorderableItemBuilderController();
-
-    final children = widget.children;
-    if (children == null) return;
-    reorderableBuilderController.initChildren(children: children);
+    _initControllers();
   }
 
   @override
@@ -400,6 +387,22 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         ),
       ),
     );
+  }
+
+  /// Creates the controllers that fit to the type of this widget.
+  void _initControllers() {
+    reorderableBuilderController = switch (widget._type) {
+      ReorderableBuilderType.wrap => reorderableWrapController,
+      ReorderableBuilderType.children ||
+      ReorderableBuilderType.builder =>
+        ReorderableBuilderController(),
+    };
+    reorderableItemBuilderController = ReorderableItemBuilderController();
+
+    final children = widget.children;
+    if (children == null) return;
+
+    reorderableBuilderController.initChildren(children: children);
   }
 
   /// Wraps [child] built by [ReorderableBuilder.childBuilder] at [index].
@@ -662,12 +665,14 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
   /// change. Measuring it while the child is still moving would save a
   /// position in between. The box of [ReorderableSizeChangedListener] around
   /// every child isn't moved by these animations.
-  RenderBox _getLayoutRenderBox(RenderBox renderBox) {
+  RenderBox _getLayoutRenderBox({required RenderBox renderBox}) {
     RenderObject? renderObject = renderBox;
+
     while (renderObject != null &&
         renderObject is! RenderReorderableSizeChangedListener) {
       renderObject = renderObject.parent;
     }
+
     return renderObject as RenderBox? ?? renderBox;
   }
 
