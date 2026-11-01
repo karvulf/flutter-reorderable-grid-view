@@ -220,8 +220,9 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     );
   }
 
-  void _updateReorderableEntity(
-      {required ReorderableEntity reorderableEntity}) {
+  void _updateReorderableEntity({
+    required ReorderableEntity reorderableEntity,
+  }) {
     if (mounted) {
       setState(() {
         _reorderableEntity = reorderableEntity;
