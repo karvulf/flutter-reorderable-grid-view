@@ -23,12 +23,6 @@ class ReorderableWrapController extends ReorderableBuilderController {
   /// Key of the child that collided last with the dragged child.
   Key? _lastCollisionKey;
 
-  /// Key of the child under the dragged child that is exchanged with it.
-  ///
-  /// Null for collisions without a child under the dragged child, e.g. when
-  /// dragging outside of all children.
-  Key? _exchangeKey;
-
   /// Updates the children and measures the ones with a new position again.
   ///
   /// [offsetMap] caches the offset of every index. That only works if every
@@ -101,44 +95,46 @@ class ReorderableWrapController extends ReorderableBuilderController {
     return movedEntity;
   }
 
-  /// Ignores the child that just collided with the dragged child.
+  /// Exchanges the dragged child with [collision] and lays out all children.
   ///
-  /// The dragged child is exchanged with [collision], so children with
-  /// different sizes change the line breaks and following children move to
-  /// make space. [collision] can end up under the dragged child again, which
-  /// would exchange both back and forth on every move. So [collision]
-  /// collides again after the dragged child left it.
+  /// Children with different sizes change the line breaks, so the following
+  /// children move to make space. [collision] can end up under the dragged
+  /// child again, which would exchange both back and forth on every move.
+  /// So the last [collision] is ignored until the dragged child left it.
   ///
   /// Locked children are never exchanged, so they keep their index.
+  /// Without a child under the dragged child, e.g. when dragging outside of
+  /// all children, the dragged child moves to the index of [collision] like
+  /// in a grid.
   @override
-  ReorderableEntity? filterCollision(
-    ReorderableEntity? collision, {
+  bool applyCollision({
+    required ReorderableEntity? collision,
     required Offset draggedOffset,
   }) {
-    _exchangeKey = null;
-    if (collision?.key == _lastCollisionKey) return null;
+    if (collision?.key == _lastCollisionKey) {
+      return false;
+    }
 
     _lastCollisionKey = collision?.key;
-    if (collision == null || _isLocked(collision)) return null;
+    final draggedEntity = this.draggedEntity;
+
+    if (collision == null || draggedEntity == null || _isLocked(collision)) {
+      return false;
+    }
 
     final isOverCollision =
         (collision.updatedOffset & collision.size).contains(draggedOffset);
-    if (isOverCollision) _exchangeKey = collision.key;
-    return collision;
+    if (isOverCollision) {
+      _exchange(draggedEntity, collision);
+    } else {
+      super.applyCollision(collision: collision, draggedOffset: draggedOffset);
+    }
+    _updatePositions();
+    return true;
   }
 
-  /// Exchanges the dragged child with [collision] if it is under it.
-  ///
-  /// Otherwise, e.g. when dragging outside of all children, the dragged child
-  /// is moved to the index of [collision] like in a grid.
-  @override
-  void updateOrderAfterCollision(ReorderableEntity collision) {
-    final draggedEntity = this.draggedEntity;
-    if (collision.key != _exchangeKey || draggedEntity == null) {
-      super.updateOrderAfterCollision(collision);
-      return;
-    }
-
+  /// Exchanges the index of [draggedEntity] with the one of [collision].
+  void _exchange(ReorderableEntity draggedEntity, ReorderableEntity collision) {
     _updateEntity(
       collision.dragUpdated(
         updatedOrderId: draggedEntity.updatedOrderId,
@@ -161,7 +157,6 @@ class ReorderableWrapController extends ReorderableBuilderController {
   @override
   List<ReorderUpdateEntity>? handleDragEnd() {
     _lastCollisionKey = null;
-    _exchangeKey = null;
     if (draggedEntity == null) return null;
 
     final previousKeys = (childrenKeyMap.values.toList()
@@ -189,8 +184,8 @@ class ReorderableWrapController extends ReorderableBuilderController {
   bool _isLocked(ReorderableEntity entity) =>
       lockedIndices.contains(entity.updatedOrderId);
 
-  @override
-  void updatePositionsAfterCollision() {
+  /// Lays out all children in their current order like the [Wrap].
+  void _updatePositions() {
     final renderWrap = _getRenderWrap();
     if (renderWrap == null) return;
 
