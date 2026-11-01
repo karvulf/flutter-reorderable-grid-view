@@ -2,8 +2,8 @@
 ⭐️ **New Features**
 - dragging a child before or after all children now moves it to the first or last unlocked position
 - added `ReorderableBuilder.wrap` to support drag and drop and all animations for `Wrap`
-  - only the default layout of `Wrap` is supported, `spacing` and `runSpacing` can be changed
-- added `Wrap` to the example app
+  - every layout of `Wrap` is supported, e.g. `direction`, `alignment` or `textDirection`
+- added `Wrap` to the example app and `wrap_layouts_example.dart` to try all layouts of `Wrap`
 
   ```dart
   ReorderableBuilder.wrap(
