@@ -147,13 +147,13 @@ class ReorderableWrapController extends ReorderableBuilderController {
     required ReorderableEntity collision,
   }) {
     _updateEntity(
-      collision.dragUpdated(
+      entity: collision.dragUpdated(
         updatedOrderId: draggedEntity.updatedOrderId,
         updatedOffset: collision.updatedOffset,
       ),
     );
     _updateEntity(
-      draggedEntity.dragUpdated(
+      entity: draggedEntity.dragUpdated(
         updatedOrderId: collision.updatedOrderId,
         updatedOffset: draggedEntity.updatedOffset,
       ),
@@ -227,7 +227,7 @@ class ReorderableWrapController extends ReorderableBuilderController {
       }
 
       _updateEntity(
-        entity.dragUpdated(
+        entity: entity.dragUpdated(
           updatedOrderId: entity.updatedOrderId,
           updatedOffset: updatedOffset,
         ),
@@ -301,7 +301,7 @@ class ReorderableWrapController extends ReorderableBuilderController {
   }
 
   /// Replaces the entity in both maps and in [draggedEntity] if it's dragged.
-  void _updateEntity(ReorderableEntity entity) {
+  void _updateEntity({required ReorderableEntity entity}) {
     childrenKeyMap[entity.key.value] = entity;
     childrenOrderMap[entity.updatedOrderId] = entity;
 
