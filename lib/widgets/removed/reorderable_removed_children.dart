@@ -74,12 +74,14 @@ class _ReorderableRemovedChildrenState
 
   @override
   Widget build(BuildContext context) {
+    final removedArea = _buildRemovedArea();
+
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.none,
       children: [
         widget.child,
-        if (_buildRemovedArea() case final removedArea?) removedArea,
+        if (removedArea != null) removedArea,
         // Ensures that removed children in scrollable GridViews
         // are visible on the outside of the GridView when fading them out
         Positioned.fill(
@@ -113,14 +115,19 @@ class _ReorderableRemovedChildrenState
   /// child of the [Stack], the [Stack] is at least as big as this box.
   /// Returns null for other types or if no child is removed.
   Widget? _buildRemovedArea() {
-    if (widget.type != ReorderableBuilderType.wrap) return null;
-    if (_removedEntities.isEmpty) return null;
+    if (widget.type != ReorderableBuilderType.wrap) {
+      return null;
+    }
+
+    if (_removedEntities.isEmpty) {
+      return null;
+    }
 
     var size = Size.zero;
+
     for (final entity in _removedEntities) {
-      final bottomRight = entity.offset -
-          widget.getScrollOffset() +
-          entity.size.bottomRight(Offset.zero);
+      final topLeft = entity.offset - widget.getScrollOffset();
+      final bottomRight = entity.size.bottomRight(topLeft);
       size = Size(
         bottomRight.dx > size.width ? bottomRight.dx : size.width,
         bottomRight.dy > size.height ? bottomRight.dy : size.height,

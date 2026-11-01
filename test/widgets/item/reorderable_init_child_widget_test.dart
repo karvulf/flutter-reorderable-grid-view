@@ -66,20 +66,18 @@ void main() {
       required ReorderableEntity updatedReorderableEntity,
       required void Function(GlobalKey key) onCreated,
     }) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: _TestUpdateReorderableInitChild(
-              reorderableEntity: reorderableEntity,
-              updatedReorderableEntity: updatedReorderableEntity,
-              onCreated: onCreated,
-            ),
-          ),
-        ),
+      await pumpWidget(
+        tester,
+        reorderableEntity: reorderableEntity,
+        onCreated: onCreated,
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(TextButton));
+      await pumpWidget(
+        tester,
+        reorderableEntity: updatedReorderableEntity,
+        onCreated: onCreated,
+      );
       await tester.pumpAndSettle();
     }
 
@@ -163,48 +161,67 @@ void main() {
       // then
       expect(callCounter, equals(2));
     });
+
+    testWidgets(
+        "GIVEN [ReorderableInitChild] with isBuildingOffset = true and "
+        "updated entity with isBuildOffset = true and another updatedOrderId"
+        "WHEN updating entity "
+        "THEN should call onCreated two times", (WidgetTester tester) async {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        updatedOrderId: 1,
+        isBuildingOffset: true,
+      );
+      final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+        updatedOrderId: 2,
+        isBuildingOffset: true,
+      );
+      var callCounter = 0;
+
+      // when
+      await pumpWidgetAndUpdate(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        updatedReorderableEntity: givenUpdatedReorderableEntity,
+        onCreated: (_) {
+          callCounter++;
+        },
+      );
+
+      // then
+      expect(callCounter, equals(2));
+    });
+
+    testWidgets(
+        "GIVEN [ReorderableInitChild] with isBuildingOffset = true and "
+        "updated entity with isBuildingOffset = true and "
+        "the same updatedOrderId "
+        "WHEN updating ReorderableEntity "
+        "THEN should call onCreated one time", (WidgetTester tester) async {
+      // given
+      final givenReorderableEntity = reorderableBuilder.getEntity(
+        updatedOrderId: 1,
+        isBuildingOffset: true,
+      );
+      final givenUpdatedReorderableEntity = reorderableBuilder.getEntity(
+        updatedOrderId: 1,
+        updatedOffset: const Offset(50.0, 51.0),
+        isBuildingOffset: true,
+      );
+      var callCounter = 0;
+
+      // when
+      await pumpWidgetAndUpdate(
+        tester,
+        reorderableEntity: givenReorderableEntity,
+        updatedReorderableEntity: givenUpdatedReorderableEntity,
+        onCreated: (_) {
+          callCounter++;
+        },
+      );
+
+      // then
+      expect(callCounter, equals(1));
+    });
   });
-}
-
-class _TestUpdateReorderableInitChild extends StatefulWidget {
-  final ReorderableEntity reorderableEntity;
-  final ReorderableEntity updatedReorderableEntity;
-
-  final void Function(GlobalKey key) onCreated;
-
-  const _TestUpdateReorderableInitChild({
-    required this.reorderableEntity,
-    required this.updatedReorderableEntity,
-    required this.onCreated,
-  });
-
-  @override
-  State<_TestUpdateReorderableInitChild> createState() =>
-      _TestUpdateReorderableInitChildState();
-}
-
-class _TestUpdateReorderableInitChildState
-    extends State<_TestUpdateReorderableInitChild> {
-  late ReorderableEntity reorderableEntity = widget.reorderableEntity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextButton(
-          onPressed: () {
-            setState(() {
-              reorderableEntity = widget.updatedReorderableEntity;
-            });
-          },
-          child: const Text('update'),
-        ),
-        ReorderableInitChild(
-          reorderableEntity: reorderableEntity,
-          onCreated: widget.onCreated,
-          child: const Placeholder(),
-        ),
-      ],
-    );
-  }
 }

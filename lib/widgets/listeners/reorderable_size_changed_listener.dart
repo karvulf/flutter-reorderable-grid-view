@@ -33,13 +33,6 @@ class ReorderableSizeChangedListener extends SingleChildRenderObjectWidget {
               : null,
         );
 
-  /// A [Wrap] changes its own size when its children change their order,
-  /// e.g. when a new run is needed. That doesn't change the positions of the
-  /// children, but a new available width does. Single children always report
-  /// their new size.
-  bool get _reportsOnlyWidth =>
-      type == ReorderableBuilderType.wrap && childKey == null;
-
   @override
   RenderObject createRenderObject(BuildContext context) =>
       RenderReorderableSizeChangedListener(
@@ -56,6 +49,15 @@ class ReorderableSizeChangedListener extends SingleChildRenderObjectWidget {
       ..onSizeChanged = onSizeChanged
       ..reportsOnlyWidth = _reportsOnlyWidth;
   }
+
+  /// Checks if only a new available width should be reported.
+  ///
+  /// A [Wrap] changes its own size when its children change their order,
+  /// e.g. when a new run is needed. That doesn't change the positions of the
+  /// children, but a new available width does. Single children always report
+  /// their new size.
+  bool get _reportsOnlyWidth =>
+      type == ReorderableBuilderType.wrap && childKey == null;
 }
 
 class RenderReorderableSizeChangedListener extends RenderProxyBox {
@@ -76,6 +78,7 @@ class RenderReorderableSizeChangedListener extends RenderProxyBox {
     super.performLayout();
 
     final value = reportsOnlyWidth ? constraints.maxWidth : size;
+
     if (_previousValue != null && _previousValue != value) {
       // Called after the frame because a rebuild isn't allowed during layout.
       WidgetsBinding.instance.addPostFrameCallback((_) {
