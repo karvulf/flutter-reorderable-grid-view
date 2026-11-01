@@ -295,12 +295,12 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// horizontal and all alignments and directions keep their default.
   /// [Wrap.spacing] and [Wrap.runSpacing] can be used.
   ///
-  /// [lockedIndices] keep their index and their position on the screen while
-  /// dragging. Children with different sizes change the line breaks of the
-  /// [Wrap], so a child can't be moved to an index that would move a locked
-  /// child, e.g. into the next run. In that case, the dragged child is
-  /// exchanged with the child under it if that keeps the locked children at
-  /// their position, e.g. if both have the same size.
+  /// While dragging, the dragged child is exchanged with the child under it.
+  /// Children with different sizes change the line breaks of the [Wrap], so
+  /// the following children move to make space, e.g. into the next run.
+  ///
+  /// [lockedIndices] are never exchanged, so they keep their index, but they
+  /// can move on the screen to make space.
   ///
   /// If the [Wrap] should be scrollable, wrap this widget into a scrollable
   /// widget, e.g. [SingleChildScrollView].

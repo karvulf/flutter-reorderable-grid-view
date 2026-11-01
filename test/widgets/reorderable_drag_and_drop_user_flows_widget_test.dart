@@ -266,11 +266,12 @@ void main() {
 
     testWidgets(
         'GIVEN children with different widths '
-        'WHEN dragging first child to its position at the fourth index '
-        'THEN should show all children like a Wrap in the new order and '
+        'WHEN dragging first child onto the fourth child '
+        'THEN should exchange both and show all children like a Wrap in the '
+        'new order and '
         'reorder them after releasing', (WidgetTester tester) async {
       // given
-      const expectedItems = [1, 2, 3, 0, 4, 5];
+      const expectedItems = [3, 1, 2, 0, 4, 5];
       final expectedRects = await layoutRealWrap(tester, expectedItems);
 
       var items = givenItems(6);
@@ -298,7 +299,7 @@ void main() {
       );
       await tester.pump(kLongPressTimeout);
       await tester.pumpAndSettle();
-      await gesture.moveTo(expectedRects[0]!.center);
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('3'))));
       await tester.pumpAndSettle();
 
       // then
@@ -317,9 +318,11 @@ void main() {
 
     testWidgets(
         'GIVEN small child before a wide child '
-        'WHEN dragging the small child over the wide child '
-        'THEN should only move it where it would land under the pointer '
-        'without trembling', (WidgetTester tester) async {
+        'WHEN dragging the small child to the middle of the wide child and '
+        'moving a bit within it '
+        'THEN should move it once without trembling and move it back after '
+        'leaving and entering the wide child again',
+        (WidgetTester tester) async {
       // given
       final givenItems = [0, 1, 2];
       final actualUpdatedIndices = <int>[];
@@ -340,39 +343,31 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      // small child: x 0 - 60, wide child: x 68 - 248
-      final wideChildRect = tester.getRect(find.byKey(const Key('1')));
+      final wideChildCenter = tester.getCenter(find.byKey(const Key('1')));
 
-      Future<void> moveAlong(TestGesture gesture, double x) async {
-        for (var dx = 0.0; dx < 10.0; dx += 2.0) {
-          await gesture.moveTo(Offset(x + dx, wideChildRect.center.dy));
-          await tester.pump();
-        }
-      }
-
+      // when
       final gesture = await tester.startGesture(
         tester.getCenter(find.byKey(const Key('0'))),
         pointer: 7,
       );
       await tester.pump(kLongPressTimeout);
       await tester.pumpAndSettle();
+      for (var dx = 0.0; dx < 10.0; dx += 2.0) {
+        await gesture.moveTo(wideChildCenter + Offset(dx, 0.0));
+        await tester.pump();
+      }
 
-      // when moving over the middle of the wide child
-      await moveAlong(gesture, wideChildRect.center.dx);
-
-      // then the small child wouldn't land there, so nothing moves
-      expect(actualUpdatedIndices, isEmpty);
-
-      // when moving where the small child lands after the wide child
-      await moveAlong(gesture, 200.0);
-
-      // then it moves once and stays there
+      // then
       expect(actualUpdatedIndices, equals([1]));
 
-      // when moving back to the front
-      await moveAlong(gesture, 20.0);
+      // when leaving the wide child onto the new position of the small child
+      // and entering the wide child again
+      await gesture.moveTo(wideChildCenter + const Offset(52.0, 0.0));
+      await tester.pump();
+      await gesture.moveTo(wideChildCenter);
+      await tester.pump();
 
-      // then it moves back once
+      // then
       expect(actualUpdatedIndices, equals([1, 0]));
 
       await gesture.up();
@@ -383,79 +378,73 @@ void main() {
         'GIVEN children like in the example app with locked indices '
         'WHEN dragging the second child onto the fourth child, the locked '
         'fifth child and the sixth child '
-        'THEN should only exchange it with the sixth child because it cannot '
-        'land on the fourth child and the locked fifth child must not move',
-        (WidgetTester tester) async {
+        'THEN should exchange it with the fourth and sixth child and never '
+        'change the index of the locked children', (WidgetTester tester) async {
       // given
-      final givenItems = List.generate(7, (index) => index);
-      final actualUpdatedIndices = <int>[];
+      var items = List.generate(7, (index) => index);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             // 350 wide like the example app on a phone
             body: Padding(
               padding: const EdgeInsets.only(right: 50.0),
-              child: ReorderableBuilder<int>.wrap(
-                lockedIndices: const [0, 4],
-                onReorder: (_) {},
-                onUpdatedDraggedChild: actualUpdatedIndices.add,
-                builder: (children) => Wrap(
-                  spacing: givenSpacing,
-                  runSpacing: givenRunSpacing,
-                  children: children,
+              child: StatefulBuilder(
+                builder: (context, setState) => ReorderableBuilder<int>.wrap(
+                  lockedIndices: const [0, 4],
+                  onReorder: (reorder) =>
+                      setState(() => items = reorder(items)),
+                  builder: (children) => Wrap(
+                    spacing: givenSpacing,
+                    runSpacing: givenRunSpacing,
+                    children: children,
+                  ),
+                  children: [
+                    for (final item in items)
+                      SizedBox(
+                        key: Key('$item'),
+                        width: 60.0 + (item % 4) * 40.0,
+                        height: 50.0,
+                        child: const ColoredBox(color: Colors.lightBlue),
+                      ),
+                  ],
                 ),
-                children: [
-                  for (final item in givenItems)
-                    SizedBox(
-                      key: Key('$item'),
-                      width: 60.0 + (item % 4) * 40.0,
-                      height: 50.0,
-                      child: const ColoredBox(color: Colors.lightBlue),
-                    ),
-                ],
               ),
             ),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      final givenLockedRect = tester.getRect(find.byKey(const Key('4')));
+
+      Future<void> dragAndRelease(int item, int targetItem) async {
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(Key('$item'))),
+          pointer: 7,
+        );
+        await tester.pump(kLongPressTimeout);
+        await tester.pumpAndSettle();
+        await gesture.moveTo(tester.getCenter(find.byKey(Key('$targetItem'))));
+        await tester.pumpAndSettle();
+        await gesture.up();
+        await tester.pumpAndSettle();
+      }
 
       // when
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.byKey(const Key('1'))),
-        pointer: 7,
-      );
-      await tester.pump(kLongPressTimeout);
-      await tester.pumpAndSettle();
-      await gesture.moveTo(tester.getCenter(find.byKey(const Key('3')).last));
-      await tester.pumpAndSettle();
+      await dragAndRelease(1, 3);
+
+      // then the following children moved to make space
+      expect(items, equals(const [0, 3, 2, 1, 4, 5, 6]));
+
+      // when
+      await dragAndRelease(1, 4);
 
       // then
-      expect(actualUpdatedIndices, isEmpty);
+      expect(items, equals(const [0, 3, 2, 1, 4, 5, 6]));
 
-      // when moving onto the locked child, where the second child would land
-      // at the fourth index
-      await gesture.moveTo(givenLockedRect.center);
-      await tester.pumpAndSettle();
+      // when
+      await dragAndRelease(1, 5);
 
       // then
-      expect(actualUpdatedIndices, isEmpty);
-
-      // when moving onto the right part of the sixth child, where the second
-      // child would land at the sixth index and move the locked child
-      final givenSixthChildRect = tester.getRect(find.byKey(const Key('5')));
-      await gesture
-          .moveTo(givenSixthChildRect.centerRight - const Offset(15, 0));
-      await tester.pumpAndSettle();
-
-      // then both are exchanged instead because they have the same size
-      expect(actualUpdatedIndices, equals([5]));
-      final actualLockedRect = tester.getRect(find.byKey(const Key('4')).last);
-      expect(actualLockedRect, equals(givenLockedRect));
-
-      await gesture.up();
-      await tester.pumpAndSettle();
+      expect(items, equals(const [0, 3, 2, 5, 4, 1, 6]));
     });
 
     testWidgets(
@@ -499,15 +488,15 @@ void main() {
         };
       }
 
-      /// Drags [item] to where it lands in [expectedOrder] and releases it.
-      Future<void> dragAndRelease(int item, List<int> expectedOrder) async {
+      /// Drags [item] onto [targetItem] and releases it.
+      Future<void> dragAndRelease(int item, int targetItem) async {
         final gesture = await tester.startGesture(
           tester.getCenter(find.byKey(Key('$item'))),
           pointer: 7,
         );
         await tester.pump(kLongPressTimeout);
         await tester.pumpAndSettle();
-        await gesture.moveTo(getExpectedRects(expectedOrder)[item]!.center);
+        await gesture.moveTo(tester.getCenter(find.byKey(Key('$targetItem'))));
         await tester.pumpAndSettle();
         await gesture.up();
         await tester.pumpAndSettle();
@@ -523,85 +512,16 @@ void main() {
       }
 
       // when
-      await dragAndRelease(0, const [1, 2, 3, 0, 4, 5]);
+      await dragAndRelease(0, 3);
 
       // then
-      expectWrapLayout(const [1, 2, 3, 0, 4, 5]);
+      expectWrapLayout(const [3, 1, 2, 0, 4, 5]);
 
-      // when moving to a position that is only found with the new positions
-      await dragAndRelease(0, const [1, 0, 2, 3, 4, 5]);
-
-      // then
-      expectWrapLayout(const [1, 0, 2, 3, 4, 5]);
-    });
-
-    testWidgets(
-        'GIVEN children like in the example app with locked indices '
-        'WHEN dragging the second child onto the sixth child with the same '
-        'size and releasing it '
-        'THEN should exchange both without moving the locked child',
-        (WidgetTester tester) async {
-      // given
-      var items = List.generate(7, (index) => index);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            // 350 wide like the example app on a phone
-            body: Padding(
-              padding: const EdgeInsets.only(right: 50.0),
-              child: StatefulBuilder(
-                builder: (context, setState) => ReorderableBuilder<int>.wrap(
-                  lockedIndices: const [0, 4],
-                  onReorder: (reorder) =>
-                      setState(() => items = reorder(items)),
-                  builder: (children) => Wrap(
-                    spacing: givenSpacing,
-                    runSpacing: givenRunSpacing,
-                    children: children,
-                  ),
-                  children: [
-                    for (final item in items)
-                      SizedBox(
-                        key: Key('$item'),
-                        width: 60.0 + (item % 4) * 40.0,
-                        height: 50.0,
-                        child: const ColoredBox(color: Colors.lightBlue),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final givenLockedRect = tester.getRect(find.byKey(const Key('4')));
-      final givenSecondChildRect = tester.getRect(find.byKey(const Key('1')));
-      final givenSixthChildRect = tester.getRect(find.byKey(const Key('5')));
-
-      // when
-      final gesture = await tester.startGesture(
-        givenSecondChildRect.center,
-        pointer: 7,
-      );
-      await tester.pump(kLongPressTimeout);
-      await tester.pumpAndSettle();
-      await gesture.moveTo(givenSixthChildRect.center);
-      await tester.pumpAndSettle();
+      // when dragging onto a child that changed its position by the first drop
+      await dragAndRelease(0, 2);
 
       // then
-      final actualLockedRect = tester.getRect(find.byKey(const Key('4')).last);
-      expect(actualLockedRect, equals(givenLockedRect));
-
-      // when
-      await gesture.up();
-      await tester.pumpAndSettle();
-
-      // then
-      expect(items, equals(const [0, 5, 2, 3, 4, 1, 6]));
-      expect(tester.getRect(find.byKey(const Key('5'))), givenSecondChildRect);
-      expect(tester.getRect(find.byKey(const Key('1'))), givenSixthChildRect);
-      expect(tester.getRect(find.byKey(const Key('4'))), givenLockedRect);
+      expectWrapLayout(const [3, 1, 0, 2, 4, 5]);
     });
 
     testWidgets(

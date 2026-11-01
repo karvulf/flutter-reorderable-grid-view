@@ -118,8 +118,8 @@ class ReorderableDragAndDropController extends ReorderableController {
   ///
   /// [collision] is the child found at [draggedOffset], the position of the
   /// dragged child. Layouts with children of different sizes, e.g. [Wrap],
-  /// override this to ignore collisions that wouldn't move the dragged child
-  /// to [draggedOffset].
+  /// override this to ignore collisions that would swap the children back
+  /// and forth.
   @protected
   ReorderableEntity? filterCollision(
     ReorderableEntity? collision, {
