@@ -16,8 +16,8 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 class ReorderableWrapController extends ReorderableBuilderController {
   /// Key of the [Wrap] returned by [ReorderableBuilder.builder].
   ///
-  /// Used to read the layout values of the [Wrap], so they are always the
-  /// same as the ones of the user.
+  /// [ReorderableBuilder] sets the key manually to ensure to have access
+  /// to [Wrap].
   final wrapKey = GlobalKey();
 
   /// Key of the child that collided last with the dragged child.
@@ -29,7 +29,8 @@ class ReorderableWrapController extends ReorderableBuilderController {
   /// index keeps its position, like in a grid. In a [Wrap], the position of
   /// an index depends on the sizes of all children before it, so the cached
   /// offsets would belong to other children after they changed their order.
-  /// Instead, the positions are taken from [getReorderableEntity].
+  /// Instead, the positions are taken from [getReorderableEntity] which is
+  /// also overridden.
   @override
   void updateChildren({required List<Widget> children}) {
     offsetMap.clear();
@@ -48,15 +49,16 @@ class ReorderableWrapController extends ReorderableBuilderController {
     required int index,
   }) {
     final entity = childrenKeyMap[key.value];
+
     if (entity == null) {
       return ReorderableEntity.create(key: key, updatedOrderId: index);
     }
 
-    final hasKnownPosition =
+    final hasFinishedBuildingOffset =
         entity.updatedOrderId == index && !entity.isBuildingOffset;
     return entity.updated(
       updatedOrderId: index,
-      updatedOffset: hasKnownPosition ? entity.updatedOffset : null,
+      updatedOffset: hasFinishedBuildingOffset ? entity.updatedOffset : null,
       size: entity.size,
     );
   }
@@ -83,12 +85,16 @@ class ReorderableWrapController extends ReorderableBuilderController {
         !entity.isNew &&
         entity.originalOrderId != entity.updatedOrderId &&
         entity.originalOffset != entity.updatedOffset;
-    if (!hasMoved) return entity;
+
+    if (!hasMoved) {
+      return entity;
+    }
 
     final movedEntity = entity.dragUpdated(
       updatedOrderId: entity.updatedOrderId,
       updatedOffset: entity.updatedOffset,
     );
+
     // same map keys as used by the base controller after creating a child
     childrenKeyMap[movedEntity.key.value] = movedEntity;
     childrenOrderMap[movedEntity.originalOrderId] = movedEntity;
@@ -118,14 +124,16 @@ class ReorderableWrapController extends ReorderableBuilderController {
     _lastCollisionKey = collision?.key;
     final draggedEntity = this.draggedEntity;
 
-    if (collision == null || draggedEntity == null || _isLocked(collision)) {
+    if (collision == null ||
+        draggedEntity == null ||
+        _isLocked(entity: collision)) {
       return false;
     }
 
     final isOverCollision =
         (collision.updatedOffset & collision.size).contains(draggedOffset);
     if (isOverCollision) {
-      _exchange(draggedEntity, collision);
+      _exchange(draggedEntity: draggedEntity, collision: collision);
     } else {
       super.applyCollision(collision: collision, draggedOffset: draggedOffset);
     }
@@ -134,7 +142,10 @@ class ReorderableWrapController extends ReorderableBuilderController {
   }
 
   /// Exchanges the index of [draggedEntity] with the one of [collision].
-  void _exchange(ReorderableEntity draggedEntity, ReorderableEntity collision) {
+  void _exchange({
+    required ReorderableEntity draggedEntity,
+    required ReorderableEntity collision,
+  }) {
     _updateEntity(
       collision.dragUpdated(
         updatedOrderId: draggedEntity.updatedOrderId,
@@ -157,16 +168,23 @@ class ReorderableWrapController extends ReorderableBuilderController {
   @override
   List<ReorderUpdateEntity>? handleDragEnd() {
     _lastCollisionKey = null;
-    if (draggedEntity == null) return null;
+
+    if (draggedEntity == null) {
+      return null;
+    }
 
     final previousKeys = (childrenKeyMap.values.toList()
           ..sort((a, b) => a.originalOrderId.compareTo(b.originalOrderId)))
         .map((entity) => entity.key)
         .toList();
     final reorderUpdateEntities = <ReorderUpdateEntity>[];
+
     for (final (newIndex, entity) in _getOrderedEntities().indexed) {
       final oldIndex = previousKeys.indexOf(entity.key);
-      if (oldIndex == newIndex) continue;
+
+      if (oldIndex == newIndex) {
+        continue;
+      }
 
       reorderUpdateEntities.add(
         ReorderUpdateEntity(oldIndex: oldIndex, newIndex: newIndex),
@@ -175,26 +193,38 @@ class ReorderableWrapController extends ReorderableBuilderController {
     }
 
     draggedEntity = null;
-    if (reorderUpdateEntities.isEmpty) return null;
+
+    if (reorderUpdateEntities.isEmpty) {
+      return null;
+    }
 
     updateToActualPositions();
     return reorderUpdateEntities;
   }
 
-  bool _isLocked(ReorderableEntity entity) =>
+  bool _isLocked({required ReorderableEntity entity}) =>
       lockedIndices.contains(entity.updatedOrderId);
 
   /// Lays out all children in their current order like the [Wrap].
   void _updatePositions() {
     final renderWrap = _getRenderWrap();
-    if (renderWrap == null) return;
+
+    if (renderWrap == null) {
+      return;
+    }
 
     final entities = _getOrderedEntities();
-    final offsets = _calculateOffsets(entities, renderWrap);
+    final offsets = _calculateOffsets(
+      orderedEntities: entities,
+      renderWrap: renderWrap,
+    );
 
     for (final (index, entity) in entities.indexed) {
       final updatedOffset = offsets[index];
-      if (updatedOffset == entity.updatedOffset) continue;
+
+      if (updatedOffset == entity.updatedOffset) {
+        continue;
+      }
 
       _updateEntity(
         entity.dragUpdated(
@@ -213,33 +243,34 @@ class ReorderableWrapController extends ReorderableBuilderController {
   /// Returns the offsets of [orderedEntities] laid out by [renderWrap].
   ///
   /// The offsets are in the same coordinates as [ReorderableEntity.updatedOffset].
-  List<Offset> _calculateOffsets(
-    List<ReorderableEntity> orderedEntities,
-    RenderWrap renderWrap,
-  ) {
+  List<Offset> _calculateOffsets({
+    required List<ReorderableEntity> orderedEntities,
+    required RenderWrap renderWrap,
+  }) {
     final wrapOffset = _getWrapOffset();
     final offsets = calculateWrapOffsets(
-      sizes: [for (final entity in orderedEntities) entity.size],
+      sizes: orderedEntities.map((e) => e.size).toList(),
       maxWidth: renderWrap.constraints.maxWidth,
       spacing: renderWrap.spacing,
       runSpacing: renderWrap.runSpacing,
     );
-    return [for (final offset in offsets) wrapOffset + offset];
+    return offsets.map((e) => e + wrapOffset).toList();
   }
 
   /// Returns the rendered [Wrap] of [wrapKey].
-  ///
-  /// Returns null if the [Wrap] isn't rendered.
   RenderWrap? _getRenderWrap() {
     final renderWrap = wrapKey.currentContext?.findRenderObject();
     assert(
       renderWrap is RenderWrap,
       'The builder of ReorderableBuilder.wrap has to return a Wrap.',
     );
-    if (renderWrap is! RenderWrap) return null;
+
+    if (renderWrap is! RenderWrap) {
+      return null;
+    }
 
     assert(
-      _isDefaultWrapLayout(renderWrap),
+      _isDefaultWrapLayout(renderWrap: renderWrap),
       'ReorderableBuilder.wrap only supports the default layout of Wrap, '
       'only spacing and runSpacing can be changed.',
     );
@@ -247,9 +278,9 @@ class ReorderableWrapController extends ReorderableBuilderController {
   }
 
   /// Checks if [renderWrap] uses the layout supported by [calculateWrapOffsets].
-  // ponytail: only the default Wrap layout, extend calculateWrapOffsets
-  // to support other alignments and directions
-  bool _isDefaultWrapLayout(RenderWrap renderWrap) =>
+  ///
+  // TODO(karvulf): Support also all other kind of layouts for Wrap.
+  bool _isDefaultWrapLayout({required RenderWrap renderWrap}) =>
       renderWrap.direction == Axis.horizontal &&
       renderWrap.alignment == WrapAlignment.start &&
       renderWrap.runAlignment == WrapAlignment.start &&
@@ -273,6 +304,7 @@ class ReorderableWrapController extends ReorderableBuilderController {
   void _updateEntity(ReorderableEntity entity) {
     childrenKeyMap[entity.key.value] = entity;
     childrenOrderMap[entity.updatedOrderId] = entity;
+
     if (entity.key == draggedEntity?.key) {
       draggedEntity = entity;
     }
