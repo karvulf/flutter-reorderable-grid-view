@@ -46,8 +46,11 @@ class _ReorderableInitChildState extends State<ReorderableInitChild> {
     final newEntity = widget.reorderableEntity;
 
     // this case can happen if the size of the builder or a child changed
-    if (oldEntity.isBuildingOffset != newEntity.isBuildingOffset &&
-        newEntity.isBuildingOffset) {
+    // or if the child changed its index again before it was measured,
+    // e.g. when adding children quickly
+    final hasNewIndex = oldEntity.updatedOrderId != newEntity.updatedOrderId;
+    if (newEntity.isBuildingOffset &&
+        (!oldEntity.isBuildingOffset || hasNewIndex)) {
       _handleCreatedChild();
     }
   }

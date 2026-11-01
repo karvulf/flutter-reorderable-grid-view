@@ -154,7 +154,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     // only updating if the entity is different to the previous one
     // and the current entity is also different otherwise no update required
     if (entity != oldEntity && entity != _reorderableEntity) {
-      _updateReorderableEntity(widget.reorderableEntity);
+      _updateReorderableEntity(reorderableEntity: widget.reorderableEntity);
     }
   }
 
@@ -162,31 +162,31 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
   Widget build(BuildContext context) {
     final animationConfig = widget.animationConfig;
 
-    return ReorderableAnimatedPositioned(
+    return ReorderableInitChild(
       reorderableEntity: _reorderableEntity,
-      draggedEntity: widget.currentDraggedEntity,
-      draggingAnimationMap: widget.draggingAnimationMap,
-      positionChangeDelay: widget.positionChangeDelay,
-      animationConfig: animationConfig,
-      onMovingFinished: () {
-        final updatedEntity = widget.onMovingFinished(_reorderableEntity);
-        _updateReorderableEntity(updatedEntity);
+      onCreated: (globalKey) {
+        final updatedEntity = widget.onCreated(
+          _reorderableEntity,
+          globalKey,
+        );
+        _updateReorderableEntity(reorderableEntity: updatedEntity);
       },
-      child: ReorderableInitChild(
+      child: ReorderableAnimatedPositioned(
         reorderableEntity: _reorderableEntity,
-        onCreated: (globalKey) {
-          final updatedEntity = widget.onCreated(
-            _reorderableEntity,
-            globalKey,
-          );
-          _updateReorderableEntity(updatedEntity);
+        draggedEntity: widget.currentDraggedEntity,
+        draggingAnimationMap: widget.draggingAnimationMap,
+        positionChangeDelay: widget.positionChangeDelay,
+        animationConfig: animationConfig,
+        onMovingFinished: () {
+          final updatedEntity = widget.onMovingFinished(_reorderableEntity);
+          _updateReorderableEntity(reorderableEntity: updatedEntity);
         },
         child: ReorderableAnimatedInsert(
           reorderableEntity: widget.reorderableEntity,
           animationConfig: animationConfig,
           onAnimationStarted: () {
             final updatedEntity = widget.onOpacityFinished(_reorderableEntity);
-            _updateReorderableEntity(updatedEntity);
+            _updateReorderableEntity(reorderableEntity: updatedEntity);
           },
           child: ReorderableAnimatedReleasedContainer(
             reorderableEntity: _reorderableEntity,
@@ -220,7 +220,9 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
     );
   }
 
-  void _updateReorderableEntity(ReorderableEntity reorderableEntity) {
+  void _updateReorderableEntity({
+    required ReorderableEntity reorderableEntity,
+  }) {
     if (mounted) {
       setState(() {
         _reorderableEntity = reorderableEntity;

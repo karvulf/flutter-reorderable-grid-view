@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reorderable_grid_view/controller/reorderable_controller.dart';
 import 'package:flutter_reorderable_grid_view/entities/removed_reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
 import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_animated_removed_child.dart';
@@ -33,6 +34,9 @@ class ReorderableRemovedChildren extends StatefulWidget {
   /// Returns the current scroll offset.
   final ValueGetter<Offset> getScrollOffset;
 
+  /// Type of ReorderableBuilder that uses this widget.
+  final ReorderableBuilderType type;
+
   const ReorderableRemovedChildren({
     required this.child,
     required this.children,
@@ -41,6 +45,7 @@ class ReorderableRemovedChildren extends StatefulWidget {
     required this.animationConfig,
     required this.scrollController,
     required this.getScrollOffset,
+    required this.type,
     super.key,
   });
 
@@ -53,6 +58,11 @@ class _ReorderableRemovedChildrenState
     extends State<ReorderableRemovedChildren> {
   /// Removed children that are still shown while fading out.
   final _removedEntities = <RemovedReorderableEntity>[];
+
+  /// Size of this widget before children were removed.
+  ///
+  /// Kept while [_removedEntities] are fading out.
+  Size? _sizeBeforeRemoval;
 
   @override
   void didUpdateWidget(covariant ReorderableRemovedChildren oldWidget) {
@@ -69,11 +79,14 @@ class _ReorderableRemovedChildrenState
 
   @override
   Widget build(BuildContext context) {
+    final removedArea = _buildRemovedArea();
+
     return Stack(
       fit: StackFit.passthrough,
       clipBehavior: Clip.none,
       children: [
         widget.child,
+        if (removedArea != null) removedArea,
         // Ensures that removed children in scrollable GridViews
         // are visible on the outside of the GridView when fading them out
         Positioned.fill(
@@ -90,6 +103,10 @@ class _ReorderableRemovedChildrenState
                     getScrollOffset: widget.getScrollOffset,
                     onFinished: () => setState(() {
                       _removedEntities.remove(removedEntity);
+
+                      if (_removedEntities.isEmpty) {
+                        _sizeBeforeRemoval = null;
+                      }
                     }),
                   ),
               ],
@@ -98,6 +115,26 @@ class _ReorderableRemovedChildrenState
         ),
       ],
     );
+  }
+
+  /// Returns an empty box with the size before children were removed.
+  ///
+  /// A [Wrap] shrinks with its children, so the removed children would be
+  /// clipped, e.g. after removing all children at once. As a non-positioned
+  /// child of the [Stack], the [Stack] keeps at least its previous size.
+  /// Returns null for other types or if no child is removed.
+  Widget? _buildRemovedArea() {
+    if (widget.type != ReorderableBuilderType.wrap) {
+      return null;
+    }
+
+    final sizeBeforeRemoval = _sizeBeforeRemoval;
+
+    if (_removedEntities.isEmpty || sizeBeforeRemoval == null) {
+      return null;
+    }
+
+    return SizedBox.fromSize(size: sizeBeforeRemoval);
   }
 
   /// Adds removed children of [oldChildren] to [_removedEntities] to fade them out.
@@ -113,7 +150,12 @@ class _ReorderableRemovedChildrenState
     _removedEntities.removeWhere(
       (entity) => keyValues.contains(entity.key.value),
     );
-    if (!_canFadeOut) return;
+    if (_removedEntities.isEmpty) {
+      _sizeBeforeRemoval = null;
+    }
+    if (!_canFadeOut) {
+      return;
+    }
 
     final oldChildMap = {
       for (final child in oldChildren) (child.key as ValueKey).value: child,
@@ -134,7 +176,14 @@ class _ReorderableRemovedChildrenState
       );
     }
 
-    if (_removedEntities.length > removedCount) _delayPositionChanges();
+    if (_removedEntities.length > removedCount) {
+      final renderBox = context.findRenderObject() as RenderBox?;
+
+      if (renderBox != null && renderBox.hasSize) {
+        _sizeBeforeRemoval ??= renderBox.size;
+      }
+      _delayPositionChanges();
+    }
   }
 
   /// Finds removed children for ReorderableBuilder.builder to fade them out.

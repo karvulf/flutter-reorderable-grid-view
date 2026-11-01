@@ -9,6 +9,7 @@ enum ReorderableType {
   gridViewCount,
   gridViewExtent,
   gridViewBuilder,
+  wrap,
 }
 
 void main() {
@@ -43,7 +44,7 @@ class _MyAppState extends State<MyApp> {
 
   int keyCounter = _startCounter;
   List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.gridViewBuilder;
+  ReorderableType reorderableType = ReorderableType.wrap;
 
   var _scrollController = ScrollController();
   var _gridViewKey = GlobalKey();
@@ -234,6 +235,32 @@ class _MyAppState extends State<MyApp> {
             );
           },
         );
+
+      // children have different widths to show the Wrap layout
+      case ReorderableType.wrap:
+        final generatedChildren = List<Widget>.generate(
+          children.length,
+          (index) => _getChild(
+            index: index,
+            width: 60.0 + (children[index] % 4) * 40.0,
+          ),
+        );
+        return SingleChildScrollView(
+          child: ReorderableBuilder.wrap(
+            key: Key(_gridViewKey.toString()),
+            onReorder: _handleReorder,
+            lockedIndices: lockedIndices,
+            nonDraggableIndices: nonDraggableIndices,
+            builder: (children) {
+              return Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: children,
+              );
+            },
+            children: generatedChildren,
+          ),
+        );
     }
   }
 
@@ -244,7 +271,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _getChild({required int index}) {
+  Widget _getChild({required int index, double width = 100.0}) {
     return CustomDraggable(
       key: Key(children[index].toString()),
       data: index,
@@ -255,7 +282,7 @@ class _MyAppState extends State<MyApp> {
               : Theme.of(context).colorScheme.primary,
         ),
         height: 100.0,
-        width: 100.0,
+        width: width,
         child: Center(
           child: Text(
             '${children[index]}',

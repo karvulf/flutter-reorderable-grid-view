@@ -6,6 +6,9 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_scrolling_listener.dart';
+import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
+import 'package:flutter_reorderable_grid_view/widgets/listeners/reorderable_size_changed_listener.dart';
+import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_removed_children.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -722,6 +725,101 @@ void main() {
         expect(find.byType(ReorderableAnimatedRemovedChild), findsOneWidget);
         expect(tester.getTopLeft(findRemovedChild(5)), equals(givenOffset));
       });
+    });
+  });
+
+  group('#ReorderableBuilder.wrap', () {
+    testWidgets(
+        "GIVEN enableDraggable = true and onReorder = null "
+        "WHEN pumping [ReorderableBuilder.wrap] "
+        "THEN should throw AssertionError", (WidgetTester tester) async {
+      expect(
+        () => tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ReorderableBuilder.wrap(
+                builder: (children) => Wrap(children: children),
+                children: const [],
+              ),
+            ),
+          ),
+        ),
+        throwsAssertionError,
+      );
+    });
+
+    testWidgets(
+        "GIVEN children and Wrap for builder "
+        "WHEN pumping [ReorderableBuilder.wrap] "
+        "THEN should show expected widgets with type wrap",
+        (WidgetTester tester) async {
+      // given
+      const givenChildren = [
+        Text('child1', key: Key('child1')),
+        Text('child2', key: Key('child2')),
+      ];
+
+      // when
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReorderableBuilder.wrap(
+              builder: (children) => Wrap(children: children),
+              onReorder: (_) {},
+              children: givenChildren,
+            ),
+          ),
+        ),
+      );
+
+      // then
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableSizeChangedListener &&
+              widget.type == ReorderableBuilderType.wrap &&
+              widget.childKey == null &&
+              widget.child is ReorderableRemovedChildren,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableRemovedChildren &&
+              widget.type == ReorderableBuilderType.wrap,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is KeyedSubtree &&
+              widget.key is GlobalKey &&
+              widget.child is Wrap,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableSizeChangedListener &&
+              widget.type == ReorderableBuilderType.wrap &&
+              widget.childKey == givenChildren[0].key &&
+              widget.child is ReorderableBuilderItem,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableSizeChangedListener &&
+              widget.type == ReorderableBuilderType.wrap &&
+              widget.childKey == givenChildren[1].key &&
+              widget.child is ReorderableBuilderItem,
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

@@ -1,6 +1,27 @@
 ## 5.10.0
 ⭐️ **New Features**
 - dragging a child before or after all children now moves it to the first or last unlocked position
+- added `ReorderableBuilder.wrap` to support drag and drop and all animations for `Wrap`
+  - only the default layout of `Wrap` is supported, `spacing` and `runSpacing` can be changed
+- added `Wrap` to the example app
+
+  ```dart
+  ReorderableBuilder.wrap(
+    onReorder: (reorderedListFunction) {
+      setState(() => items = reorderedListFunction(items));
+    },
+    builder: (children) => Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: children,
+    ),
+    children: [for (final item in items) MyItem(key: ValueKey(item))],
+  )
+  ```
+
+🐛 **Bug Fixes**
+- fixed auto scroll stopping a few pixels before the top or the end
+- fixed wrong positions when adding children quickly while others are still moving
 
 ## 5.9.0
 ⭐️ **New Features**

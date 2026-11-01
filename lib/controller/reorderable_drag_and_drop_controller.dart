@@ -16,7 +16,6 @@ import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 /// [ReorderUpdateEntity]s so the children can be reordered.
 class ReorderableDragAndDropController extends ReorderableController {
   /// Indices of children that cannot move while drag and drop.
-  @visibleForTesting
   var lockedIndices = <int>[];
 
   /// Entity that is released after drag and drop.
@@ -84,22 +83,41 @@ class ReorderableDragAndDropController extends ReorderableController {
       offset = localOffset + scrollOffset;
     }
 
-    final collisionReorderableEntity = _getCollisionReorderableEntity(
-      keyValue: draggedKey.value,
+    return applyCollision(
+      collision: _getCollisionReorderableEntity(
+        keyValue: draggedKey.value,
+        draggedOffset: offset,
+      ),
       draggedOffset: offset,
     );
-    final collisionOrderId = collisionReorderableEntity?.updatedOrderId;
+  }
 
-    if (collisionOrderId != null && !lockedIndices.contains(collisionOrderId)) {
-      final draggedOrderId = draggedEntity!.updatedOrderId;
-      _updateMultipleCollisions(
-        collisionReorderableEntity: collisionReorderableEntity!,
-        isBackwards: draggedOrderId > collisionOrderId,
-      );
-      return true;
+  /// Applies [collision] to the order and positions of the children.
+  ///
+  /// [collision] is the child found at [draggedOffset], the position of the
+  /// dragged child, or null if there is none. Returns true if the order
+  /// changed.
+  ///
+  /// The dragged child moves to the index of [collision] and the children
+  /// between them move by one index, except the locked ones. Layouts with
+  /// children of different sizes, e.g. [Wrap], override this.
+  @protected
+  bool applyCollision({
+    required ReorderableEntity? collision,
+    required Offset draggedOffset,
+  }) {
+    if (collision == null) {
+      return false;
+    }
+    if (lockedIndices.contains(collision.updatedOrderId)) {
+      return false;
     }
 
-    return false;
+    _updateMultipleCollisions(
+      collisionReorderableEntity: collision,
+      isBackwards: draggedEntity!.updatedOrderId > collision.updatedOrderId,
+    );
+    return true;
   }
 
   List<ReorderUpdateEntity>? handleDragEnd() {
