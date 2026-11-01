@@ -790,6 +790,77 @@ void main() {
     });
 
     testWidgets(
+        'GIVEN children with different widths '
+        'WHEN one child gets wider and two children are exchanged afterwards '
+        'THEN should show all children like a Wrap while dragging',
+        (WidgetTester tester) async {
+      // given
+      final items = givenItems(6);
+      final widths = [...givenWidths];
+      late StateSetter setWidths;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setWidths = setState;
+                return ReorderableBuilder<int>.wrap(
+                  onReorder: (_) {},
+                  builder: (children) => Wrap(
+                    spacing: givenSpacing,
+                    runSpacing: givenRunSpacing,
+                    children: children,
+                  ),
+                  children: [
+                    for (final item in items)
+                      SizedBox(
+                        key: Key('$item'),
+                        width: widths[item],
+                        height: 50.0,
+                        child: const ColoredBox(color: Colors.lightBlue),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // when
+      setWidths(() => widths[0] = 160.0);
+      await tester.pumpAndSettle();
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(const Key('2'))),
+        pointer: 7,
+      );
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('4'))));
+      await tester.pumpAndSettle();
+
+      // then
+      const expectedItems = [0, 1, 4, 3, 2, 5];
+      final expectedOffsets = ReorderableWrapController().calculateWrapOffsets(
+        sizes: [for (final item in expectedItems) Size(widths[item], 50.0)],
+        renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
+      );
+      for (final (index, item) in expectedItems.indexed) {
+        if (item == 2) continue;
+        final actualOffset = tester.getTopLeft(find.byKey(Key('$item')).last);
+        expect(
+          actualOffset,
+          equals(expectedOffsets[index]),
+          reason: 'item $item',
+        );
+      }
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
         'GIVEN Wrap with centered alignment '
         'WHEN dragging a child onto another child '
         'THEN should throw AssertionError because it is not supported',

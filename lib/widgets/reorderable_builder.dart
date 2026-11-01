@@ -385,7 +385,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
 
     return ReorderableSizeChangedListener(
       onSizeChanged: _handleSizeChanged,
-      onlyAvailableWidth: widget._type == ReorderableBuilderType.wrap,
+      type: widget._type,
       child: ReorderableRemovedChildren(
         children: widget.children,
         itemCount: widget.itemCount,
@@ -471,12 +471,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         !widget.lockedIndices.contains(index);
 
     return ReorderableSizeChangedListener(
-      // in a Wrap, children at the same index can have different sizes, so
-      // the listener has to stay with its child to not report a size change
-      // after reordering
-      key: widget._type == ReorderableBuilderType.wrap
-          ? ValueKey(child.key)
-          : null,
+      type: widget._type,
+      childKey: child.key,
       onSizeChanged: _handleSizeChanged,
       child: ReorderableBuilderItem(
         reorderableEntity: reorderableEntity,
