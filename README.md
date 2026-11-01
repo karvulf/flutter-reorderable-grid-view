@@ -8,7 +8,7 @@
     alt="An animated image of the iOS ReordableGridView UI" height="400"/>
 </p>
 
-Package for having animated Drag and Drop functionality for every type of `GridView` and to have animations when changing the size of children inside your `GridView`.
+Package for having animated Drag and Drop functionality for every type of `GridView` and for `Wrap`, and to have animations when changing the size of children inside your `GridView` or `Wrap`.
 
 ## Index
 - [Overview](#overview)
@@ -16,6 +16,7 @@ Package for having animated Drag and Drop functionality for every type of `GridV
 - [Usage](#usage)
   - [Drag and Drop](#drag-and-drop)
   - [Scroll while dragging](#scroll-while-dragging)
+  - [Wrap](#wrap)
   - [Animations](#animations)
 - [Supported Widgets](#supported-widgets)
 - [Parameters](#parameters)
@@ -31,6 +32,7 @@ Enhance your Flutter app with this package to:
 - Enable animated drag-and-drop functionality:
   - Works seamlessly with any GridView.
   - For GridView.builder, use ReorderableBuilder.builder to implement drag-and-drop.
+  - For Wrap, use ReorderableBuilder.wrap, also with children of different sizes.
 - Add smooth animations for adding, removing, or updating items in your grid.
 
 ## Getting started
@@ -99,7 +101,7 @@ class _MyAppState extends State<MyApp> {
 ## Usage
 `ReorderableBuilder` provides two main functionalities: **Drag and Drop** and **Animations**.
 
-To use this widget, wrap `ReorderableBuilder` around your `GridView`. For more details, refer to the [Getting Started](#getting-started) section.
+To use this widget, wrap `ReorderableBuilder` around your `GridView` or use `ReorderableBuilder.wrap` for a `Wrap`. For more details, refer to the [Getting Started](#getting-started) section.
 
 **Important**: Ensure each child within the `GridView` has a unique key.
 
@@ -154,6 +156,36 @@ While dragging a child, moving it to the top or bottom of your `GridView` will t
 
 You can disable this behavior by setting `enableScrollingWhileDragging` to `false`.
 
+### Wrap
+Use `ReorderableBuilder.wrap` and return a `Wrap` directly in `builder`. The children can have different sizes.
+
+```dart
+SingleChildScrollView(
+  child: ReorderableBuilder.wrap(
+    onReorder: (ReorderedListFunction reorderedListFunction) {
+      setState(() {
+        _items = reorderedListFunction(_items) as List<int>;
+      });
+    },
+    builder: (children) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: children,
+      );
+    },
+    children: generatedChildren,
+  ),
+)
+```
+
+- While dragging, the dragged child is exchanged with the child under it. Children that don't fit into their run anymore move into the next run.
+- `lockedIndices` keep their index, but can move on the screen to make space.
+- Only the default layout of `Wrap` is supported: `spacing` and `runSpacing` can be changed, the direction and all alignments keep their default.
+- There is no `scrollController`. To scroll, wrap `ReorderableBuilder.wrap` into a scrollable widget, e.g. `SingleChildScrollView`.
+
+*For more details, check out the `wrap` example in `main.dart` of the example app.*
+
 ### Animations
 ## Types of Animations
 
@@ -179,6 +211,10 @@ For example, adding or removing a child at the beginning of the list affects the
 
 * Using `ReorderableBuilder.builder` supports
   * `GridView.builder`
+
+
+* Using `ReorderableBuilder.wrap` supports
+  * `Wrap`
 
 ### Parameters
 
@@ -279,11 +315,6 @@ Ensure this widget wraps the child you intend to add to your `GridView`, as it s
 
 ## Road map for release of version `6.0.0`
 * Code Refactoring for easier understanding!
-
-* Support for `Wrap` 
-  * with animation when adding or removing items
-  * drag and drop
-  * Github Issue [#28](https://github.com/karvulf/flutter-reorderable-grid-view/issues/28)
 
 ## Future Plans
 

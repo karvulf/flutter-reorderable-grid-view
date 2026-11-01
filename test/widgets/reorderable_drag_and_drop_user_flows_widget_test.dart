@@ -65,161 +65,174 @@ void main() {
     return () => updatedItems;
   }
 
-  testWidgets(
-      'GIVEN GridView '
-      'WHEN dragging first child below all children and releasing it '
-      'THEN should move it to the last position', (WidgetTester tester) async {
-    // given
-    final getItems = await pumpReorderableBuilder(
-      tester,
-      items: givenItems(6),
-      gridBuilder: (children) => GridView(
-        gridDelegate: givenDelegate,
-        children: children,
-      ),
-    );
+  group('#GridView', () {
+    testWidgets(
+        'GIVEN GridView '
+        'WHEN dragging first child below all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpReorderableBuilder(
+        tester,
+        items: givenItems(6),
+        gridBuilder: (children) => GridView(
+          gridDelegate: givenDelegate,
+          children: children,
+        ),
+      );
 
-    // when
-    await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
 
-    // then
-    expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+      // then
+      expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+    });
+
+    testWidgets(
+        'GIVEN GridView with top padding and locked first index '
+        'WHEN dragging last child above all children and releasing it '
+        'THEN should move it to the first unlocked position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpReorderableBuilder(
+        tester,
+        items: givenItems(6),
+        lockedIndices: const [0],
+        gridBuilder: (children) => GridView(
+          padding: const EdgeInsets.only(top: 100),
+          gridDelegate: givenDelegate,
+          children: children,
+        ),
+      );
+
+      // when
+      await dragAndRelease(tester, item: 5, position: const Offset(300, 20));
+
+      // then
+      expect(getItems(), equals([0, 5, 1, 2, 3, 4]));
+    });
+
+    testWidgets(
+        'GIVEN horizontal GridView '
+        'WHEN dragging first child right of all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      final givenScrollController = ScrollController();
+      final givenGridViewKey = GlobalKey();
+      final getItems = await pumpReorderableBuilder(
+        tester,
+        items: givenItems(4),
+        scrollController: givenScrollController,
+        gridBuilder: (children) => GridView(
+          key: givenGridViewKey,
+          controller: givenScrollController,
+          scrollDirection: Axis.horizontal,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+          ),
+          children: children,
+        ),
+      );
+
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(750, 100));
+
+      // then
+      expect(getItems(), equals([1, 2, 3, 0]));
+    });
   });
 
-  testWidgets(
-      'GIVEN GridView.count '
-      'WHEN dragging first child below all children and releasing it '
-      'THEN should move it to the last position', (WidgetTester tester) async {
-    // given
-    final getItems = await pumpReorderableBuilder(
-      tester,
-      items: givenItems(6),
-      gridBuilder: (children) => GridView.count(
-        crossAxisCount: 4,
-        children: children,
-      ),
-    );
+  group('#GridView.count', () {
+    testWidgets(
+        'GIVEN GridView.count '
+        'WHEN dragging first child below all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpReorderableBuilder(
+        tester,
+        items: givenItems(6),
+        gridBuilder: (children) => GridView.count(
+          crossAxisCount: 4,
+          children: children,
+        ),
+      );
 
-    // when
-    await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
 
-    // then
-    expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+      // then
+      expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+    });
   });
 
-  testWidgets(
-      'GIVEN GridView.extent '
-      'WHEN dragging first child below all children and releasing it '
-      'THEN should move it to the last position', (WidgetTester tester) async {
-    // given
-    final getItems = await pumpReorderableBuilder(
-      tester,
-      items: givenItems(6),
-      gridBuilder: (children) => GridView.extent(
-        maxCrossAxisExtent: 200,
-        children: children,
-      ),
-    );
+  group('#GridView.extent', () {
+    testWidgets(
+        'GIVEN GridView.extent '
+        'WHEN dragging first child below all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpReorderableBuilder(
+        tester,
+        items: givenItems(6),
+        gridBuilder: (children) => GridView.extent(
+          maxCrossAxisExtent: 200,
+          children: children,
+        ),
+      );
 
-    // when
-    await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
 
-    // then
-    expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+      // then
+      expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+    });
   });
 
-  testWidgets(
-      'GIVEN ReorderableBuilder.builder with GridView.builder '
-      'WHEN dragging first child below all children and releasing it '
-      'THEN should move it to the last position', (WidgetTester tester) async {
-    // given
-    var items = givenItems(6);
-    final givenScrollController = ScrollController();
-    final givenGridViewKey = GlobalKey();
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ReorderableBuilder<int>.builder(
-            scrollController: givenScrollController,
-            itemCount: items.length,
-            onReorder: (reorder) => items = reorder(items),
-            childBuilder: (itemBuilder) => GridView.builder(
-              key: givenGridViewKey,
-              controller: givenScrollController,
+  group('#GridView.builder', () {
+    testWidgets(
+        'GIVEN ReorderableBuilder.builder with GridView.builder '
+        'WHEN dragging first child below all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      var items = givenItems(6);
+      final givenScrollController = ScrollController();
+      final givenGridViewKey = GlobalKey();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReorderableBuilder<int>.builder(
+              scrollController: givenScrollController,
               itemCount: items.length,
-              gridDelegate: givenDelegate,
-              itemBuilder: (context, index) => itemBuilder(
-                buildChild(items[index]),
-                index,
+              onReorder: (reorder) => items = reorder(items),
+              childBuilder: (itemBuilder) => GridView.builder(
+                key: givenGridViewKey,
+                controller: givenScrollController,
+                itemCount: items.length,
+                gridDelegate: givenDelegate,
+                itemBuilder: (context, index) => itemBuilder(
+                  buildChild(items[index]),
+                  index,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    // when
-    await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(100, 550));
 
-    // then
-    expect(items, equals([1, 2, 3, 4, 5, 0]));
+      // then
+      expect(items, equals([1, 2, 3, 4, 5, 0]));
+    });
   });
 
-  testWidgets(
-      'GIVEN GridView with top padding and locked first index '
-      'WHEN dragging last child above all children and releasing it '
-      'THEN should move it to the first unlocked position',
-      (WidgetTester tester) async {
-    // given
-    final getItems = await pumpReorderableBuilder(
-      tester,
-      items: givenItems(6),
-      lockedIndices: const [0],
-      gridBuilder: (children) => GridView(
-        padding: const EdgeInsets.only(top: 100),
-        gridDelegate: givenDelegate,
-        children: children,
-      ),
-    );
-
-    // when
-    await dragAndRelease(tester, item: 5, position: const Offset(300, 20));
-
-    // then
-    expect(getItems(), equals([0, 5, 1, 2, 3, 4]));
-  });
-
-  testWidgets(
-      'GIVEN horizontal GridView '
-      'WHEN dragging first child right of all children and releasing it '
-      'THEN should move it to the last position', (WidgetTester tester) async {
-    // given
-    final givenScrollController = ScrollController();
-    final givenGridViewKey = GlobalKey();
-    final getItems = await pumpReorderableBuilder(
-      tester,
-      items: givenItems(4),
-      scrollController: givenScrollController,
-      gridBuilder: (children) => GridView(
-        key: givenGridViewKey,
-        controller: givenScrollController,
-        scrollDirection: Axis.horizontal,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-        ),
-        children: children,
-      ),
-    );
-
-    // when
-    await dragAndRelease(tester, item: 0, position: const Offset(750, 100));
-
-    // then
-    expect(getItems(), equals([1, 2, 3, 0]));
-  });
-
-  group('#ReorderableBuilder.wrap', () {
+  group('#Wrap', () {
     const givenWidths = [60.0, 180.0, 100.0, 140.0, 60.0, 180.0];
     const givenSpacing = 8.0;
     const givenRunSpacing = 4.0;
@@ -263,6 +276,97 @@ void main() {
       final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views;
       view.first.resetPhysicalSize();
       view.first.resetDevicePixelRatio();
+    });
+
+    /// Pumps [ReorderableBuilder.wrap] with [items] and returns the reordered
+    /// items.
+    Future<List<int> Function()> pumpWrap(
+      WidgetTester tester, {
+      required List<int> items,
+      List<int> lockedIndices = const [],
+      List<int> nonDraggableIndices = const [],
+      double topPadding = 0.0,
+    }) async {
+      var updatedItems = items;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Padding(
+              padding: EdgeInsets.only(top: topPadding),
+              child: ReorderableBuilder<int>.wrap(
+                lockedIndices: lockedIndices,
+                nonDraggableIndices: nonDraggableIndices,
+                onReorder: (reorder) => updatedItems = reorder(updatedItems),
+                builder: (children) => Wrap(
+                  spacing: givenSpacing,
+                  runSpacing: givenRunSpacing,
+                  children: children,
+                ),
+                children: [for (final item in items) buildWrapChild(item)],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return () => updatedItems;
+    }
+
+    testWidgets(
+        'GIVEN Wrap '
+        'WHEN dragging first child below all children and releasing it '
+        'THEN should move it to the last position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpWrap(tester, items: givenItems(6));
+
+      // when
+      await dragAndRelease(tester, item: 0, position: const Offset(100, 700));
+
+      // then
+      expect(getItems(), equals([1, 2, 3, 4, 5, 0]));
+    });
+
+    testWidgets(
+        'GIVEN Wrap with top padding and locked first index '
+        'WHEN dragging last child above all children and releasing it '
+        'THEN should move it to the first unlocked position',
+        (WidgetTester tester) async {
+      // given
+      final getItems = await pumpWrap(
+        tester,
+        items: givenItems(6),
+        lockedIndices: const [0],
+        topPadding: 100.0,
+      );
+
+      // when
+      await dragAndRelease(tester, item: 5, position: const Offset(100, 20));
+
+      // then
+      expect(getItems(), equals([0, 5, 1, 2, 3, 4]));
+    });
+
+    testWidgets(
+        'GIVEN Wrap with a non draggable child '
+        'WHEN dragging the non draggable child onto another child '
+        'THEN should not reorder the children', (WidgetTester tester) async {
+      // given
+      final getItems = await pumpWrap(
+        tester,
+        items: givenItems(6),
+        nonDraggableIndices: const [1],
+      );
+
+      // when
+      await dragAndRelease(
+        tester,
+        item: 1,
+        position: tester.getCenter(find.byKey(const Key('3'))),
+      );
+
+      // then
+      expect(getItems(), equals([0, 1, 2, 3, 4, 5]));
     });
 
     testWidgets(
