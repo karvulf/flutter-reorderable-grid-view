@@ -287,17 +287,11 @@ class ReorderableBuilder<T> extends StatefulWidget {
 
   /// Enables drag and drop for [children] shown in a [Wrap].
   ///
-  /// Works like the default constructor, but [builder] has to return a [Wrap]
-  /// directly. Its children can have different sizes, so the positions while
-  /// dragging are calculated like the [Wrap] lays them out.
+  /// Important: [builder] has to return a [Wrap] directly.
   ///
   /// Only the default layout of [Wrap] is supported: [Wrap.direction] is
   /// horizontal and all alignments and directions keep their default.
   /// [Wrap.spacing] and [Wrap.runSpacing] can be used.
-  ///
-  /// While dragging, the dragged child is exchanged with the child under it.
-  /// Children with different sizes change the line breaks of the [Wrap], so
-  /// the following children move to make space, e.g. into the next run.
   ///
   /// [lockedIndices] are never exchanged, so they keep their index, but they
   /// can move on the screen to make space.

@@ -103,7 +103,10 @@ class _ReorderableRemovedChildrenState
                     getScrollOffset: widget.getScrollOffset,
                     onFinished: () => setState(() {
                       _removedEntities.remove(removedEntity);
-                      if (_removedEntities.isEmpty) _sizeBeforeRemoval = null;
+
+                      if (_removedEntities.isEmpty) {
+                        _sizeBeforeRemoval = null;
+                      }
                     }),
                   ),
               ],
@@ -126,6 +129,7 @@ class _ReorderableRemovedChildrenState
     }
 
     final sizeBeforeRemoval = _sizeBeforeRemoval;
+
     if (_removedEntities.isEmpty || sizeBeforeRemoval == null) {
       return null;
     }
@@ -146,8 +150,12 @@ class _ReorderableRemovedChildrenState
     _removedEntities.removeWhere(
       (entity) => keyValues.contains(entity.key.value),
     );
-    if (_removedEntities.isEmpty) _sizeBeforeRemoval = null;
-    if (!_canFadeOut) return;
+    if (_removedEntities.isEmpty) {
+      _sizeBeforeRemoval = null;
+    }
+    if (!_canFadeOut) {
+      return;
+    }
 
     final oldChildMap = {
       for (final child in oldChildren) (child.key as ValueKey).value: child,
@@ -169,9 +177,8 @@ class _ReorderableRemovedChildrenState
     }
 
     if (_removedEntities.length > removedCount) {
-      // context.size isn't allowed while building, but the render object
-      // still has the size of the last layout before the children were removed
       final renderBox = context.findRenderObject() as RenderBox?;
+      
       if (renderBox != null && renderBox.hasSize) {
         _sizeBeforeRemoval ??= renderBox.size;
       }
