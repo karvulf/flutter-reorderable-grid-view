@@ -21,6 +21,7 @@
 - fixed auto scroll stopping a few pixels before the top or the end
 - fixed wrong positions when adding children quickly while others are still moving
 - fixed wrong positions with an outer scrollable (e.g. `SingleChildScrollView`) when children were measured or removed while scrolled
+- fixed all children moving in from the top left when the size of `ReorderableBuilder` changed, e.g. after adding a child that needs a new row
 
 ## 5.9.0
 ⭐️ **New Features**

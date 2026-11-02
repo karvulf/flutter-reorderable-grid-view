@@ -80,6 +80,7 @@ void main() {
         key: givenKey,
         updatedOrderId: givenUpdatedOrderId,
         originalOrderId: givenOriginalOrderId,
+        offset: const Offset(10.0, 20.0),
       );
 
       // then
@@ -87,8 +88,8 @@ void main() {
         key: givenKey,
         originalOrderId: givenOriginalOrderId,
         updatedOrderId: givenUpdatedOrderId,
-        originalOffset: Offset.zero,
-        updatedOffset: Offset.zero,
+        originalOffset: Offset(10.0, 20.0),
+        updatedOffset: Offset(10.0, 20.0),
         size: Size.zero,
         isBuildingOffset: true,
         hasSwappedOrder: false,

@@ -369,7 +369,8 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         controller: _reorderableController,
         animationConfig: widget.animationConfig,
         scrollController: widget.scrollController,
-        getScrollOffset: () => _scrollOffset,
+        // an outer scrollable moves the removed children with this widget
+        getScrollOffset: () => _isScrollOutside ? Offset.zero : _scrollOffset,
         type: widget._type,
         child: ReorderableScrollingListener(
           isDragging: _reorderableController.draggedEntity != null,
@@ -644,7 +645,11 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         offset = parentRenderObject.globalToLocal(
           renderBox.localToGlobal(Offset.zero),
         );
-        offset += _scrollOffset;
+        // an outer scrollable moves this widget with its children, so the
+        // offset is already the position inside this widget
+        if (!_isScrollOutside) {
+          offset += _scrollOffset;
+        }
       }
     }
 

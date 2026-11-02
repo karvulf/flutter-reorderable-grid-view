@@ -746,5 +746,39 @@ void main() {
       // then
       expect(tester.getTopLeft(find.byKey(const Key('30'))), givenOffset);
     });
+
+    testWidgets(
+        'GIVEN [ReorderableBuilder] with a shrink wrapped [GridView] and full '
+        'rows '
+        'WHEN adding a child at the first index that needs a new row '
+        'THEN should move the other children only to their next position',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        isWrap: false,
+        builder: (children) => GridView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: givenGridDelegate,
+          children: children,
+        ),
+      );
+      final givenOffset = getOffset(tester, 21);
+
+      // when
+      setItems(() => actualItems.insert(0, 100));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // then: 21 moves from the second to the third column of its row
+      final actualOffset = getOffset(tester, 21);
+      expect(actualOffset.dy, equals(givenOffset.dy));
+      expect(actualOffset.dx, greaterThan(givenOffset.dx));
+
+      await tester.pumpAndSettle();
+      expect(getOffset(tester, 21).dy, equals(givenOffset.dy));
+    });
   });
 }

@@ -186,6 +186,7 @@ abstract class ReorderableController {
         key: value.key,
         updatedOrderId: value.updatedOrderId,
         originalOrderId: value.originalOrderId,
+        offset: value.originalOffset,
       );
     }
 
@@ -195,6 +196,7 @@ abstract class ReorderableController {
         key: value.key,
         updatedOrderId: value.updatedOrderId,
         originalOrderId: value.originalOrderId,
+        offset: value.originalOffset,
       );
     }
   }
