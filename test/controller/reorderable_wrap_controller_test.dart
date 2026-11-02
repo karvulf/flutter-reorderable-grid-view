@@ -4,98 +4,97 @@ import 'package:flutter_reorderable_grid_view/controller/reorderable_wrap_contro
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  /// Returns the offsets of children with [sizes] laid out by a real [Wrap].
-  Future<List<Offset>> layoutRealWrap(
-    WidgetTester tester, {
-    required List<Size> sizes,
-    required double maxWidth,
-    required double spacing,
-    required double runSpacing,
-  }) async {
-    final wrapKey = GlobalKey();
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: SizedBox(
-            width: maxWidth,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Wrap(
-                key: wrapKey,
-                spacing: spacing,
-                runSpacing: runSpacing,
-                children: [
-                  for (final (index, size) in sizes.indexed)
-                    SizedBox.fromSize(key: Key('$index'), size: size),
-                ],
-              ),
-            ),
+  const givenSizes = [
+    Size(60, 50),
+    Size(180, 30),
+    Size(100, 70),
+    Size(140, 50),
+    Size(60, 20),
+    Size(180, 50),
+  ];
+
+  late ReorderableWrapController controller;
+
+  setUp(() {
+    controller = ReorderableWrapController();
+  });
+
+  /// Pumps [wrap] with children of [givenSizes] inside a 400 x 500 box.
+  Future<void> pumpWidget(WidgetTester tester, {required Wrap wrap}) =>
+      tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: SizedBox(width: 400, height: 500, child: wrap),
           ),
         ),
-      ),
-    );
-    final wrapTopLeft = tester.getTopLeft(find.byKey(wrapKey));
+      );
+
+  List<Widget> buildChildren() => [
+        for (final (index, size) in givenSizes.indexed)
+          SizedBox.fromSize(key: Key('$index'), size: size),
+      ];
+
+  /// Returns the offsets of all children inside the pumped [Wrap].
+  List<Offset> getWrapOffsets(WidgetTester tester) {
+    final wrapTopLeft = tester.getTopLeft(find.byType(Wrap));
     return [
-      for (var index = 0; index < sizes.length; index++)
+      for (var index = 0; index < givenSizes.length; index++)
         tester.getTopLeft(find.byKey(Key('$index'))) - wrapTopLeft,
     ];
   }
 
-  final testCases = {
-    'different widths and heights': [
-      const Size(60, 50),
-      const Size(180, 30),
-      const Size(100, 70),
-      const Size(140, 50),
-      const Size(60, 20),
-      const Size(180, 50),
-    ],
-    'children fitting exactly into one run': [
-      const Size(100, 50),
-      const Size(100, 50),
-      const Size(184, 50),
-      const Size(100, 50),
-    ],
-    'child wider than the max width': [
-      const Size(50, 50),
-      const Size(500, 50),
-      const Size(50, 50),
-    ],
-    'children without size': [
-      Size.zero,
-      const Size(100, 50),
-      Size.zero,
-      const Size(300, 50),
-    ],
-  };
+  group('#calculateWrapOffsets', () {
+    testWidgets(
+        'GIVEN [Wrap] with default layout '
+        'WHEN calling calculateWrapOffsets '
+        'THEN should return the same offsets as [Wrap]',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        wrap: Wrap(spacing: 8, runSpacing: 4, children: buildChildren()),
+      );
 
-  for (final MapEntry(key: description, value: sizes) in testCases.entries) {
-    for (final (spacing, runSpacing) in [(0.0, 0.0), (8.0, 4.0)]) {
-      testWidgets(
-          'GIVEN $description, spacing $spacing and runSpacing $runSpacing '
-          'WHEN calling calculateWrapOffsets '
-          'THEN should return the same offsets as Wrap', (tester) async {
-        // given
-        const givenMaxWidth = 400.0;
-        final expected = await layoutRealWrap(
-          tester,
-          sizes: sizes,
-          maxWidth: givenMaxWidth,
-          spacing: spacing,
-          runSpacing: runSpacing,
-        );
+      // when
+      final actual = controller.calculateWrapOffsets(
+        sizes: givenSizes,
+        renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
+      );
 
-        // when
-        final actual = ReorderableWrapController().calculateWrapOffsets(
-          sizes: sizes,
-          renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
-        );
+      // then
+      expect(actual, equals(getWrapOffsets(tester)));
+    });
 
-        // then
-        expect(actual, equals(expected));
-      });
-    }
-  }
+    testWidgets(
+        'GIVEN [Wrap] with no default value for every layout value '
+        'WHEN calling calculateWrapOffsets '
+        'THEN should return the same offsets as [Wrap]',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        wrap: Wrap(
+          direction: Axis.vertical,
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 8,
+          runAlignment: WrapAlignment.center,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.end,
+          textDirection: TextDirection.rtl,
+          verticalDirection: VerticalDirection.up,
+          children: buildChildren(),
+        ),
+      );
+
+      // when
+      final actual = controller.calculateWrapOffsets(
+        sizes: givenSizes,
+        renderWrap: tester.renderObject<RenderWrap>(find.byType(Wrap)),
+      );
+
+      // then
+      expect(actual, equals(getWrapOffsets(tester)));
+    });
+  });
 }

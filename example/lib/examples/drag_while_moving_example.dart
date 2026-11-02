@@ -8,8 +8,6 @@ import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 /// 2. Immediately drag a child (no long press) back and forth across the
 ///    moving children until their move animations end.
 /// On the unfixed version, a swap in the frame a move finishes crashes.
-void main() => runApp(const MaterialApp(home: DragWhileMovingExample()));
-
 class DragWhileMovingExample extends StatefulWidget {
   const DragWhileMovingExample({super.key});
 

@@ -181,10 +181,9 @@ SingleChildScrollView(
 
 - While dragging, the dragged child is exchanged with the child under it. Children that don't fit into their run anymore move into the next run.
 - `lockedIndices` keep their index, but can move on the screen to make space.
-- Only the default layout of `Wrap` is supported: `spacing` and `runSpacing` can be changed, the direction and all alignments keep their default.
 - There is no `scrollController`. To scroll, wrap `ReorderableBuilder.wrap` into a scrollable widget, e.g. `SingleChildScrollView`.
 
-*For more details, check out the `wrap` example in `main.dart` of the example app.*
+*For more details, check out the `wrap` example in `main.dart` and `wrap_layouts_example.dart` of the example app.*
 
 ### Animations
 ## Types of Animations
@@ -295,7 +294,7 @@ ReorderableBuilder(
 
 Use explicit transitions driven by `animation` (e.g. `ScaleTransition`, `SlideTransition`, `RotationTransition`). Implicit animations or own controllers are not supported because the timing is owned by `duration`, e.g. removed children are disposed after it.
 
-See [custom_animations_example.dart](https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/example/lib/other_examples/custom_animations_example.dart) for a complete example.
+See [custom_animations_example.dart](https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/example/lib/examples/custom_animations_example.dart) for a complete example.
 
 ### `CustomDraggable`
 

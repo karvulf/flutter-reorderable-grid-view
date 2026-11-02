@@ -243,6 +243,7 @@ void main() {
       WidgetTester tester, {
       List<int> lockedIndices = const [],
       WrapAlignment alignment = WrapAlignment.start,
+      TextDirection? textDirection,
     }) =>
         pumpWidgetWithMaterialApp(
           tester,
@@ -257,6 +258,7 @@ void main() {
                   onUpdatedDraggedChild: actualUpdatedIndices.add,
                   builder: (children) => Wrap(
                     alignment: alignment,
+                    textDirection: textDirection,
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children: children,
@@ -515,20 +517,65 @@ void main() {
 
     testWidgets(
         'GIVEN [ReorderableBuilder.wrap] with a centered [Wrap] '
-        'WHEN dragging a child onto another child '
-        'THEN should throw AssertionError because it is not supported',
+        'WHEN dragging the first child onto the fourth child and releasing it '
+        'THEN should show all children centered at their new position',
         (WidgetTester tester) async {
       // given
       await pumpWidget(tester, alignment: WrapAlignment.center);
 
       // when
       final gesture = await startDrag(tester, 0);
-      await gesture.moveTo(tester.getCenter(find.byKey(const Key('1'))));
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('3'))));
+      await tester.pumpAndSettle();
+
+      // then: the Wrap gets the width of its widest run (384), so the first
+      // run with 288 is centered at 48
+      expect(getOffset(tester, 3), equals(const Offset(48, 0)));
+      expect(getOffset(tester, 1), equals(const Offset(236, 0)));
+      expect(getOffset(tester, 2), equals(const Offset(0, 54)));
+      expect(getOffset(tester, 4), equals(const Offset(216, 54)));
+      expect(getOffset(tester, 5), equals(const Offset(284, 54)));
+
+      // when
+      await gesture.up();
+      await tester.pumpAndSettle();
 
       // then
-      expect(tester.takeException(), isAssertionError);
+      expect(actualItems, equals(const [3, 1, 2, 0, 4, 5]));
+      expect(getOffset(tester, 0), equals(const Offset(148, 54)));
+      expect(getOffset(tester, 3), equals(const Offset(48, 0)));
+      expect(getOffset(tester, 5), equals(const Offset(284, 54)));
+    });
 
+    testWidgets(
+        'GIVEN [ReorderableBuilder.wrap] with a right to left [Wrap] '
+        'WHEN dragging the first child onto the fourth child and releasing it '
+        'THEN should show all children from the right at their new position',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(tester, textDirection: TextDirection.rtl);
+
+      // when
+      final gesture = await startDrag(tester, 0);
+      await gesture.moveTo(tester.getCenter(find.byKey(const Key('3'))));
+      await tester.pumpAndSettle();
+
+      // then: the runs end at the right of the Wrap with a width of 384
+      expect(getOffset(tester, 3), equals(const Offset(204, 0)));
+      expect(getOffset(tester, 1), equals(const Offset(96, 0)));
+      expect(getOffset(tester, 2), equals(const Offset(244, 54)));
+      expect(getOffset(tester, 4), equals(const Offset(108, 54)));
+      expect(getOffset(tester, 5), equals(const Offset(0, 54)));
+
+      // when
       await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      expect(actualItems, equals(const [3, 1, 2, 0, 4, 5]));
+      expect(getOffset(tester, 0), equals(const Offset(176, 54)));
+      expect(getOffset(tester, 3), equals(const Offset(204, 0)));
+      expect(getOffset(tester, 5), equals(const Offset(0, 54)));
     });
   });
 }

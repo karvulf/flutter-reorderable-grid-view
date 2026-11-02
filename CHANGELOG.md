@@ -2,9 +2,7 @@
 ⭐️ **New Features**
 - dragging a child before or after all children now moves it to the first or last unlocked position
 - added `ReorderableBuilder.wrap` to support drag and drop and all animations for `Wrap`
-  - only the default layout of `Wrap` is supported, `spacing` and `runSpacing` can be changed
-- added `Wrap` to the example app
-
+  - it's the first try to support `Wrap`, so if you find any issues, please open an issue on Github
   ```dart
   ReorderableBuilder.wrap(
     onReorder: (reorderedListFunction) {

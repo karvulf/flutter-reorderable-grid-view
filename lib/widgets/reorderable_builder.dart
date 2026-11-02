@@ -287,10 +287,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
   ///
   /// Important: [builder] has to return a [Wrap] directly.
   ///
-  /// Only the default layout of [Wrap] is supported: [Wrap.direction] is
-  /// horizontal and all alignments and directions keep their default.
-  /// [Wrap.spacing] and [Wrap.runSpacing] can be used.
-  ///
   /// [lockedIndices] are never exchanged, so they keep their index, but they
   /// can move on the screen to make space.
   ///

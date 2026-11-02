@@ -5,10 +5,6 @@ import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 /// Custom insert, remove and drag feedback animations.
 ///
 /// Tap + to insert a child, tap - or a child to remove it, long press to drag.
-void main() {
-  runApp(const MaterialApp(home: CustomAnimationsExample()));
-}
-
 class CustomAnimationsExample extends StatefulWidget {
   const CustomAnimationsExample({super.key});
 

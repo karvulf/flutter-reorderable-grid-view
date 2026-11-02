@@ -4,18 +4,16 @@ import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 /// In this example [ReorderableBuilder.builder] is used.
 ///
 /// The widget can build 9999 items with an image included.
-void main() {
-  runApp(const MaterialApp(home: MyApp()));
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class HeavyReorderableBuilderExample extends StatefulWidget {
+  const HeavyReorderableBuilderExample({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<HeavyReorderableBuilderExample> createState() =>
+      _HeavyReorderableBuilderExampleState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _HeavyReorderableBuilderExampleState
+    extends State<HeavyReorderableBuilderExample> {
   static const _imagePath = 'assets/test_image.jpeg';
 
   final _scrollController = ScrollController();
