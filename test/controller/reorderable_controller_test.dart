@@ -482,6 +482,7 @@ void main() {
           key: entity.key,
           updatedOrderId: entity.updatedOrderId,
           originalOrderId: entity.originalOrderId,
+          offset: entity.originalOffset,
         );
         expectedChildrenKeyMap[entity.key.value] = expectedEntity;
         expectedChildrenOrderMap[entity.originalOrderId] = expectedEntity;

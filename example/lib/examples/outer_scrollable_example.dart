@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
+/// [ReorderableBuilder] inside an outer [SingleChildScrollView].
+///
+/// To check the positions while scrolled: scroll down, tap + or - to add or
+/// remove the first child and drag a child afterwards.
 class OuterScrollableExample extends StatefulWidget {
   const OuterScrollableExample({super.key});
 
@@ -13,10 +17,31 @@ class _OuterScrollableExampleState extends State<OuterScrollableExample> {
   final bool reverse = false;
 
   List<int> children = List.generate(200, (index) => index);
+  var _nextChild = 200;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'remove',
+            onPressed: children.isEmpty
+                ? null
+                : () => setState(() => children = children.sublist(1)),
+            child: const Icon(Icons.remove),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'add',
+            onPressed: () {
+              setState(() => children = [_nextChild++, ...children]);
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         reverse: reverse,
         child: Column(
