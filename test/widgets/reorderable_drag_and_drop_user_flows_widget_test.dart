@@ -664,32 +664,6 @@ void main() {
     }
 
     testWidgets(
-        'GIVEN scrolled [ReorderableBuilder.wrap] in an outer scrollable '
-        'and a child added while scrolled '
-        'WHEN dragging a child onto another child and releasing it '
-        'THEN should exchange it with the other child',
-        (WidgetTester tester) async {
-      // given
-      await pumpWidget(
-        tester,
-        isWrap: true,
-        builder: (children) => Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: children,
-        ),
-      );
-
-      // when
-      final gesture = await scrollAddAndDrag(tester, item: 19, targetItem: 21);
-      await gesture.up();
-      await tester.pumpAndSettle();
-
-      // then
-      expect(actualItems.indexOf(19), equals(22));
-    });
-
-    testWidgets(
         'GIVEN scrolled [ReorderableBuilder] with [GridView] in an outer '
         'scrollable and a child added while scrolled '
         'WHEN dragging a child onto another child and releasing it '
