@@ -287,9 +287,6 @@ class ReorderableBuilder<T> extends StatefulWidget {
   ///
   /// Important: [builder] has to return a [Wrap] directly.
   ///
-  /// Every layout of [Wrap] is supported, e.g. [Wrap.direction],
-  /// [Wrap.alignment] or [Wrap.textDirection].
-  ///
   /// [lockedIndices] are never exchanged, so they keep their index, but they
   /// can move on the screen to make space.
   ///

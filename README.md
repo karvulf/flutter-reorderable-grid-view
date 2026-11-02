@@ -181,7 +181,6 @@ SingleChildScrollView(
 
 - While dragging, the dragged child is exchanged with the child under it. Children that don't fit into their run anymore move into the next run.
 - `lockedIndices` keep their index, but can move on the screen to make space.
-- Every layout of `Wrap` is supported, e.g. `direction`, `alignment`, `runAlignment`, `crossAxisAlignment`, `textDirection` and `verticalDirection`.
 - There is no `scrollController`. To scroll, wrap `ReorderableBuilder.wrap` into a scrollable widget, e.g. `SingleChildScrollView`.
 
 *For more details, check out the `wrap` example in `main.dart` and `wrap_layouts_example.dart` of the example app.*
