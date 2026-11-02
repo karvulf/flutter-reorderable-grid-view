@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class ChangeChildrenBar extends StatelessWidget {
+/// Floating bar with buttons to change the children of the playground.
+class PlaygroundChangeChildrenBar extends StatelessWidget {
   final VoidCallback onTapUpdateChild;
   final VoidCallback onTapAddChild;
   final VoidCallback onTapRemoveChild;
   final VoidCallback onTapClear;
   final VoidCallback onTapSwap;
 
-  const ChangeChildrenBar({
+  const PlaygroundChangeChildrenBar({
     required this.onTapUpdateChild,
     required this.onTapAddChild,
     required this.onTapRemoveChild,

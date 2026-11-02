@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/wrap_layouts/wrap_layouts_child.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/wrap_layouts/wrap_layouts_dropdown.dart';
 
 /// Drag and drop in a [Wrap] with every kind of layout.
 ///
 /// Change the layout of the [Wrap] with the dropdowns at the top.
 /// Tap + to add a child, - to remove the first one and long press to drag.
 /// The grey child is locked.
-void main() {
-  runApp(const MaterialApp(home: WrapLayoutsExample()));
-}
-
 class WrapLayoutsExample extends StatefulWidget {
   const WrapLayoutsExample({super.key});
 
@@ -61,25 +59,25 @@ class _WrapLayoutsExampleState extends State<WrapLayoutsExample> {
               spacing: 8,
               runSpacing: 4,
               children: [
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'direction',
                   value: _direction,
                   values: Axis.values,
                   onChanged: (value) => setState(() => _direction = value),
                 ),
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'alignment',
                   value: _alignment,
                   values: WrapAlignment.values,
                   onChanged: (value) => setState(() => _alignment = value),
                 ),
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'runAlignment',
                   value: _runAlignment,
                   values: WrapAlignment.values,
                   onChanged: (value) => setState(() => _runAlignment = value),
                 ),
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'crossAxisAlignment',
                   value: _crossAxisAlignment,
                   values: WrapCrossAlignment.values,
@@ -87,13 +85,13 @@ class _WrapLayoutsExampleState extends State<WrapLayoutsExample> {
                     setState(() => _crossAxisAlignment = value);
                   },
                 ),
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'textDirection',
                   value: _textDirection,
                   values: TextDirection.values,
                   onChanged: (value) => setState(() => _textDirection = value),
                 ),
-                _buildDropdown(
+                WrapLayoutsDropdown(
                   label: 'verticalDirection',
                   value: _verticalDirection,
                   values: VerticalDirection.values,
@@ -131,7 +129,11 @@ class _WrapLayoutsExampleState extends State<WrapLayoutsExample> {
                 },
                 children: [
                   for (final (index, item) in _items.indexed)
-                    _buildChild(item: item, index: index),
+                    WrapLayoutsChild(
+                      key: Key('$item'),
+                      item: item,
+                      isLocked: _lockedIndices.contains(index),
+                    ),
                 ],
               ),
             ),
@@ -150,53 +152,4 @@ class _WrapLayoutsExampleState extends State<WrapLayoutsExample> {
         _textDirection,
         _verticalDirection,
       ].join();
-
-  Widget _buildChild({required int item, required int index}) {
-    final isLocked = _lockedIndices.contains(index);
-
-    return Container(
-      key: Key('$item'),
-      width: 50.0 + (item % 4) * 30.0,
-      height: 40.0 + (item % 3) * 20.0,
-      decoration: BoxDecoration(
-        color: isLocked
-            ? Colors.grey
-            : Colors.primaries[item % Colors.primaries.length],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        '$item',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown<T extends Enum>({
-    required String label,
-    required T value,
-    required List<T> values,
-    required ValueChanged<T> onChanged,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('$label: '),
-        DropdownButton<T>(
-          value: value,
-          isDense: true,
-          items: [
-            for (final value in values)
-              DropdownMenuItem(value: value, child: Text(value.name)),
-          ],
-          onChanged: (value) {
-            if (value != null) onChanged(value);
-          },
-        ),
-      ],
-    );
-  }
 }

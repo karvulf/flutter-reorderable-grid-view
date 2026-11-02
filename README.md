@@ -295,7 +295,7 @@ ReorderableBuilder(
 
 Use explicit transitions driven by `animation` (e.g. `ScaleTransition`, `SlideTransition`, `RotationTransition`). Implicit animations or own controllers are not supported because the timing is owned by `duration`, e.g. removed children are disposed after it.
 
-See [custom_animations_example.dart](https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/example/lib/other_examples/custom_animations_example.dart) for a complete example.
+See [custom_animations_example.dart](https://github.com/karvulf/flutter-reorderable-grid-view/blob/master/example/lib/examples/custom_animations_example.dart) for a complete example.
 
 ### `CustomDraggable`
 

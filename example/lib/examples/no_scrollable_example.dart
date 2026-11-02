@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/widgets/widgets.dart';
 
-void main() {
-  runApp(const MaterialApp(home: MyApp()));
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class NoScrollableExample extends StatefulWidget {
+  const NoScrollableExample({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<NoScrollableExample> createState() => _NoScrollableExampleState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _NoScrollableExampleState extends State<NoScrollableExample> {
   final _gridViewKey = GlobalKey();
 
   List<int> children = List.generate(100, (index) => index);

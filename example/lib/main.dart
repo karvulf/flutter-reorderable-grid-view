@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
-import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
-import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
-import 'package:flutter_reorderable_grid_view_example/widgets/change_children_bar.dart';
-
-enum ReorderableType {
-  gridView,
-  gridViewCount,
-  gridViewExtent,
-  gridViewBuilder,
-  wrap,
-}
+import 'package:flutter_reorderable_grid_view_example/examples/apple_style/apple_style_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/basic_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/create_more_items_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/custom_animations_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/default_tab_controller_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/drag_target_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/drag_while_moving_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/heavy_reorderable_builder_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/inner_scrollable_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/no_scrollable_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/outer_scrollable_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/page_view/page_view_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/playground/playground_example.dart';
+import 'package:flutter_reorderable_grid_view_example/examples/wrap_layouts/wrap_layouts_example.dart';
 
 void main() {
   runApp(
@@ -21,316 +23,138 @@ void main() {
           seedColor: const Color(0xfffaa025),
           surface: const Color(0xff271f16),
         ),
-        useMaterial3: true,
       ),
-      themeMode: ThemeMode.dark,
-      home: const MyApp(),
+      home: const ExampleGallery(),
     ),
   );
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+/// An example of the gallery.
+///
+/// [hasAppBar] is false for examples without their own app bar, so the
+/// gallery adds one to navigate back.
+typedef _Example = ({
+  String title,
+  String description,
+  Widget page,
+  bool hasAppBar,
+});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
+const _examples = <_Example>[
+  (
+    title: 'Playground',
+    description: 'GridView, GridView.count/.extent/.builder and Wrap with '
+        'locked children and buttons to change the children',
+    page: PlaygroundExample(),
+    hasAppBar: true,
+  ),
+  (
+    title: 'Basic',
+    description: 'Minimal ReorderableBuilder with a GridView',
+    page: BasicExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Apple style',
+    description: 'Calm insert, remove and drag feedback animations',
+    page: AppleStyleExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Custom animations',
+    description: 'Custom insert, remove and drag feedback animations',
+    page: CustomAnimationsExample(),
+    hasAppBar: true,
+  ),
+  (
+    title: 'Wrap layouts',
+    description: 'Drag and drop in a Wrap with every kind of layout',
+    page: WrapLayoutsExample(),
+    hasAppBar: true,
+  ),
+  (
+    title: 'Add button as last child',
+    description: 'Locked add button that creates new children',
+    page: CreateMoreItemsExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Drag target',
+    description: 'Drop a child on a DragTarget to delete it',
+    page: DragTargetExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Drag while moving',
+    description: 'Drag right after removing a child, while the others move',
+    page: DragWhileMovingExample(),
+    hasAppBar: true,
+  ),
+  (
+    title: 'Heavy builder',
+    description: '9999 children with images using ReorderableBuilder.builder',
+    page: HeavyReorderableBuilderExample(),
+    hasAppBar: true,
+  ),
+  (
+    title: 'Inner scrollable',
+    description: 'GridView scrolling below a header',
+    page: InnerScrollableExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Outer scrollable',
+    description: 'GridView inside a SingleChildScrollView',
+    page: OuterScrollableExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'No scrollable',
+    description: 'GridView that cannot scroll',
+    page: NoScrollableExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'PageView',
+    description: 'A ReorderableBuilder on every page of a PageView',
+    page: PageViewExample(),
+    hasAppBar: false,
+  ),
+  (
+    title: 'Tabs',
+    description: 'A ReorderableBuilder in every tab of a TabBarView',
+    page: DefaultTabControllerExample(),
+    hasAppBar: true,
+  ),
+];
 
-class _MyAppState extends State<MyApp> {
-  static const _startCounter = 200;
-
-  final lockedIndices = <int>[0, 4];
-  final nonDraggableIndices = [0, 2, 3];
-
-  int keyCounter = _startCounter;
-  List<int> children = List.generate(_startCounter, (index) => index);
-  ReorderableType reorderableType = ReorderableType.wrap;
-
-  var _scrollController = ScrollController();
-  var _gridViewKey = GlobalKey();
+class ExampleGallery extends StatelessWidget {
+  const ExampleGallery({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: DropdownButton<ReorderableType>(
-          value: reorderableType,
-          icon: const Icon(Icons.arrow_drop_down_rounded),
-          onChanged: (ReorderableType? reorderableType) {
-            setState(() {
-              _scrollController = ScrollController();
-              _gridViewKey = GlobalKey();
-              this.reorderableType = reorderableType!;
-            });
-          },
-          items: ReorderableType.values.map((e) {
-            return DropdownMenuItem<ReorderableType>(
-              value: e,
-              child: Text(e.toString()),
-            );
-          }).toList(),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        child: Stack(
-          children: [
-            _getReorderableWidget(),
-            ChangeChildrenBar(
-              onTapAddChild: () {
-                setState(() {
-                  // children = children..add(keyCounter++);
-                  children.insert(0, keyCounter++);
-                });
-              },
-              onTapRemoveChild: () {
-                if (children.isNotEmpty) {
-                  setState(() {
-                    // children = children..removeLast();
-                    children.removeAt(0);
-                  });
-                }
-              },
-              onTapClear: () {
-                if (children.isNotEmpty) {
-                  setState(() {
-                    children = <int>[];
-                  });
-                }
-              },
-              onTapUpdateChild: () {
-                if (children.isNotEmpty) {
-                  children[0] = 999;
-                  setState(() {
-                    children = children;
-                  });
-                }
-              },
-              onTapSwap: () {
-                final child1 = children[0];
-                final child2 = children[1];
-                children[0] = child2;
-                children[1] = child1;
-                setState(() {});
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _getReorderableWidget() {
-    switch (reorderableType) {
-      case ReorderableType.gridView:
-        final generatedChildren = _getGeneratedChildren();
-        return ReorderableBuilder(
-          key: Key(_gridViewKey.toString()),
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          nonDraggableIndices: nonDraggableIndices,
-          onDragStarted: _handleDragStarted,
-          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
-          onDragEnd: _handleDragEnd,
-          scrollController: _scrollController,
-          reverse: true,
-          animationConfig: const ReorderableAnimationConfig(
-            draggingPositionChangeDuration: Duration(milliseconds: 500),
-            releasedItemDuration: Duration(seconds: 1),
-          ),
-          builder: (children) {
-            return GridView(
-              key: _gridViewKey,
-              controller: _scrollController,
-              reverse: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
+      appBar: AppBar(title: const Text('flutter_reorderable_grid_view')),
+      body: ListView(
+        children: [
+          for (final example in _examples)
+            ListTile(
+              title: Text(example.title),
+              subtitle: Text(example.description),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => example.hasAppBar
+                      ? example.page
+                      : Scaffold(
+                          appBar: AppBar(title: Text(example.title)),
+                          body: example.page,
+                        ),
+                ),
               ),
-              children: children,
-            );
-          },
-          children: generatedChildren,
-        );
-
-      case ReorderableType.gridViewCount:
-        final generatedChildren = _getGeneratedChildren();
-        return ReorderableBuilder(
-          key: Key(_gridViewKey.toString()),
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          nonDraggableIndices: nonDraggableIndices,
-          scrollController: _scrollController,
-          children: generatedChildren,
-          builder: (children) {
-            return GridView.count(
-              key: _gridViewKey,
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-              children: children,
-            );
-          },
-        );
-      case ReorderableType.gridViewExtent:
-        final generatedChildren = _getGeneratedChildren();
-        return ReorderableBuilder(
-          key: Key(_gridViewKey.toString()),
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          nonDraggableIndices: nonDraggableIndices,
-          scrollController: _scrollController,
-          children: generatedChildren,
-          builder: (children) {
-            return GridView.extent(
-              key: _gridViewKey,
-              controller: _scrollController,
-              maxCrossAxisExtent: 200,
-              padding: EdgeInsets.zero,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              children: children,
-            );
-          },
-        );
-
-      case ReorderableType.gridViewBuilder:
-        return ReorderableBuilder.builder(
-          key: Key(_gridViewKey.toString()),
-          onReorder: _handleReorder,
-          lockedIndices: lockedIndices,
-          nonDraggableIndices: nonDraggableIndices,
-          onDragStarted: _handleDragStarted,
-          onUpdatedDraggedChild: _handleUpdatedDraggedChild,
-          onDragEnd: _handleDragEnd,
-          scrollController: _scrollController,
-          animationConfig: const ReorderableAnimationConfig(
-            insert: ReorderableItemTransition(
-              duration: Duration(milliseconds: 800),
             ),
-            defaultAnimationCurve: Curves.easeOut,
-            changePositionAfterFadeOut: true,
-          ),
-          itemCount: children.length,
-          childBuilder: (itemBuilder) {
-            return GridView.builder(
-              key: _gridViewKey,
-              controller: _scrollController,
-              itemCount: children.length,
-              itemBuilder: (context, index) {
-                return itemBuilder(
-                  _getChild(index: index),
-                  index,
-                );
-              },
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 8,
-              ),
-            );
-          },
-        );
-
-      // children have different widths to show the Wrap layout
-      case ReorderableType.wrap:
-        final generatedChildren = List<Widget>.generate(
-          children.length,
-          (index) => _getChild(
-            index: index,
-            width: 60.0 + (children[index] % 4) * 40.0,
-          ),
-        );
-        return SingleChildScrollView(
-          child: ReorderableBuilder.wrap(
-            key: Key(_gridViewKey.toString()),
-            onReorder: _handleReorder,
-            lockedIndices: lockedIndices,
-            nonDraggableIndices: nonDraggableIndices,
-            builder: (children) {
-              return Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: children,
-              );
-            },
-            children: generatedChildren,
-          ),
-        );
-    }
-  }
-
-  List<Widget> _getGeneratedChildren() {
-    return List<Widget>.generate(
-      children.length,
-      (index) => _getChild(index: index),
-    );
-  }
-
-  Widget _getChild({required int index, double width = 100.0}) {
-    return CustomDraggable(
-      key: Key(children[index].toString()),
-      data: index,
-      child: Container(
-        decoration: BoxDecoration(
-          color: lockedIndices.contains(index)
-              ? Theme.of(context).disabledColor
-              : Theme.of(context).colorScheme.primary,
-        ),
-        height: 100.0,
-        width: width,
-        child: Center(
-          child: Text(
-            '${children[index]}',
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
-
-  void _handleDragStarted(int index) {
-    _showSnackbar(text: 'Dragging at index $index has started!');
-  }
-
-  void _handleUpdatedDraggedChild(int index) {
-    _showSnackbar(text: 'Dragged child updated position to $index');
-  }
-
-  void _handleReorder(ReorderedListFunction<int> reorderedListFunction) {
-    setState(() {
-      children = reorderedListFunction(children);
-    });
-  }
-
-  void _handleDragEnd(int index) {
-    _showSnackbar(text: 'Dragging was finished at $index!');
-  }
-
-  void _showSnackbar({required String text}) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    final snackBar = SnackBar(
-      content: Text(
-        text,
-        style: const TextStyle(color: Colors.white),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      duration: const Duration(milliseconds: 1000),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-}
-
-class TestEaseInCurve extends Curve {
-  const TestEaseInCurve();
-
-  @override
-  double transform(double t) => t * t;
 }
