@@ -578,4 +578,173 @@ void main() {
       expect(getOffset(tester, 5), equals(const Offset(0, 54)));
     });
   });
+
+  /// Children measured while an outer scrollable is scrolled have to be at
+  /// the same position as the children measured before scrolling.
+  group('#outer scrollable', () {
+    late StateSetter setItems;
+
+    setUp(() {
+      actualItems = List.generate(60, (index) => index);
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views;
+      view.first.physicalSize = const Size(400.0, 800.0);
+      view.first.devicePixelRatio = 1.0;
+    });
+
+    tearDown(() {
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views;
+      view.first.resetPhysicalSize();
+      view.first.resetDevicePixelRatio();
+    });
+
+    Widget buildChild(int item) => SizedBox(
+          key: Key('$item'),
+          width: 60.0 + (item % 4) * 40.0,
+          height: 50.0,
+          child: const ColoredBox(color: Colors.lightBlue),
+        );
+
+    Future<void> pumpWidget(
+      WidgetTester tester, {
+      required Widget Function(List<Widget> children) builder,
+      required bool isWrap,
+    }) =>
+        pumpWidgetWithMaterialApp(
+          tester,
+          child: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                setItems = setState;
+                final children = [
+                  for (final item in actualItems) buildChild(item),
+                ];
+                void onReorder(ReorderedListFunction<int> reorder) =>
+                    setState(() => actualItems = reorder(actualItems));
+
+                return isWrap
+                    ? ReorderableBuilder<int>.wrap(
+                        onReorder: onReorder,
+                        builder: builder,
+                        children: children,
+                      )
+                    : ReorderableBuilder<int>(
+                        onReorder: onReorder,
+                        builder: builder,
+                        children: children,
+                      );
+              },
+            ),
+          ),
+        );
+
+    /// Scrolls down, adds a child at the first index and drags [item] onto
+    /// [targetItem] without releasing it.
+    Future<TestGesture> scrollAddAndDrag(
+      WidgetTester tester, {
+      required int item,
+      required int targetItem,
+    }) async {
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      setItems(() => actualItems.insert(0, 100));
+      await tester.pumpAndSettle();
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(Key('$item'))),
+        pointer: 7,
+      );
+      await tester.pump(kLongPressTimeout);
+      await tester.pumpAndSettle();
+      await gesture.moveTo(tester.getCenter(find.byKey(Key('$targetItem'))));
+      await tester.pumpAndSettle();
+      return gesture;
+    }
+
+    testWidgets(
+        'GIVEN scrolled [ReorderableBuilder.wrap] in an outer scrollable '
+        'and a child added while scrolled '
+        'WHEN dragging a child onto another child and releasing it '
+        'THEN should exchange it with the other child',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        isWrap: true,
+        builder: (children) => Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: children,
+        ),
+      );
+
+      // when
+      final gesture = await scrollAddAndDrag(tester, item: 19, targetItem: 21);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      expect(actualItems.indexOf(19), equals(22));
+    });
+
+    testWidgets(
+        'GIVEN scrolled [ReorderableBuilder] with [GridView] in an outer '
+        'scrollable and a child added while scrolled '
+        'WHEN dragging a child onto another child and releasing it '
+        'THEN should move it to the index of the other child',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        isWrap: false,
+        builder: (children) => GridView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: givenGridDelegate,
+          children: children,
+        ),
+      );
+
+      // when
+      final gesture = await scrollAddAndDrag(tester, item: 19, targetItem: 22);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // then
+      expect(actualItems.indexOf(19), equals(23));
+    });
+
+    testWidgets(
+        'GIVEN scrolled [ReorderableBuilder.wrap] in an outer scrollable '
+        'WHEN removing a visible child '
+        'THEN should fade it out at its last position',
+        (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        isWrap: true,
+        builder: (children) => Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: children,
+        ),
+      );
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      final givenOffset = tester.getTopLeft(find.byKey(const Key('30')));
+
+      // when
+      setItems(() => actualItems.remove(30));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // then
+      expect(tester.getTopLeft(find.byKey(const Key('30'))), givenOffset);
+    });
+  });
 }
