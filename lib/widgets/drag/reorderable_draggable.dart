@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/custom_draggable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/drag/draggable_feedback.dart';
 
@@ -21,6 +22,7 @@ class ReorderableDraggable extends StatefulWidget {
   final bool enableDraggable;
   final double? feedbackScaleFactor;
   final BoxDecoration? dragChildBoxDecoration;
+  final PlaceholderBuilder? placeholderBuilder;
   final ReorderableAnimationConfig animationConfig;
 
   final VoidCallback onDragStarted;
@@ -42,6 +44,7 @@ class ReorderableDraggable extends StatefulWidget {
     required this.currentDraggedEntity,
     required this.animationConfig,
     this.dragChildBoxDecoration,
+    this.placeholderBuilder,
     super.key,
   });
 
@@ -147,12 +150,31 @@ class _ReorderableDraggableState extends State<ReorderableDraggable>
       );
     }
 
-    return Visibility(
+    final slot = Visibility(
       visible: visible,
       maintainAnimation: true,
       maintainSize: true,
       maintainState: true,
       child: widget.currentDraggedEntity != null ? child : draggable,
+    );
+
+    final placeholderBuilder = widget.placeholderBuilder;
+    if (placeholderBuilder == null) return slot;
+
+    // Keep the Stack for the whole lifetime so the slot is not remounted
+    // when a drag starts or ends; only the placeholder is toggled.
+    return Stack(
+      children: [
+        slot,
+        if (!visible)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: placeholderBuilder(context, reorderableEntity.size),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

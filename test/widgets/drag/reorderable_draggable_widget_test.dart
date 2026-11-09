@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/widgets/drag/draggable_feedback.dart';
 import 'package:flutter_reorderable_grid_view/widgets/drag/reorderable_draggable.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,7 @@ void main() {
     void Function(Offset? globalOffset)? onDragEnd,
     VoidCallback? onDragCanceled,
     bool showDragTarget = false,
+    PlaceholderBuilder? placeholderBuilder,
   }) async =>
       tester.pumpWidget(
         MaterialApp(
@@ -54,6 +56,7 @@ void main() {
                   longPressDelay: longPressDelay,
                   feedbackScaleFactor: givenFeedbackScaleFactor,
                   dragChildBoxDecoration: null,
+                  placeholderBuilder: placeholderBuilder,
                   animationConfig: const ReorderableAnimationConfig(
                     dragFeedbackDuration: givenFeedbackDuration,
                   ),
@@ -373,6 +376,138 @@ void main() {
           return false;
         }),
         findsOneWidget,
+      );
+    });
+  });
+
+  group('placeholderBuilder', () {
+    const placeholderKey = Key('placeholder');
+    Widget buildPlaceholder(BuildContext context, Size size) =>
+        const SizedBox(key: placeholderKey);
+
+    testWidgets(
+        "GIVEN placeholderBuilder and this child is the dragged entity "
+        "WHEN pumping [ReorderableDraggable] "
+        "THEN should show the placeholder over the hidden slot",
+        (WidgetTester tester) async {
+      // given
+      Size? builtSize;
+
+      // when
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        currentDraggedEntity: givenReorderableEntity,
+        placeholderBuilder: (context, size) {
+          builtSize = size;
+          return buildPlaceholder(context, size);
+        },
+      );
+
+      // then
+      expect(find.byKey(placeholderKey), findsOneWidget);
+      expect(builtSize, equals(givenReorderableEntity.size));
+      expect(
+        find.byWidgetPredicate((w) => w is Visibility && !w.visible),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+        "GIVEN placeholderBuilder and another child is dragged "
+        "WHEN pumping [ReorderableDraggable] "
+        "THEN should not show the placeholder", (WidgetTester tester) async {
+      // given
+      final otherEntity = reorderableBuilder.getEntity(updatedOrderId: 99);
+
+      // when
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        currentDraggedEntity: otherEntity,
+        placeholderBuilder: buildPlaceholder,
+      );
+
+      // then
+      expect(find.byKey(placeholderKey), findsNothing);
+    });
+
+    testWidgets(
+        "GIVEN placeholderBuilder "
+        "WHEN this child starts and stops being the dragged entity "
+        "THEN should keep the same slot element and wrap the placeholder "
+        "in IgnorePointer and ExcludeSemantics", (WidgetTester tester) async {
+      // given
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        placeholderBuilder: buildPlaceholder,
+      );
+      final slotElement = tester.element(find.byType(Visibility));
+
+      // when
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        currentDraggedEntity: givenReorderableEntity,
+        placeholderBuilder: buildPlaceholder,
+      );
+
+      // then
+      expect(tester.element(find.byType(Visibility)), same(slotElement));
+      expect(
+        find.ancestor(
+          of: find.byKey(placeholderKey),
+          matching: find.byType(ExcludeSemantics),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.ancestor(
+          of: find.byKey(placeholderKey),
+          matching: find.byType(IgnorePointer),
+        ),
+        findsWidgets,
+      );
+
+      // when
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        placeholderBuilder: buildPlaceholder,
+      );
+
+      // then
+      expect(tester.element(find.byType(Visibility)), same(slotElement));
+      expect(find.byKey(placeholderKey), findsNothing);
+    });
+
+    testWidgets(
+        "GIVEN no placeholderBuilder and this child is the dragged entity "
+        "WHEN pumping [ReorderableDraggable] "
+        "THEN should keep the slot empty", (WidgetTester tester) async {
+      // given
+
+      // when
+      await pumpWidget(
+        tester,
+        enableLongPress: false,
+        enableDraggable: true,
+        currentDraggedEntity: givenReorderableEntity,
+      );
+
+      // then
+      expect(
+        find.descendant(
+          of: find.byType(ReorderableDraggable),
+          matching: find.byType(Stack),
+        ),
+        findsNothing,
       );
     });
   });

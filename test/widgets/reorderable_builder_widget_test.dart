@@ -146,6 +146,7 @@ void main() {
               widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.dragChildBoxDecoration == null &&
+              widget.placeholderBuilder == null &&
               widget.draggingAnimationMap.isEmpty &&
               widget.child == givenChild,
         ),
@@ -300,6 +301,52 @@ void main() {
     });
 
     testWidgets(
+        "GIVEN placeholderBuilder "
+        "WHEN pumping [ReorderableBuilder] "
+        "THEN should pass placeholderBuilder to every child",
+        (WidgetTester tester) async {
+      // given
+      Widget givenPlaceholderBuilder(BuildContext context, Size size) =>
+          const SizedBox();
+      const givenChildren = [
+        Text('child1', key: Key('child1')),
+        Text('child2', key: Key('child2')),
+      ];
+
+      // when
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ReorderableBuilder(
+              placeholderBuilder: givenPlaceholderBuilder,
+              builder: (children) => Column(children: children),
+              onReorder: (_) {},
+              children: givenChildren,
+            ),
+          ),
+        ),
+      );
+
+      // then
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableBuilderItem &&
+              widget.placeholderBuilder == givenPlaceholderBuilder,
+        ),
+        findsNWidgets(2),
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is ReorderableDraggable &&
+              widget.placeholderBuilder == givenPlaceholderBuilder,
+        ),
+        findsNWidgets(2),
+      );
+    });
+
+    testWidgets(
         "GIVEN only required values, children and child for builder "
         "WHEN pumping [ReorderableBuilder] "
         "THEN should show expected widgets", (WidgetTester tester) async {
@@ -379,6 +426,7 @@ void main() {
               widget.enableLongPress &&
               widget.longPressDelay == const Duration(milliseconds: 500) &&
               widget.dragChildBoxDecoration == null &&
+              widget.placeholderBuilder == null &&
               widget.draggingAnimationMap.isEmpty,
         ),
         findsNWidgets(3),

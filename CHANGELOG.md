@@ -16,6 +16,18 @@
     children: [for (final item in items) MyItem(key: ValueKey(item))],
   )
   ```
+- added `placeholderBuilder` to `ReorderableBuilder` to show a placeholder in the slot of the dragged child while dragging
+  ```dart
+  ReorderableBuilder(
+    placeholderBuilder: (context, size) => DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    // ...
+  )
+  ```
 
 🐛 **Bug Fixes**
 - fixed auto scroll stopping a few pixels before the top or the end

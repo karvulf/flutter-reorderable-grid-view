@@ -78,6 +78,9 @@ class ReorderableBuilderItem extends StatefulWidget {
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
+  /// Builds the placeholder shown in the slot of the dragged child.
+  final PlaceholderBuilder? placeholderBuilder;
+
   /// The scale factor applied to the feedback widget during a drag operation.
   final double? feedbackScaleFactor;
 
@@ -109,6 +112,7 @@ class ReorderableBuilderItem extends StatefulWidget {
     required this.enableLongPress,
     required this.longPressDelay,
     required this.dragChildBoxDecoration,
+    required this.placeholderBuilder,
     required this.feedbackScaleFactor,
     required this.onDragStarted,
     required this.onDragEnd,
@@ -201,6 +205,7 @@ class _ReorderableBuilderItemState extends State<ReorderableBuilderItem> {
               enableLongPress: widget.enableLongPress,
               longPressDelay: widget.longPressDelay,
               dragChildBoxDecoration: widget.dragChildBoxDecoration,
+              placeholderBuilder: widget.placeholderBuilder,
               feedbackScaleFactor: widget.feedbackScaleFactor,
               animationConfig: animationConfig,
               // all three dragging functions will trigger a setState for all children

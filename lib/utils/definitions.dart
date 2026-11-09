@@ -49,3 +49,9 @@ typedef OnDragEndFunction = void Function(
   ReorderableEntity reorderableEntity,
   Offset? globalOffset,
 );
+
+/// Builds the placeholder drawn in the dragged child's current slot.
+///
+/// The returned widget is laid out to fill the slot of the dragged child.
+/// [size] is the last measured size of the dragged child.
+typedef PlaceholderBuilder = Widget Function(BuildContext context, Size size);

@@ -232,6 +232,7 @@ For example, adding or removing a child at the beginning of the list affects the
 | `automaticScrollExtent`        | Defines the height of the top or bottom before the dragged child indicates a scrolling.                                  |    **150.0**      |
 | `feedbackScaleFactor`          | Deprecated. Use `animationConfig.dragFeedback` with a custom `builder`. Ignored if that builder is set.                   |     **1.05**      |
 | `dragChildBoxDecoration`       | When a child is dragged, you can override the default BoxDecoration of the dragged child.                                |       **-**       |
+| `placeholderBuilder`           | Builds a placeholder shown in the slot of the dragged child while dragging. Without it the slot stays empty.            |       **-**       |
 | `reverse`                      | Handles the reversed order of your children. Ensure to add this flag to your scrollable and this widget.                |     **false**     |
 | `builder`                      | It's required to use [ReorderableBuilder] to obtain updated [children].                                                  |       **-**       |
 | `onReorder`                    | After releasing the dragged child, [onReorder] is called which contains a function as parameter to reorder all items. Use either this or `onReorderPositions`. |       **-**       |
