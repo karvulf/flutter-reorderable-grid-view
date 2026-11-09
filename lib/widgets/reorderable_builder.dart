@@ -9,6 +9,7 @@ import 'package:flutter_reorderable_grid_view/entities/reorder_update_entity.dar
 import 'package:flutter_reorderable_grid_view/entities/reorderable_builder_type.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_animation_config.dart';
 import 'package:flutter_reorderable_grid_view/entities/reorderable_entity.dart';
+import 'package:flutter_reorderable_grid_view/utils/definitions.dart';
 import 'package:flutter_reorderable_grid_view/utils/reorderable_scrollable.dart';
 import 'package:flutter_reorderable_grid_view/widgets/item/reorderable_builder_item.dart';
 import 'package:flutter_reorderable_grid_view/widgets/removed/reorderable_removed_children.dart';
@@ -147,6 +148,15 @@ class ReorderableBuilder<T> extends StatefulWidget {
   /// [BoxDecoration] for the child that is dragged around.
   final BoxDecoration? dragChildBoxDecoration;
 
+  /// Optional placeholder drawn in the slot of the dragged child.
+  ///
+  /// While dragging, the slot of the dragged child moves with the other
+  /// children and shows where the child will be dropped. Without this
+  /// builder that slot stays empty. The placeholder fills the slot, ignores
+  /// pointer events and is excluded from semantics. It is removed as soon as
+  /// the drag ends.
+  final PlaceholderBuilder? placeholderBuilder;
+
   /// It's required to use [ReorderableBuilder] to obtain updated [children].
   ///
   /// This function returns the [children] containing all necessary widgets
@@ -234,6 +244,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.feedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
+    this.placeholderBuilder,
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
@@ -271,6 +282,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.feedbackScaleFactor,
     this.reverse = _defaultReverse,
     this.dragChildBoxDecoration,
+    this.placeholderBuilder,
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
@@ -305,6 +317,7 @@ class ReorderableBuilder<T> extends StatefulWidget {
     this.automaticScrollExtent = _defaultAutomaticScrollExtent,
     this.enableScrollingWhileDragging = _defaultEnableScrollingWhileDragging,
     this.dragChildBoxDecoration,
+    this.placeholderBuilder,
     this.onDragStarted,
     this.onDragEnd,
     this.onUpdatedDraggedChild,
@@ -485,6 +498,7 @@ class _ReorderableBuilderState<T> extends State<ReorderableBuilder<T>> {
         enableLongPress: widget.enableLongPress,
         longPressDelay: widget.longPressDelay,
         dragChildBoxDecoration: widget.dragChildBoxDecoration,
+        placeholderBuilder: widget.placeholderBuilder,
         // ignore: deprecated_member_use_from_same_package
         feedbackScaleFactor: widget.feedbackScaleFactor,
         onDragStarted: _handleDragStarted,

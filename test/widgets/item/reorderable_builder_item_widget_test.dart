@@ -38,6 +38,8 @@ void main() {
   const givenLongPressDelay = Duration(milliseconds: 600);
   const givenDragChildBoxDecoration = BoxDecoration();
   const givenFeedbackScaleFactor = 1.31;
+  Widget givenPlaceholderBuilder(BuildContext context, Size size) =>
+      const SizedBox();
   const givenChild = Placeholder();
   final givenDraggingAnimationMap = <ValueKey, DraggingAnimationEntity>{};
 
@@ -106,6 +108,7 @@ void main() {
             enableLongPress: givenEnableLongPress,
             longPressDelay: givenLongPressDelay,
             dragChildBoxDecoration: givenDragChildBoxDecoration,
+            placeholderBuilder: givenPlaceholderBuilder,
             feedbackScaleFactor: givenFeedbackScaleFactor,
             onDragStarted: onDragStarted ?? givenOnDragStarted,
             onDragEnd: onDragEnd ?? givenOnDragEnd,
@@ -185,6 +188,7 @@ void main() {
             widget.longPressDelay == givenLongPressDelay &&
             widget.feedbackScaleFactor == givenFeedbackScaleFactor &&
             widget.dragChildBoxDecoration == givenDragChildBoxDecoration &&
+            widget.placeholderBuilder == givenPlaceholderBuilder &&
             widget.animationConfig == givenAnimationConfig &&
             widget.child == givenChild,
       ),
